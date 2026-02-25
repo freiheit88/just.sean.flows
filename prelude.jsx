@@ -17,7 +17,7 @@ import {
   - Text: #E0D0B0 (Aged Parchment)
 */
 
-const apiKey = "";
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 
 const LANGUAGES = [
     {
@@ -686,6 +686,16 @@ const App = () => {
     return (
         <div className="min-h-screen bg-[#1A1612] text-[#E0D0B0] font-serif selection:bg-[#5C1A1A] selection:text-white relative">
             <Background />
+
+            {/* API Status Banner */}
+            {!apiKey && (
+                <div className="fixed top-0 left-0 w-full z-[1000] bg-[#5C1A1A] text-[#f4e4bc] py-2 px-4 shadow-xl border-b border-[#C5A059] flex items-center justify-center gap-3 animate-in slide-in-from-top duration-500">
+                    <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">
+                        Aether Connection Pending: Please set VITE_GEMINI_API_KEY in environment variables
+                    </span>
+                </div>
+            )}
 
             {/* Main Content Area */}
             <main className="relative z-10 max-w-4xl mx-auto pt-20 pb-40 px-6">
