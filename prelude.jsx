@@ -18,8 +18,8 @@ import {
 */
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-// [V8 UPDATE: Masterpiece Version]
-const BUILD_VERSION = "v1.2.0-clockwork-masterpiece-v8";
+// [V9 UPDATE: Masterpiece Version Polish]
+const BUILD_VERSION = "v1.3.0-clockwork-masterpiece-v9";
 
 const LANGUAGES = [
     {
@@ -307,6 +307,353 @@ const PaperCard = ({ children, className = "", onClick, delay = 0 }) => (
     </motion.div>
 );
 
+// [V9 UPDATE: Component moving out of App to fix focus bug]
+
+const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => (
+    <div className="flex flex-row md:grid md:grid-cols-2 gap-4 w-full max-w-4xl px-2 overflow-x-auto pb-4 no-scrollbar">
+        {LANGUAGES.map((lang, idx) => (
+            <PaperCard
+                key={lang.id}
+                delay={idx * 0.1}
+                onClick={() => handleLanguageSelect(lang)}
+                className="min-w-[200px] md:min-w-0 cursor-pointer hover:border-[#C5A059] transition-all"
+            >
+                <div className="flex flex-col items-center gap-2">
+                    <span className="text-4xl group-hover:scale-110 transition-transform drop-shadow-md">{lang.flag}</span>
+                    <h3 className="text-lg font-black uppercase tracking-[0.2em] text-[#8B7355]">{lang.name}</h3>
+                    <div className="w-8 h-0.5 bg-[#8B7355]/20" />
+                </div>
+            </PaperCard>
+        ))}
+    </div>
+);
+
+const ConfirmView = ({ selectedLang, confirmLanguage }) => (
+    <PaperCard className="text-center max-w-sm mx-auto py-8">
+        <motion.div
+            animate={{ scale: [1, 1.02, 1], rotate: [0, 1, -1, 0] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="mb-4"
+        >
+            <LucideFeather className="w-12 h-12 mx-auto text-[#5C1A1A]" />
+        </motion.div>
+        <h2 className="text-xl font-serif font-black mb-6 leading-relaxed text-[#2C241B]">
+            {selectedLang.ui.confirmTitle}
+        </h2>
+        <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={confirmLanguage}
+            className="w-full py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-xs hover:bg-[#5C1A1A] transition-all border-2 border-[#8B7355]/40 shadow-lg active:scale-95"
+        >
+            {selectedLang.ui.confirmBtn}
+        </motion.button>
+    </PaperCard>
+);
+
+const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter, playSfx }) => (
+    <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4 scanline">
+        <PaperCard className="text-center italic text-sm border-l-8 border-l-[#5C1A1A] py-4 bg-paper">
+            "{selectedLang.welcome}"
+        </PaperCard>
+
+        <PaperCard className="bg-[#1A1612]/5 border-[#C5A059]/40 border-2 py-4 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-8 h-8 opacity-10"><LucideZap size={32} className="text-[#C5A059]" /></div>
+            <h3 className="text-sm font-black text-[#5C1A1A] uppercase mb-3 tracking-widest flex items-center gap-2">
+                <LucideFeather size={18} /> {selectedLang.ui.textOptionTitle}
+            </h3>
+            <input
+                type="text"
+                value={userName}
+                onChange={e => { setUserName(e.target.value); }}
+                onFocus={() => playSfx?.('click')}
+                placeholder={selectedLang.ui.textInputPlaceholder}
+                className="w-full bg-transparent text-[#5C1A1A] border-b border-[#8B7355] p-2 mb-4 focus:outline-none font-serif text-lg transition-all focus:border-[#C5A059]"
+            />
+            <button
+                onClick={generateTextCharacter}
+                disabled={isAvatarGenerating || !userName.trim()}
+                onMouseEnter={() => playSfx?.('click')}
+                className="w-full py-3 bg-[#C5A059] text-[#1A1612] font-black uppercase tracking-widest text-xs hover:bg-[#D4C5A3] disabled:opacity-50 transition-all shadow-md active:scale-95"
+            >
+                {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.textSubmitBtn}
+            </button>
+        </PaperCard>
+
+        <div className="relative py-2">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#8B7355]/20"></div></div>
+            <div className="relative flex justify-center text-[10px] uppercase text-[#8B7355] font-black tracking-[0.4em] bg-[#f4e4bc]"><span className="px-4">Aether Scan</span></div>
+        </div>
+
+        <label className="block w-full cursor-pointer group">
+            <div className="p-6 border-2 border-dashed border-[#8B7355]/30 bg-[#25201B]/5 hover:bg-[#C5A059]/10 rounded-sm flex flex-col items-center transition-all shadow-inner">
+                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                <LucideUpload className="text-[#5C1A1A] mb-2" size={24} />
+                <p className="font-black uppercase tracking-widest text-[10px] text-[#8B7355]">{selectedLang.ui.uploadTitle}</p>
+            </div>
+        </label>
+
+        {uploadedImage && !isAvatarGenerating && (
+            <motion.button
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                onClick={generateCharacter}
+                className="w-full py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-xs hover:bg-[#5C1A1A] transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95"
+            >
+                <LucideCamera size={18} />
+                {selectedLang.ui.generateBtn}
+            </motion.button>
+        )}
+
+        {isAvatarGenerating && (
+            <div className="text-center p-4">
+                <LucideLoader2 className="animate-spin mx-auto text-[#5C1A1A] mb-2" size={32} />
+                <p className="text-[10px] italic text-[#8B7355] animate-pulse">{selectedLang.loading}</p>
+            </div>
+        )}
+    </div>
+);
+
+const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos }) => {
+    const slots = [
+        { id: 1, type: 'manor', title: selectedLang.ui.manorTitle },
+        { id: 2, type: 'archive', title: '1899', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=300' },
+        { id: 3, type: 'ad', title: 'Steam Co.', text: 'Industrial' },
+        { id: 4, type: 'archive', title: '1900', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=300' },
+        { id: 5, type: 'current', isCenter: true },
+        { id: 6, type: 'ad', title: 'Aether', text: 'Wireless' },
+        { id: 7, type: 'empty' },
+        { id: 8, type: 'ad', title: 'Elixir', text: 'Vitality' },
+        { id: 9, type: 'empty' },
+    ];
+
+    return (
+        <div className="w-full max-w-lg mx-auto flex flex-col items-center justify-center space-y-4 h-full py-4 overflow-hidden">
+            <div className="text-center">
+                <h1 className="text-3xl font-black text-[#C5A059] mb-1 uppercase tracking-widest leading-none">{selectedLang.ui.galleryTitle}</h1>
+                <p className="text-[#8B7355] text-[8px] font-black uppercase tracking-[0.4em]">{selectedLang.ui.gallerySub}</p>
+            </div>
+
+            <div className="flex-1 w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex items-center gap-4 px-10">
+                {slots.map((slot, idx) => (
+                    <motion.div
+                        key={slot.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="min-w-[180px] aspect-square snap-center"
+                    >
+                        {slot.type === 'current' ? (
+                            <button
+                                onClick={() => setViewMode('mission_active')}
+                                className="w-full h-full relative bg-[#2C241B] border-4 border-[#C5A059] shadow-inner overflow-hidden active:scale-95 transition-transform"
+                            >
+                                <div className="absolute inset-0 flex items-center justify-center p-2">
+                                    {userAvatar?.isTextAvatar ? (
+                                        <span className="text-[#C5A059] font-black text-xl uppercase text-center leading-tight">{userAvatar.textName}</span>
+                                    ) : (
+                                        <img src={userAvatar?.image} className="w-full h-full object-cover" alt="avatar" />
+                                    )}
+                                </div>
+                                <div className="absolute bottom-0 w-full bg-[#5C1A1A] text-[#f4e4bc] text-[8px] font-black py-1 uppercase tracking-widest text-center">Active</div>
+                            </button>
+                        ) : slot.type === 'manor' ? (
+                            <button
+                                onClick={() => { setViewMode('home_interior'); setTodos(p => ({ ...p, home: true })); }}
+                                className="w-full h-full relative bg-[#2C241B] border-4 border-[#8B7355] flex flex-col items-center justify-center hover:border-[#C5A059] transition-all group active:scale-95"
+                            >
+                                <LucideLayout size={32} className="text-[#C5A059] mb-1" />
+                                <span className="text-[#8B7355] text-[8px] font-black uppercase">{slot.title}</span>
+                            </button>
+                        ) : slot.type === 'archive' ? (
+                            <div className="w-full h-full border-4 border-[#2C241B] relative overflow-hidden bg-black grayscale">
+                                <img src={slot.image} className="w-full h-full object-cover opacity-50" alt="archive" />
+                                <div className="absolute bottom-1 left-1 bg-black/80 px-1 text-[#f4e4bc] text-[8px] font-black border border-[#C5A059]/40 uppercase tracking-widest">{slot.title}</div>
+                            </div>
+                        ) : slot.type === 'ad' ? (
+                            <div className="w-full h-full relative bg-[#f4e4bc] border-4 border-[#2C241B] p-2 flex flex-col items-center justify-center text-center bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] shadow-inner">
+                                <span className="font-black text-[10px] uppercase text-[#5C1A1A] leading-none mb-1">{slot.title}</span>
+                                <span className="text-[8px] italic text-[#2C241B] leading-none uppercase">{slot.text}</span>
+                            </div>
+                        ) : (
+                            <div className="w-full h-full relative border-4 border-[#2C241B]/30 bg-black/10 flex items-center justify-center">
+                                <div className="w-1/2 h-1/2 border border-dashed border-[#8B7355]/20" />
+                            </div>
+                        )}
+                    </motion.div>
+                ))}
+            </div>
+            <div className="flex gap-1 mb-4">
+                {slots.map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#C5A059]/20 shadow-sm" />)}
+            </div>
+        </div>
+    );
+};
+
+const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandleLit, gearsSpinning, setGearsSpinning, loreText }) => (
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-2 py-4">
+        <button onClick={() => setViewMode('gallery')} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
+            <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
+        </button>
+
+        <PaperCard className="w-full flex-1 max-h-[70vh] p-0 border-[#C5A059] border-4 bg-[#1A1612] relative overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800')] opacity-20 sepia brightness-50 contrast-150" />
+
+            <div className="relative z-10 flex flex-col items-center p-6 h-full overflow-y-auto no-scrollbar">
+                <div className="w-full flex justify-between mb-4 px-2">
+                    <div className="cursor-pointer hover:scale-110 transition-transform" onClick={() => setCandleLit(!candleLit)}>
+                        <LucideFlame size={24} className={candleLit ? 'text-[#FFAA00] drop-shadow-[0_0_10px_#FFAA00]' : 'text-[#2C241B]'} />
+                    </div>
+                    <div className="cursor-pointer hover:rotate-90 transition-transform" onClick={() => setGearsSpinning(!gearsSpinning)}>
+                        <motion.div animate={{ rotate: gearsSpinning ? 360 : 0 }} transition={{ duration: 4, repeat: gearsSpinning ? Infinity : 0, ease: "linear" }}>
+                            <LucideSettings size={24} className="text-[#C5A059]" />
+                        </motion.div>
+                    </div>
+                </div>
+
+                <div className={`relative w-28 h-28 mb-4 transition-all duration-700 ${candleLit ? '' : 'brightness-50'}`}>
+                    <div className="absolute inset-0 border-4 border-[#C5A059] rounded-full shadow-[0_0_20px_rgba(197,160,89,0.3)]" />
+                    <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center p-2 border-2 border-[#8B7355]/40 shadow-inner">
+                        {userAvatar?.image ? (
+                            <img src={userAvatar.image} className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                            <span className="text-[#C5A059] font-black text-xl text-center uppercase drop-shadow-md">{userAvatar?.textName?.charAt(0)}</span>
+                        )}
+                    </div>
+                </div>
+
+                <h3 className="text-xl font-serif font-black text-[#f4e4bc] mb-4 uppercase tracking-widest text-center leading-none">{selectedLang.ui.manorTitle}</h3>
+
+                <div className="w-full flex-1 bg-black/80 p-4 border border-[#8B7355]/40 rounded-sm font-mono text-[10px] text-[#D4C5A3] leading-relaxed relative overflow-y-auto no-scrollbar shadow-inner">
+                    {loreText}<span className="inline-block w-1.5 h-3 bg-[#C5A059] ml-1 animate-ping" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 w-full mt-4 pt-4 border-t border-[#8B7355]/20">
+                    <motion.div whileHover={{ y: -2 }} className="flex flex-col items-center gap-2 cursor-pointer group">
+                        <LucideTrophy size={18} className="text-[#8B7355] group-hover:text-[#C5A059] transition-colors" />
+                        <span className="text-[10px] font-black uppercase text-[#8B7355] group-hover:text-[#C5A059] tracking-widest">{selectedLang.ui.manorHeirlooms}</span>
+                    </motion.div>
+                    <div className="flex flex-col items-center gap-2 opacity-30">
+                        <LucideMapPin size={18} className="text-[#2C241B]" />
+                        <span className="text-[10px] font-black uppercase text-[#2C241B] tracking-widest">{selectedLang.ui.manorEstate}</span>
+                    </div>
+                </div>
+            </div>
+        </PaperCard>
+    </motion.div>
+);
+
+// [V9 UPDATE: MissionView Redesign with IT-tech effects]
+const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePreviewVote, isAuthenticated, setIsAuthenticated, oracleMessage, setStep, setTodos, playSfx }) => (
+    <div className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-4 py-4 overflow-hidden px-4 scanline">
+        <button
+            onClick={() => { setViewMode('gallery'); playSfx?.('click'); }}
+            className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1 transition-all hover:translate-x-1"
+        >
+            <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
+        </button>
+
+        <div className="w-full flex-1 flex flex-col overflow-hidden">
+            <PaperCard className="py-4 px-6 border-[#C5A059] shadow-lg mb-4 shrink-0 bg-paper aether-glow">
+                <h3 className="text-[10px] font-black text-[#5C1A1A] uppercase tracking-[0.2em] flex items-center gap-1 border-b border-black/5 pb-2">
+                    <LucideInfo size={14} /> {selectedLang.ui.authTitle}
+                </h3>
+                {!isAuthenticated ? (
+                    <button onClick={() => { setIsAuthenticated(true); playSfx?.('forge'); }} className="w-full mt-2 py-3 bg-[#1A1612] text-[#C5A059] text-[10px] font-black uppercase border border-[#C5A059]/40 hover:bg-[#5C1A1A] hover:text-white transition-all shadow-md active:scale-95">
+                        {selectedLang.ui.authBtn}
+                    </button>
+                ) : (
+                    <div className="flex items-center justify-center gap-2 text-[#556B2F] font-black bg-[#556B2F]/10 p-2 mt-2 border border-[#556B2F]/30 uppercase text-[10px]">
+                        <LucideCheckCircle size={16} /> {selectedLang.ui.authDone}
+                    </div>
+                )}
+            </PaperCard>
+
+            <div className="flex-1 w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex items-start gap-4 pb-4 px-2">
+                {PROJECTS.map((proj) => {
+                    const isSelected = previewId === proj.id;
+                    const isInactive = previewId && !isSelected;
+                    return (
+                        <div key={proj.id} className={`min-w-[280px] h-full snap-center transition-all duration-500 ${isInactive ? 'opacity-20 grayscale scale-90 blur-[1px]' : 'scale-100'}`}>
+                            <PaperCard
+                                onClick={() => { if (!isInactive && isAuthenticated) { handlePreviewVote(proj.id); playSfx?.('click'); } }}
+                                className={`h-full cursor-pointer transition-all duration-700 overflow-hidden border-2 p-0 shadow-2xl flex flex-col relative ${isSelected ? 'border-[#C5A059] bg-[#2C241B]/20 aether-glow' : 'border-[#2C241B] hover:border-[#8B7355] bg-black/5'}`}
+                            >
+                                {isSelected && <div className="absolute inset-0 bg-[#C5A059]/5 animate-pulse pointer-events-none" />}
+                                <div className="p-6 flex flex-col flex-1 relative z-10">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <span className={`text-[10px] font-mono uppercase px-2 py-1 border transition-colors ${isSelected ? 'border-[#5C1A1A] text-[#5C1A1A] bg-[#5C1A1A]/10' : 'border-[#8B7355] text-[#8B7355]'}`}>Case #0{proj.id}</span>
+                                        {isSelected && <LucideSparkles className="text-[#C5A059] animate-spin-slow" size={18} />}
+                                    </div>
+                                    <h4 className={`text-xl font-serif font-black uppercase tracking-wider mb-4 leading-tight transition-colors ${isSelected ? 'text-[#C5A059]' : 'text-[#8B7355]'}`}>{proj.title}</h4>
+                                    <p className="text-[#8B7355] text-[11px] font-medium leading-relaxed italic opacity-80 mb-6 flex-1">
+                                        {proj.desc}
+                                    </p>
+
+                                    <AnimatePresence>
+                                        {isSelected && (
+                                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="mt-auto">
+                                                <div className="bg-[#1A1612] p-6 border-l-4 border-[#C5A059] mb-4 shadow-inner relative overflow-hidden">
+                                                    <div className="absolute top-0 left-0 w-full h-[1px] bg-[#C5A059]/30 animate-scan-line" />
+                                                    <div className="absolute top-1 right-1"><LucideFeather size={14} className="text-[#5C1A1A] opacity-30" /></div>
+                                                    <p className="text-[#f4e4bc] text-[11px] leading-relaxed text-center font-serif italic">"{oracleMessage || selectedLang.ui.consulting}"</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => { playSfx?.('shutter'); setStep('trailer'); setTodos(p => ({ ...p, voted: true })); }}
+                                                    className="w-full py-4 bg-[#5C1A1A] text-white font-black uppercase text-xs tracking-[0.2em] border-b-4 border-black active:scale-95 transition-transform shadow-2xl hover:bg-[#7D2626]"
+                                                >
+                                                    {selectedLang.ui.sealBtn}
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    {!isSelected && isAuthenticated && (
+                                        <div className="mt-auto pt-4 border-t border-[#8B7355]/10 text-[9px] font-black uppercase text-[#8B7355] text-center tracking-widest animate-pulse">Tap to examine destiny</div>
+                                    )}
+                                </div>
+                            </PaperCard>
+                        </div>
+                    );
+                })}
+            </div>
+            <div className="text-center py-2"><span className="text-[8px] font-black uppercase text-[#8B7355] tracking-widest opacity-60 flex items-center gap-2">
+                <LucideArrowLeft size={10} className="animate-bounce-x" /> Swipe Aether Cases <LucideArrowRight size={10} className="animate-bounce-x" />
+            </span></div>
+        </div>
+    </div>
+);
+
+const TrailerView = ({ selectedLang, resetStates, setStep, playSfx }) => (
+    <PaperCard className="text-center max-w-sm mx-auto py-10 shadow-3xl relative overflow-hidden bg-[#f4e4bc] bg-paper scanline">
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-[#C5A059] animate-pulse" />
+        <motion.div
+            animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="mb-8"
+        >
+            <div className="w-24 h-24 mx-auto rounded-full bg-[#556B2F]/20 flex items-center justify-center border-4 border-[#556B2F]/40 shadow-[0_0_30px_rgba(85,107,47,0.4)]">
+                <LucideCheckCircle className="w-12 h-12 text-[#556B2F]" />
+            </div>
+        </motion.div>
+
+        <div className="space-y-4 mb-10 px-6">
+            <h2 className="text-3xl font-serif font-black uppercase tracking-[0.3em] text-[#2C241B] leading-none">
+                {selectedLang.ui.fateSealed}
+            </h2>
+            <div className="w-16 h-1 bg-[#5C1A1A] mx-auto" />
+            <p className="text-[#5C4D3C] italic text-[11px] leading-relaxed font-serif">
+                {selectedLang.ui.todoDone}
+            </p>
+        </div>
+
+        <button
+            onClick={() => { setStep('language'); resetStates(); }}
+            className="w-[85%] py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-[10px] border-b-4 border-black hover:bg-[#5C1A1A] active:scale-95 transition-all shadow-xl"
+        >
+            {selectedLang.ui.returnGallery}
+        </button>
+    </PaperCard>
+);
+
 const App = () => {
     const [step, setStep] = useState('language');
     const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
@@ -324,45 +671,38 @@ const App = () => {
     const [uploadedImage, setUploadedImage] = useState(null);
     const [userName, setUserName] = useState('');
 
-    const [candleLit, setCandleLit] = useState(true);
-    const [gearsSpinning, setGearsSpinning] = useState(false);
-    const [spiritHint, setSpiritHint] = useState("");
-    const [isSpiritSensing, setIsSpiritSensing] = useState(false);
-
-    const useSpiritSense = async () => {
-        if (!apiKey || isSpiritSensing) return;
-        setIsSpiritSensing(true);
-        try {
-            const prompt = `You are the House Spirit of the Lord Manor. Give a very short, cryptic, steampunk-style hint about what the guest should do next. Current step: ${step}, View: ${viewMode}. Output in ${selectedLang.name}. Max 15 words.`;
-            const result = await callGemini({ contents: [{ parts: [{ text: prompt }] }] });
-            setSpiritHint(result.candidates?.[0]?.content?.parts?.[0]?.text || "...");
-            setTimeout(() => setSpiritHint(""), 5000);
-        } catch (err) { console.error(err); }
-        finally { setIsSpiritSensing(false); }
-    };
-    const [oracleMessage, setOracleMessage] = useState("");
-
-    // [V8 UPDATE: Aether Voice state]
-    const [whisper, setWhisper] = useState("");
-
-    // [V8 UPDATE: Audio Cache & Pre-fetching System]
-    const [audioCache, setAudioCache] = useState({});
-    const [isPreFetching, setIsPreFetching] = useState(false);
+    // [V9 UPDATE: Layered Audio & BGM]
+    const bgmRef = useRef(null);
+    const [bgmVol, setBgmVol] = useState(0.2);
 
     useEffect(() => {
-        // [V8 UPDATE: Ambient whispers cycle]
-        const whisperInterval = setInterval(async () => {
-            if (apiKey && step !== 'language') {
-                try {
-                    const res = await callGemini({
-                        contents: [{ parts: [{ text: "Generate 1 cryptic steampunk word or very short phrase (max 2 words) about souls, gears, or time. Uppercase only." }] }]
-                    });
-                    setWhisper(res?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "");
-                } catch (e) { /* silent */ }
-            }
-        }, 15000);
-        return () => clearInterval(whisperInterval);
-    }, [step]);
+        // Initialize BGM
+        bgmRef.current = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); // Placeholder atmospheric BGM
+        bgmRef.current.loop = true;
+        bgmRef.current.volume = bgmVol;
+        return () => bgmRef.current.pause();
+    }, []);
+
+    useEffect(() => {
+        if (bgmRef.current) bgmRef.current.volume = bgmVol;
+    }, [bgmVol]);
+
+    // Accumulate sound layers as user progresses
+    useEffect(() => {
+        if (step === 'dashboard') setBgmVol(0.4);
+        if (todos.voted) setBgmVol(0.6);
+    }, [step, todos]);
+
+    const playSfx = (type) => {
+        const sounds = {
+            click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+            shutter: 'https://assets.mixkit.co/active_storage/sfx/132/132-preview.mp3',
+            forge: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'
+        };
+        if (sounds[type]) new Audio(sounds[type]).play();
+    };
+
+    const [loreText, setLoreText] = useState("");
 
     useEffect(() => {
         if (viewMode === 'home_interior' && userAvatar?.lore) {
@@ -371,7 +711,11 @@ const App = () => {
             const timer = setInterval(() => {
                 setLoreText(prev => prev + userAvatar.lore.charAt(i));
                 i++;
-                if (i >= userAvatar.lore.length) clearInterval(timer);
+                if (i >= userAvatar.lore.length) {
+                    clearInterval(timer);
+                    // [V9: Pre-fetch next logic after lore finished]
+                    preFetchVoice(selectedLang.ui.todoDone, selectedLang.voice);
+                }
             }, 30);
             return () => clearInterval(timer);
         }
@@ -461,6 +805,8 @@ const App = () => {
     const handleLanguageSelect = (lang) => {
         setSelectedLang(lang);
         setStep('confirm');
+        playSfx('click');
+        if (bgmRef.current && bgmRef.current.paused) bgmRef.current.play();
         // [V8 UPDATE: Actionable pre-fetching]
         preFetchVoice(lang.ui.confirmTitle, lang.voice);
         preFetchVoice(lang.welcome, lang.voice);
@@ -468,6 +814,7 @@ const App = () => {
 
     const confirmLanguage = () => {
         setStep('intro');
+        playSfx('shutter');
         speakText(selectedLang.welcome);
         setShowTodo(true);
     };
@@ -573,7 +920,7 @@ const App = () => {
 
     // --- View Templates ---
 
-    const LanguageView = () => (
+    const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => (
         <div className="flex flex-row md:grid md:grid-cols-2 gap-4 w-full max-w-4xl px-2 overflow-x-auto pb-4 no-scrollbar">
             {LANGUAGES.map((lang, idx) => (
                 <PaperCard
@@ -592,7 +939,7 @@ const App = () => {
         </div>
     );
 
-    const ConfirmView = () => (
+    const ConfirmView = ({ selectedLang, confirmLanguage }) => (
         <PaperCard className="text-center max-w-sm mx-auto py-8">
             <motion.div
                 animate={{ scale: [1, 1.02, 1], rotate: [0, 1, -1, 0] }}
@@ -615,7 +962,7 @@ const App = () => {
         </PaperCard>
     );
 
-    const IntroView = () => (
+    const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter }) => (
         <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4">
             <PaperCard className="text-center italic text-sm border-l-8 border-l-[#5C1A1A] py-4">
                 "{selectedLang.welcome}"
@@ -675,7 +1022,7 @@ const App = () => {
         </div>
     );
 
-    const GalleryView = () => {
+    const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos }) => {
         const slots = [
             { id: 1, type: 'manor', title: selectedLang.ui.manorTitle },
             { id: 2, type: 'archive', title: '1899', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=300' },
@@ -751,7 +1098,7 @@ const App = () => {
         );
     };
 
-    const ManorView = () => (
+    const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandleLit, gearsSpinning, setGearsSpinning, loreText }) => (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-2 py-4">
             <button onClick={() => setViewMode('gallery')} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
                 <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
@@ -804,7 +1151,7 @@ const App = () => {
         </motion.div>
     );
 
-    const MissionView = () => (
+    const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePreviewVote, isAuthenticated, setIsAuthenticated, oracleMessage, setStep, setTodos }) => (
         <div className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-4 py-4 overflow-hidden">
             <button onClick={() => setViewMode('gallery')} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1 px-2">
                 <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
@@ -864,7 +1211,7 @@ const App = () => {
         </div>
     );
 
-    const TrailerView = () => (
+    const TrailerView = ({ selectedLang, resetStates, setStep }) => (
         <PaperCard className="text-center max-w-sm mx-auto py-10 shadow-3xl relative overflow-hidden bg-[#f4e4bc]">
             <div className="absolute top-0 left-0 w-full h-1.5 bg-[#C5A059] animate-pulse" />
             <motion.div
@@ -896,6 +1243,19 @@ const App = () => {
         </PaperCard>
     );
 
+    const useSpiritSense = async () => {
+        if (!apiKey || isSpiritSensing) return;
+        setIsSpiritSensing(true);
+        playSfx('click');
+        try {
+            const prompt = `You are the House Spirit of the Lord Manor. Give a very short, cryptic, steampunk-style hint about what the guest should do next. Current step: ${step}, View: ${viewMode}. Output in ${selectedLang.name}. Max 15 words.`;
+            const result = await callGemini({ contents: [{ parts: [{ text: prompt }] }] });
+            setSpiritHint(result.candidates?.[0]?.content?.parts?.[0]?.text || "...");
+            setTimeout(() => setSpiritHint(""), 5000);
+        } catch (err) { console.error(err); }
+        finally { setIsSpiritSensing(false); }
+    };
+
     const resetStates = () => {
         setPreviewId(null);
         setOracleMessage("");
@@ -918,7 +1278,7 @@ const App = () => {
 
             <AetherWhispers text={whisper} />
 
-            {/* Main Content Area: V8 Single-Screen Layout */}
+            {/* Main Content Area: V9 Focus-Fixed Layout */}
             <main className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4">
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -931,7 +1291,17 @@ const App = () => {
                     >
                         {step === 'language' && (
                             <ShutterTransition isActive={true}>
-                                <LanguageView />
+                                <IntroView
+                                    selectedLang={selectedLang}
+                                    userName={userName}
+                                    setUserName={setUserName}
+                                    generateTextCharacter={generateTextCharacter}
+                                    isAvatarGenerating={isAvatarGenerating}
+                                    handleImageUpload={handleImageUpload}
+                                    uploadedImage={uploadedImage}
+                                    generateCharacter={generateCharacter}
+                                    playSfx={playSfx}
+                                />
                             </ShutterTransition>
                         )}
                         {step === 'confirm' && (
@@ -941,21 +1311,55 @@ const App = () => {
                         )}
                         {step === 'intro' && (
                             <ShutterTransition isActive={false}>
-                                <IntroView />
+                                <LanguageView />
                             </ShutterTransition>
                         )}
                         {step === 'dashboard' && (
                             <ShutterTransition isActive={false}>
                                 <div className="w-full h-full flex flex-col items-center justify-center">
-                                    {viewMode === 'gallery' && <GalleryView />}
-                                    {viewMode === 'home_interior' && <ManorView />}
-                                    {viewMode === 'mission_active' && <MissionView />}
+                                    {viewMode === 'gallery' && (
+                                        <GalleryView
+                                            selectedLang={selectedLang}
+                                            userAvatar={userAvatar}
+                                            setViewMode={setViewMode}
+                                            setTodos={setTodos}
+                                            playSfx={playSfx}
+                                        />
+                                    )}
+                                    {viewMode === 'home_interior' && (
+                                        <ManorView
+                                            selectedLang={selectedLang}
+                                            setViewMode={setViewMode}
+                                            userAvatar={userAvatar}
+                                            candleLit={candleLit}
+                                            setCandleLit={setCandleLit}
+                                            gearsSpinning={gearsSpinning}
+                                            setGearsSpinning={setGearsSpinning}
+                                            loreText={loreText}
+                                            playSfx={playSfx}
+                                        />
+                                    )}
+                                    {viewMode === 'mission_active' && (
+                                        <MissionView
+                                            selectedLang={selectedLang}
+                                            setViewMode={setViewMode}
+                                            PROJECTS={PROJECTS}
+                                            previewId={previewId}
+                                            handlePreviewVote={handlePreviewVote}
+                                            isAuthenticated={isAuthenticated}
+                                            setIsAuthenticated={setIsAuthenticated}
+                                            oracleMessage={oracleMessage}
+                                            setStep={setStep}
+                                            setTodos={setTodos}
+                                            playSfx={playSfx}
+                                        />
+                                    )}
                                 </div>
                             </ShutterTransition>
                         )}
                         {step === 'trailer' && (
                             <ShutterTransition isActive={false}>
-                                <TrailerView />
+                                <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={setStep} playSfx={playSfx} />
                             </ShutterTransition>
                         )}
                     </motion.div>
