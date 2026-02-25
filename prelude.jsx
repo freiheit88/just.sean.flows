@@ -1291,6 +1291,16 @@ const App = () => {
                     >
                         {step === 'language' && (
                             <ShutterTransition isActive={true}>
+                                <LanguageView LANGUAGES={LANGUAGES} handleLanguageSelect={handleLanguageSelect} />
+                            </ShutterTransition>
+                        )}
+                        {step === 'confirm' && (
+                            <ShutterTransition isActive={false}>
+                                <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} />
+                            </ShutterTransition>
+                        )}
+                        {step === 'intro' && (
+                            <ShutterTransition isActive={false}>
                                 <IntroView
                                     selectedLang={selectedLang}
                                     userName={userName}
@@ -1302,16 +1312,6 @@ const App = () => {
                                     generateCharacter={generateCharacter}
                                     playSfx={playSfx}
                                 />
-                            </ShutterTransition>
-                        )}
-                        {step === 'confirm' && (
-                            <ShutterTransition isActive={false}>
-                                <ConfirmView />
-                            </ShutterTransition>
-                        )}
-                        {step === 'intro' && (
-                            <ShutterTransition isActive={false}>
-                                <LanguageView />
                             </ShutterTransition>
                         )}
                         {step === 'dashboard' && (
