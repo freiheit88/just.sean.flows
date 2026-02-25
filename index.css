@@ -9,6 +9,14 @@
         font-family: 'Castoro', serif;
     }
 
+    html,
+    body {
+        @apply h-screen overflow-hidden bg-[#1A1612];
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+    }
+
     h1,
     h2,
     h3,
@@ -20,12 +28,27 @@
     }
 }
 
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+}
+
 /* Global styles */
 body {
-    margin: 0;
-    padding: 0;
+    /* margin: 0; */
+    /* Removed as part of html, body rule */
+    /* padding: 0; */
+    /* Removed as part of html, body rule */
     overflow-x: hidden;
+    /* This is now covered by overflow-hidden in html, body */
     background-color: #1A1612;
+    /* This is now covered by bg-[#1A1612] in html, body */
 }
 
 ::-webkit-scrollbar {

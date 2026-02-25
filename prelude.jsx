@@ -18,8 +18,8 @@ import {
 */
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-// [V7 UPDATE: Final integrated version string]
-const BUILD_VERSION = "v1.1.0-steampunk-integrated-v7";
+// [V8 UPDATE: Masterpiece Version]
+const BUILD_VERSION = "v1.2.0-clockwork-masterpiece-v8";
 
 const LANGUAGES = [
     {
@@ -211,6 +211,57 @@ const PROJECTS = [
 
 // --- Sub-components ---
 
+// [V8 UPDATE: Aether Whispers - subtle AI background text]
+const AetherWhispers = ({ text }) => (
+    <div className="fixed inset-0 z-0 pointer-events-none flex items-center justify-center pointer-events-none select-none overflow-hidden">
+        <AnimatePresence mode="wait">
+            {text && (
+                <motion.div
+                    key={text}
+                    initial={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+                    animate={{ opacity: 0.1, scale: 1, filter: 'blur(2px)' }}
+                    exit={{ opacity: 0, scale: 1.2, filter: 'blur(20px)' }}
+                    transition={{ duration: 5, ease: "linear" }}
+                    className="text-[12vw] font-black uppercase tracking-[1em] text-[#C5A059] text-center leading-none opacity-10 break-all select-none"
+                >
+                    {text}
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </div>
+);
+
+// [V8 UPDATE: Clockwork Shutter Transition Component]
+const ShutterTransition = ({ isActive, children }) => (
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
+        <AnimatePresence mode="wait">
+            {!isActive && (
+                <motion.div
+                    key="shutter-top"
+                    initial={{ y: "-100%" }}
+                    animate={{ y: "-101%" }}
+                    exit={{ y: "0%" }}
+                    transition={{ duration: 0.4, ease: "circIn" }}
+                    className="absolute top-0 left-0 w-full h-1/2 bg-[#1A1612] border-b-2 border-[#C5A059] z-[100] shadow-2xl"
+                />
+            )}
+            {!isActive && (
+                <motion.div
+                    key="shutter-bottom"
+                    initial={{ y: "100%" }}
+                    animate={{ y: "101%" }}
+                    exit={{ y: "0%" }}
+                    transition={{ duration: 0.4, ease: "circIn" }}
+                    className="absolute bottom-0 left-0 w-full h-1/2 bg-[#1A1612] border-t-2 border-[#C5A059] z-[100] shadow-2xl"
+                />
+            )}
+        </AnimatePresence>
+        <div className="relative z-10 w-full h-full flex items-center justify-center p-4">
+            {children}
+        </div>
+    </div>
+);
+
 const Background = () => (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#1A1612]">
         {/* Texture Layer */}
@@ -237,11 +288,11 @@ const Background = () => (
 
 const PaperCard = ({ children, className = "", onClick, delay = 0 }) => (
     <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.98, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, delay }}
         onClick={onClick}
-        className={`relative bg-[#f4e4bc] text-[#2c241b] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.6)] border-2 border-[#d4c5a3] bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] overflow-hidden ${className} group`}
+        className={`relative bg-[#f4e4bc] text-[#2c241b] p-6 md:p-8 shadow-[0_15px_40px_rgba(0,0,0,0.6)] border-2 border-[#d4c5a3] bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] overflow-hidden ${className} group flex flex-col`}
     >
         {/* Ornate Corners */}
         <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#8B7355] m-1 rounded-tl-sm group-hover:scale-110 transition-transform" />
@@ -275,8 +326,43 @@ const App = () => {
 
     const [candleLit, setCandleLit] = useState(true);
     const [gearsSpinning, setGearsSpinning] = useState(false);
-    const [loreText, setLoreText] = useState("");
+    const [spiritHint, setSpiritHint] = useState("");
+    const [isSpiritSensing, setIsSpiritSensing] = useState(false);
+
+    const useSpiritSense = async () => {
+        if (!apiKey || isSpiritSensing) return;
+        setIsSpiritSensing(true);
+        try {
+            const prompt = `You are the House Spirit of the Lord Manor. Give a very short, cryptic, steampunk-style hint about what the guest should do next. Current step: ${step}, View: ${viewMode}. Output in ${selectedLang.name}. Max 15 words.`;
+            const result = await callGemini({ contents: [{ parts: [{ text: prompt }] }] });
+            setSpiritHint(result.candidates?.[0]?.content?.parts?.[0]?.text || "...");
+            setTimeout(() => setSpiritHint(""), 5000);
+        } catch (err) { console.error(err); }
+        finally { setIsSpiritSensing(false); }
+    };
     const [oracleMessage, setOracleMessage] = useState("");
+
+    // [V8 UPDATE: Aether Voice state]
+    const [whisper, setWhisper] = useState("");
+
+    // [V8 UPDATE: Audio Cache & Pre-fetching System]
+    const [audioCache, setAudioCache] = useState({});
+    const [isPreFetching, setIsPreFetching] = useState(false);
+
+    useEffect(() => {
+        // [V8 UPDATE: Ambient whispers cycle]
+        const whisperInterval = setInterval(async () => {
+            if (apiKey && step !== 'language') {
+                try {
+                    const res = await callGemini({
+                        contents: [{ parts: [{ text: "Generate 1 cryptic steampunk word or very short phrase (max 2 words) about souls, gears, or time. Uppercase only." }] }]
+                    });
+                    setWhisper(res?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "");
+                } catch (e) { /* silent */ }
+            }
+        }, 15000);
+        return () => clearInterval(whisperInterval);
+    }, [step]);
 
     useEffect(() => {
         if (viewMode === 'home_interior' && userAvatar?.lore) {
@@ -310,9 +396,15 @@ const App = () => {
     };
 
     const speakText = async (text) => {
-        if (!apiKey) return;
+        if (!apiKey || !text) return;
+
+        // [V8 UPDATE: Check Cache Path first]
+        if (audioCache[text]) {
+            new Audio(audioCache[text]).play();
+            return;
+        }
+
         try {
-            // [V7 UPDATE: More dramatic narrator prompt from user source]
             const prompt = `Speak with a British 19th-century narrator style, elegant and slightly dramatic: ${text}`;
             const response = await callGemini({
                 contents: [{ parts: [{ text: prompt }] }],
@@ -326,9 +418,32 @@ const App = () => {
                 const audioData = response.candidates[0].content.parts[0].inlineData.data;
                 const sampleRate = 24000;
                 const wavUrl = pcmToWav(audioData, sampleRate);
+
+                // Cache for later
+                setAudioCache(prev => ({ ...prev, [text]: wavUrl }));
                 new Audio(wavUrl).play();
             }
         } catch (err) { console.error("TTS Error:", err); }
+    };
+
+    // [V8 UPDATE: Pre-fetch Logic to eliminate sync issues]
+    const preFetchVoice = async (text, langVoice) => {
+        if (!apiKey || !text || audioCache[text]) return;
+        try {
+            const response = await callGemini({
+                contents: [{ parts: [{ text: `Speak with a British 19th-century narrator style: ${text}` }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: langVoice || "Zephyr" } } }
+                }
+            }, "generateContent", "gemini-2.5-flash-preview-tts");
+
+            if (response?.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
+                const audioData = response.candidates[0].content.parts[0].inlineData.data;
+                const wavUrl = pcmToWav(audioData, 24000);
+                setAudioCache(prev => ({ ...prev, [text]: wavUrl }));
+            }
+        } catch (err) { /* Silent fail for pre-fetch */ }
     };
 
     const pcmToWav = (base64, sampleRate) => {
@@ -346,6 +461,9 @@ const App = () => {
     const handleLanguageSelect = (lang) => {
         setSelectedLang(lang);
         setStep('confirm');
+        // [V8 UPDATE: Actionable pre-fetching]
+        preFetchVoice(lang.ui.confirmTitle, lang.voice);
+        preFetchVoice(lang.welcome, lang.voice);
     };
 
     const confirmLanguage = () => {
@@ -456,18 +574,18 @@ const App = () => {
     // --- View Templates ---
 
     const LanguageView = () => (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl px-4">
+        <div className="flex flex-row md:grid md:grid-cols-2 gap-4 w-full max-w-4xl px-2 overflow-x-auto pb-4 no-scrollbar">
             {LANGUAGES.map((lang, idx) => (
                 <PaperCard
                     key={lang.id}
                     delay={idx * 0.1}
                     onClick={() => handleLanguageSelect(lang)}
-                    className="cursor-pointer hover:border-[#C5A059] transition-all hover:-translate-y-2 hover:shadow-[0_40px_80px_rgba(197,160,89,0.3)]"
+                    className="min-w-[200px] md:min-w-0 cursor-pointer hover:border-[#C5A059] transition-all"
                 >
-                    <div className="flex flex-col items-center gap-4">
-                        <span className="text-7xl group-hover:scale-125 transition-transform drop-shadow-[0_0_20px_rgba(0,0,0,0.4)]">{lang.flag}</span>
-                        <h3 className="text-2xl font-black uppercase tracking-[0.2em] text-[#8B7355] group-hover:text-[#5C1A1A] transition-colors">{lang.name}</h3>
-                        <div className="w-12 h-1 bg-[#8B7355]/20" />
+                    <div className="flex flex-col items-center gap-2">
+                        <span className="text-4xl group-hover:scale-110 transition-transform drop-shadow-md">{lang.flag}</span>
+                        <h3 className="text-lg font-black uppercase tracking-[0.2em] text-[#8B7355]">{lang.name}</h3>
+                        <div className="w-8 h-0.5 bg-[#8B7355]/20" />
                     </div>
                 </PaperCard>
             ))}
@@ -475,22 +593,22 @@ const App = () => {
     );
 
     const ConfirmView = () => (
-        <PaperCard className="text-center max-w-lg mx-auto py-16">
+        <PaperCard className="text-center max-w-sm mx-auto py-8">
             <motion.div
-                animate={{ scale: [1, 1.05, 1], rotate: [0, 2, -2, 0] }}
+                animate={{ scale: [1, 1.02, 1], rotate: [0, 1, -1, 0] }}
                 transition={{ duration: 4, repeat: Infinity }}
-                className="mb-8"
+                className="mb-4"
             >
-                <LucideFeather className="w-20 h-20 mx-auto text-[#5C1A1A]" />
+                <LucideFeather className="w-12 h-12 mx-auto text-[#5C1A1A]" />
             </motion.div>
-            <h2 className="text-3xl font-serif font-black mb-10 leading-relaxed text-[#2C241B]">
+            <h2 className="text-xl font-serif font-black mb-6 leading-relaxed text-[#2C241B]">
                 {selectedLang.ui.confirmTitle}
             </h2>
             <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={confirmLanguage}
-                className="w-full py-5 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-lg hover:bg-[#5C1A1A] transition-all border-2 border-[#8B7355]/40 shadow-xl"
+                className="w-full py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-xs hover:bg-[#5C1A1A] transition-all border-2 border-[#8B7355]/40 shadow-lg"
             >
                 {selectedLang.ui.confirmBtn}
             </motion.button>
@@ -498,218 +616,187 @@ const App = () => {
     );
 
     const IntroView = () => (
-        <div className="space-y-12 max-w-xl mx-auto">
-            <PaperCard className="text-center italic text-xl border-l-[12px] border-l-[#5C1A1A]">
+        <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4">
+            <PaperCard className="text-center italic text-sm border-l-8 border-l-[#5C1A1A] py-4">
                 "{selectedLang.welcome}"
             </PaperCard>
 
-            <div className="space-y-8">
-                <PaperCard className="bg-[#1A1612]/5 border-[#C5A059]/40 border-2">
-                    <h3 className="text-xl font-black text-[#5C1A1A] uppercase mb-4 tracking-widest flex items-center gap-2">
-                        <LucideFeather size={24} /> {selectedLang.ui.textOptionTitle}
-                    </h3>
-                    <p className="text-sm italic mb-6 text-[#5C4D3C]">{selectedLang.ui.textOptionDesc}</p>
-                    <input
-                        type="text"
-                        value={userName}
-                        onChange={e => setUserName(e.target.value)}
-                        placeholder={selectedLang.ui.textInputPlaceholder}
-                        className="w-full bg-[#1A1612]/10 text-[#5C1A1A] border-b-2 border-[#8B7355] p-4 mb-6 focus:outline-none focus:border-[#5C1A1A] font-serif text-xl placeholder:opacity-30"
-                    />
-                    <button
-                        onClick={generateTextCharacter}
-                        disabled={isAvatarGenerating || !userName.trim()}
-                        className="w-full py-4 bg-[#C5A059] text-[#1A1612] font-black uppercase tracking-widest hover:bg-[#D4C5A3] disabled:opacity-50 transition-all shadow-md group border-b-4 border-[#8B7355]"
-                    >
-                        <span className="group-hover:translate-x-1 transition-transform inline-block">
-                            {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.textSubmitBtn}
-                        </span>
-                    </button>
-                </PaperCard>
+            <PaperCard className="bg-[#1A1612]/5 border-[#C5A059]/40 border-2 py-4 shadow-xl">
+                <h3 className="text-sm font-black text-[#5C1A1A] uppercase mb-3 tracking-widest flex items-center gap-2">
+                    <LucideFeather size={18} /> {selectedLang.ui.textOptionTitle}
+                </h3>
+                <input
+                    type="text"
+                    value={userName}
+                    onChange={e => setUserName(e.target.value)}
+                    placeholder={selectedLang.ui.textInputPlaceholder}
+                    className="w-full bg-transparent text-[#5C1A1A] border-b border-[#8B7355] p-2 mb-4 focus:outline-none font-serif text-lg"
+                />
+                <button
+                    onClick={generateTextCharacter}
+                    disabled={isAvatarGenerating || !userName.trim()}
+                    className="w-full py-3 bg-[#C5A059] text-[#1A1612] font-black uppercase tracking-widest text-xs hover:bg-[#D4C5A3] disabled:opacity-50 transition-all shadow-md active:scale-95"
+                >
+                    {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.textSubmitBtn}
+                </button>
+            </PaperCard>
 
-                <div className="relative py-4">
-                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t-2 border-[#8B7355]/20"></div></div>
-                    <div className="relative flex justify-center text-xs uppercase text-[#8B7355] font-black tracking-[0.5em] bg-transparent"><span className="px-4">Aether Scan</span></div>
-                </div>
-
-                <label className="block w-full cursor-pointer group">
-                    <div className="p-12 border-4 border-dashed border-[#8B7355]/30 bg-[#25201B]/5 hover:bg-[#C5A059]/10 hover:border-[#C5A059] transition-all rounded-sm flex flex-col items-center transition-all">
-                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                        <div className="p-4 bg-[#f4e4bc] rounded-full border-2 border-[#8B7355]/40 mb-4 group-hover:scale-110 transition-transform">
-                            <LucideUpload className="text-[#5C1A1A]" size={32} />
-                        </div>
-                        <p className="font-black uppercase tracking-widest text-[#8B7355]">{selectedLang.ui.uploadTitle}</p>
-                    </div>
-                </label>
-
-                {uploadedImage && (
-                    <motion.button
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                        onClick={generateCharacter}
-                        disabled={isAvatarGenerating}
-                        className="w-full py-6 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest hover:bg-[#5C1A1A] border-b-4 border-black transition-all flex items-center justify-center gap-3"
-                    >
-                        {isAvatarGenerating ? <LucideLoader2 className="animate-spin" /> : <LucideCamera size={24} />}
-                        {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.generateBtn}
-                    </motion.button>
-                )}
-
-                {isAvatarGenerating && (
-                    <PaperCard className="bg-[#5C1A1A]/10 border-[#5C1A1A] text-left">
-                        <p className="animate-pulse leading-loose text-sm italic">{selectedLang.loading}</p>
-                    </PaperCard>
-                )}
+            <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#8B7355]/20"></div></div>
+                <div className="relative flex justify-center text-[10px] uppercase text-[#8B7355] font-black tracking-[0.4em] bg-[#f4e4bc]"><span className="px-4">Aether Scan</span></div>
             </div>
+
+            <label className="block w-full cursor-pointer group">
+                <div className="p-6 border-2 border-dashed border-[#8B7355]/30 bg-[#25201B]/5 hover:bg-[#C5A059]/10 rounded-sm flex flex-col items-center transition-all shadow-inner">
+                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                    <LucideUpload className="text-[#5C1A1A] mb-2" size={24} />
+                    <p className="font-black uppercase tracking-widest text-[10px] text-[#8B7355]">{selectedLang.ui.uploadTitle}</p>
+                </div>
+            </label>
+
+            {uploadedImage && (
+                <motion.button
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    onClick={generateCharacter}
+                    disabled={isAvatarGenerating}
+                    className="w-full py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-xs hover:bg-[#5C1A1A] transition-all flex items-center justify-center gap-2 shadow-lg"
+                >
+                    {isAvatarGenerating ? <LucideLoader2 className="animate-spin" /> : <LucideCamera size={18} />}
+                    {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.generateBtn}
+                </motion.button>
+            )}
+
+            {isAvatarGenerating && (
+                <div className="text-center p-4">
+                    <LucideLoader2 className="animate-spin mx-auto text-[#5C1A1A] mb-2" size={32} />
+                    <p className="text-[10px] italic text-[#8B7355] animate-pulse">{selectedLang.loading}</p>
+                </div>
+            )}
         </div>
     );
 
     const GalleryView = () => {
         const slots = [
-            { id: 1, type: 'manor', title: selectedLang.ui.manorTitle, icon: <LucideLayout size={32} /> },
-            { id: 2, type: 'archive', title: '1899', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=400' },
-            { id: 3, type: 'ad', title: 'Steam Co.', text: 'Industrial Brass' },
-            { id: 4, type: 'archive', title: '1900', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=400' },
+            { id: 1, type: 'manor', title: selectedLang.ui.manorTitle },
+            { id: 2, type: 'archive', title: '1899', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=300' },
+            { id: 3, type: 'ad', title: 'Steam Co.', text: 'Industrial' },
+            { id: 4, type: 'archive', title: '1900', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=300' },
             { id: 5, type: 'current', isCenter: true },
-            { id: 6, type: 'ad', title: 'Aether', text: 'Wireless Pulse' },
+            { id: 6, type: 'ad', title: 'Aether', text: 'Wireless' },
             { id: 7, type: 'empty' },
-            { id: 8, type: 'empty' },
-            { id: 9, type: 'ad', title: 'Elixir', text: 'Vitality Tonic' },
-            { id: 10, type: 'empty' },
-            { id: 11, type: 'empty' },
-            { id: 12, type: 'empty' },
+            { id: 8, type: 'ad', title: 'Elixir', text: 'Vitality' },
+            { id: 9, type: 'empty' },
         ];
 
         return (
-            <div className="w-full max-w-2xl mx-auto space-y-10">
-                <div className="text-center px-4">
-                    <h1 className="text-5xl font-black text-[#C5A059] mb-4 drop-shadow-2xl uppercase tracking-[0.1em]">{selectedLang.ui.galleryTitle}</h1>
-                    <div className="h-1 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent w-full mb-2" />
-                    <p className="text-[#8B7355] text-xs font-black uppercase tracking-[0.5em]">{selectedLang.ui.gallerySub}</p>
+            <div className="w-full max-w-lg mx-auto flex flex-col items-center justify-center space-y-4 h-full py-4 overflow-hidden">
+                <div className="text-center">
+                    <h1 className="text-3xl font-black text-[#C5A059] mb-1 uppercase tracking-widest leading-none">{selectedLang.ui.galleryTitle}</h1>
+                    <p className="text-[#8B7355] text-[8px] font-black uppercase tracking-[0.4em]">{selectedLang.ui.gallerySub}</p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-6 p-4">
+                <div className="flex-1 w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex items-center gap-4 px-10">
                     {slots.map((slot, idx) => (
                         <motion.div
                             key={slot.id}
-                            initial={{ opacity: 0, scale: 0.8 }}
+                            initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: idx * 0.05 }}
+                            className="min-w-[180px] aspect-square snap-center"
                         >
                             {slot.type === 'current' ? (
                                 <button
                                     onClick={() => setViewMode('mission_active')}
-                                    className="w-full aspect-square relative bg-[#2C241B] border-4 border-[#C5A059] shadow-[0_0_30px_rgba(197,160,89,0.4)] hover:scale-105 transition-all overflow-hidden"
+                                    className="w-full h-full relative bg-[#2C241B] border-4 border-[#C5A059] shadow-inner overflow-hidden"
                                 >
                                     <div className="absolute inset-0 flex items-center justify-center p-2">
                                         {userAvatar?.isTextAvatar ? (
-                                            <div className="w-full h-full border-2 border-[#C5A059]/20 flex items-center justify-center p-4 bg-[#1A1612]">
-                                                <span className="text-[#C5A059] font-black text-2xl uppercase break-words text-center leading-tight drop-shadow-[0_0_10px_#C5A059]">{userAvatar.textName}</span>
-                                            </div>
+                                            <span className="text-[#C5A059] font-black text-xl uppercase text-center leading-tight">{userAvatar.textName}</span>
                                         ) : (
-                                            <div className="w-full h-full bg-[#1A1612] flex items-center justify-center">
-                                                <LucideUser className="text-[#C5A059] w-1/2 h-1/2" />
-                                            </div>
+                                            <img src={userAvatar?.image} className="w-full h-full object-cover" alt="avatar" />
                                         )}
                                     </div>
-                                    <div className="absolute bottom-0 w-full bg-[#5C1A1A] text-[#f4e4bc] text-[10px] font-black py-2 uppercase tracking-widest border-t border-[#C5A059]">Active</div>
+                                    <div className="absolute bottom-0 w-full bg-[#5C1A1A] text-[#f4e4bc] text-[8px] font-black py-1 uppercase tracking-widest text-center uppercase">Active</div>
                                 </button>
                             ) : slot.type === 'manor' ? (
                                 <button
                                     onClick={() => { setViewMode('home_interior'); setTodos(p => ({ ...p, home: true })); }}
-                                    className="w-full aspect-square relative bg-[#2C241B] border-4 border-[#8B7355] shadow-xl flex flex-col items-center justify-center hover:border-[#C5A059] transition-all group"
+                                    className="w-full h-full relative bg-[#2C241B] border-4 border-[#8B7355] flex flex-col items-center justify-center hover:border-[#C5A059] transition-all group"
                                 >
-                                    <div className="text-[#C5A059] group-hover:scale-120 transition-transform mb-2">
-                                        <LucideLayout size={40} />
-                                    </div>
-                                    <span className="text-[#8B7355] text-[10px] font-black uppercase tracking-widest">{slot.title}</span>
+                                    <LucideLayout size={32} className="text-[#C5A059] mb-1" />
+                                    <span className="text-[#8B7355] text-[8px] font-black uppercase">{slot.title}</span>
                                 </button>
                             ) : slot.type === 'archive' ? (
-                                <div className="w-full aspect-square border-4 border-[#2C241B] relative overflow-hidden group grayscale hover:grayscale-0 transition-all bg-black">
-                                    <img src={slot.image} className="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-all" alt="archive" />
-                                    <div className="absolute bottom-2 left-2 bg-[#1A1612]/80 px-2 py-1 text-[#f4e4bc] text-[10px] font-black border border-[#C5A059]/40">{slot.title}</div>
+                                <div className="w-full h-full border-4 border-[#2C241B] relative overflow-hidden bg-black grayscale">
+                                    <img src={slot.image} className="w-full h-full object-cover opacity-50" alt="archive" />
+                                    <div className="absolute bottom-1 left-1 bg-black/80 px-1 text-[#f4e4bc] text-[8px] font-black border border-[#C5A059]/40 uppercase tracking-widest">{slot.title}</div>
                                 </div>
                             ) : slot.type === 'ad' ? (
-                                <div className="w-full aspect-square relative bg-[#f4e4bc] border-4 border-[#2C241B] p-2 flex flex-col items-center justify-center text-center bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] shadow-lg">
-                                    <span className="font-black text-[12px] uppercase text-[#5C1A1A] border-b-2 border-black/10 mb-2 leading-none">{slot.title}</span>
-                                    <span className="text-[9px] italic text-[#2C241B] leading-tight font-serif">{slot.text}</span>
+                                <div className="w-full h-full relative bg-[#f4e4bc] border-4 border-[#2C241B] p-2 flex flex-col items-center justify-center text-center bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] shadow-inner">
+                                    <span className="font-black text-[10px] uppercase text-[#5C1A1A] leading-none mb-1">{slot.title}</span>
+                                    <span className="text-[8px] italic text-[#2C241B] leading-none uppercase">{slot.text}</span>
                                 </div>
                             ) : (
-                                <div className="w-full aspect-square relative border-4 border-[#2C241B]/50 bg-black/20 shadow-inner flex items-center justify-center">
-                                    <div className="w-3/4 h-3/4 border-2 border-dashed border-[#8B7355]/10 rounded-sm" />
+                                <div className="w-full h-full relative border-4 border-[#2C241B]/30 bg-black/10 flex items-center justify-center">
+                                    <div className="w-1/2 h-1/2 border border-dashed border-[#8B7355]/20" />
                                 </div>
                             )}
                         </motion.div>
                     ))}
+                </div>
+                <div className="flex gap-1 mb-4">
+                    {slots.map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#C5A059]/20 shadow-sm" />)}
                 </div>
             </div>
         );
     };
 
     const ManorView = () => (
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="space-y-6">
-            <button onClick={() => setViewMode('gallery')} className="flex items-center gap-2 text-[#C5A059] hover:text-[#f4e4bc] uppercase text-xs font-black tracking-widest mb-4">
-                <LucideChevronLeft size={20} /> {selectedLang.ui.returnGallery}
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-2 py-4">
+            <button onClick={() => setViewMode('gallery')} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
+                <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
             </button>
 
-            <PaperCard className="min-h-[600px] p-0 border-[#C5A059] border-4 bg-[#1A1612] relative overflow-hidden">
-                {/* Living Background */}
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200')] opacity-30 sepia brightness-50 contrast-150 rotate-1 scale-110" />
+            <PaperCard className="w-full flex-1 max-h-[70vh] p-0 border-[#C5A059] border-4 bg-[#1A1612] relative overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800')] opacity-20 sepia brightness-50 contrast-150" />
 
-                <div className="relative z-10 flex flex-col items-center p-12 h-full">
-                    {/* Interactive Candle */}
-                    <div className="absolute top-8 left-8 cursor-pointer group" onClick={() => setCandleLit(!candleLit)}>
-                        <div className={`transition-all duration-700 ${candleLit ? 'drop-shadow-[0_0_20px_#FFAA00]' : 'brightness-50'}`}>
-                            <LucideFlame size={48} className={candleLit ? 'text-[#FFAA00]' : 'text-[#2C241B]'} />
+                <div className="relative z-10 flex flex-col items-center p-6 h-full overflow-y-auto no-scrollbar">
+                    <div className="w-full flex justify-between mb-4 px-2">
+                        <div className="cursor-pointer hover:scale-110 transition-transform" onClick={() => setCandleLit(!candleLit)}>
+                            <LucideFlame size={24} className={candleLit ? 'text-[#FFAA00] drop-shadow-[0_0_10px_#FFAA00]' : 'text-[#2C241B]'} />
                         </div>
-                        <p className="text-[10px] text-[#8B7355] mt-2 opacity-0 group-hover:opacity-100 transition-opacity uppercase font-black">Flame</p>
+                        <div className="cursor-pointer hover:rotate-90 transition-transform" onClick={() => setGearsSpinning(!gearsSpinning)}>
+                            <motion.div animate={{ rotate: gearsSpinning ? 360 : 0 }} transition={{ duration: 4, repeat: gearsSpinning ? Infinity : 0, ease: "linear" }}>
+                                <LucideSettings size={24} className="text-[#C5A059]" />
+                            </motion.div>
+                        </div>
                     </div>
 
-                    {/* Interactive Settings */}
-                    <div className="absolute top-8 right-8 cursor-pointer group" onClick={() => setGearsSpinning(!gearsSpinning)}>
-                        <motion.div
-                            animate={{ rotate: gearsSpinning ? 360 : 0 }}
-                            transition={{ duration: 4, repeat: gearsSpinning ? Infinity : 0, ease: "linear" }}
-                        >
-                            <LucideSettings size={48} className="text-[#C5A059]" />
-                        </motion.div>
-                        <p className="text-[10px] text-[#8B7355] mt-2 opacity-0 group-hover:opacity-100 text-right uppercase font-black">Mechanism</p>
-                    </div>
-
-                    {/* Avatar Frame */}
-                    <div className={`relative w-48 h-48 mb-10 transition-all duration-1000 ${candleLit ? '' : 'brightness-50'}`}>
-                        <div className="absolute inset-0 border-8 border-[#C5A059] rounded-full shadow-[0_0_50px_rgba(197,160,89,0.4)] z-0" />
-                        <div className="absolute inset-2 border-4 border-[#8B7355] rounded-full z-10" />
-                        <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center p-4">
-                            {userAvatar?.isTextAvatar ? (
-                                <span className="text-[#C5A059] font-black text-3xl text-center uppercase leading-none drop-shadow-[0_0_10px_#C5A059]">{userAvatar.textName}</span>
+                    <div className={`relative w-28 h-28 mb-4 transition-all duration-700 ${candleLit ? '' : 'brightness-50'}`}>
+                        <div className="absolute inset-0 border-4 border-[#C5A059] rounded-full shadow-[0_0_20px_rgba(197,160,89,0.3)]" />
+                        <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center p-2 border-2 border-[#8B7355]/40 shadow-inner">
+                            {userAvatar?.image ? (
+                                <img src={userAvatar.image} className="w-full h-full object-cover rounded-full" />
                             ) : (
-                                <LucideUser className="text-[#C5A059] w-2/3 h-2/3 opacity-50" />
+                                <span className="text-[#C5A059] font-black text-xl text-center uppercase drop-shadow-md">{userAvatar?.textName?.charAt(0)}</span>
                             )}
                         </div>
                     </div>
 
-                    <h3 className="text-4xl font-serif font-black text-[#f4e4bc] mb-2 uppercase tracking-[0.2em]">{selectedLang.ui.manorTitle}</h3>
-                    <div className="w-24 h-1 bg-[#C5A059] mb-10" />
+                    <h3 className="text-xl font-serif font-black text-[#f4e4bc] mb-4 uppercase tracking-widest text-center leading-none">{selectedLang.ui.manorTitle}</h3>
 
-                    {/* Typewriter Terminal */}
-                    <div className="w-full bg-black/80 p-8 border-2 border-[#8B7355]/40 rounded-sm shadow-inner font-mono text-sm text-[#D4C5A3] leading-relaxed relative min-h-[160px]">
-                        <div className="absolute top-0 right-0 p-2 opacity-20"><LucideFeather size={20} /></div>
-                        <div className="absolute bottom-2 left-2 w-2 h-2 bg-[#5C1A1A] rounded-full animate-pulse" />
-                        {loreText}<span className="inline-block w-2 h-5 bg-[#C5A059] ml-1 animate-ping" />
+                    <div className="w-full flex-1 bg-black/80 p-4 border border-[#8B7355]/40 rounded-sm font-mono text-[10px] text-[#D4C5A3] leading-relaxed relative overflow-y-auto no-scrollbar shadow-inner">
+                        {loreText}<span className="inline-block w-1.5 h-3 bg-[#C5A059] ml-1 animate-ping" />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-10 w-full mt-12 border-t border-[#8B7355]/20 pt-12">
-                        <motion.div whileHover={{ y: -5 }} className="flex flex-col items-center gap-4 cursor-pointer group">
-                            <div className="w-20 h-20 rounded-full border-4 border-[#8B7355] flex items-center justify-center bg-[#1A1A1A] group-hover:border-[#C5A059] group-hover:shadow-[0_0_20px_#C5A059] transition-all">
-                                <LucideTrophy size={32} className="text-[#8B7355] group-hover:text-[#C5A059]" />
-                            </div>
-                            <span className="text-xs font-black uppercase text-[#8B7355] group-hover:text-[#C5A059] tracking-widest">{selectedLang.ui.manorHeirlooms}</span>
+                    <div className="grid grid-cols-2 gap-4 w-full mt-4 pt-4 border-t border-[#8B7355]/20">
+                        <motion.div whileHover={{ y: -2 }} className="flex flex-col items-center gap-2 cursor-pointer group">
+                            <LucideTrophy size={18} className="text-[#8B7355] group-hover:text-[#C5A059] transition-colors" />
+                            <span className="text-[10px] font-black uppercase text-[#8B7355] group-hover:text-[#C5A059] tracking-widest">{selectedLang.ui.manorHeirlooms}</span>
                         </motion.div>
-                        <div className="flex flex-col items-center gap-4 opacity-30 grayscale cursor-not-allowed">
-                            <div className="w-20 h-20 rounded-full border-4 border-[#2C241B] flex items-center justify-center bg-black">
-                                <LucideMapPin size={32} className="text-[#2C241B]" />
-                            </div>
-                            <span className="text-xs font-black uppercase text-[#2C241B] tracking-widest">{selectedLang.ui.manorEstate}</span>
+                        <div className="flex flex-col items-center gap-2 opacity-30">
+                            <LucideMapPin size={18} className="text-[#2C241B]" />
+                            <span className="text-[10px] font-black uppercase text-[#2C241B] tracking-widest">{selectedLang.ui.manorEstate}</span>
                         </div>
                     </div>
                 </div>
@@ -718,101 +805,102 @@ const App = () => {
     );
 
     const MissionView = () => (
-        <div className="space-y-8 pb-32">
-            <button onClick={() => setViewMode('gallery')} className="flex items-center gap-2 text-[#C5A059] hover:text-[#f4e4bc] uppercase text-xs font-black tracking-widest">
-                <LucideChevronLeft size={20} /> {selectedLang.ui.returnGallery}
+        <div className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-4 py-4 overflow-hidden">
+            <button onClick={() => setViewMode('gallery')} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1 px-2">
+                <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
             </button>
 
-            <PaperCard className="border-[#C5A059]">
-                <h3 className="text-xs font-black text-[#5C1A1A] uppercase mb-4 tracking-[0.3em] flex items-center gap-2">
-                    <LucideInfo size={18} /> {selectedLang.ui.authTitle}
-                </h3>
-                {!isAuthenticated ? (
-                    <button onClick={() => setIsAuthenticated(true)} className="w-full py-4 bg-[#1A1612] text-[#C5A059] text-xs font-black uppercase border-2 border-[#C5A059]/40 hover:bg-[#5C1A1A] hover:text-white transition-all">
-                        {selectedLang.ui.authBtn}
-                    </button>
-                ) : (
-                    <div className="flex items-center justify-center gap-4 text-[#556B2F] font-black bg-[#556B2F]/10 p-4 border border-[#556B2F]/30 uppercase text-xs tracking-widest">
-                        <LucideCheckCircle size={20} /> {selectedLang.ui.authDone}
-                    </div>
-                )}
-            </PaperCard>
+            <div className="w-full space-y-4 overflow-y-auto no-scrollbar flex-1 pb-10 px-2 lg:px-4">
+                <PaperCard className="py-4 px-6 border-[#C5A059] shadow-lg">
+                    <h3 className="text-[10px] font-black text-[#5C1A1A] uppercase tracking-[0.2em] flex items-center gap-1 border-b border-black/5 pb-2">
+                        <LucideInfo size={14} /> {selectedLang.ui.authTitle}
+                    </h3>
+                    {!isAuthenticated ? (
+                        <button onClick={() => setIsAuthenticated(true)} className="w-full mt-2 py-3 bg-[#1A1612] text-[#C5A059] text-[10px] font-black uppercase border border-[#C5A059]/40 hover:bg-[#5C1A1A] hover:text-white transition-all shadow-md active:scale-95">
+                            {selectedLang.ui.authBtn}
+                        </button>
+                    ) : (
+                        <div className="flex items-center justify-center gap-2 text-[#556B2F] font-black bg-[#556B2F]/10 p-2 mt-2 border border-[#556B2F]/30 uppercase text-[10px]">
+                            <LucideCheckCircle size={16} /> {selectedLang.ui.authDone}
+                        </div>
+                    )}
+                </PaperCard>
 
-            <div className="space-y-6">
-                {PROJECTS.map((proj) => {
-                    const isSelected = previewId === proj.id;
-                    const isInactive = previewId && !isSelected;
-                    return (
-                        <motion.div
-                            key={proj.id}
-                            layout
-                            className={`${isInactive ? 'opacity-30 grayscale pointer-events-none' : ''}`}
-                        >
-                            <div
-                                onClick={() => !isInactive && isAuthenticated && handlePreviewVote(proj.id)}
-                                className={`cursor-pointer transition-all duration-500 overflow-hidden border-2 ${isSelected ? 'bg-[#f4e4bc] border-[#C5A059] shadow-2xl scale-105' : 'bg-[#1A1612]/80 border-[#2C241B] hover:border-[#8B7355]'}`}
-                            >
-                                <div className="p-8">
-                                    <span className={`text-[10px] font-mono mb-2 block uppercase tracking-widest ${isSelected ? 'text-[#5C1A1A]' : 'text-[#8B7355]'}`}>{selectedLang.ui.casePrefix} 0{proj.id}</span>
-                                    <h4 className={`text-2xl font-black mb-2 uppercase tracking-tight ${isSelected ? 'text-[#2C241B]' : 'text-[#C5A059]'}`}>{proj.title}</h4>
-                                    <p className={`text-sm italic ${isSelected ? 'text-[#5C4D3C]' : 'text-[#8B7355]'}`}>{proj.desc}</p>
-                                </div>
-
-                                <AnimatePresence>
-                                    {isSelected && (
-                                        <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="p-8 pt-0 border-t-2 border-black/5 mt-4">
-                                            <div className="bg-[#1A1612] p-6 border border-[#C5A059] relative mb-6">
-                                                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1A1612] px-3 text-[#C5A059] text-[10px] uppercase font-black tracking-widest border border-[#C5A059]">{selectedLang.ui.prophecyTitle}</div>
-                                                <p className="text-[#f4e4bc] text-sm italic leading-relaxed text-center">"{oracleMessage || selectedLang.ui.consulting}"</p>
-                                            </div>
-                                            <button onClick={() => { setStep('trailer'); setTodos(p => ({ ...p, voted: true })); }} className="w-full py-5 bg-[#5C1A1A] text-white font-black uppercase tracking-[0.2em] border-b-4 border-black group">
-                                                <div className="flex items-center justify-center gap-4">
-                                                    <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                                                    {selectedLang.ui.sealBtn}
-                                                    <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                <div className="space-y-4">
+                    {PROJECTS.map((proj) => {
+                        const isSelected = previewId === proj.id;
+                        const isInactive = previewId && !isSelected;
+                        return (
+                            <motion.div key={proj.id} layout className={`${isInactive ? 'opacity-30 grayscale pointer-events-none' : ''}`}>
+                                <PaperCard
+                                    onClick={() => !isInactive && isAuthenticated && handlePreviewVote(proj.id)}
+                                    className={`cursor-pointer transition-all duration-300 overflow-hidden border-2 p-0 shadow-lg ${isSelected ? 'border-[#C5A059] ring-2 ring-[#C5A059]/30' : 'border-[#2C241B] opacity-90'}`}
+                                >
+                                    <div className="p-4 flex items-center justify-between">
+                                        <div className="flex flex-col">
+                                            <span className={`text-[8px] font-mono mb-0.5 block uppercase ${isSelected ? 'text-[#5C1A1A]' : 'text-[#8B7355]'}`}>Case #0{proj.id}</span>
+                                            <h4 className={`text-sm font-black uppercase tracking-widest ${isSelected ? 'text-[#2C241B]' : 'text-[#8B7355]'}`}>{proj.title}</h4>
+                                        </div>
+                                        {isSelected && <LucideSparkles className="text-[#C5A059] animate-pulse" size={16} />}
+                                    </div>
+                                    <AnimatePresence>
+                                        {isSelected && (
+                                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="p-4 pt-0 border-t border-black/5 bg-black/5">
+                                                <div className="bg-[#1A1612] p-4 border border-[#C5A059]/40 mb-4 shadow-inner">
+                                                    <p className="text-[#f4e4bc] text-[10px] italic leading-relaxed text-center">"{oracleMessage || selectedLang.ui.consulting}"</p>
                                                 </div>
-                                            </button>
-                                            <button onClick={() => { setPreviewId(null); setOracleMessage(""); }} className="w-full mt-4 text-[#8B7355] text-xs font-black uppercase tracking-widest hover:text-[#5C1A1A] transition-colors">
-                                                {selectedLang.ui.reconsiderBtn}
-                                            </button>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </motion.div>
-                    );
-                })}
+                                                <button onClick={() => { setStep('trailer'); setTodos(p => ({ ...p, voted: true })); }} className="w-full py-3 bg-[#5C1A1A] text-white font-black uppercase text-[10px] tracking-widest border-b-2 border-black active:scale-95 transition-transform shadow-lg">
+                                                    {selectedLang.ui.sealBtn}
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </PaperCard>
+                            </motion.div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     );
 
     const TrailerView = () => (
-        <div className="max-w-xl mx-auto space-y-8">
-            <PaperCard className="bg-black p-1 border-[#C5A059] border-4">
-                <div className="aspect-video relative overflow-hidden flex flex-col items-center justify-center">
-                    <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-                        className="relative z-10 text-center p-10 bg-black/40 backdrop-blur-sm border-2 border-[#C5A059]/40 m-4"
-                    >
-                        <LucideZap className="text-[#C5A059] mx-auto mb-6 drop-shadow-[0_0_15px_#C5A059] animate-pulse" size={60} />
-                        <h2 className="text-4xl font-black text-[#f4e4bc] uppercase tracking-[0.2em] mb-4">{selectedLang.ui.fateSealed}</h2>
-                        <div className="h-0.5 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent w-full mb-4" />
-                        <p className="text-xs text-[#8B7355] tracking-[0.8em] font-black">{selectedLang.ui.projectInitiated}</p>
-                    </motion.div>
-                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800" className="absolute inset-0 w-full h-full object-cover opacity-30 sepia brightness-50" alt="Trailer" />
+        <PaperCard className="text-center max-w-sm mx-auto py-10 shadow-3xl relative overflow-hidden bg-[#f4e4bc]">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-[#C5A059] animate-pulse" />
+            <motion.div
+                animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="mb-8"
+            >
+                <div className="w-24 h-24 mx-auto rounded-full bg-[#556B2F]/20 flex items-center justify-center border-4 border-[#556B2F]/40 shadow-[0_0_30px_rgba(85,107,47,0.4)]">
+                    <LucideCheckCircle className="w-12 h-12 text-[#556B2F]" />
                 </div>
-            </PaperCard>
+            </motion.div>
 
-            <PaperCard className="text-center italic text-lg py-12">
-                "{oracleMessage}"
-                <div className="mt-10 flex justify-center">
-                    <button onClick={() => { setStep('dashboard'); setViewMode('gallery'); }} className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#5C4D3C] hover:text-[#5C1A1A]">
-                        <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
-                    </button>
-                </div>
-            </PaperCard>
-        </div>
+            <div className="space-y-4 mb-10 px-6">
+                <h2 className="text-3xl font-serif font-black uppercase tracking-[0.3em] text-[#2C241B] leading-none">
+                    {selectedLang.ui.fateSealed}
+                </h2>
+                <div className="w-16 h-1 bg-[#5C1A1A] mx-auto" />
+                <p className="text-[#5C4D3C] italic text-[11px] leading-relaxed font-serif">
+                    {selectedLang.ui.todoDone}
+                </p>
+            </div>
+
+            <button
+                onClick={() => { setStep('language'); resetStates(); }}
+                className="w-[85%] py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-[10px] border-b-4 border-black hover:bg-[#5C1A1A] active:scale-95 transition-all shadow-xl"
+            >
+                {selectedLang.ui.returnGallery}
+            </button>
+        </PaperCard>
     );
+
+    const resetStates = () => {
+        setPreviewId(null);
+        setOracleMessage("");
+        setTodos({ avatar: false, home: false, voted: false });
+    };
 
     return (
         <div className="min-h-screen bg-[#1A1612] text-[#E0D0B0] font-serif selection:bg-[#5C1A1A] selection:text-white relative">
@@ -820,16 +908,18 @@ const App = () => {
 
             {/* API Status Banner */}
             {!apiKey && (
-                <div className="fixed top-0 left-0 w-full z-[1000] bg-[#5C1A1A] text-[#f4e4bc] py-2 px-4 shadow-xl border-b border-[#C5A059] flex items-center justify-center gap-3 animate-in slide-in-from-top duration-500">
+                <div className="fixed top-0 left-0 w-full z-[1000] bg-[#5C1A1A] text-[#f4e4bc] py-2 px-4 shadow-xl border-b border-[#C5A059] flex items-center justify-center gap-3">
                     <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                        Aether Connection Pending ({BUILD_VERSION}): Please set VITE_GEMINI_API_KEY
+                        Linking to Aether... Set VITE_GEMINI_API_KEY
                     </span>
                 </div>
             )}
 
-            {/* Main Content Area */}
-            <main className="relative z-10 max-w-4xl mx-auto pt-20 pb-40 px-6">
+            <AetherWhispers text={whisper} />
+
+            {/* Main Content Area: V8 Single-Screen Layout */}
+            <main className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={step + viewMode}
@@ -839,20 +929,63 @@ const App = () => {
                         transition={{ duration: 0.5, ease: "easeInOut" }}
                         className="flex flex-col items-center"
                     >
-                        {step === 'language' && <LanguageView />}
-                        {step === 'confirm' && <ConfirmView />}
-                        {step === 'intro' && <IntroView />}
-                        {step === 'dashboard' && (
-                            <>
-                                {viewMode === 'gallery' && <GalleryView />}
-                                {viewMode === 'home_interior' && <ManorView />}
-                                {viewMode === 'mission_active' && <MissionView />}
-                            </>
+                        {step === 'language' && (
+                            <ShutterTransition isActive={true}>
+                                <LanguageView />
+                            </ShutterTransition>
                         )}
-                        {step === 'trailer' && <TrailerView />}
+                        {step === 'confirm' && (
+                            <ShutterTransition isActive={false}>
+                                <ConfirmView />
+                            </ShutterTransition>
+                        )}
+                        {step === 'intro' && (
+                            <ShutterTransition isActive={false}>
+                                <IntroView />
+                            </ShutterTransition>
+                        )}
+                        {step === 'dashboard' && (
+                            <ShutterTransition isActive={false}>
+                                <div className="w-full h-full flex flex-col items-center justify-center">
+                                    {viewMode === 'gallery' && <GalleryView />}
+                                    {viewMode === 'home_interior' && <ManorView />}
+                                    {viewMode === 'mission_active' && <MissionView />}
+                                </div>
+                            </ShutterTransition>
+                        )}
+                        {step === 'trailer' && (
+                            <ShutterTransition isActive={false}>
+                                <TrailerView />
+                            </ShutterTransition>
+                        )}
                     </motion.div>
                 </AnimatePresence>
             </main>
+
+            {/* Status Widgets */}
+            <div className="fixed bottom-8 left-8 z-[100] flex flex-col gap-4 items-start">
+                <AnimatePresence>
+                    {spiritHint && (
+                        <motion.div
+                            initial={{ opacity: 0, x: -20, scale: 0.8 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            className="bg-[#5C1A1A] text-[#f4e4bc] p-4 border-2 border-[#C5A059] shadow-2xl skew-x-[-2deg] max-w-[200px] text-[10px] uppercase font-black tracking-widest leading-relaxed"
+                        >
+                            <div className="absolute -top-2 left-4 px-2 bg-[#C5A059] text-[#1A1612] text-[8px]">Spirit Sense</div>
+                            "{spiritHint}"
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <button
+                    onClick={useSpiritSense}
+                    disabled={isSpiritSensing}
+                    className={`w-14 h-14 rounded-full flex items-center justify-center border-4 border-[#C5A059] bg-[#1A1612] text-[#C5A059] shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:scale-110 active:scale-90 transition-all ${isSpiritSensing ? 'animate-pulse opacity-50' : ''}`}
+                >
+                    <LucideSparkles size={24} />
+                </button>
+            </div>
 
             {/* Todo Widget */}
             {showTodo && (
