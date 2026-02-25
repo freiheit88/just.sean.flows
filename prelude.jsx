@@ -18,6 +18,7 @@ import {
 */
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+const BUILD_VERSION = "v1.0.2-steampunk-overhaul";
 
 const LANGUAGES = [
     {
@@ -692,7 +693,7 @@ const App = () => {
                 <div className="fixed top-0 left-0 w-full z-[1000] bg-[#5C1A1A] text-[#f4e4bc] py-2 px-4 shadow-xl border-b border-[#C5A059] flex items-center justify-center gap-3 animate-in slide-in-from-top duration-500">
                     <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                        Aether Connection Pending: Please set VITE_GEMINI_API_KEY in environment variables
+                        Aether Connection Pending ({BUILD_VERSION}): Please set VITE_GEMINI_API_KEY
                     </span>
                 </div>
             )}
