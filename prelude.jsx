@@ -18,20 +18,24 @@ import {
 */
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-const BUILD_VERSION = "v1.0.2-steampunk-overhaul";
+// [V7 UPDATE: Final integrated version string]
+const BUILD_VERSION = "v1.1.0-steampunk-integrated-v7";
 
 const LANGUAGES = [
     {
         id: 'ko',
         name: 'Korean',
         welcome: '환영합니다, 귀한 손님. 이 낡은 저택의 설계자가 당신을 기다리고 있었습니다.',
-        loading: '당신의 영혼을 초상화에 담아내고 있습니다... 증기 기관의 예열에는 인내심이 필요한 법죠.',
-        instrument: '가야금', flag: '🇰🇷', voice: 'Kore',
+        // [V7 UPDATE: Extended loading text for atmosphere]
+        loading: '당신의 영혼을 초상화에 담아내고 있습니다... 증기 기관의 예열에는 인내심이 필요한 법이죠. 깃펜의 잉크가 마르기 전에는 끝날 테니, 잠시 홍차 한 잔의 여유를 즐기시길 바랍니다. 1800년대의 최첨단 기술을 믿어보십시오.',
+        instrument: '가야금 (Gayageum)',
+        flag: '🇰🇷',
+        voice: 'Kore',
         ui: {
             confirmTitle: "설계자님, 진행하시겠습니까?",
             confirmBtn: "서약서 서명하기",
             textOptionTitle: "영혼의 이름 각인하기",
-            textOptionDesc: "AI가 당신의 초상화를 학습하는 것이 꺼려지신다면, 당신을 부를 이름만 남겨주십시오.",
+            textOptionDesc: "AI가 당신의 초상화를 학습하는 것이 꺼려지신다면, 당신을 부를 이름만 남겨주십시오. 기계 영혼이 그 이름을 가장 찬란하게 조각해 드릴 것입니다.",
             textInputPlaceholder: "이름 또는 별명을 입력하세요",
             textSubmitBtn: "이름으로 운명 시작하기",
             uploadTitle: "당신의 초상화를 제출하십시오",
@@ -44,7 +48,8 @@ const LANGUAGES = [
             manorHeirlooms: "가보",
             manorEstate: "영지",
             authTitle: "신분 증명",
-            authBtn: "통행증 제시",
+            // [V7 UPDATE: Added power multiplier label]
+            authBtn: "통행증 제시 (영향력 10배)",
             authDone: "신분 확인 완료",
             casePrefix: "사건 번호",
             prophecyTitle: "예언",
@@ -57,20 +62,24 @@ const LANGUAGES = [
             todo1: "초상화 완성하기",
             todo2: "대저택 둘러보기",
             todo3: "운명의 사건 선택",
-            todoDone: "임무 완료."
+            // [V7 UPDATE: Detailed todo done message]
+            todoDone: "모든 임무를 마쳤습니다. 이제 저택을 자유롭게 거니십시오."
         }
     },
     {
         id: 'en',
         name: 'English',
-        welcome: 'Welcome, esteemed guest. The Architect has been expecting you.',
-        loading: 'Distilling your essence into the ether... The gears of fate grind slowly.',
-        instrument: 'Harpsichord', flag: '🇬🇧', voice: 'Zephyr',
+        welcome: 'Welcome, esteemed guest. The Architect of this manor has been expecting you.',
+        // [V7 UPDATE: Extended loading text for atmosphere]
+        loading: 'Distilling your essence into the ether... This mechanism runs on steam and magic, so pray grant us a moment. Do not adjust your monocle, the transformation is imminent. The gears of fate grind slowly but exceedingly fine.',
+        instrument: 'Harpsichord',
+        flag: '🇬🇧',
+        voice: 'Zephyr',
         ui: {
             confirmTitle: "Shall we proceed, Architect?",
             confirmBtn: "Sign the Contract",
             textOptionTitle: "Engrave Your Name",
-            textOptionDesc: "If you prefer not to share your visage, simply offer your name.",
+            textOptionDesc: "If you prefer not to share your visage with the machine spirit, simply offer your name. It shall shine brightly in our halls.",
             textInputPlaceholder: "Enter your name or alias",
             textSubmitBtn: "Forge Destiny by Name",
             uploadTitle: "Present Your Portrait",
@@ -83,24 +92,112 @@ const LANGUAGES = [
             manorHeirlooms: "Heirlooms",
             manorEstate: "Estate",
             authTitle: "Identification",
-            authBtn: "PRESENT CREDENTIALS",
+            // [V7 UPDATE: Added power multiplier label]
+            authBtn: "PRESENT CREDENTIALS (10x Power)",
             authDone: "Credentials Verified",
             casePrefix: "CASE NO.",
             prophecyTitle: "The Prophecy",
-            consulting: "Consulting spirits...",
+            consulting: "Consulting the spirits...",
             sealBtn: "SEAL YOUR FATE",
             reconsiderBtn: "Reconsider Choice",
             fateSealed: "Fate Sealed",
             projectInitiated: "PROJECT INITIATED",
-            todoTitle: "Daily Tasks",
+            todoTitle: "Tasks for Today",
             todo1: "Forge Identity",
-            todo2: "Inspect Manor",
-            todo3: "Select Case",
-            todoDone: "Duties Fulfilled."
+            todo2: "Inspect the Manor",
+            todo3: "Select a Case",
+            // [V7 UPDATE: Detailed todo done message]
+            todoDone: "Your duties are fulfilled. Feel free to wander the estate at your leisure."
+        }
+    },
+    // [V7 UPDATE: Restored Hindi, Arabic, Chinese, German languages from user source]
+    {
+        id: 'hi',
+        name: 'Hindi',
+        welcome: 'स्वागत है, सम्मानित अतिथि। इस हवेली का वास्तुकार आपकी प्रतीक्षा कर रहा था।',
+        loading: 'आपकी आत्मा को कैनवास पर उतारा जा रहा है... भाप के इंजन को गर्म होने में थोड़ा समय लगता है। धैर्य रखें, यह 19वीं सदी की सबसे बेहतरीन तकनीक है।',
+        instrument: 'Sitar', flag: '🇮🇳', voice: 'Puck',
+        ui: {
+            confirmTitle: "क्या हम आगे बढ़ें, वास्तुकार?", confirmBtn: "अनुबंध पर हस्ताक्षर करें",
+            textOptionTitle: "अपना नाम उकेरें", textOptionDesc: "यदि आप मशीन के साथ अपना चेहरा साझा नहीं करना चाहते हैं, तो बस अपना नाम बताएं। यह हमारे हॉल में चमक उठेगा।",
+            textInputPlaceholder: "अपना नाम या उपनाम दर्ज करें", textSubmitBtn: "नाम से भाग्य बनाएं",
+            uploadTitle: "अपना चित्र प्रस्तुत करें", generateBtn: "पहचान बनाएं", generating: "उत्कीर्णन...",
+            galleryTitle: "यादों की गैलरी", gallerySub: "विरासत और वर्तमान", returnGallery: "गैलरी में लौटें",
+            manorTitle: "अध्ययन कक्ष", manorHeirlooms: "विरासत", manorEstate: "जागीर",
+            authTitle: "पहचान", authBtn: "क्रेडेंशियल प्रस्तुत करें", authDone: "क्रेडेंशियल सत्यापित",
+            casePrefix: "प्रकरण सं.", prophecyTitle: "भविष्यवाणी", consulting: "आत्माओं से परामर्श...",
+            sealBtn: "अपना भाग्य सील करें", reconsiderBtn: "पुनर्विचार करें", fateSealed: "भाग्य सील कर दिया गया",
+            projectInitiated: "परियोजना शुरू की गई", todoTitle: "आज के कार्य",
+            todo1: "पहचान बनाएं", todo2: "हवेली का निरीक्षण करें", todo3: "प्रकरण चुनें",
+            todoDone: "आपके कर्तव्य पूरे हुए। हवेली में स्वतंत्र रूप से घूमें।"
+        }
+    },
+    {
+        id: 'ar',
+        name: 'Arabic',
+        welcome: 'أهلاً بك يا ضيفنا الكريم. مهندس هذا القصر كان في انتظارك.',
+        loading: 'جاري نقش جوهرك على الرق... تروس القدر تدور ببطء ولكن بدقة متناهية. انتظر قليلاً بينما يقوم الخيميائي الرقمي بعمله.',
+        instrument: 'Oud', flag: '🇸🇦', voice: 'Charon',
+        ui: {
+            confirmTitle: "هل نمضي قدمًا أيها المهندس؟", confirmBtn: "توقيع العقد",
+            textOptionTitle: "انقش اسمك", textOptionDesc: "إذا كنت تفضل عدم مشاركة وجهك مع الآلة، فقط قدم اسمك. سوف يضيء في قاعاتنا.",
+            textInputPlaceholder: "أدخل اسمك أو لقبك", textSubmitBtn: "اصنع مصيرك بالاسم",
+            uploadTitle: "قدم صورتك الشخصية", generateBtn: "تشكيل الهوية", generating: "جاري النقش...",
+            galleryTitle: "معرض الذكريات", gallerySub: "الإرث والحاضر", returnGallery: "العودة للمعرض",
+            manorTitle: "غرفة الدراسة", manorHeirlooms: "الموروثات", manorEstate: "التركة",
+            authTitle: "إثبات الهوية", authBtn: "تقديم أوراق الاعتماد", authDone: "تم التحقق",
+            casePrefix: "قضية رقم", prophecyTitle: "النبؤة", consulting: "استشارة الأرواح...",
+            sealBtn: "ختم مصيرك", reconsiderBtn: "إعادة النظر", fateSealed: "تم ختم المصير",
+            projectInitiated: "بدأ المشروع", todoTitle: "مهام اليوم",
+            todo1: "تشكيل الهوية", todo2: "تفقد القصر", todo3: "اختيار قضية",
+            todoDone: "اكتملت مهامك. تجول بحرية في القصر."
+        }
+    },
+    {
+        id: 'zh',
+        name: 'Chinese',
+        welcome: '欢迎，尊贵的客人。这座庄园的建筑师一直在等您。',
+        loading: '正在将您的灵魂描绘在画卷上... 蒸汽机的预热需要耐心。请稍安勿躁，这可是19世纪最尖端的工艺。',
+        instrument: 'Guzheng', flag: '🇨🇳', voice: 'Leda',
+        ui: {
+            confirmTitle: "我们要 continue 吗，建筑师？", confirmBtn: "签署契约",
+            textOptionTitle: "铭刻您的名字", textOptionDesc: "如果您不愿让机器之魂学习您的容貌，只需留下您的名字。它将在我们的殿堂中熠熠生辉。",
+            textInputPlaceholder: "输入您的名字或别名", textSubmitBtn: "以名铸就命运",
+            uploadTitle: "出示您的肖像", generateBtn: "铸造身份", generating: "雕刻中...",
+            galleryTitle: "记忆画廊", gallerySub: "传承与现在", returnGallery: "返回画廊",
+            manorTitle: "书房", manorHeirlooms: "传家宝", manorEstate: "庄园",
+            authTitle: "身份验证", authBtn: "出示凭证 (10倍影响力)", authDone: "凭证已验证",
+            casePrefix: "案件编号", prophecyTitle: "预言", consulting: "请示神明中...",
+            sealBtn: "封印你的命运", reconsiderBtn: "重新考虑", fateSealed: "命运已定",
+            projectInitiated: "项目已启动", todoTitle: "今日任务",
+            todo1: "铸造身份", todo2: "参观庄园", todo3: "选择案件",
+            todoDone: "任务已完成。请随意在庄园内漫步。"
+        }
+    },
+    {
+        id: 'de',
+        name: 'German',
+        welcome: 'Willkommen, werter Gast. Der Architekt dieses Anwesens hat Sie erwartet.',
+        loading: 'Wir destillieren Ihre Essenz in den Äther... Dieser Mechanismus läuft mit Dampf und Magie. Richten Sie Ihr Monokel nicht, die Transformation steht unmittelbar bevor.',
+        instrument: 'Piano', flag: '🇩🇪', voice: 'Fenrir',
+        ui: {
+            confirmTitle: "Sollen wir fortfahren, Architekt?", confirmBtn: "Vertrag unterzeichnen",
+            textOptionTitle: "Gravieren Sie Ihren Namen", textOptionDesc: "Wenn Sie Ihr Antlitz nicht mit der Maschine teilen möchten, nennen Sie einfach Ihren Namen. Er wird in unseren Hallen hell erstrahlen.",
+            textInputPlaceholder: "Geben Sie Ihren Namen ein", textSubmitBtn: "Schicksal durch Namen schmieden",
+            uploadTitle: "Präsentieren Sie Ihr Porträt", generateBtn: "IDENTITÄT SCHMIEDEN", generating: "GRAVIEREN...",
+            galleryTitle: "GALERIE DER ERINNERUNGEN", gallerySub: "Vermächtnis & Gegenwart", returnGallery: "Zur Galerie zurückkehren",
+            manorTitle: "Das Studierzimmer", manorHeirlooms: "Erbstücke", manorEstate: "Anwesen",
+            authTitle: "Identifikation", authBtn: "REFERENZEN VORLEGEN", authDone: "Referenzen verifiziert",
+            casePrefix: "FALL NR.", prophecyTitle: "Die Prophezeiung", consulting: "Befragung der Geister...",
+            sealBtn: "BESIEGELE DEIN SCHICKSAL", reconsiderBtn: "Wahl überdenken", fateSealed: "Schicksal besiegelt",
+            projectInitiated: "PROJEKT GESTARTET", todoTitle: "Aufgaben",
+            todo1: "Identität schmieden", todo2: "Anwesen inspizieren", todo3: "Fall auswählen",
+            todoDone: "Ihre Pflichten sind erfüllt. Lustwandeln Sie frei auf dem Anwesen."
         }
     }
 ];
 
+// [V7 UPDATE: Restored full 8 project cases from user source]
 const PROJECTS = [
     { id: 1, title: "The Automaton Survival", desc: "Surviving 24h guided only by the Machine Spirit." },
     { id: 2, title: "The Silent Builder", desc: "Constructing 3 inventions without uttering a single code." },
@@ -215,7 +312,8 @@ const App = () => {
     const speakText = async (text) => {
         if (!apiKey) return;
         try {
-            const prompt = `British 19th-century narrator: ${text}`;
+            // [V7 UPDATE: More dramatic narrator prompt from user source]
+            const prompt = `Speak with a British 19th-century narrator style, elegant and slightly dramatic: ${text}`;
             const response = await callGemini({
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
@@ -234,6 +332,7 @@ const App = () => {
     };
 
     const pcmToWav = (base64, sampleRate) => {
+        // [V7 UPDATE: Restored robust audio buffer processing from user source]
         const buffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0)).buffer;
         const view = new DataView(new ArrayBuffer(44 + buffer.byteLength));
         const writeString = (offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
@@ -268,13 +367,15 @@ const App = () => {
         if (!userName.trim()) return;
         setIsAvatarGenerating(true);
         try {
-            const prompt = `Mysterious 19th-century steampunk persona for "${userName}" in ${selectedLang.name}. Max 40 words.`;
+            // [V7 UPDATE: Synchronized text avatar prompt from user source]
+            const prompt = `Create a short, mysterious 19th-century steampunk persona for someone named "${userName}". Output in ${selectedLang.name}. Max 40 words.`;
             const loreResult = await callGemini({ contents: [{ parts: [{ text: prompt }] }] });
             const lore = loreResult?.candidates?.[0]?.content?.parts?.[0]?.text || `The enigmatic ${userName}.`;
             setUserAvatar({ image: null, textName: userName, lore, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
             setStep('dashboard');
         } catch (err) {
+            console.error(err);
             setUserAvatar({ image: null, textName: userName, lore: `The enigmatic ${userName}.`, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
             setStep('dashboard');
@@ -286,25 +387,53 @@ const App = () => {
     const generateCharacter = async () => {
         if (!uploadedImage) return;
         setIsAvatarGenerating(true);
+
+        // [V7 UPDATE: Restored atmospheric fallback lore and Imagen race logic from user source]
+        let generatedLore = "A mysterious soul whose visage the machine could not fully comprehend.";
+
         try {
-            const prompt = `Steampunk persona analysis for image in ${selectedLang.name}. Max 50 words.`;
             const loreResult = await callGemini({
                 contents: [{
                     role: "user",
                     parts: [
-                        { text: prompt },
+                        { text: `Analyze this image and create a 19th-century steampunk persona. Output in ${selectedLang.name} language. Max 50 words.` },
                         { inlineData: { mimeType: "image/png", data: uploadedImage } }
                     ]
                 }]
             });
-            const lore = loreResult?.candidates?.[0]?.content?.parts?.[0]?.text || "...";
-            setAvatarLore(lore);
-            // Fallback since Imagen might be slow/unavailable
-            setUserAvatar({ image: null, textName: "Architect", lore, isTextAvatar: false });
+            if (loreResult?.candidates?.[0]?.content?.parts?.[0]?.text) {
+                generatedLore = loreResult.candidates[0].content.parts[0].text;
+            }
+            setAvatarLore(generatedLore);
+
+            // 20 Seconds Timeout Promise
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), 20000));
+
+            const imageFetchPromise = fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    instances: { prompt: `Vintage oil painting style, steampunk character portrait based on description: ${generatedLore}. Sepia tones, victorian clothing, brass goggles, etching texture.` },
+                    parameters: { sampleCount: 1 }
+                }),
+            }).then(res => res.json());
+
+            // Race between Image API and 20s Timeout
+            const imageData = await Promise.race([imageFetchPromise, timeoutPromise]);
+
+            if (!imageData || !imageData.predictions || !imageData.predictions[0]) {
+                throw new Error("Invalid image data structure");
+            }
+
+            const generatedUrl = `data:image/png;base64,${imageData.predictions[0].bytesBase64Encoded}`;
+
+            setUserAvatar({ image: generatedUrl, lore: generatedLore, isTextAvatar: false });
             setTodos(p => ({ ...p, avatar: true }));
             setStep('dashboard');
         } catch (err) {
-            setUserAvatar({ image: null, textName: "Architect", lore: "...", isTextAvatar: true });
+            console.error("Generation Error or Timeout:", err);
+            // Fallback: Use Text Avatar if image generation hangs/fails
+            setUserAvatar({ image: null, textName: "Architect", lore: generatedLore, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
             setStep('dashboard');
         } finally {
@@ -317,10 +446,11 @@ const App = () => {
         setPreviewId(id);
         const proj = PROJECTS.find(p => p.id === id);
         try {
-            const prompt = `Mysterious victorian prophecy for path "${proj.title}" in ${selectedLang.name}. Max 30 words.`;
+            // [V7 UPDATE: Restored detailed prophecy prompt from user source]
+            const prompt = `The user is considering the path: "${proj.title}". Write a mysterious, victorian-style prophecy about this choice. Output in ${selectedLang.name}. Max 30 words.`;
             const result = await callGemini({ contents: [{ parts: [{ text: prompt }] }] });
             setOracleMessage(result.candidates?.[0]?.content?.parts?.[0]?.text || "...");
-        } catch (err) { setOracleMessage("The spirits are silent."); }
+        } catch (err) { console.error(err); }
     };
 
     // --- View Templates ---
@@ -635,7 +765,7 @@ const App = () => {
                                                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#1A1612] px-3 text-[#C5A059] text-[10px] uppercase font-black tracking-widest border border-[#C5A059]">{selectedLang.ui.prophecyTitle}</div>
                                                 <p className="text-[#f4e4bc] text-sm italic leading-relaxed text-center">"{oracleMessage || selectedLang.ui.consulting}"</p>
                                             </div>
-                                            <button onClick={() => setStep('trailer')} className="w-full py-5 bg-[#5C1A1A] text-white font-black uppercase tracking-[0.2em] border-b-4 border-black group">
+                                            <button onClick={() => { setStep('trailer'); setTodos(p => ({ ...p, voted: true })); }} className="w-full py-5 bg-[#5C1A1A] text-white font-black uppercase tracking-[0.2em] border-b-4 border-black group">
                                                 <div className="flex items-center justify-center gap-4">
                                                     <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
                                                     {selectedLang.ui.sealBtn}
