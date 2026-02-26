@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LucideSettings, LucideZap } from 'lucide-react';
+import { LucideZap, LucideOrbit } from 'lucide-react';
 
 const CinematicOpening = ({ onComplete }) => {
     const [phase, setPhase] = useState('idle'); // idle, ignite, open, flash, finish
 
     const handleIgnite = () => {
         setPhase('ignite');
+        // We'll use a generic power-up sound or existing click for now
         const audio = new Audio('/assets/sounds/gear-click.mp3');
         audio.play().catch(e => console.log("Audio play deferred", e));
 
@@ -20,66 +21,73 @@ const CinematicOpening = ({ onComplete }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden">
+        <div className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden">
             <AnimatePresence>
                 {phase === 'idle' && (
                     <motion.button
                         key="ignite-btn"
                         initial={{ opacity: 0 }}
                         animate={{
-                            opacity: [0.3, 0.7, 0.3],
-                            scale: [0.98, 1.02, 0.98]
+                            opacity: [0.4, 0.8, 0.4],
+                            scale: [0.95, 1.05, 0.95]
                         }}
                         exit={{ scale: 0, opacity: 0 }}
                         transition={{
-                            opacity: { repeat: Infinity, duration: 3 },
-                            scale: { repeat: Infinity, duration: 3 }
+                            opacity: { repeat: Infinity, duration: 2 },
+                            scale: { repeat: Infinity, duration: 4 }
                         }}
                         onClick={handleIgnite}
-                        className="group relative flex flex-col items-center gap-4"
+                        className="group relative flex flex-col items-center gap-6"
                     >
-                        <div className="w-24 h-24 rounded-full border-2 border-[#C5A059]/40 flex items-center justify-center relative">
-                            <div className="absolute inset-0 rounded-full border border-[#C5A059] animate-ping opacity-20" />
-                            <LucideZap className="text-[#C5A059] group-hover:text-white transition-colors" size={40} />
+                        <div className="w-32 h-32 rounded-full border border-white/20 flex items-center justify-center relative bg-gradient-to-b from-white/5 to-transparent">
+                            <div className="absolute inset-0 rounded-full border border-white/40 animate-ping opacity-10" />
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+                                className="absolute inset-0 rounded-full border-t border-r border-white/30"
+                            />
+                            <LucideZap className="text-white group-hover:scale-110 transition-transform" size={48} />
                         </div>
-                        <span className="text-[#C5A059] font-black uppercase tracking-[0.3em] text-[10px]">Ignite Engine</span>
+                        <div className="flex flex-col items-center">
+                            <span className="text-white font-black uppercase tracking-[0.5em] text-[12px] mb-2">Initialize Multiverse</span>
+                            <div className="w-12 h-[1px] bg-white/30" />
+                        </div>
                     </motion.button>
                 )}
             </AnimatePresence>
 
-            {/* Igniting Phase: Camera Shake */}
+            {/* Igniting Phase: Cosmic Turbulence */}
             {phase === 'ignite' && (
                 <motion.div
                     animate={{
-                        x: [0, -5, 5, -5, 5, 0],
-                        y: [0, 5, -5, 5, -5, 0]
+                        opacity: [0.2, 0.5, 0.2],
+                        scale: [1, 1.1, 1]
                     }}
-                    transition={{ repeat: Infinity, duration: 0.1 }}
-                    className="absolute inset-0 bg-[#C5A059]/5 flex items-center justify-center"
+                    transition={{ repeat: Infinity, duration: 0.5 }}
+                    className="absolute inset-0 flex items-center justify-center"
                 >
+                    <div className="w-[500px] h-[500px] rounded-full bg-white opacity-5 blur-[120px]" />
                     <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1, opacity: [0, 1, 0.5] }}
-                        className="text-[#C5A059] opacity-20"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                     >
-                        <LucideSettings size={400} className="animate-spin-slow" />
+                        <LucideOrbit size={400} className="text-white opacity-10" />
                     </motion.div>
                 </motion.div>
             )}
 
-            {/* Opening Phase: Clip Path Gear */}
+            {/* Opening Phase: Dimensional Portal */}
             {phase === 'open' && (
                 <motion.div
-                    initial={{ clipPath: 'circle(0% at 50% 50%)' }}
+                    initial={{ scale: 0, opacity: 0, borderRadius: '100%' }}
                     animate={{
-                        clipPath: 'circle(150% at 50% 50%)',
-                        rotate: 360
+                        scale: 15,
+                        opacity: 1,
+                        rotate: 180
                     }}
-                    transition={{ duration: 4, ease: "easeInOut" }}
-                    className="absolute inset-0 bg-gradient-to-r from-[#C5A059] via-[#f4e4bc] to-[#C5A059] flex items-center justify-center shadow-[inset_0_0_100px_rgba(0,0,0,1)]"
-                >
-                    <div className="text-black font-black text-6xl uppercase tracking-[1em] opacity-10">Just Sean Flows</div>
-                </motion.div>
+                    transition={{ duration: 4, ease: "circIn" }}
+                    className="absolute w-40 h-40 bg-gradient-to-tr from-white via-blue-50 to-white shadow-[0_0_100px_white]"
+                />
             )}
 
             {/* Flash Bang Phase */}
@@ -87,8 +95,8 @@ const CinematicOpening = ({ onComplete }) => {
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 1 }}
-                    className="absolute inset-0 bg-white z-[10000]"
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 bg-white z-[10001]"
                 />
             )}
 
@@ -98,13 +106,13 @@ const CinematicOpening = ({ onComplete }) => {
                     initial={{ opacity: 1 }}
                     animate={{ opacity: 0 }}
                     transition={{ duration: 2 }}
-                    className="absolute inset-0 bg-white z-[10000]"
+                    className="absolute inset-0 bg-white z-[10001]"
                 />
             )}
 
-            {/* Sound of the Machine Spirit */}
-            <div className="absolute bottom-10 left-10 text-[#C5A059]/20 font-mono text-[8px] uppercase tracking-widest">
-                System Initializing... {phase.toUpperCase()}
+            {/* Subtle System Status */}
+            <div className="absolute bottom-12 left-12 text-white/30 font-mono text-[10px] uppercase tracking-[0.5em]">
+                {phase !== 'finish' && `Synchronizing Realities... ${phase}...`}
             </div>
         </div>
     );

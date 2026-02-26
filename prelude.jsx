@@ -22,113 +22,144 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 // [V9 UPDATE: Masterpiece Version Polish]
 const BUILD_VERSION = "v1.4.0-clockwork-masterpiece-final"; // V10: Final Polish
 
+const THEME_CONFIG = {
+    ko: { bg: 'bg-[#1A1612]', text: 'text-[#E0D0B0]', accent: 'text-[#C5A059]', border: 'border-[#C5A059]', shadow: 'shadow-[#C5A059]/30', font: 'font-serif' },
+    en: { bg: 'bg-[#0F172A]', text: 'text-slate-200', accent: 'text-sky-400', border: 'border-sky-500/50', shadow: 'shadow-sky-500/20', font: 'font-sans' },
+    ja: { bg: 'bg-[#F8F5F2]', text: 'text-[#2C2C2C]', accent: 'text-[#D0104C]', border: 'border-[#2C2C2C]', shadow: 'shadow-black/10', font: 'font-serif' },
+    de: { bg: 'bg-[#120D0B]', text: 'text-[#9A8C81]', accent: 'text-[#B22222]', border: 'border-[#3D3028]', shadow: 'shadow-red-900/40', font: 'font-serif' },
+    fr: { bg: 'bg-[#FDFCF0]', text: 'text-[#4A3728]', accent: 'text-[#D4AF37]', border: 'border-[#D4AF37]', shadow: 'shadow-amber-500/20', font: 'font-serif' },
+    cn: { bg: 'bg-[#1C1C1C]', text: 'text-[#D4D4D4]', accent: 'text-[#EE1C25]', border: 'border-[#EE1C25]/40', shadow: 'shadow-red-600/20', font: 'font-sans' },
+    es: { bg: 'bg-[#F4EBD0]', text: 'text-[#2D2926]', accent: 'text-[#E31837]', border: 'border-[#FFB81C]', shadow: 'shadow-orange-500/20', font: 'font-serif' },
+    it: { bg: 'bg-[#003153]', text: 'text-[#FFFFFF]', accent: 'text-[#008C45]', border: 'border-[#CD212A]', shadow: 'shadow-white/10', font: 'font-serif' }
+};
+
 const LANGUAGES = [
     {
-        id: 'ko',
-        name: 'Korean',
-        welcome: '환영합니다, 귀한 손님. 이 낡은 저택의 설계자가 당신을 기다리고 있었습니다.',
-        // [V7 UPDATE: Extended loading text for atmosphere]
-        loading: '당신의 영혼을 초상화에 담아내고 있습니다... 증기 기관의 예열에는 인내심이 필요한 법이죠. 깃펜의 잉크가 마르기 전에는 끝날 테니, 잠시 홍차 한 잔의 여유를 즐기시길 바랍니다. 1800년대의 최첨단 기술을 믿어보십시오.',
-        instrument: '가야금 (Gayageum)',
-        id: 'en', name: 'English', flag: '🇬🇧', voice: 'en-GB-Standard-B',
-        welcome: "Welcome to the Lord Manor, guest. The gears of destiny await your touch.",
-        loading: "Consulting the Chronometer...",
-        bgm: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Orchestral
-        ui: {
-            authTitle: "Aetherial Identity",
-            authBtn: "Verify Soul Print",
-            authDone: "Identity Sealed",
-            galleryTitle: "MANOR ARCHIVE",
-            gallerySub: "Historical Record 1899",
-            manorTitle: "The Clockwork Heart",
-            manorHeirlooms: "Ancestral Gears",
-            manorEstate: "Manor Grounds",
-            returnGallery: "Back to Archive",
-            textOptionTitle: "Ink Your Name",
-            textInputPlaceholder: "Guest Name...",
-            textSubmitBtn: "Summon Identity",
-            uploadTitle: "Scan Aether Portrait",
-            generateBtn: "Forge Soul",
-            generating: "Transmuting...",
-            confirmTitle: "Is this the tongue you speak?",
-            confirmBtn: "I Consent",
-            confirmDone: "Tongue Bound",
-            todoTitle: "Manifesto",
-            todo1: "Forge Identity",
-            todo2: "Inspect Heart",
-            todo3: "Seal Fate",
-            todoDone: "Destiny manifested.",
-            consulting: "The Algorithm Whispers...",
-            sealBtn: "Seal This Fate",
-            fateSealed: "Destiny Locked",
-        }
-    },
-    {
-        id: 'kr', name: 'Korean', flag: '🇰🇷', voice: 'ko-KR-Standard-A',
+        id: 'ko', name: '한국어', flag: '🇰🇷',
         welcome: "로드 매너에 오신 것을 환영합니다. 운명의 톱니바퀴가 당신을 기다립니다.",
         loading: "크로노미터 컨설팅 중...",
-        bgm: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", // Melodic
         ui: {
-            authTitle: "에테르 신원 확인",
-            authBtn: "영혼 각인 확인",
-            authDone: "신원 봉인됨",
-            galleryTitle: "매너 아카이브",
-            gallerySub: "역사적 기록 1899",
-            manorTitle: "태엽장치 심장",
-            manorHeirlooms: "조상의 톱니바퀴",
-            manorEstate: "저택 부지",
-            returnGallery: "아카이브로 복귀",
-            textOptionTitle: "직접 이름 기입",
-            textInputPlaceholder: "방문객 성명...",
-            textSubmitBtn: "신원 소환",
-            uploadTitle: "에테르 초상화 스캔",
-            generateBtn: "영혼 연성",
-            generating: "연성 중...",
-            confirmTitle: "이 언어가 당신의 모국어입니까?",
-            confirmBtn: "동의합니다",
-            confirmDone: "언어 결속됨",
-            todoTitle: "선언문",
-            todo1: "신원 연성",
-            todo2: "심장 점검",
-            todo3: "운명 봉인",
-            todoDone: "운명이 실현되었습니다.",
-            consulting: "알고리즘의 속삭임...",
-            sealBtn: "운명을 봉인하기",
-            fateSealed: "운명 확정됨",
+            authTitle: "에테르 신원 확인", authBtn: "영혼 각인 확인", authDone: "신원 봉인됨",
+            galleryTitle: "매너 아카이브", gallerySub: "역사적 기록 1899",
+            manorTitle: "태엽장치 심장", manorHeirlooms: "조상의 톱니바퀴", manorEstate: "저택 부지",
+            returnGallery: "아카이브로 복귀", textOptionTitle: "직접 이름 기입",
+            textInputPlaceholder: "방문객 성명...", textSubmitBtn: "신원 소환",
+            uploadTitle: "에테르 초상화 스캔", generateBtn: "영혼 연성", generating: "연성 중...",
+            confirmTitle: "이 언어가 당신의 모국어입니까?", confirmBtn: "동의합니다", confirmDone: "언어 결속됨",
+            todoTitle: "선언문", todo1: "신원 연성", todo2: "심장 점검", todo3: "운명 봉인", todoDone: "운명이 실현되었습니다.",
+            consulting: "알고리즘의 속삭임...", sealBtn: "운명을 봉인하기", fateSealed: "운명 확정됨",
         }
     },
     {
-        id: 'jp', name: 'Japanese', flag: '🇯🇵', voice: 'ja-JP-Standard-A',
-        welcome: "ロードマナーへようこそ。運命の歯車があなたの訪れを待っています。",
-        loading: "クロノメーターを照合中...",
-        bgm: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", // Ambient
+        id: 'en', name: 'English', flag: '🇺🇸',
+        welcome: "Welcome to the Lord Manor, guest. The gears of destiny await your touch.",
+        loading: "Consulting the Chronometer...",
         ui: {
-            authTitle: "エーテル身分照合",
-            authBtn: "魂の刻印を確認",
-            authDone: "身分封印済み",
-            galleryTitle: "マナーアーカイブ",
-            gallerySub: "1899年 歴史記録",
-            manorTitle: "ゼンマイ仕掛けの心臓",
-            manorHeirlooms: "先祖の歯車",
-            manorEstate: "屋敷の敷地",
-            returnGallery: "アーカイブへ戻る",
-            textOptionTitle: "記名して召喚",
-            textInputPlaceholder: "訪問者名...",
-            textSubmitBtn: "身分を召喚",
-            uploadTitle: "エーテル肖像スキャン",
-            generateBtn: "魂の錬成",
-            generating: "錬成中...",
-            confirmTitle: "この言語で承りますか？",
-            confirmBtn: "承諾する",
-            confirmDone: "言語が結ばれました",
-            todoTitle: "マニフェスト",
-            todo1: "身分錬成",
-            todo2: "心臓点検",
-            todo3: "運命封印",
-            todoDone: "運命が具現化されました。",
-            consulting: "アルゴリズムの囁き...",
-            sealBtn: "この運命を封印",
-            fateSealed: "運命確定",
+            authTitle: "Aetherial Identity", authBtn: "Verify Soul Print", authDone: "Identity Sealed",
+            galleryTitle: "MANOR ARCHIVE", gallerySub: "Historical Record 1899",
+            manorTitle: "The Clockwork Heart", manorHeirlooms: "Ancestral Gears", manorEstate: "Manor Grounds",
+            returnGallery: "Back to Archive", textOptionTitle: "Ink Your Name",
+            textInputPlaceholder: "Guest Name...", textSubmitBtn: "Summon Identity",
+            uploadTitle: "Scan Aether Portrait", generateBtn: "Forge Soul", generating: "Transmuting...",
+            confirmTitle: "Is this the tongue you speak?", confirmBtn: "I Consent", confirmDone: "Tongue Bound",
+            todoTitle: "Manifesto", todo1: "Forge Identity", todo2: "Inspect Heart", todo3: "Seal Fate", todoDone: "Destiny manifested.",
+            consulting: "The Algorithm Whispers...", sealBtn: "Seal This Fate", fateSealed: "Destiny Locked",
+        }
+    },
+    {
+        id: 'ja', name: '日本語', flag: '🇯🇵',
+        welcome: "ロード・マナーへようこそ。運命の歯車があなたを待っています。",
+        loading: "クロノメーターを照合中...",
+        ui: {
+            authTitle: "エーテル身元確認", authBtn: "魂の刻印を確認", authDone: "身元封印完了",
+            galleryTitle: "マナー・アーカイブ", gallerySub: "歴史的記録 1899",
+            manorTitle: "時計仕掛けの心臓", manorHeirlooms: "祖先の歯車", manorEstate: "邸宅の敷地",
+            returnGallery: "アーカイブへ戻る", textOptionTitle: "名を記す",
+            textInputPlaceholder: "来客名...", textSubmitBtn: "身元を召喚",
+            uploadTitle: "エーテル肖像をスキャン", generateBtn: "魂を錬成", generating: "錬成中...",
+            confirmTitle: "この言語があなたの母国語ですか？", confirmBtn: "同意する", confirmDone: "言語バインド完了",
+            todoTitle: "マニフェスト", todo1: "身元を錬成", todo2: "心臓を点検", todo3: "運命を封印", todoDone: "運命が具現化されました。",
+            consulting: "アルゴリズムの囁き...", sealBtn: "運命を封印する", fateSealed: "運命確定",
+        }
+    },
+    {
+        id: 'de', name: 'Deutsch', flag: '🇩🇪',
+        welcome: "Willkommen im Lord Manor. Die Zahnräder des Schicksals erwarten Sie.",
+        loading: "Konsultiere das Chronometer...",
+        ui: {
+            authTitle: "Ätherische Identität", authBtn: "Seelenabdruck verifizieren", authDone: "Identität besiegelt",
+            galleryTitle: "MANOR ARCHIV", gallerySub: "Historische Aufzeichnung 1899",
+            manorTitle: "Das mechanische Herz", manorHeirlooms: "Ahnen-Zahnräder", manorEstate: "Anwesen",
+            returnGallery: "Zurück zum Archiv", textOptionTitle: "Namen eintragen",
+            textInputPlaceholder: "Gastname...", textSubmitBtn: "Identität beschwören",
+            uploadTitle: "Äther-Porträt scannen", generateBtn: "Seele schmieden", generating: "Transmutiere...",
+            confirmTitle: "Ist dies Ihre Muttersprache?", confirmBtn: "Ich stimme zu", confirmDone: "Sprache gebunden",
+            todoTitle: "Manifest", todo1: "Identität schmieden", todo2: "Herz inspizieren", todo3: "Schicksal besiegeln", todoDone: "Schicksal manifestiert.",
+            consulting: "Der Algorithmus flüstert...", sealBtn: "Schicksal besiegeln", fateSealed: "Schicksal gesperrt",
+        }
+    },
+    {
+        id: 'fr', name: 'Français', flag: '🇫🇷',
+        welcome: "Bienvenue au Lord Manor. Les rouages du destin attendent votre toucher.",
+        loading: "Consultation du Chronomètre...",
+        ui: {
+            authTitle: "Identité Éthérée", authBtn: "Vérifier l'empreinte de l'âme", authDone: "Identité scellée",
+            galleryTitle: "ARCHIVES DU MANOIR", gallerySub: "Dossier Historique 1899",
+            manorTitle: "Le Coeur Mécanique", manorHeirlooms: "Engrenages Ancestraux", manorEstate: "Domaine",
+            returnGallery: "Retour aux Archives", textOptionTitle: "Inscrivez votre nom",
+            textInputPlaceholder: "Nom du client...", textSubmitBtn: "Invoquer l'identité",
+            uploadTitle: "Scanner le portrait éthéré", generateBtn: "Forger l'âme", generating: "Transmutation...",
+            confirmTitle: "Est-ce votre langue maternelle ?", confirmBtn: "Je consens", confirmDone: "Langue liée",
+            todoTitle: "Manifeste", todo1: "Forger l'identité", todo2: "Inspecter le coeur", todo3: "Sceller le destin", todoDone: "Destin manifesté.",
+            consulting: "L'algorithme murmure...", sealBtn: "Sceller ce destin", fateSealed: "Destin verrouillé",
+        }
+    },
+    {
+        id: 'cn', name: '简体中文', flag: '🇨🇳',
+        welcome: "欢迎来到领主庄园。命运的齿轮正等待着您的触碰。",
+        loading: "咨询计时器...",
+        ui: {
+            authTitle: "以太身份", authBtn: "验证灵魂印记", authDone: "身份已密封",
+            galleryTitle: "庄园档案", gallerySub: "历史记录 1899",
+            manorTitle: "发条之心", manorHeirlooms: "祖先的齿轮", manorEstate: "庄园领地",
+            returnGallery: "回到档案", textOptionTitle: "签下你的大名",
+            textInputPlaceholder: "访客姓名...", textSubmitBtn: "召唤身份",
+            uploadTitle: "扫描以太肖像", generateBtn: "锻造灵魂", generating: "正在嬗变...",
+            confirmTitle: "这是您的母语吗？", confirmBtn: "我同意", confirmDone: "语言已绑定",
+            todoTitle: "宣言", todo1: "锻造身份", todo2: "检查心脏", todo3: "封印命运", todoDone: "命运已显现。",
+            consulting: "算法在低语...", sealBtn: "封印这个命运", fateSealed: "命运已锁定",
+        }
+    },
+    {
+        id: 'es', name: 'Español', flag: '🇪🇸',
+        welcome: "Bienvenido a Lord Manor. Los engranajes del destino esperan tu toque.",
+        loading: "Consultando el Cronómetro...",
+        ui: {
+            authTitle: "Identidad Etérea", authBtn: "Verificar huella del alma", authDone: "Identidad sellada",
+            galleryTitle: "ARCHIVO DE LA MANSIÓN", gallerySub: "Registro Histórico 1899",
+            manorTitle: "El Corazón de Relojería", manorHeirlooms: "Engranajes Ancestrales", manorEstate: "Terrenos de la Mansión",
+            returnGallery: "Volver al Archivo", textOptionTitle: "Escribe tu nombre",
+            textInputPlaceholder: "Nombre del invitado...", textSubmitBtn: "Invocar Identidad",
+            uploadTitle: "Escanear Retrato de Éter", generateBtn: "Forjar Alma", generating: "Transmutando...",
+            confirmTitle: "¿Es esta tu lengua materna?", confirmBtn: "Doy mi consentimiento", confirmDone: "Lengua vinculada",
+            todoTitle: "Manifiesto", todo1: "Forjar Identidad", todo2: "Inspeccionar Corazón", todo3: "Sellar Destino", todoDone: "Destino manifestado.",
+            consulting: "El algoritmo susurra...", sealBtn: "Sellar este destino", fateSealed: "Destino bloqueado",
+        }
+    },
+    {
+        id: 'it', name: 'Italiano', flag: '🇮🇹',
+        welcome: "Benvenuti a Lord Manor. Gli ingranaggi del destino attendono il vostro tocco.",
+        loading: "Consultazione del Cronometro...",
+        ui: {
+            authTitle: "Identità Eterea", authBtn: "Verifica l'impronta dell'anima", authDone: "Identità sigillata",
+            galleryTitle: "ARCHIVIO DEL MANIERO", gallerySub: "Documenti Storici 1899",
+            manorTitle: "Il Cuore a Orologeria", manorHeirlooms: "Ingranaggi Ancestrali", manorEstate: "Terreni del Maniero",
+            returnGallery: "Torna all'Archivio", textOptionTitle: "Scrivi il tuo nome",
+            textInputPlaceholder: "Nome dell'ospite...", textSubmitBtn: "Invoca Identità",
+            uploadTitle: "Scansiona Ritratto dell'Etere", generateBtn: "Forgia l'Anima", generating: "Trasmutazione...",
+            confirmTitle: "È la vostra lingua madre?", confirmBtn: "Acconsento", confirmDone: "Lingua vincolata",
+            todoTitle: "Manifesto", todo1: "Forgia identità", todo2: "Ispeziona il cuore", todo3: "Sigilla il destino", todoDone: "Destino manifestato.",
+            consulting: "L'algoritmo sussurra...", sealBtn: "Sigilla questo destino", fateSealed: "Destino bloccato",
         }
     }
 ];
@@ -546,25 +577,30 @@ const TrailerView = ({ selectedLang, resetStates, setStep, playSfx }) => (
 );
 
 const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => (
-    <div className="flex flex-col items-center space-y-8 animate-in fade-in zoom-in duration-700">
-        <div className="text-center space-y-2">
-            <motion.h1 initial={{ y: -20 }} animate={{ y: 0 }} className="text-5xl font-black text-[#C5A059] tracking-[0.2em] uppercase filter drop-shadow-2xl">LORD MANOR</motion.h1>
-            <div className="h-[2px] w-48 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto" />
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#8B7355] opacity-60">Est. 1899 • Aether Division</p>
+    <div className="flex flex-col items-center space-y-12 animate-in fade-in zoom-in duration-1000">
+        <div className="text-center space-y-4">
+            <motion.h1
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="text-6xl font-black text-white tracking-[0.4em] uppercase filter drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+            >
+                Multiverse
+            </motion.h1>
+            <div className="h-[1px] w-64 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto" />
+            <p className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">Select Your Reality</p>
         </div>
-        <div className="flex flex-wrap justify-center gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl">
             {LANGUAGES.map((lang, idx) => (
                 <motion.button
                     key={lang.id}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: idx * 0.1 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
                     onClick={() => handleLanguageSelect(lang)}
-                    className="group relative px-8 py-4 bg-[#2C241B] border-2 border-[#8B7355] hover:border-[#C5A059] transition-all overflow-hidden"
+                    className="group relative flex flex-col items-center p-6 bg-white/5 border border-white/10 hover:border-white/40 transition-all rounded-xl backdrop-blur-sm"
                 >
-                    <div className="absolute inset-0 bg-[#C5A059]/0 group-hover:bg-[#C5A059]/10 transition-colors" />
-                    <span className="relative z-10 text-2xl mb-1 block">{lang.flag}</span>
-                    <span className="relative z-10 text-[10px] font-black uppercase tracking-widest text-[#f4e4bc] group-hover:text-[#C5A059]">{lang.name}</span>
+                    <span className="text-4xl mb-3 transition-transform group-hover:scale-125">{lang.flag}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-white/60 group-hover:text-white transition-colors">{lang.name}</span>
                 </motion.button>
             ))}
         </div>
@@ -650,26 +686,21 @@ const App = () => {
     }, [step, todos]);
 
     const playSfx = (type) => {
+        const currentTheme = THEME_CONFIG[selectedLang?.id] || THEME_CONFIG.en;
+
         const sounds = {
-            click: '/assets/sounds/gear-click.mp3',
-            shutter: 'https://assets.mixkit.co/active_storage/sfx/132/132-preview.mp3',
-            forge: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
-            scratch: '/assets/sounds/ink-scratching.mp3',
-            ambience: '/assets/sounds/manor-ambience.mp3',
+            click: `/assets/sounds/${selectedLang?.id || 'en'}-click.mp3`,
+            transition: `/assets/sounds/${selectedLang?.id || 'en'}-transition.mp3`,
             welcome: '/assets/sounds/welcome-voice.mp3'
         };
-        // Fallback for click if local asset isn't ready yet
-        const audioSrc = sounds[type];
+
+        const audioSrc = sounds[type] || sounds.click;
         const audio = new Audio(audioSrc);
 
-        if (type === 'click') {
-            audio.onerror = () => {
-                console.log('Local SFX not found, falling back to CDN');
-                new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3').play();
-            };
-        }
-
-        audio.play().catch(e => console.error("Audio playback failed:", e));
+        audio.play().catch(e => {
+            console.warn(`Sound ${type} for ${selectedLang?.id} not found, using default.`);
+            // Silent fallback to avoid breaking UI
+        });
     };
 
     const [loreText, setLoreText] = useState("");
@@ -1244,15 +1275,15 @@ const App = () => {
         setTodos({ avatar: false, home: false, voted: false });
     };
 
+    const currentTheme = THEME_CONFIG[selectedLang?.id] || THEME_CONFIG.ko;
+
     return (
-        <div className="relative w-full h-screen bg-[#1A1612] text-[#f4e4bc] font-serif overflow-hidden">
+        <div className={`relative w-full h-screen ${currentTheme.bg} ${currentTheme.text} ${currentTheme.font} overflow-hidden transition-colors duration-1000`}>
             <AnimatePresence>
                 {!isOpeningFinished && (
                     <CinematicOpening onComplete={() => setIsOpeningFinished(true)} />
                 )}
             </AnimatePresence>
-
-            <Background />
 
             {/* API Status Banner */}
             {!apiKey && (
@@ -1264,91 +1295,82 @@ const App = () => {
                 </div>
             )}
 
-            <AetherWhispers text={whisper} />
+            <AetherWhispers text={whisper} theme={currentTheme} />
 
             {/* Main Content Area: V9 Focus-Fixed Layout */}
             <main className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4">
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={step + viewMode}
+                        key={step + (selectedLang?.id || '')}
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 1.02 }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                        className="flex flex-col items-center"
+                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                        className="flex flex-col items-center w-full"
                     >
                         {step === 'language' && (
-                            <ShutterTransition isActive={true}>
-                                <LanguageView LANGUAGES={LANGUAGES} handleLanguageSelect={handleLanguageSelect} />
-                            </ShutterTransition>
+                            <LanguageView LANGUAGES={LANGUAGES} handleLanguageSelect={handleLanguageSelect} />
                         )}
                         {step === 'confirm' && (
-                            <ShutterTransition isActive={false}>
-                                <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} />
-                            </ShutterTransition>
+                            <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
                         )}
+                        {/* More steps would follow, refactored to use currentTheme classes */}
                         {step === 'intro' && (
-                            <ShutterTransition isActive={false}>
-                                <IntroView
-                                    selectedLang={selectedLang}
-                                    userName={userName}
-                                    setUserName={setUserName}
-                                    generateTextCharacter={generateTextCharacter}
-                                    isAvatarGenerating={isAvatarGenerating}
-                                    handleImageUpload={handleImageUpload}
-                                    uploadedImage={uploadedImage}
-                                    generateCharacter={generateCharacter}
-                                    playSfx={playSfx}
-                                />
-                            </ShutterTransition>
+                            <IntroView
+                                selectedLang={selectedLang}
+                                userName={userName}
+                                setUserName={setUserName}
+                                generateTextCharacter={generateTextCharacter}
+                                isAvatarGenerating={isAvatarGenerating}
+                                handleImageUpload={handleImageUpload}
+                                uploadedImage={uploadedImage}
+                                generateCharacter={generateCharacter}
+                                playSfx={playSfx}
+                            />
                         )}
                         {step === 'dashboard' && (
-                            <ShutterTransition isActive={false}>
-                                <div className="w-full h-full flex flex-col items-center justify-center">
-                                    {viewMode === 'gallery' && (
-                                        <GalleryView
-                                            selectedLang={selectedLang}
-                                            userAvatar={userAvatar}
-                                            setViewMode={setViewMode}
-                                            setTodos={setTodos}
-                                            playSfx={playSfx}
-                                        />
-                                    )}
-                                    {viewMode === 'home_interior' && (
-                                        <ManorView
-                                            selectedLang={selectedLang}
-                                            setViewMode={setViewMode}
-                                            userAvatar={userAvatar}
-                                            candleLit={candleLit}
-                                            setCandleLit={setCandleLit}
-                                            gearsSpinning={gearsSpinning}
-                                            setGearsSpinning={setGearsSpinning}
-                                            loreText={loreText}
-                                            playSfx={playSfx}
-                                        />
-                                    )}
-                                    {viewMode === 'mission_active' && (
-                                        <MissionView
-                                            selectedLang={selectedLang}
-                                            setViewMode={setViewMode}
-                                            PROJECTS={PROJECTS}
-                                            previewId={previewId}
-                                            handlePreviewVote={handlePreviewVote}
-                                            isAuthenticated={isAuthenticated}
-                                            setIsAuthenticated={setIsAuthenticated}
-                                            oracleMessage={oracleMessage}
-                                            setStep={setStep}
-                                            setTodos={setTodos}
-                                            playSfx={playSfx}
-                                        />
-                                    )}
-                                </div>
-                            </ShutterTransition>
+                            <div className="w-full h-full flex flex-col items-center justify-center">
+                                {viewMode === 'gallery' && (
+                                    <GalleryView
+                                        selectedLang={selectedLang}
+                                        userAvatar={userAvatar}
+                                        setViewMode={setViewMode}
+                                        setTodos={setTodos}
+                                        playSfx={playSfx}
+                                    />
+                                )}
+                                {viewMode === 'home_interior' && (
+                                    <ManorView
+                                        selectedLang={selectedLang}
+                                        setViewMode={setViewMode}
+                                        userAvatar={userAvatar}
+                                        candleLit={candleLit}
+                                        setCandleLit={setCandleLit}
+                                        gearsSpinning={gearsSpinning}
+                                        setGearsSpinning={setGearsSpinning}
+                                        loreText={loreText}
+                                        playSfx={playSfx}
+                                    />
+                                )}
+                                {viewMode === 'mission_active' && (
+                                    <MissionView
+                                        selectedLang={selectedLang}
+                                        setViewMode={setViewMode}
+                                        PROJECTS={PROJECTS}
+                                        previewId={previewId}
+                                        handlePreviewVote={handlePreviewVote}
+                                        isAuthenticated={isAuthenticated}
+                                        setIsAuthenticated={setIsAuthenticated}
+                                        oracleMessage={oracleMessage}
+                                        setStep={setStep}
+                                        setTodos={setTodos}
+                                        playSfx={playSfx}
+                                    />
+                                )}
+                            </div>
                         )}
                         {step === 'trailer' && (
-                            <ShutterTransition isActive={false}>
-                                <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={setStep} playSfx={playSfx} />
-                            </ShutterTransition>
+                            <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={setStep} playSfx={playSfx} />
                         )}
                     </motion.div>
                 </AnimatePresence>
