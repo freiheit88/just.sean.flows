@@ -7,7 +7,7 @@ import {
     LucideLoader2, LucideChevronLeft,
     LucideTrophy, LucideLayout, LucideMapPin,
     LucideFeather, LucideScroll, LucideCompass, LucideUser, LucideUpload,
-    LucideCheckSquare, LucideSquare, LucideFlame, LucideSettings, LucideCamera, LucideZap
+    LucideCheckSquare, LucideSquare, LucideFlame, LucideSettings, LucideCamera, LucideZap, LucideScale
 } from 'lucide-react';
 
 /* [DESIGN SYSTEM]
@@ -37,6 +37,7 @@ const THEME_CONFIG = {
 const LANGUAGES = [
     {
         id: 'ko', name: '한국어', flag: '🇰🇷',
+        image: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?q=80&w=800&auto=format&fit=crop', // Seoul neon night
         welcome: "로드 매너에 오신 것을 환영합니다. 운명의 톱니바퀴가 당신을 기다립니다.",
         loading: "크로노미터 컨설팅 중...",
         ui: {
@@ -53,6 +54,7 @@ const LANGUAGES = [
     },
     {
         id: 'en', name: 'English', flag: '🇬🇧',
+        image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=800&auto=format&fit=crop', // London fog/bridge
         welcome: "Welcome to the Lord Manor, guest. The gears of destiny await your touch.",
         loading: "Consulting the Chronometer...",
         ui: {
@@ -69,6 +71,7 @@ const LANGUAGES = [
     },
     {
         id: 'es', name: 'Español', flag: '🇪🇸',
+        image: 'https://images.unsplash.com/photo-1543783207-ec64e4d95325?q=80&w=800&auto=format&fit=crop', // Madrid architecture
         welcome: "Bienvenido a Lord Manor. Los engranajes del destino esperan tu toque.",
         loading: "Consultando el Cronómetro...",
         ui: {
@@ -85,7 +88,8 @@ const LANGUAGES = [
     },
     {
         id: 'hi', name: 'हिन्दी', flag: '🇮🇳',
-        welcome: "लॉर्ड मैनर में आपका स्वागत है। भाग्य के पहिये आपकी प्रतीक्षा कर रहे हैं।",
+        image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=800&auto=format&fit=crop', // Taj Mahal / India
+        welcome: "लॉर्ड मैनर में आपका स्वागत है। भाग्य के पहिये आपकी प्रतीक्षा कर रहे हैं。",
         loading: "क्रोनोमीटर से परामर्श...",
         ui: {
             authTitle: "ईथर पहचान", authBtn: "आत्मा की छाप सत्यापित करें", authDone: "पहचान सील",
@@ -101,6 +105,7 @@ const LANGUAGES = [
     },
     {
         id: 'de', name: 'Deutsch', flag: '🇩🇪',
+        image: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?q=80&w=800&auto=format&fit=crop', // German Black Forest / Castle
         welcome: "Willkommen im Lord Manor. Die Zahnräder des Schicksals erwarten Sie.",
         loading: "Konsultiere das Chronometer...",
         ui: {
@@ -117,6 +122,7 @@ const LANGUAGES = [
     },
     {
         id: 'ja', name: '日本語', flag: '🇯🇵',
+        image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800&auto=format&fit=crop', // Kyoto temples / Japan
         welcome: "ロード・マナーへようこそ。運命の歯車があなたを待っています。",
         loading: "クロノメーターを照合中...",
         ui: {
@@ -133,6 +139,7 @@ const LANGUAGES = [
     },
     {
         id: 'ar', name: 'العربية', flag: '🇸🇦',
+        image: 'https://images.unsplash.com/photo-1588691880486-99eb59620ed7?q=80&w=800&auto=format&fit=crop', // Desert dunes
         welcome: "مرحبًا بكم في لورد مانور. تروس القدر في انتظار لمستك.",
         loading: "استشارة الكرونومتر...",
         ui: {
@@ -149,6 +156,7 @@ const LANGUAGES = [
     },
     {
         id: 'pl', name: 'Polski', flag: '🇵🇱',
+        image: 'https://images.unsplash.com/photo-1519197924294-4ba991a11128?q=80&w=800&auto=format&fit=crop', // Warsaw / Polish landscape
         welcome: "Witamy w Lord Manor. Tryby przeznaczenia czekają na twój dotyk.",
         loading: "Konsultacja z Chronometrem...",
         ui: {
@@ -230,59 +238,45 @@ const ShutterTransition = ({ isActive, children }) => (
     </div>
 );
 
+// --- UI Primitives ---
+
 const Background = () => (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#1A1612]">
-        {/* Texture Layer */}
-        <div className="absolute inset-0 opacity-40 bg-[url('/assets/steampunk_background.png')]" />
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-black">
+        {/* Subtle cinematic gradient and noise */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0B] via-[#050505] to-black" />
+        <div className="absolute inset-0 opacity-10 mix-blend-overlay bg-[url('/assets/steampunk_paper_texture.png')]" />
 
-        {/* Animated Gears */}
-        <div className="absolute -top-20 -left-20 w-80 h-80 opacity-20 rotate-45 animate-[spin_60s_linear_infinite]">
-            <LucideSettings size={320} className="text-[#C5A059]" />
-        </div>
-        <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] opacity-10 animate-[spin_100s_linear_infinite_reverse]">
-            <LucideSettings size={500} className="text-[#C5A059]" />
-        </div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-5 animate-[spin_120s_linear_infinite]">
-            <LucideSettings size={800} className="text-white" />
-        </div>
-
-        {/* Gradient Vignette */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
-
-        {/* Radial Glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.8)_100%)]" />
+        {/* Deep radial glow for depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.9)_100%)]" />
     </div>
 );
 
-// [V10: Paper Texture Artifact integration]
-const PaperCard = ({ children, className = "", onClick, delay = 0 }) => (
+const GlassCard = ({ children, className = "", onClick, delay = 0 }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay, duration: 0.8, ease: "easeOut" }}
         onClick={onClick}
-        className={`bg-[#f4e4bc] border-2 border-[#8B7355] rounded-sm relative shadow-xl overflow-hidden group ${className}`}
-        style={{ backgroundImage: "url('/assets/steampunk_paper_texture.png')" }}
+        className={`bg-[#050505]/60 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden group ${className}`}
     >
-
-        {/* Inner Decorative Border */}
-        <div className="absolute inset-1 border border-[#8B7355]/20 pointer-events-none" />
+        {/* Subtle Inner Glow */}
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
         <div className="relative z-10">{children}</div>
     </motion.div>
 );
 
-// [V9/V10] View components defined outside for focus stability
+// --- View Components (Extracted to fix focus issues) ---
 
 const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter, playSfx }) => (
-    <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4 scanline">
-        <PaperCard className="text-center italic text-sm border-l-8 border-l-[#5C1A1A] py-4 bg-paper">
-            "{selectedLang.welcome}"
-        </PaperCard>
+    <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4">
+        <GlassCard className="text-center italic text-sm border-l-4 border-l-white/50 py-4 mb-6">
+            <span className="opacity-80">"{selectedLang.welcome}"</span>
+        </GlassCard>
 
-        <PaperCard className={`bg-[#0A0A0B]/60 backdrop-blur-md border border-[${THEME_CONFIG[selectedLang.id]?.border || '#333'}] py-6 p-4 shadow-2xl relative overflow-hidden flex flex-col items-center`}>
-            <div className="absolute top-0 right-0 w-8 h-8 opacity-5"><LucideZap size={32} className={`text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]`} /></div>
-            <h3 className={`text-xs font-black uppercase mb-4 tracking-[0.2em] flex items-center gap-2 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/60'}`}>
+        <GlassCard className="py-6 px-4 flex flex-col items-center">
+            <div className="absolute top-0 right-0 w-8 h-8 opacity-20"><LucideZap size={32} className="text-white" /></div>
+            <h3 className="text-xs font-black uppercase mb-4 tracking-[0.2em] flex items-center gap-2 text-white/50">
                 <LucideFeather size={16} /> {selectedLang.ui.textOptionTitle}
             </h3>
             <input
@@ -291,28 +285,31 @@ const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter,
                 onChange={e => { setUserName(e.target.value); }}
                 onFocus={() => playSfx?.('click')}
                 placeholder={selectedLang.ui.textInputPlaceholder}
-                className={`w-full bg-transparent border-b border-white/10 p-3 mb-6 focus:outline-none font-serif text-lg transition-all focus:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] placeholder-white/20 text-center ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}
+                className="w-full bg-transparent border-b border-white/20 p-3 mb-6 focus:outline-none font-sans text-lg transition-all focus:border-white text-center text-white placeholder-white/20"
             />
             <button
                 onClick={generateTextCharacter}
                 disabled={isAvatarGenerating || !userName.trim()}
                 onMouseEnter={() => playSfx?.('hover')}
-                className={`w-full py-4 bg-white/5 border border-white/10 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} font-black uppercase tracking-[0.3em] text-[10px] hover:bg-white/10 disabled:opacity-30 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 backdrop-blur-sm`}
+                className="w-full py-4 bg-white/10 text-white font-black uppercase tracking-[0.3em] text-[10px] hover:bg-white/20 disabled:opacity-30 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 backdrop-blur-md"
             >
+                {isAvatarGenerating ? <LucideLoader2 className="animate-spin" size={16} /> : null}
                 {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.textSubmitBtn}
             </button>
-        </PaperCard>
+        </GlassCard>
 
-        <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#8B7355]/20"></div></div>
-            <div className="relative flex justify-center text-[10px] uppercase text-[#8B7355] font-black tracking-[0.4em] bg-[#f4e4bc]"><span className="px-4">Aether Scan</span></div>
+        <div className="relative py-4">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+            <div className="relative flex justify-center text-[9px] uppercase font-black tracking-[0.4em] bg-transparent">
+                <span className="px-4 text-white/40 bg-[#0A0A0B]">OR</span>
+            </div>
         </div>
 
         <label className="block w-full cursor-pointer group">
-            <div className="p-6 border-2 border-dashed border-[#8B7355]/30 bg-[#25201B]/5 hover:bg-[#C5A059]/10 rounded-sm flex flex-col items-center transition-all shadow-inner">
+            <div className="p-6 border border-dashed border-white/20 bg-white/5 hover:bg-white/10 rounded-sm flex flex-col items-center transition-all shadow-inner backdrop-blur-sm">
                 <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                <LucideUpload className="text-[#5C1A1A] mb-2" size={24} />
-                <p className="font-black uppercase tracking-widest text-[10px] text-[#8B7355]">{selectedLang.ui.uploadTitle}</p>
+                <LucideUpload className="text-white/50 mb-3 group-hover:text-white transition-colors" size={24} />
+                <p className="font-black uppercase tracking-widest text-[10px] text-white/50 group-hover:text-white transition-colors">{selectedLang.ui.uploadTitle}</p>
             </div>
         </label>
 
@@ -566,80 +563,75 @@ const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePre
     </div>
 );
 
-const TrailerView = ({ selectedLang, resetStates, setStep, playSfx }) => (
-    <PaperCard className="w-full max-w-sm p-8 border-[#5C1A1A] border-4 flex flex-col items-center space-y-6 bg-paper aether-glow">
-        <div className="w-16 h-16 rounded-full border-4 border-[#C5A059] flex items-center justify-center bg-[#1A1612] animate-spin-slow">
-            <LucideLock size={32} className="text-[#C5A059]" />
-        </div>
-        <div className="text-center space-y-2">
-            <h2 className="text-2xl font-black text-[#5C1A1A] uppercase tracking-widest">{selectedLang.ui.fateSealed}</h2>
-            <p className="text-[10px] font-black uppercase text-[#8B7355] tracking-widest opacity-60">The Chronometer remains silent.</p>
-        </div>
-        <div className="w-full h-[1px] bg-[#8B7355]/20" />
-        <button
-            onClick={() => { resetStates(); setStep('language'); playSfx?.('forge'); }}
-            className="w-[85%] py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-[10px] border-b-4 border-black hover:bg-[#5C1A1A] active:scale-95 transition-all shadow-xl"
-        >
-            {selectedLang.ui.returnGallery}
-        </button>
-    </PaperCard>
-);
+const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => {
+    return (
+        <div className="w-full max-w-6xl mx-auto h-[80vh] flex flex-col justify-center px-4">
+            <h2 className="text-sm font-black text-white/50 mb-12 uppercase tracking-[0.5em] border-b border-white/10 pb-4 text-center">
+                Select Origin
+            </h2>
 
-const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => (
-    <div className="flex flex-col items-center space-y-12 animate-in fade-in zoom-in duration-1000">
-        <div className="text-center space-y-4">
-            <motion.h1
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="text-6xl font-black text-white tracking-[0.4em] uppercase filter drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-            >
-                Multiverse
-            </motion.h1>
-            <div className="h-[1px] w-64 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto" />
-            <p className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">Select Your Reality</p>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl z-10 p-4">
-            {LANGUAGES.map((lang, idx) => (
-                <motion.button
-                    key={lang.id}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
-                    onClick={() => handleLanguageSelect(lang)}
-                    onMouseEnter={() => {
-                        const hoverAudio = new Audio(`/assets/sounds/${lang.id}-hover.mp3`);
-                        hoverAudio.volume = 0.5;
-                        hoverAudio.play().catch(() => console.log("hover deferred"));
-                    }}
-                    className={`group relative flex flex-col items-center justify-center p-8 aspect-square bg-[#0D0D10]/40 border border-[#333]/50 hover:border-[${THEME_CONFIG[lang.id]?.accent || '#FFF'}] transition-all duration-500 rounded-sm backdrop-blur-xl overflow-hidden shadow-2xl hover:shadow-[0_0_30px_${THEME_CONFIG[lang.id]?.border || 'rgba(255,255,255,0.1)'}]`}
-                >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-50" />
-                    <span className="text-5xl mb-4 transition-transform duration-700 group-hover:scale-110 group-hover:-translate-y-2 z-10 filter drop-shadow-md">{lang.flag}</span>
-                    <span className={`text-[11px] font-black uppercase tracking-[0.4em] text-white/50 group-hover:text-white transition-colors duration-500 z-10 ${THEME_CONFIG[lang.id]?.text}`}>{lang.name}</span>
+            {/* Cinematic Poster Layout */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh]">
+                {LANGUAGES.map((lang, idx) => (
+                    <motion.div
+                        key={lang.id}
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
+                        className="relative w-full h-full cursor-pointer group rounded-xl overflow-hidden shadow-2xl"
+                        onClick={() => handleLanguageSelect(lang)}
+                        onMouseEnter={() => {
+                            const hoverAudio = new Audio(`/assets/sounds/${lang.id}-hover.mp3`);
+                            hoverAudio.volume = 0.5;
+                            hoverAudio.play().catch(() => console.log("hover deferred"));
+                        }}
+                    >
+                        {/* Immersive Background Image */}
+                        <motion.div
+                            className="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700 ease-out"
+                            style={{ backgroundImage: `url(${lang.image})` }}
+                            whileHover={{ scale: 1.05 }}
+                        />
 
-                    {/* Glowing Accent Line */}
-                    <div className={`absolute bottom-0 left-0 h-[2px] w-0 bg-[${THEME_CONFIG[lang.id]?.accent || '#FFF'}] group-hover:w-full transition-all duration-700`} />
-                </motion.button>
-            ))}
-        </div>
-    </div>
-);
+                        {/* Dark Cinematic Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 transition-opacity duration-500 group-hover:from-black/80" />
 
-const ConfirmView = ({ selectedLang, confirmLanguage }) => (
-    <PaperCard className="w-full max-w-sm p-10 border-[#C5A059] border-4 flex flex-col items-center space-y-6 bg-paper aether-glow">
-        <h2 className="text-xl font-black text-[#5C1A1A] uppercase tracking-widest text-center">{selectedLang.ui.confirmTitle}</h2>
+                        {/* Text Content */}
+                        <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                            <h3 className="text-3xl font-black text-white font-serif uppercase tracking-widest break-words leading-none mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                {lang.name}
+                            </h3>
+                            <span className="text-sm text-white/50 uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                                {lang.flag} Select
+                            </span>
+                        </div>
+
+                        {/* Glow Effect / Glass Border */}
+                        <div className="absolute inset-0 border border-white/10 group-hover:border-white/50 transition-colors duration-500 rounded-xl" />
+                    </motion.div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// All previous inline views have been moved to the top level
+
+const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => (
+    <GlassCard className="w-full max-w-sm p-10 flex flex-col items-center space-y-6">
+        <h2 className={`text-xl font-black ${theme?.text || 'text-white'} uppercase tracking-widest text-center`}>{selectedLang.ui.confirmTitle}</h2>
         <div className="flex items-center gap-4 text-4xl mb-2">
-            <span className="opacity-40"><LucideScale size={24} /></span>
+            <span className="opacity-20"><LucideScale size={24} /></span>
             <span className="filter drop-shadow-lg">{selectedLang.flag}</span>
-            <span className="opacity-40"><LucideScale size={24} className="scale-x-[-1]" /></span>
+            <span className="opacity-20"><LucideScale size={24} className="scale-x-[-1]" /></span>
         </div>
         <button
             onClick={confirmLanguage}
-            className="w-full py-5 bg-[#5C1A1A] text-white font-black uppercase text-xs tracking-[0.3em] border-b-4 border-black hover:bg-[#7D2626] active:scale-95 transition-all shadow-2xl"
+            className={`w-full py-5 bg-white/5 ${theme?.text || 'text-white'} font-black uppercase text-xs tracking-[0.3em] hover:bg-white/10 active:scale-95 transition-all border border-white/10 shadow-2xl backdrop-blur-md`}
         >
             {selectedLang.ui.confirmBtn}
         </button>
-    </PaperCard>
+    </GlassCard>
 );
 
 const App = () => {
@@ -951,289 +943,115 @@ const App = () => {
 
     // --- View Templates ---
 
-    const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => (
-        <div className="flex flex-row md:grid md:grid-cols-2 gap-4 w-full max-w-4xl px-2 overflow-x-auto pb-4 no-scrollbar">
-            {LANGUAGES.map((lang, idx) => (
-                <PaperCard
-                    key={lang.id}
-                    delay={idx * 0.1}
-                    onClick={() => handleLanguageSelect(lang)}
-                    className="min-w-[200px] md:min-w-0 cursor-pointer hover:border-[#C5A059] transition-all"
-                >
-                    <div className="flex flex-col items-center gap-2">
-                        <span className="text-4xl group-hover:scale-110 transition-transform drop-shadow-md">{lang.flag}</span>
-                        <h3 className="text-lg font-black uppercase tracking-[0.2em] text-[#8B7355]">{lang.name}</h3>
-                        <div className="w-8 h-0.5 bg-[#8B7355]/20" />
-                    </div>
-                </PaperCard>
-            ))}
-        </div>
-    );
-
-    const ConfirmView = ({ selectedLang, confirmLanguage }) => (
-        <PaperCard className="text-center max-w-sm mx-auto py-8">
-            <motion.div
-                animate={{ scale: [1, 1.02, 1], rotate: [0, 1, -1, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="mb-4"
-            >
-                <LucideFeather className="w-12 h-12 mx-auto text-[#5C1A1A]" />
-            </motion.div>
-            <h2 className="text-xl font-serif font-black mb-6 leading-relaxed text-[#2C241B]">
-                {selectedLang.ui.confirmTitle}
-            </h2>
-            <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={confirmLanguage}
-                className="w-full py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-xs hover:bg-[#5C1A1A] transition-all border-2 border-[#8B7355]/40 shadow-lg"
-            >
-                {selectedLang.ui.confirmBtn}
-            </motion.button>
-        </PaperCard>
-    );
-
-    const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter }) => (
-        <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4">
-            <PaperCard className="text-center italic text-sm border-l-8 border-l-[#5C1A1A] py-4">
-                "{selectedLang.welcome}"
-            </PaperCard>
-
-            <PaperCard className="bg-[#1A1612]/5 border-[#C5A059]/40 border-2 py-4 shadow-xl">
-                <h3 className="text-sm font-black text-[#5C1A1A] uppercase mb-3 tracking-widest flex items-center gap-2">
-                    <LucideFeather size={18} /> {selectedLang.ui.textOptionTitle}
-                </h3>
-                <input
-                    type="text"
-                    value={userName}
-                    onChange={e => setUserName(e.target.value)}
-                    placeholder={selectedLang.ui.textInputPlaceholder}
-                    className="w-full bg-transparent text-[#5C1A1A] border-b border-[#8B7355] p-2 mb-4 focus:outline-none font-serif text-lg"
-                />
-                <button
-                    onClick={generateTextCharacter}
-                    disabled={isAvatarGenerating || !userName.trim()}
-                    className="w-full py-3 bg-[#C5A059] text-[#1A1612] font-black uppercase tracking-widest text-xs hover:bg-[#D4C5A3] disabled:opacity-50 transition-all shadow-md active:scale-95"
-                >
-                    {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.textSubmitBtn}
-                </button>
-            </PaperCard>
-
-            <div className="relative py-2">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#8B7355]/20"></div></div>
-                <div className="relative flex justify-center text-[10px] uppercase text-[#8B7355] font-black tracking-[0.4em] bg-[#f4e4bc]"><span className="px-4">Aether Scan</span></div>
-            </div>
-
-            <label className="block w-full cursor-pointer group">
-                <div className="p-6 border-2 border-dashed border-[#8B7355]/30 bg-[#25201B]/5 hover:bg-[#C5A059]/10 rounded-sm flex flex-col items-center transition-all shadow-inner">
-                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                    <LucideUpload className="text-[#5C1A1A] mb-2" size={24} />
-                    <p className="font-black uppercase tracking-widest text-[10px] text-[#8B7355]">{selectedLang.ui.uploadTitle}</p>
-                </div>
-            </label>
-
-            {uploadedImage && (
-                <motion.button
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    onClick={generateCharacter}
-                    disabled={isAvatarGenerating}
-                    className="w-full py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-xs hover:bg-[#5C1A1A] transition-all flex items-center justify-center gap-2 shadow-lg"
-                >
-                    {isAvatarGenerating ? <LucideLoader2 className="animate-spin" /> : <LucideCamera size={18} />}
-                    {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.generateBtn}
-                </motion.button>
-            )}
-
-            {isAvatarGenerating && (
-                <div className="text-center p-4">
-                    <LucideLoader2 className="animate-spin mx-auto text-[#5C1A1A] mb-2" size={32} />
-                    <p className="text-[10px] italic text-[#8B7355] animate-pulse">{selectedLang.loading}</p>
-                </div>
-            )}
-        </div>
-    );
-
-    const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos }) => {
-        const slots = [
-            { id: 1, type: 'manor', title: selectedLang.ui.manorTitle },
-            { id: 2, type: 'archive', title: '1899', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=300' },
-            { id: 3, type: 'ad', title: 'Steam Co.', text: 'Industrial' },
-            { id: 4, type: 'archive', title: '1900', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=300' },
-            { id: 5, type: 'current', isCenter: true },
-            { id: 6, type: 'ad', title: 'Aether', text: 'Wireless' },
-            { id: 7, type: 'empty' },
-            { id: 8, type: 'ad', title: 'Elixir', text: 'Vitality' },
-            { id: 9, type: 'empty' },
-        ];
-
-        return (
-            <div className="w-full max-w-lg mx-auto flex flex-col items-center justify-center space-y-4 h-full py-4 overflow-hidden">
-                <div className="text-center">
-                    <h1 className="text-3xl font-black text-[#C5A059] mb-1 uppercase tracking-widest leading-none">{selectedLang.ui.galleryTitle}</h1>
-                    <p className="text-[#8B7355] text-[8px] font-black uppercase tracking-[0.4em]">{selectedLang.ui.gallerySub}</p>
-                </div>
-
-                <div className="flex-1 w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex items-center gap-4 px-10">
-                    {slots.map((slot, idx) => (
-                        <motion.div
-                            key={slot.id}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="min-w-[180px] aspect-square snap-center"
-                        >
-                            {slot.type === 'current' ? (
-                                <button
-                                    onClick={() => setViewMode('mission_active')}
-                                    className="w-full h-full relative bg-[#2C241B] border-4 border-[#C5A059] shadow-inner overflow-hidden"
-                                >
-                                    <div className="absolute inset-0 flex items-center justify-center p-2">
-                                        {userAvatar?.isTextAvatar ? (
-                                            <span className="text-[#C5A059] font-black text-xl uppercase text-center leading-tight">{userAvatar.textName}</span>
-                                        ) : (
-                                            <img src={userAvatar?.image} className="w-full h-full object-cover" alt="avatar" />
-                                        )}
-                                    </div>
-                                    <div className="absolute bottom-0 w-full bg-[#5C1A1A] text-[#f4e4bc] text-[8px] font-black py-1 uppercase tracking-widest text-center uppercase">Active</div>
-                                </button>
-                            ) : slot.type === 'manor' ? (
-                                <button
-                                    onClick={() => { setViewMode('home_interior'); setTodos(p => ({ ...p, home: true })); }}
-                                    className="w-full h-full relative bg-[#2C241B] border-4 border-[#8B7355] flex flex-col items-center justify-center hover:border-[#C5A059] transition-all group"
-                                >
-                                    <LucideLayout size={32} className="text-[#C5A059] mb-1" />
-                                    <span className="text-[#8B7355] text-[8px] font-black uppercase">{slot.title}</span>
-                                </button>
-                            ) : slot.type === 'archive' ? (
-                                <div className="w-full h-full border-4 border-[#2C241B] relative overflow-hidden bg-black grayscale">
-                                    <img src={slot.image} className="w-full h-full object-cover opacity-50" alt="archive" />
-                                    <div className="absolute bottom-1 left-1 bg-black/80 px-1 text-[#f4e4bc] text-[8px] font-black border border-[#C5A059]/40 uppercase tracking-widest">{slot.title}</div>
-                                </div>
-                            ) : slot.type === 'ad' ? (
-                                <div className="w-full h-full relative bg-[#f4e4bc] border-4 border-[#2C241B] p-2 flex flex-col items-center justify-center text-center bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] shadow-inner">
-                                    <span className="font-black text-[10px] uppercase text-[#5C1A1A] leading-none mb-1">{slot.title}</span>
-                                    <span className="text-[8px] italic text-[#2C241B] leading-none uppercase">{slot.text}</span>
-                                </div>
-                            ) : (
-                                <div className="w-full h-full relative border-4 border-[#2C241B]/30 bg-black/10 flex items-center justify-center">
-                                    <div className="w-1/2 h-1/2 border border-dashed border-[#8B7355]/20" />
-                                </div>
-                            )}
-                        </motion.div>
-                    ))}
-                </div>
-                <div className="flex gap-1 mb-4">
-                    {slots.map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#C5A059]/20 shadow-sm" />)}
-                </div>
-            </div>
-        );
-    };
+    // GalleryView, ManorView, MissionView, TrailerView, LanguageView, ConfirmView 
+    // were manually defined inside App previously, causing the re-render focus bug.
+    // They are now properly hoisted and we removed the duplicate legacy ones.
 
     const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandleLit, gearsSpinning, setGearsSpinning, loreText }) => (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-2 py-4">
-            <button onClick={() => setViewMode('gallery')} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
+            <button onClick={() => setViewMode('gallery')} className="text-white/40 hover:text-white uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
                 <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
             </button>
 
-            <PaperCard className="w-full flex-1 max-h-[70vh] p-0 border-[#C5A059] border-4 bg-[#1A1612] relative overflow-hidden shadow-2xl">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800')] opacity-20 sepia brightness-50 contrast-150" />
+            <GlassCard className="w-full flex-1 max-h-[70vh] p-0 border-white/10 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
 
                 <div className="relative z-10 flex flex-col items-center p-6 h-full overflow-y-auto no-scrollbar">
                     <div className="w-full flex justify-between mb-4 px-2">
-                        <div className="cursor-pointer hover:scale-110 transition-transform" onClick={() => setCandleLit(!candleLit)}>
-                            <LucideFlame size={24} className={candleLit ? 'text-[#FFAA00] drop-shadow-[0_0_10px_#FFAA00]' : 'text-[#2C241B]'} />
+                        <div className="cursor-pointer hover:scale-110 transition-transform opacity-30 hover:opacity-100" onClick={() => setCandleLit(!candleLit)}>
+                            <LucideFlame size={24} className={candleLit ? 'text-white' : 'text-white/20'} />
                         </div>
-                        <div className="cursor-pointer hover:rotate-90 transition-transform" onClick={() => setGearsSpinning(!gearsSpinning)}>
+                        <div className="cursor-pointer hover:rotate-90 transition-transform opacity-30 hover:opacity-100" onClick={() => setGearsSpinning(!gearsSpinning)}>
                             <motion.div animate={{ rotate: gearsSpinning ? 360 : 0 }} transition={{ duration: 4, repeat: gearsSpinning ? Infinity : 0, ease: "linear" }}>
-                                <LucideSettings size={24} className="text-[#C5A059]" />
+                                <LucideSettings size={24} className="text-white" />
                             </motion.div>
                         </div>
                     </div>
 
                     <div className={`relative w-28 h-28 mb-4 transition-all duration-700 ${candleLit ? '' : 'brightness-50'}`}>
-                        <div className="absolute inset-0 border-4 border-[#C5A059] rounded-full shadow-[0_0_20px_rgba(197,160,89,0.3)]" />
-                        <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center p-2 border-2 border-[#8B7355]/40 shadow-inner">
+                        <div className="absolute inset-0 border border-white/20 rounded-full shadow-[0_0_30px_rgba(255,255,255,0.1)]" />
+                        <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center p-1">
                             {userAvatar?.image ? (
                                 <img src={userAvatar.image} className="w-full h-full object-cover rounded-full" />
                             ) : (
-                                <span className="text-[#C5A059] font-black text-xl text-center uppercase drop-shadow-md">{userAvatar?.textName?.charAt(0)}</span>
+                                <span className="text-white/50 font-black text-xl text-center uppercase">{userAvatar?.textName?.charAt(0)}</span>
                             )}
                         </div>
                     </div>
 
-                    <h3 className="text-xl font-serif font-black text-[#f4e4bc] mb-4 uppercase tracking-widest text-center leading-none">{selectedLang.ui.manorTitle}</h3>
+                    <h3 className="text-xl font-black text-white mb-4 uppercase tracking-[0.3em] text-center leading-none tracking-widest">{selectedLang.ui.manorTitle}</h3>
 
-                    <div className="w-full flex-1 bg-black/80 p-4 border border-[#8B7355]/40 rounded-sm font-mono text-[10px] text-[#D4C5A3] leading-relaxed relative overflow-y-auto no-scrollbar shadow-inner">
-                        {loreText}<span className="inline-block w-1.5 h-3 bg-[#C5A059] ml-1 animate-ping" />
+                    <div className="w-full flex-1 bg-black/40 p-5 border border-white/5 rounded-xl font-mono text-[11px] text-white/70 leading-relaxed overflow-y-auto no-scrollbar backdrop-blur-md">
+                        {loreText}<span className="inline-block w-1.5 h-3 bg-white/50 ml-1 animate-ping" />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 w-full mt-4 pt-4 border-t border-[#8B7355]/20">
+                    <div className="grid grid-cols-2 gap-4 w-full mt-4 pt-4 border-t border-white/10">
                         <motion.div whileHover={{ y: -2 }} className="flex flex-col items-center gap-2 cursor-pointer group">
-                            <LucideTrophy size={18} className="text-[#8B7355] group-hover:text-[#C5A059] transition-colors" />
-                            <span className="text-[10px] font-black uppercase text-[#8B7355] group-hover:text-[#C5A059] tracking-widest">{selectedLang.ui.manorHeirlooms}</span>
+                            <LucideTrophy size={18} className="text-white/40 group-hover:text-white transition-colors" />
+                            <span className="text-[10px] font-black uppercase text-white/40 group-hover:text-white tracking-widest transition-colors">{selectedLang.ui.manorHeirlooms}</span>
                         </motion.div>
-                        <div className="flex flex-col items-center gap-2 opacity-30">
-                            <LucideMapPin size={18} className="text-[#2C241B]" />
-                            <span className="text-[10px] font-black uppercase text-[#2C241B] tracking-widest">{selectedLang.ui.manorEstate}</span>
+                        <div className="flex flex-col items-center gap-2 opacity-30 cursor-not-allowed">
+                            <LucideMapPin size={18} className="text-white/40" />
+                            <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">{selectedLang.ui.manorEstate}</span>
                         </div>
                     </div>
                 </div>
-            </PaperCard>
+            </GlassCard>
         </motion.div>
     );
 
     const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePreviewVote, isAuthenticated, setIsAuthenticated, oracleMessage, setStep, setTodos }) => (
         <div className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-4 py-4 overflow-hidden">
-            <button onClick={() => setViewMode('gallery')} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1 px-2">
+            <button onClick={() => setViewMode('gallery')} className="text-white/40 hover:text-white uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1 px-2">
                 <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
             </button>
 
             <div className="w-full space-y-4 overflow-y-auto no-scrollbar flex-1 pb-10 px-2 lg:px-4">
-                <PaperCard className="py-4 px-6 border-[#C5A059] shadow-lg">
-                    <h3 className="text-[10px] font-black text-[#5C1A1A] uppercase tracking-[0.2em] flex items-center gap-1 border-b border-black/5 pb-2">
+                <GlassCard className="py-4 px-6 border-white/10 shadow-2xl">
+                    <h3 className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] flex items-center gap-2 border-b border-white/5 pb-3">
                         <LucideInfo size={14} /> {selectedLang.ui.authTitle}
                     </h3>
                     {!isAuthenticated ? (
-                        <button onClick={() => setIsAuthenticated(true)} className="w-full mt-2 py-3 bg-[#1A1612] text-[#C5A059] text-[10px] font-black uppercase border border-[#C5A059]/40 hover:bg-[#5C1A1A] hover:text-white transition-all shadow-md active:scale-95">
+                        <button onClick={() => setIsAuthenticated(true)} className="w-full mt-3 py-3 bg-white/5 text-white/80 text-[10px] font-black uppercase border border-white/10 hover:bg-white/10 hover:text-white transition-all backdrop-blur-md active:scale-95">
                             {selectedLang.ui.authBtn}
                         </button>
                     ) : (
-                        <div className="flex items-center justify-center gap-2 text-[#556B2F] font-black bg-[#556B2F]/10 p-2 mt-2 border border-[#556B2F]/30 uppercase text-[10px]">
-                            <LucideCheckCircle size={16} /> {selectedLang.ui.authDone}
+                        <div className="flex items-center justify-center gap-2 text-white/80 font-black bg-white/5 p-3 mt-3 border border-white/10 uppercase text-[10px] backdrop-blur-md">
+                            <LucideCheckCircle size={16} className="text-green-500/80" /> {selectedLang.ui.authDone}
                         </div>
                     )}
-                </PaperCard>
+                </GlassCard>
 
                 <div className="space-y-4">
                     {PROJECTS.map((proj) => {
                         const isSelected = previewId === proj.id;
                         const isInactive = previewId && !isSelected;
                         return (
-                            <motion.div key={proj.id} layout className={`${isInactive ? 'opacity-30 grayscale pointer-events-none' : ''}`}>
-                                <PaperCard
+                            <motion.div key={proj.id} layout className={`${isInactive ? 'opacity-20 grayscale pointer-events-none' : ''}`}>
+                                <GlassCard
                                     onClick={() => !isInactive && isAuthenticated && handlePreviewVote(proj.id)}
-                                    className={`cursor-pointer transition-all duration-300 overflow-hidden border-2 p-0 shadow-lg ${isSelected ? 'border-[#C5A059] ring-2 ring-[#C5A059]/30' : 'border-[#2C241B] opacity-90'}`}
+                                    className={`cursor-pointer transition-all duration-500 overflow-hidden border p-0 ${isSelected ? 'border-white/30 bg-white/5 shadow-[0_0_30px_rgba(255,255,255,0.05)]' : 'border-white/5 opacity-80 hover:border-white/20 hover:bg-white/5'}`}
                                 >
-                                    <div className="p-4 flex items-center justify-between">
+                                    <div className="p-5 flex items-center justify-between">
                                         <div className="flex flex-col">
-                                            <span className={`text-[8px] font-mono mb-0.5 block uppercase ${isSelected ? 'text-[#5C1A1A]' : 'text-[#8B7355]'}`}>Case #0{proj.id}</span>
-                                            <h4 className={`text-sm font-black uppercase tracking-widest ${isSelected ? 'text-[#2C241B]' : 'text-[#8B7355]'}`}>{proj.title}</h4>
+                                            <span className={`text-[9px] font-mono mb-1 block uppercase tracking-widest ${isSelected ? 'text-white/70' : 'text-white/30'}`}>Case #0{proj.id}</span>
+                                            <h4 className={`text-base font-black uppercase tracking-widest ${isSelected ? 'text-white' : 'text-white/60'}`}>{proj.title}</h4>
                                         </div>
-                                        {isSelected && <LucideSparkles className="text-[#C5A059] animate-pulse" size={16} />}
+                                        {isSelected && <LucideSparkles className="text-white/80 animate-pulse" size={18} />}
                                     </div>
                                     <AnimatePresence>
                                         {isSelected && (
-                                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="p-4 pt-0 border-t border-black/5 bg-black/5">
-                                                <div className="bg-[#1A1612] p-4 border border-[#C5A059]/40 mb-4 shadow-inner">
-                                                    <p className="text-[#f4e4bc] text-[10px] italic leading-relaxed text-center">"{oracleMessage || selectedLang.ui.consulting}"</p>
+                                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="p-5 pt-0 border-t border-white/5 bg-black/40 backdrop-blur-md">
+                                                <div className="mb-5 p-4 bg-white/5 border border-white/10 rounded-sm">
+                                                    <p className="text-white/80 text-[11px] italic leading-relaxed text-center font-serif">"{oracleMessage || selectedLang.ui.consulting}"</p>
                                                 </div>
-                                                <button onClick={() => { setStep('trailer'); setTodos(p => ({ ...p, voted: true })); }} className="w-full py-3 bg-[#5C1A1A] text-white font-black uppercase text-[10px] tracking-widest border-b-2 border-black active:scale-95 transition-transform shadow-lg">
+                                                <button onClick={() => { setStep('trailer'); setTodos(p => ({ ...p, voted: true })); }} className="w-full py-4 bg-white/10 text-white font-black uppercase text-[11px] tracking-[0.3em] hover:bg-white/20 active:scale-95 transition-all border border-white/20">
                                                     {selectedLang.ui.sealBtn}
                                                 </button>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
-                                </PaperCard>
+                                </GlassCard>
                             </motion.div>
                         );
                     })}
@@ -1243,35 +1061,35 @@ const App = () => {
     );
 
     const TrailerView = ({ selectedLang, resetStates, setStep }) => (
-        <PaperCard className="text-center max-w-sm mx-auto py-10 shadow-3xl relative overflow-hidden bg-[#f4e4bc]">
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-[#C5A059] animate-pulse" />
+        <GlassCard className="text-center w-full max-w-sm mx-auto p-10 shadow-2xl relative overflow-hidden flex flex-col items-center">
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
             <motion.div
-                animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="mb-8"
             >
-                <div className="w-24 h-24 mx-auto rounded-full bg-[#556B2F]/20 flex items-center justify-center border-4 border-[#556B2F]/40 shadow-[0_0_30px_rgba(85,107,47,0.4)]">
-                    <LucideCheckCircle className="w-12 h-12 text-[#556B2F]" />
+                <div className="w-20 h-20 mx-auto rounded-full bg-white/5 flex items-center justify-center border border-white/20 shadow-[0_0_40px_rgba(255,255,255,0.1)] backdrop-blur-md">
+                    <LucideLock className="w-8 h-8 text-white/80" />
                 </div>
             </motion.div>
 
-            <div className="space-y-4 mb-10 px-6">
-                <h2 className="text-3xl font-serif font-black uppercase tracking-[0.3em] text-[#2C241B] leading-none">
+            <div className="space-y-4 mb-10 w-full">
+                <h2 className="text-2xl font-black uppercase tracking-[0.4em] text-white leading-tight">
                     {selectedLang.ui.fateSealed}
                 </h2>
-                <div className="w-16 h-1 bg-[#5C1A1A] mx-auto" />
-                <p className="text-[#5C4D3C] italic text-[11px] leading-relaxed font-serif">
-                    {selectedLang.ui.todoDone}
+                <div className="w-12 h-[1px] bg-white/20 mx-auto" />
+                <p className="text-white/50 italic text-[11px] leading-relaxed font-serif tracking-widest uppercase">
+                    The network sleeps.
                 </p>
             </div>
 
             <button
                 onClick={() => { setStep('language'); resetStates(); }}
-                className="w-[85%] py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-[10px] border-b-4 border-black hover:bg-[#5C1A1A] active:scale-95 transition-all shadow-xl"
+                className="w-full py-4 bg-white/5 text-white/80 font-black uppercase tracking-[0.3em] text-[10px] border border-white/10 hover:bg-white/10 hover:text-white active:scale-95 transition-all"
             >
                 {selectedLang.ui.returnGallery}
             </button>
-        </PaperCard>
+        </GlassCard>
     );
 
     const useSpiritSense = async () => {
@@ -1303,146 +1121,147 @@ const App = () => {
                 )}
             </AnimatePresence>
 
-            {/* API Status Banner */}
-            {!apiKey && (
-                <div className="fixed top-0 left-0 w-full z-[1000] bg-[#5C1A1A] text-[#f4e4bc] py-2 px-4 shadow-xl border-b border-[#C5A059] flex items-center justify-center gap-3">
-                    <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                        Linking to Aether... Set VITE_GEMINI_API_KEY
-                    </span>
-                </div>
-            )}
-
-            <AetherWhispers text={whisper} theme={currentTheme} />
-
-            {/* Main Content Area: V9 Focus-Fixed Layout */}
-            <main className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={step + (selectedLang?.id || '')}
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.02 }}
-                        transition={{ duration: 0.8, ease: "easeInOut" }}
-                        className="flex flex-col items-center w-full"
-                    >
-                        {step === 'language' && (
-                            <LanguageView LANGUAGES={LANGUAGES} handleLanguageSelect={handleLanguageSelect} />
-                        )}
-                        {step === 'confirm' && (
-                            <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
-                        )}
-                        {/* More steps would follow, refactored to use currentTheme classes */}
-                        {step === 'intro' && (
-                            <IntroView
-                                selectedLang={selectedLang}
-                                userName={userName}
-                                setUserName={setUserName}
-                                generateTextCharacter={generateTextCharacter}
-                                isAvatarGenerating={isAvatarGenerating}
-                                handleImageUpload={handleImageUpload}
-                                uploadedImage={uploadedImage}
-                                generateCharacter={generateCharacter}
-                                playSfx={playSfx}
-                            />
-                        )}
-                        {step === 'dashboard' && (
-                            <div className="w-full h-full flex flex-col items-center justify-center">
-                                {viewMode === 'gallery' && (
-                                    <GalleryView
-                                        selectedLang={selectedLang}
-                                        userAvatar={userAvatar}
-                                        setViewMode={setViewMode}
-                                        setTodos={setTodos}
-                                        playSfx={playSfx}
-                                    />
-                                )}
-                                {viewMode === 'home_interior' && (
-                                    <ManorView
-                                        selectedLang={selectedLang}
-                                        setViewMode={setViewMode}
-                                        userAvatar={userAvatar}
-                                        candleLit={candleLit}
-                                        setCandleLit={setCandleLit}
-                                        gearsSpinning={gearsSpinning}
-                                        setGearsSpinning={setGearsSpinning}
-                                        loreText={loreText}
-                                        playSfx={playSfx}
-                                    />
-                                )}
-                                {viewMode === 'mission_active' && (
-                                    <MissionView
-                                        selectedLang={selectedLang}
-                                        setViewMode={setViewMode}
-                                        PROJECTS={PROJECTS}
-                                        previewId={previewId}
-                                        handlePreviewVote={handlePreviewVote}
-                                        isAuthenticated={isAuthenticated}
-                                        setIsAuthenticated={setIsAuthenticated}
-                                        oracleMessage={oracleMessage}
-                                        setStep={setStep}
-                                        setTodos={setTodos}
-                                        playSfx={playSfx}
-                                    />
-                                )}
-                            </div>
-                        )}
-                        {step === 'trailer' && (
-                            <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={setStep} playSfx={playSfx} />
-                        )}
-                    </motion.div>
-                </AnimatePresence>
-            </main>
-
-            {/* Status Widgets: [V10] Refined Spirit Sense Only */}
-            <div className="fixed bottom-8 left-8 z-[100] flex flex-col gap-4 items-start">
-                <AnimatePresence>
-                    {spiritHint && (
-                        <motion.div
-                            initial={{ opacity: 0, x: -20, scale: 0.8 }}
-                            animate={{ opacity: 1, x: 0, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            className="bg-[#5C1A1A] text-[#f4e4bc] p-4 border-2 border-[#C5A059] shadow-2xl skew-x-[-2deg] max-w-[200px] text-[10px] uppercase font-black tracking-widest leading-relaxed relative"
-                        >
-                            <div className="absolute -top-3 -left-2 bg-[#C5A059] text-[#1A1612] text-[9px] px-2 py-0.5 font-black shadow-lg">SPIRIT ADVICE</div>
-                            "{spiritHint}"
-                            <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-[#C5A059] rotate-45" />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                <button
-                    onClick={useSpiritSense}
-                    disabled={isSpiritSensing}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center border-4 border-[#C5A059] bg-[#1A1612] text-[#C5A059] shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:scale-110 active:scale-90 transition-all group relative ${isSpiritSensing ? 'animate-pulse opacity-50' : ''}`}
-                >
-                    <LucideSparkles size={24} />
-                    {!isSpiritSensing && <div className="absolute inset-0 rounded-full border border-[#C5A059]/30 animate-ping" />}
-                    <div className="absolute -top-2 -right-2 bg-[#5C1A1A] text-[7px] text-white px-1.5 py-0.5 rounded-full border border-[#C5A059] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">SENSE AETHER</div>
-                </button>
-            </div>
-
-            {/* Todo Widget */}
-            {showTodo && (
-                <div className="fixed bottom-8 right-8 z-[100]">
-                    <PaperCard className="p-6 border-2 border-[#5C1A1A] shadow-2xl skew-x-1 max-w-[240px]">
-                        <h4 className="font-black text-[#5C1A1A] text-sm mb-4 uppercase tracking-[0.2em] border-b-2 border-[#8B7355]/20 pb-2">{selectedLang.ui.todoTitle}</h4>
-                        <div className="space-y-4 text-xs font-black uppercase tracking-widest text-[#2C241B]">
-                            <div className="flex items-center gap-3">
-                                {todos.avatar ? <LucideCheckSquare size={18} className="text-[#556B2F]" /> : <LucideSquare size={18} className="text-[#8B7355]" />}
-                                <span className={todos.avatar ? 'line-through opacity-40' : ''}>{selectedLang.ui.todo1}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                {todos.home ? <LucideCheckSquare size={18} className="text-[#556B2F]" /> : <LucideSquare size={18} className="text-[#8B7355]" />}
-                                <span className={todos.home ? 'line-through opacity-40' : ''}>{selectedLang.ui.todo2}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                {todos.voted ? <LucideCheckSquare size={18} className="text-[#556B2F]" /> : <LucideSquare size={18} className="text-[#8B7355]" />}
-                                <span className={todos.voted ? 'line-through opacity-40' : ''}>{selectedLang.ui.todo3}</span>
-                            </div>
+            {isOpeningFinished && (
+                <>
+                    {/* API Status Banner */}
+                    {!apiKey && (
+                        <div className="fixed top-0 left-0 w-full z-[1000] bg-[#5C1A1A] text-[#f4e4bc] py-2 px-4 shadow-xl border-b border-[#C5A059] flex items-center justify-center gap-3">
+                            <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">
+                                Linking to Aether... Set VITE_GEMINI_API_KEY
+                            </span>
                         </div>
-                    </PaperCard>
-                </div>
+                    )}
+
+                    <AetherWhispers text={whisper} theme={currentTheme} />
+
+                    {/* Main Content Area: V9 Focus-Fixed Layout */}
+                    <main className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={step + (selectedLang?.id || '')}
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 1.02 }}
+                                transition={{ duration: 0.8, ease: "easeInOut" }}
+                                className="flex flex-col items-center w-full"
+                            >
+                                {step === 'language' && (
+                                    <LanguageView LANGUAGES={LANGUAGES} handleLanguageSelect={handleLanguageSelect} />
+                                )}
+                                {step === 'confirm' && (
+                                    <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
+                                )}
+                                {/* More steps would follow, refactored to use currentTheme classes */}
+                                {step === 'intro' && (
+                                    <IntroView
+                                        selectedLang={selectedLang}
+                                        userName={userName}
+                                        setUserName={setUserName}
+                                        generateTextCharacter={generateTextCharacter}
+                                        isAvatarGenerating={isAvatarGenerating}
+                                        handleImageUpload={handleImageUpload}
+                                        uploadedImage={uploadedImage}
+                                        generateCharacter={generateCharacter}
+                                        playSfx={playSfx}
+                                    />
+                                )}
+                                {step === 'dashboard' && (
+                                    <div className="w-full h-full flex flex-col items-center justify-center">
+                                        {viewMode === 'gallery' && (
+                                            <GalleryView
+                                                selectedLang={selectedLang}
+                                                userAvatar={userAvatar}
+                                                setViewMode={setViewMode}
+                                                setTodos={setTodos}
+                                                playSfx={playSfx}
+                                            />
+                                        )}
+                                        {viewMode === 'home_interior' && (
+                                            <ManorView
+                                                selectedLang={selectedLang}
+                                                setViewMode={setViewMode}
+                                                userAvatar={userAvatar}
+                                                candleLit={candleLit}
+                                                setCandleLit={setCandleLit}
+                                                gearsSpinning={gearsSpinning}
+                                                setGearsSpinning={setGearsSpinning}
+                                                loreText={loreText}
+                                                playSfx={playSfx}
+                                            />
+                                        )}
+                                        {viewMode === 'mission_active' && (
+                                            <MissionView
+                                                selectedLang={selectedLang}
+                                                setViewMode={setViewMode}
+                                                PROJECTS={PROJECTS}
+                                                previewId={previewId}
+                                                handlePreviewVote={handlePreviewVote}
+                                                isAuthenticated={isAuthenticated}
+                                                setIsAuthenticated={setIsAuthenticated}
+                                                oracleMessage={oracleMessage}
+                                                setStep={setStep}
+                                                setTodos={setTodos}
+                                                playSfx={playSfx}
+                                            />
+                                        )}
+                                    </div>
+                                )}
+                                {step === 'trailer' && (
+                                    <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={setStep} playSfx={playSfx} />
+                                )}
+                            </motion.div>
+                        </AnimatePresence>
+                    </main>
+
+                    {/* Status Widgets: Refined Spirit Sense Only */}
+                    <div className="fixed bottom-8 left-8 z-[100] flex flex-col gap-4 items-start">
+                        <AnimatePresence>
+                            {spiritHint && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20, scale: 0.8 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    className="bg-white/10 backdrop-blur-xl text-white p-4 border border-white/20 shadow-2xl max-w-[200px] text-[10px] uppercase font-black tracking-widest leading-relaxed relative flex flex-col gap-2 rounded-sm"
+                                >
+                                    <div className="text-[8px] text-white/40 tracking-[0.3em]">AI ASSISTANT</div>
+                                    "{spiritHint}"
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        <button
+                            onClick={useSpiritSense}
+                            disabled={isSpiritSensing}
+                            className={`w-12 h-12 rounded-full flex items-center justify-center border border-white/20 bg-white/5 backdrop-blur-xl text-white shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:scale-110 active:scale-90 transition-all group relative ${isSpiritSensing ? 'animate-pulse opacity-50' : 'hover:bg-white/10'}`}
+                        >
+                            <LucideSparkles size={20} className={isSpiritSensing ? 'animate-spin-slow' : ''} />
+                        </button>
+                    </div>
+
+                    {/* Todo Widget */}
+                    {showTodo && (
+                        <div className="fixed bottom-8 right-8 z-[100]">
+                            <GlassCard className="p-6 border-white/10 shadow-2xl max-w-[240px]">
+                                <h4 className="font-black text-white/50 text-[10px] mb-4 uppercase tracking-[0.3em] border-b border-white/10 pb-2">{selectedLang.ui.todoTitle}</h4>
+                                <div className="space-y-4 text-[10px] font-black uppercase tracking-widest text-white/80">
+                                    <div className="flex items-center gap-3">
+                                        {todos.avatar ? <LucideCheckSquare size={16} className="text-white/30" /> : <LucideSquare size={16} className="text-white/60" />}
+                                        <span className={todos.avatar ? 'line-through opacity-30' : ''}>{selectedLang.ui.todo1}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        {todos.home ? <LucideCheckSquare size={16} className="text-white/30" /> : <LucideSquare size={16} className="text-white/60" />}
+                                        <span className={todos.home ? 'line-through opacity-30' : ''}>{selectedLang.ui.todo2}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        {todos.voted ? <LucideCheckSquare size={16} className="text-white/30" /> : <LucideSquare size={16} className="text-white/60" />}
+                                        <span className={todos.voted ? 'line-through opacity-30' : ''}>{selectedLang.ui.todo3}</span>
+                                    </div>
+                                </div>
+                            </GlassCard>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );
