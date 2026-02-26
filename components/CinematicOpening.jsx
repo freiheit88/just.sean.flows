@@ -21,14 +21,14 @@ const CinematicOpening = ({ onComplete }) => {
             // Initiate graceful audio fade-out
             if (audioRef.current) {
                 const fadeOutInterval = setInterval(() => {
-                    if (audioRef.current.volume > 0.05) {
-                        audioRef.current.volume -= 0.05;
+                    if (audioRef.current.volume > 0.02) {
+                        audioRef.current.volume -= 0.02;
                     } else {
                         audioRef.current.volume = 0;
                         audioRef.current.pause();
                         clearInterval(fadeOutInterval);
                     }
-                }, 50); // Fade out over ~800ms
+                }, 50); // Slower, 2000ms theatrical fade-out
             }
         }, 4500); // Trigger flash near the crescendo
 

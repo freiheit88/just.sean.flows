@@ -27,81 +27,81 @@ const MULTIVERSE = [
     {
         id: 'ko',
         sounds: {
-            click: 'Soft traditional Korean Gayageum single pluck, elegant and very short',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Korean traditional fan opening with wind-like whoosh over deep cinematic bass',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Korean, subtle and cinematic'
         }
     },
     {
         id: 'en',
         sounds: {
-            click: 'Clean, sleek modern digital click, minimal and soft',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Deep cinematic bass swell, sci-fi portal opening',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back", subtle and cinematic'
         }
     },
     {
         id: 'ja',
         sounds: {
-            click: 'Japanese Zen stone tap, organic, soft, and peaceful',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Japanese Shamisen string pull transitioning into a smooth cinematic whoosh',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Japanese, subtle and cinematic'
         }
     },
     {
         id: 'de',
         sounds: {
-            click: 'Dark gothic iron lock click, heavy but muffled',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Gothic dark choir echo merging into a deep cinematic bass drop',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in German, subtle and cinematic'
         }
     },
     {
         id: 'fr',
         sounds: {
-            click: 'Baroque Harpsichord single key press, delicate and ornate',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Elegant French palace chime echoing into a cinematic riser',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in French, subtle and cinematic'
         }
     },
     {
         id: 'cn',
         sounds: {
-            click: 'Chinese Guzheng single soft pluck, resonant but quiet',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Chinese temple gong strike heavily muffled with a cinematic sub-bass rumble',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Mandarin, subtle and cinematic'
         }
     },
     {
         id: 'es',
         sounds: {
-            click: 'Soft Spanish Flamenco guitar body tap, rhythmic and warm',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Fast Flamenco strum dissolving into a cinematic woosh',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Spanish, subtle and cinematic'
         }
     },
     {
         id: 'ar',
         sounds: {
-            click: 'Middle Eastern Oud single soft note, warm and exotic',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Desert wind blowing through ancient ruins with a cinematic bass swell',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Arabic, subtle and cinematic'
         }
     },
     {
         id: 'pl',
         sounds: {
-            click: 'Vintage pocket watch tick, very quiet and metallic',
-            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
-            transition: 'Cinematic orchestral swell with a hint of melancholic strings',
+            click: 'A 1-second bright, satisfying, and elegant major musical chord strummed or struck on acoustic string instruments. High-end natural resonance. No click/tap noises, just a pure musical chord.',
+            hover: 'A very gentle, 1-second pure acoustic resonance from a classical string instrument. Soft, warm, and highly organic musical note.',
+            transition: 'A 2-second expansive, soaring acoustic musical chord progression. Deep cello bass note sweeping up into a grand orchestral crescendo. Purely acoustic and majestic.',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Polish, subtle and cinematic'
         }
     }

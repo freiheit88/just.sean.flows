@@ -26,7 +26,7 @@ const client = new ElevenLabsClient({ apiKey });
 async function generateSignatureIntro() {
     const filename = `signature-intro.mp3`;
     const targetPath = path.join(__dirname, '..', 'public', 'assets', 'sounds', filename);
-    const prompt = 'A 5-second 3D spatial cinematic audio logo. A single, powerful, and deeply resonant strike of a traditional large wooden drum, followed immediately by a sharp, crisp, and realistic pluck of an acoustic classical string instrument echoing from a different direction. Studio quality, realistic acoustic sound, no background noise, no synthesizers, 3D binaural effect.';
+    const prompt = 'A 5-second 3D spatial binaural cinematic audio logo. A single, majestic, high-end classical musical chord played simultaneously by a Grand Piano (center), a Cello (left), and a Flute (right). Beautiful harmony, rich resonance, studio quality, pure acoustic instruments. No drums, no synthesizers, 3D panning effect.';
 
     console.log(`Generating ${filename}...`);
     console.log(`Prompt: ${prompt}`);
