@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CinematicOpening from './components/CinematicOpening';
 import {
     LucideCheckCircle, LucideGlobe, LucideInstagram,
     LucideSparkles, LucideInfo, LucideVolume2,
@@ -200,7 +201,7 @@ const ShutterTransition = ({ isActive, children }) => (
 const Background = () => (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#1A1612]">
         {/* Texture Layer */}
-        <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/dark-wood.png')]" />
+        <div className="absolute inset-0 opacity-40 bg-[url('/assets/steampunk_background.png')]" />
 
         {/* Animated Gears */}
         <div className="absolute -top-20 -left-20 w-80 h-80 opacity-20 rotate-45 animate-[spin_60s_linear_infinite]">
@@ -229,7 +230,7 @@ const PaperCard = ({ children, className = "", onClick, delay = 0 }) => (
         transition={{ delay, duration: 0.8, ease: "easeOut" }}
         onClick={onClick}
         className={`bg-[#f4e4bc] border-2 border-[#8B7355] rounded-sm relative shadow-xl overflow-hidden group ${className}`}
-        style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/aged-paper.png')" }}
+        style={{ backgroundImage: "url('/assets/steampunk_paper_texture.png')" }}
     >
 
         {/* Inner Decorative Border */}
@@ -256,7 +257,7 @@ const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter,
                 type="text"
                 value={userName}
                 onChange={e => { setUserName(e.target.value); }}
-                onFocus={() => playSfx?.('click')}
+                onFocus={() => playSfx?.('scratch')}
                 placeholder={selectedLang.ui.textInputPlaceholder}
                 className="w-full bg-transparent text-[#5C1A1A] border-b border-[#8B7355] p-2 mb-4 focus:outline-none font-serif text-lg transition-all focus:border-[#C5A059]"
             />
@@ -313,6 +314,7 @@ const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos }) => {
         { id: 6, type: 'ad', title: 'Aether', text: 'Wireless' },
         { id: 7, type: 'empty' },
         { id: 8, type: 'ad', title: 'Elixir', text: 'Vitality' },
+        { id: 10, type: 'poster', title: 'GRAND OPENING', image: '/assets/opening-poster.jpg' },
         { id: 9, type: 'empty' },
     ];
 
@@ -364,6 +366,14 @@ const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos }) => {
                                 <span className="font-black text-[10px] uppercase text-[#5C1A1A] leading-none mb-1">{slot.title}</span>
                                 <span className="text-[8px] italic text-[#2C241B] leading-none uppercase">{slot.text}</span>
                             </div>
+                        ) : slot.type === 'poster' ? (
+                            <div className="w-full h-full border-4 border-[#C5A059] relative overflow-hidden shadow-2xl group">
+                                <img src={slot.image} className="w-full h-full object-cover transition-transform duration-[20s] group-hover:scale-125" alt="teaser" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-2">
+                                    <span className="text-[10px] font-black text-[#C5A059] tracking-widest leading-none mb-1">Coming Soon</span>
+                                    <span className="text-[8px] text-[#f4e4bc] opacity-60 uppercase">{slot.title}</span>
+                                </div>
+                            </div>
                         ) : (
                             <div className="w-full h-full relative border-4 border-[#2C241B]/30 bg-black/10 flex items-center justify-center">
                                 <div className="w-1/2 h-1/2 border border-dashed border-[#8B7355]/20" />
@@ -389,7 +399,7 @@ const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandle
             {/* Artifact Manor BG: steampunk_manor_background_1772052884363.png */}
             <div
                 className="absolute inset-0 bg-center bg-cover opacity-30 sepia brightness-75 contrast-125"
-                style={{ backgroundImage: "url('https://freiheit88-just-sean-flows.vercel.app/steampunk_manor_background.png')" }}
+                style={{ backgroundImage: "url('/assets/steampunk_manor_background.png')" }}
             />
 
             <div className="relative z-10 flex flex-col items-center p-6 h-full overflow-y-auto no-scrollbar">
@@ -579,6 +589,7 @@ const ConfirmView = ({ selectedLang, confirmLanguage }) => (
 );
 
 const App = () => {
+    const [isOpeningFinished, setIsOpeningFinished] = useState(false);
     const [step, setStep] = useState('language');
     const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -622,7 +633,7 @@ const App = () => {
 
     useEffect(() => {
         // Initialize BGM
-        bgmRef.current = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); // Placeholder atmospheric BGM
+        bgmRef.current = new Audio('/assets/sounds/manor-ambience.mp3'); // Use local ambience
         bgmRef.current.loop = true;
         bgmRef.current.volume = bgmVol;
         return () => bgmRef.current.pause();
@@ -640,11 +651,25 @@ const App = () => {
 
     const playSfx = (type) => {
         const sounds = {
-            click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+            click: '/assets/sounds/gear-click.mp3',
             shutter: 'https://assets.mixkit.co/active_storage/sfx/132/132-preview.mp3',
-            forge: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'
+            forge: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+            scratch: '/assets/sounds/ink-scratching.mp3',
+            ambience: '/assets/sounds/manor-ambience.mp3',
+            welcome: '/assets/sounds/welcome-voice.mp3'
         };
-        if (sounds[type]) new Audio(sounds[type]).play();
+        // Fallback for click if local asset isn't ready yet
+        const audioSrc = sounds[type];
+        const audio = new Audio(audioSrc);
+
+        if (type === 'click') {
+            audio.onerror = () => {
+                console.log('Local SFX not found, falling back to CDN');
+                new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3').play();
+            };
+        }
+
+        audio.play().catch(e => console.error("Audio playback failed:", e));
     };
 
     const [loreText, setLoreText] = useState("");
@@ -771,6 +796,7 @@ const App = () => {
         // [V10: Delay speech slightly to allow transition to settle]
         setTimeout(() => {
             speakText(selectedLang.welcome);
+            playSfx('welcome');
         }, 1000);
         setShowTodo(true);
     };
@@ -1219,7 +1245,13 @@ const App = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#1A1612] text-[#E0D0B0] font-serif selection:bg-[#5C1A1A] selection:text-white relative">
+        <div className="relative w-full h-screen bg-[#1A1612] text-[#f4e4bc] font-serif overflow-hidden">
+            <AnimatePresence>
+                {!isOpeningFinished && (
+                    <CinematicOpening onComplete={() => setIsOpeningFinished(true)} />
+                )}
+            </AnimatePresence>
+
             <Background />
 
             {/* API Status Banner */}
