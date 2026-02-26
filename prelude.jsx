@@ -563,102 +563,237 @@ const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePre
     </div>
 );
 
-const LanguageCard = ({ lang, idx, onSelect }) => {
-    const [isHolding, setIsHolding] = useState(false);
+const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelected, isAnySelected }) => {
+    const [holdProgress, setHoldProgress] = useState(0);
     const holdTimer = useRef(null);
+    const progressInterval = useRef(null);
+    const lastHint = useRef("");
 
-    const handleStart = (e) => {
-        // Prevent default to avoid selection/drag issues
-        if (e.type === 'mousedown' && e.button !== 0) return;
-
-        // Start hold
-        setIsHolding(true);
-
-        const holdSfx = new Audio(`/assets/sounds/${lang.id}-hover.mp3`);
-        holdSfx.volume = 0.5;
-        // Use playback rate to sound like winding up
-        holdSfx.playbackRate = 0.5;
-        holdSfx.play().catch(() => { });
-
-        holdTimer.current = setTimeout(() => {
-            setIsHolding(false);
-            onSelect(lang);
-        }, 3000);
+    const updateHint = (msg) => {
+        if (lastHint.current !== msg) {
+            lastHint.current = msg;
+            setSpiritHint(msg);
+        }
     };
 
-    const handleEnd = () => {
+    const handleStart = (e) => {
+        if (!isSelected) return; // Only allow hold if it's the selected one in center
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+        e.currentTarget.setPointerCapture(e.pointerId);
+        setHoldProgress(1);
+        updateHint("Synchronizing multiversal anchor...");
+
+        // Try to play cultural theme, fallback to hover sfx
+        const themeSfx = new Audio(`/assets/sounds/${lang.id}-theme.mp3`);
+        themeSfx.volume = 0.4;
+        themeSfx.loop = true;
+        themeSfx.play().catch(() => {
+            const fallback = new Audio(`/assets/sounds/${lang.id}-hover.mp3`);
+            fallback.volume = 0.3;
+            fallback.play().catch(() => { });
+        });
+
+        const startTime = Date.now();
+        const duration = 5000;
+
+        holdTimer.current = setTimeout(() => {
+            clearInterval(progressInterval.current);
+            setHoldProgress(100);
+            updateHint("Fate Sealed.");
+            // Store the theme audio in window to keep it playing during transition
+            window.journeyTheme = themeSfx;
+            onSelect(lang);
+        }, duration);
+
+        progressInterval.current = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const percentage = Math.min((elapsed / duration) * 100, 100);
+            setHoldProgress(percentage);
+
+            if (percentage > 90) updateHint("Fate is nearly sealed...");
+            else if (percentage > 50) updateHint("Stabilizing temporal rift...");
+            else if (percentage > 20) updateHint("Anchor established. Holding...");
+        }, 50);
+    };
+
+    const handleEnd = (e) => {
         if (holdTimer.current) {
             clearTimeout(holdTimer.current);
             holdTimer.current = null;
         }
-        setIsHolding(false);
+        if (progressInterval.current) {
+            clearInterval(progressInterval.current);
+            progressInterval.current = null;
+        }
+        if (e && e.currentTarget && e.pointerId) {
+            try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (err) { }
+        }
+        setHoldProgress(0);
+        updateHint("");
     };
+
+    const isHolding = holdProgress > 0;
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
-            className={`relative flex-shrink-0 w-[240px] md:w-[280px] h-full cursor-pointer group rounded-xl overflow-hidden shadow-2xl transition-all duration-300 select-none ${isHolding ? 'scale-95' : 'hover:scale-105'}`}
-            onMouseDown={handleStart}
-            onMouseUp={handleEnd}
-            onMouseLeave={handleEnd}
-            onTouchStart={handleStart}
-            onTouchEnd={handleEnd}
-            onTouchCancel={handleEnd}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{
+                opacity: isDimmable ? 0.3 : 1,
+                scale: isSelected ? (isHolding ? 1.5 : 1.1) : (isAnySelected ? 0.9 : 1),
+                zIndex: isSelected ? 1000 : 1,
+                filter: isDimmable ? 'brightness(0.1) grayscale(100%)' : 'brightness(1) grayscale(0%)',
+                x: isSelected ? 0 : 0,
+                y: isSelected ? 0 : 0
+            }}
+            transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+            className={`relative w-full h-full cursor-pointer group rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isHolding ? 'shadow-[0_0_100px_rgba(255,255,255,0.4)]' : ''}`}
+            onPointerDown={handleStart}
+            onPointerUp={handleEnd}
+            onPointerLeave={handleEnd}
+            onPointerCancel={handleEnd}
+            onClick={() => !isAnySelected && onSelect(lang)}
             onContextMenu={(e) => e.preventDefault()}
             draggable={false}
-            style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
+            style={{ touchAction: 'none' }}
         >
-            {/* Immersive Background Image */}
             <motion.div
-                className={`absolute inset-0 bg-cover bg-center transition-all duration-[3000ms] ease-linear ${isHolding ? 'grayscale-0 scale-110' : 'grayscale'}`}
-                style={{ backgroundImage: `url(${lang.image})` }}
+                className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
+                style={{
+                    backgroundImage: `url(${lang.image})`,
+                    // [V17] Window Reveal expansion effect (image reveals more as it grows)
+                    scale: isHolding ? 1.0 : 1.5, // Start zoomed in, reveal more on hold
+                    filter: isHolding ? 'grayscale(0%)' : (isSelected ? 'grayscale(0%)' : 'grayscale(100%)'),
+                }}
+                animate={{
+                    scale: isHolding ? 1.0 : 1.5,
+                }}
             />
 
-            {/* Hold Progress Overlay - fills up horizontally over 3s */}
-            <div className="absolute bottom-0 left-0 h-1 bg-white/80 z-20 transition-all duration-300 ease-linear" style={{ width: isHolding ? '100%' : '0%', transitionDuration: isHolding ? '3000ms' : '300ms' }} />
+            {/* Hold Progress Bar */}
+            <div className="absolute bottom-0 left-0 h-1 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${holdProgress}%` }} />
 
-            {/* Dark Cinematic Gradient Overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 transition-opacity duration-1000 ${isHolding ? 'from-black/90' : 'group-hover:from-black/80'}`} />
+            {/* Visual Pulse Overlay */}
+            {isHolding && (
+                <motion.div
+                    animate={{ opacity: [0.1, 0.4, 0.1] }}
+                    transition={{ repeat: Infinity, duration: 1 }}
+                    className="absolute inset-0 bg-white z-20 pointer-events-none"
+                />
+            )}
 
-            {/* Text Content */}
-            <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
-                <h3 className={`text-3xl font-black text-white font-serif uppercase tracking-widest break-words leading-none mb-2 transform transition-transform duration-500 ease-out ${isHolding ? 'translate-y-0 scale-110' : 'translate-y-4 group-hover:translate-y-0'}`}>
+            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isHolding ? 'opacity-90' : 'opacity-60 group-hover:opacity-80'}`} />
+
+            <div className="absolute inset-0 p-4 flex flex-col justify-end z-30">
+                <motion.h3
+                    animate={{ opacity: isDimmable ? 0.8 : 1 }}
+                    className={`text-lg md:text-xl font-black text-white font-serif uppercase tracking-widest leading-none mb-1 transition-transform duration-500Draft ${isHolding ? 'scale-110 -translate-y-4' : ''}`}
+                >
                     {lang.name}
-                </h3>
-                <span className={`text-sm text-white/50 uppercase tracking-[0.3em] font-black transition-opacity duration-500 delay-100 ${isHolding ? 'opacity-100 text-[#C5A059]' : 'opacity-0 group-hover:opacity-100'}`}>
-                    {isHolding ? 'Revealing...' : `${lang.flag} Hold to Select`}
-                </span>
+                </motion.h3>
+                <div className="overflow-hidden h-4">
+                    <motion.span
+                        animate={{ y: isHolding || isSelected ? 0 : 20 }}
+                        className="text-[9px] text-[#C5A059] uppercase tracking-[0.4em] font-black block"
+                    >
+                        {isSelected ? (isHolding ? `Journeying... ${Math.round(holdProgress)}%` : 'HOLD TO START JOURNEY') : 'CASE LOCKED'}
+                    </motion.span>
+                </div>
             </div>
-
-            {/* Glow Effect / Glass Border */}
-            <div className={`absolute inset-0 border transition-colors duration-500 rounded-xl z-10 pointer-events-none ${isHolding ? 'border-[#C5A059]/80 shadow-[0_0_30px_rgba(197,160,89,0.3)]' : 'border-white/10 group-hover:border-white/50'}`} />
         </motion.div>
     );
 };
 
-const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => {
+const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
+    const [stagedLang, setStagedLang] = useState(null);
+
+    const onCardClick = (lang) => {
+        if (!stagedLang) {
+            setStagedLang(lang);
+            const clickSfx = new Audio(`/assets/sounds/${lang.id}-click.mp3`);
+            clickSfx.play().catch(() => { });
+        }
+    };
+
+    const onHoldComplete = (lang) => {
+        handleLanguageSelect(lang);
+    };
+
     return (
-        <div className="w-full max-w-7xl mx-auto h-[80vh] flex flex-col justify-center px-0 md:px-4">
-            <h2 className="text-sm font-black text-white/50 mb-8 uppercase tracking-[0.5em] border-b border-white/10 pb-4 text-center mx-4">
-                Select Origin
-            </h2>
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-4">
+            <div className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-3 bg-black/60 backdrop-blur-3xl p-6 border border-white/10 rounded-3xl shadow-[0_0_120px_rgba(0,0,0,0.9)] relative overflow-hidden">
 
-            {/* Mobile-First Cinematic Poster Carousel */}
-            <div className="w-full h-[60vh] overflow-x-auto overflow-y-hidden flex gap-4 px-6 pb-8 snap-x snap-mandatory hide-scrollbar">
-                {LANGUAGES.map((lang, idx) => (
-                    <div key={lang.id} className="snap-center h-full">
-                        <LanguageCard lang={lang} idx={idx} onSelect={handleLanguageSelect} />
-                    </div>
-                ))}
+                {/* Background "Flow" Effect */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_70%)] animate-pulse pointer-events-none" />
+
+                {/* Grid Mapping */}
+                {[0, 1, 2, 3, 'center', 4, 5, 6, 7].map((pos, i) => {
+                    if (pos === 'center') {
+                        return (
+                            <div key="center-slot" className="relative z-50">
+                                <AnimatePresence mode="wait">
+                                    {stagedLang ? (
+                                        <motion.div
+                                            key={stagedLang.id}
+                                            initial={{ scale: 0, opacity: 0, rotate: -20 }}
+                                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                            exit={{ scale: 0, opacity: 0, rotate: 20 }}
+                                            className="w-full h-full"
+                                        >
+                                            <LanguageCard
+                                                lang={stagedLang}
+                                                isSelected={true}
+                                                isAnySelected={true}
+                                                onSelect={onHoldComplete}
+                                                setSpiritHint={setSpiritHint}
+                                            />
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            key="instruction"
+                                            className="flex flex-col items-center justify-center text-center p-4 bg-white/5 border border-white/10 rounded-lg shadow-inner w-full h-full"
+                                        >
+                                            <LucideCompass className="text-[#C5A059] mb-2 animate-spin-slow" size={24} />
+                                            <h2 className="text-[10px] md:text-xs font-black text-white/80 uppercase tracking-[0.4em] leading-tight">
+                                                Journey Flow
+                                            </h2>
+                                            <p className="text-[7px] font-serif italic text-white/40 mt-2 uppercase tracking-widest leading-relaxed">
+                                                Select Case to Begin
+                                            </p>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        );
+                    }
+
+                    const lang = LANGUAGES[pos];
+                    const isDimmable = stagedLang && stagedLang.id !== lang.id;
+                    const isOriginal = !stagedLang || stagedLang.id !== lang.id;
+
+                    return (
+                        <div key={`slot-${i}`} className="relative h-full w-full">
+                            {isOriginal && (
+                                <LanguageCard
+                                    lang={lang}
+                                    idx={pos}
+                                    isDimmable={isDimmable}
+                                    isAnySelected={!!stagedLang}
+                                    onSelect={onCardClick}
+                                    setSpiritHint={setSpiritHint}
+                                />
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
-            <div className="text-center mt-4">
-                <span className="text-[9px] text-white/40 uppercase tracking-[0.4em] font-black pointer-events-none animate-pulse">
-                    Hold card for 3 seconds to seal fate
-                </span>
-            </div>
+            <motion.p
+                animate={{ opacity: stagedLang ? 0.8 : 0.2 }}
+                className="text-[9px] font-black uppercase tracking-[0.8em] text-white mt-12 text-center"
+            >
+                {stagedLang ? `INVITING THE ${stagedLang.name} MULTIVERSE...` : "THE MANOR AWAITS YOUR SOUL'S VOYAGE."}
+            </motion.p>
         </div>
     );
 };
@@ -1212,7 +1347,7 @@ const App = () => {
                                 className="flex flex-col items-center w-full"
                             >
                                 {step === 'language' && (
-                                    <LanguageView LANGUAGES={LANGUAGES} handleLanguageSelect={handleLanguageSelect} />
+                                    <LanguageView LANGUAGES={LANGUAGES} handleLanguageSelect={handleLanguageSelect} setSpiritHint={setSpiritHint} />
                                 )}
                                 {step === 'confirm' && (
                                     <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
