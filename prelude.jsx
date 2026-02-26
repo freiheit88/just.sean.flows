@@ -22,15 +22,16 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 // [V9 UPDATE: Masterpiece Version Polish]
 const BUILD_VERSION = "v1.4.0-clockwork-masterpiece-final"; // V10: Final Polish
 
+// [V10 UPDATE: Cinematic Editorial - Muted Tones & Diffused Glow]
 const THEME_CONFIG = {
-    ko: { bg: 'bg-[#1A1612]', text: 'text-[#E0D0B0]', accent: 'text-[#C5A059]', border: 'border-[#C5A059]', shadow: 'shadow-[#C5A059]/30', font: 'font-serif' },
-    en: { bg: 'bg-[#0F172A]', text: 'text-slate-200', accent: 'text-sky-400', border: 'border-sky-500/50', shadow: 'shadow-sky-500/20', font: 'font-sans' },
-    ja: { bg: 'bg-[#F8F5F2]', text: 'text-[#2C2C2C]', accent: 'text-[#D0104C]', border: 'border-[#2C2C2C]', shadow: 'shadow-black/10', font: 'font-serif' },
-    de: { bg: 'bg-[#120D0B]', text: 'text-[#9A8C81]', accent: 'text-[#B22222]', border: 'border-[#3D3028]', shadow: 'shadow-red-900/40', font: 'font-serif' },
-    fr: { bg: 'bg-[#FDFCF0]', text: 'text-[#4A3728]', accent: 'text-[#D4AF37]', border: 'border-[#D4AF37]', shadow: 'shadow-amber-500/20', font: 'font-serif' },
-    cn: { bg: 'bg-[#1C1C1C]', text: 'text-[#D4D4D4]', accent: 'text-[#EE1C25]', border: 'border-[#EE1C25]/40', shadow: 'shadow-red-600/20', font: 'font-sans' },
-    es: { bg: 'bg-[#F4EBD0]', text: 'text-[#2D2926]', accent: 'text-[#E31837]', border: 'border-[#FFB81C]', shadow: 'shadow-orange-500/20', font: 'font-serif' },
-    it: { bg: 'bg-[#003153]', text: 'text-[#FFFFFF]', accent: 'text-[#008C45]', border: 'border-[#CD212A]', shadow: 'shadow-white/10', font: 'font-serif' }
+    ko: { bg: 'bg-[#121114]', text: 'text-[#EFEFF0]', accent: 'text-[#9A8C9E]', border: 'border-[#9A8C9E]/40', shadow: 'shadow-[#9A8C9E]/10', blur: 'backdrop-blur-sm', font: 'font-serif' }, // Muted Lavender
+    en: { bg: 'bg-[#0F1115]', text: 'text-[#F0F2F5]', accent: 'text-[#4A6478]', border: 'border-[#4A6478]/40', shadow: 'shadow-[#4A6478]/10', blur: 'backdrop-blur-sm', font: 'font-sans' }, // Muted Electric Blue
+    es: { bg: 'bg-[#151211]', text: 'text-[#F5EBE8]', accent: 'text-[#A67B71]', border: 'border-[#A67B71]/40', shadow: 'shadow-[#A67B71]/10', blur: 'backdrop-blur-sm', font: 'font-serif' }, // Muted Coral
+    hi: { bg: 'bg-[#14120F]', text: 'text-[#F5F2EC]', accent: 'text-[#B08D5B]', border: 'border-[#B08D5B]/40', shadow: 'shadow-[#B08D5B]/10', blur: 'backdrop-blur-sm', font: 'font-sans' }, // Muted Amber
+    de: { bg: 'bg-[#101211]', text: 'text-[#ECEFEF]', accent: 'text-[#7D9185]', border: 'border-[#7D9185]/40', shadow: 'shadow-[#7D9185]/10', blur: 'backdrop-blur-sm', font: 'font-serif' }, // Muted Sage Green
+    ja: { bg: 'bg-[#0E1112]', text: 'text-[#EBF1F2]', accent: 'text-[#6B8C96]', border: 'border-[#6B8C96]/40', shadow: 'shadow-[#6B8C96]/10', blur: 'backdrop-blur-sm', font: 'font-serif' }, // Muted Cyan
+    ar: { bg: 'bg-[#131013]', text: 'text-[#F4EEF4]', accent: 'text-[#966B84]', border: 'border-[#966B84]/40', shadow: 'shadow-[#966B84]/10', blur: 'backdrop-blur-sm', font: 'font-serif' }, // Muted Magenta
+    pl: { bg: 'bg-[#121212]', text: 'text-[#EEEEEE]', accent: 'text-[#8A8A8A]', border: 'border-[#8A8A8A]/40', shadow: 'shadow-[#8A8A8A]/10', blur: 'backdrop-blur-sm', font: 'font-serif' }  // Muted Ash
 };
 
 const LANGUAGES = [
@@ -51,7 +52,7 @@ const LANGUAGES = [
         }
     },
     {
-        id: 'en', name: 'English', flag: '🇺🇸',
+        id: 'en', name: 'English', flag: '🇬🇧',
         welcome: "Welcome to the Lord Manor, guest. The gears of destiny await your touch.",
         loading: "Consulting the Chronometer...",
         ui: {
@@ -64,70 +65,6 @@ const LANGUAGES = [
             confirmTitle: "Is this the tongue you speak?", confirmBtn: "I Consent", confirmDone: "Tongue Bound",
             todoTitle: "Manifesto", todo1: "Forge Identity", todo2: "Inspect Heart", todo3: "Seal Fate", todoDone: "Destiny manifested.",
             consulting: "The Algorithm Whispers...", sealBtn: "Seal This Fate", fateSealed: "Destiny Locked",
-        }
-    },
-    {
-        id: 'ja', name: '日本語', flag: '🇯🇵',
-        welcome: "ロード・マナーへようこそ。運命の歯車があなたを待っています。",
-        loading: "クロノメーターを照合中...",
-        ui: {
-            authTitle: "エーテル身元確認", authBtn: "魂の刻印を確認", authDone: "身元封印完了",
-            galleryTitle: "マナー・アーカイブ", gallerySub: "歴史的記録 1899",
-            manorTitle: "時計仕掛けの心臓", manorHeirlooms: "祖先の歯車", manorEstate: "邸宅の敷地",
-            returnGallery: "アーカイブへ戻る", textOptionTitle: "名を記す",
-            textInputPlaceholder: "来客名...", textSubmitBtn: "身元を召喚",
-            uploadTitle: "エーテル肖像をスキャン", generateBtn: "魂を錬成", generating: "錬成中...",
-            confirmTitle: "この言語があなたの母国語ですか？", confirmBtn: "同意する", confirmDone: "言語バインド完了",
-            todoTitle: "マニフェスト", todo1: "身元を錬成", todo2: "心臓を点検", todo3: "運命を封印", todoDone: "運命が具現化されました。",
-            consulting: "アルゴリズムの囁き...", sealBtn: "運命を封印する", fateSealed: "運命確定",
-        }
-    },
-    {
-        id: 'de', name: 'Deutsch', flag: '🇩🇪',
-        welcome: "Willkommen im Lord Manor. Die Zahnräder des Schicksals erwarten Sie.",
-        loading: "Konsultiere das Chronometer...",
-        ui: {
-            authTitle: "Ätherische Identität", authBtn: "Seelenabdruck verifizieren", authDone: "Identität besiegelt",
-            galleryTitle: "MANOR ARCHIV", gallerySub: "Historische Aufzeichnung 1899",
-            manorTitle: "Das mechanische Herz", manorHeirlooms: "Ahnen-Zahnräder", manorEstate: "Anwesen",
-            returnGallery: "Zurück zum Archiv", textOptionTitle: "Namen eintragen",
-            textInputPlaceholder: "Gastname...", textSubmitBtn: "Identität beschwören",
-            uploadTitle: "Äther-Porträt scannen", generateBtn: "Seele schmieden", generating: "Transmutiere...",
-            confirmTitle: "Ist dies Ihre Muttersprache?", confirmBtn: "Ich stimme zu", confirmDone: "Sprache gebunden",
-            todoTitle: "Manifest", todo1: "Identität schmieden", todo2: "Herz inspizieren", todo3: "Schicksal besiegeln", todoDone: "Schicksal manifestiert.",
-            consulting: "Der Algorithmus flüstert...", sealBtn: "Schicksal besiegeln", fateSealed: "Schicksal gesperrt",
-        }
-    },
-    {
-        id: 'fr', name: 'Français', flag: '🇫🇷',
-        welcome: "Bienvenue au Lord Manor. Les rouages du destin attendent votre toucher.",
-        loading: "Consultation du Chronomètre...",
-        ui: {
-            authTitle: "Identité Éthérée", authBtn: "Vérifier l'empreinte de l'âme", authDone: "Identité scellée",
-            galleryTitle: "ARCHIVES DU MANOIR", gallerySub: "Dossier Historique 1899",
-            manorTitle: "Le Coeur Mécanique", manorHeirlooms: "Engrenages Ancestraux", manorEstate: "Domaine",
-            returnGallery: "Retour aux Archives", textOptionTitle: "Inscrivez votre nom",
-            textInputPlaceholder: "Nom du client...", textSubmitBtn: "Invoquer l'identité",
-            uploadTitle: "Scanner le portrait éthéré", generateBtn: "Forger l'âme", generating: "Transmutation...",
-            confirmTitle: "Est-ce votre langue maternelle ?", confirmBtn: "Je consens", confirmDone: "Langue liée",
-            todoTitle: "Manifeste", todo1: "Forger l'identité", todo2: "Inspecter le coeur", todo3: "Sceller le destin", todoDone: "Destin manifesté.",
-            consulting: "L'algorithme murmure...", sealBtn: "Sceller ce destin", fateSealed: "Destin verrouillé",
-        }
-    },
-    {
-        id: 'cn', name: '简体中文', flag: '🇨🇳',
-        welcome: "欢迎来到领主庄园。命运的齿轮正等待着您的触碰。",
-        loading: "咨询计时器...",
-        ui: {
-            authTitle: "以太身份", authBtn: "验证灵魂印记", authDone: "身份已密封",
-            galleryTitle: "庄园档案", gallerySub: "历史记录 1899",
-            manorTitle: "发条之心", manorHeirlooms: "祖先的齿轮", manorEstate: "庄园领地",
-            returnGallery: "回到档案", textOptionTitle: "签下你的大名",
-            textInputPlaceholder: "访客姓名...", textSubmitBtn: "召唤身份",
-            uploadTitle: "扫描以太肖像", generateBtn: "锻造灵魂", generating: "正在嬗变...",
-            confirmTitle: "这是您的母语吗？", confirmBtn: "我同意", confirmDone: "语言已绑定",
-            todoTitle: "宣言", todo1: "锻造身份", todo2: "检查心脏", todo3: "封印命运", todoDone: "命运已显现。",
-            consulting: "算法在低语...", sealBtn: "封印这个命运", fateSealed: "命运已锁定",
         }
     },
     {
@@ -147,19 +84,83 @@ const LANGUAGES = [
         }
     },
     {
-        id: 'it', name: 'Italiano', flag: '🇮🇹',
-        welcome: "Benvenuti a Lord Manor. Gli ingranaggi del destino attendono il vostro tocco.",
-        loading: "Consultazione del Cronometro...",
+        id: 'hi', name: 'हिन्दी', flag: '🇮🇳',
+        welcome: "लॉर्ड मैनर में आपका स्वागत है। भाग्य के पहिये आपकी प्रतीक्षा कर रहे हैं।",
+        loading: "क्रोनोमीटर से परामर्श...",
         ui: {
-            authTitle: "Identità Eterea", authBtn: "Verifica l'impronta dell'anima", authDone: "Identità sigillata",
-            galleryTitle: "ARCHIVIO DEL MANIERO", gallerySub: "Documenti Storici 1899",
-            manorTitle: "Il Cuore a Orologeria", manorHeirlooms: "Ingranaggi Ancestrali", manorEstate: "Terreni del Maniero",
-            returnGallery: "Torna all'Archivio", textOptionTitle: "Scrivi il tuo nome",
-            textInputPlaceholder: "Nome dell'ospite...", textSubmitBtn: "Invoca Identità",
-            uploadTitle: "Scansiona Ritratto dell'Etere", generateBtn: "Forgia l'Anima", generating: "Trasmutazione...",
-            confirmTitle: "È la vostra lingua madre?", confirmBtn: "Acconsento", confirmDone: "Lingua vincolata",
-            todoTitle: "Manifesto", todo1: "Forgia identità", todo2: "Ispeziona il cuore", todo3: "Sigilla il destino", todoDone: "Destino manifestato.",
-            consulting: "L'algoritmo sussurra...", sealBtn: "Sigilla questo destino", fateSealed: "Destino bloccato",
+            authTitle: "ईथर पहचान", authBtn: "आत्मा की छाप सत्यापित करें", authDone: "पहचान सील",
+            galleryTitle: "मैनर पुरालेख", gallerySub: "ऐतिहासिक रिकॉर्ड 1899",
+            manorTitle: "लॉर्ड मैनर", manorHeirlooms: "पैतृक गियर्स", manorEstate: "मैनर मैदान",
+            returnGallery: "पुरालेख पर वापस", textOptionTitle: "अपना नाम दर्ज करें",
+            textInputPlaceholder: "अतिथि का नाम...", textSubmitBtn: "पहचान बुलाएं",
+            uploadTitle: "ईथर पोर्ट्रेट स्कैन करें", generateBtn: "आत्मा बनाएं", generating: "रूपांतरण...",
+            confirmTitle: "क्या यह आपकी मातृभाषा है?", confirmBtn: "मैं सहमत हूँ", confirmDone: "भाषा बाध्य",
+            todoTitle: "घोषणापत्र", todo1: "पहचान बनाएं", todo2: "हृदय का निरीक्षण करें", todo3: "भाग्य को सील करें", todoDone: "भाग्य प्रकट हुआ।",
+            consulting: "एल्गोरिथम फुसफुसाता है...", sealBtn: "इस भाग्य को सील करें", fateSealed: "भाग्य लॉक हो गया",
+        }
+    },
+    {
+        id: 'de', name: 'Deutsch', flag: '🇩🇪',
+        welcome: "Willkommen im Lord Manor. Die Zahnräder des Schicksals erwarten Sie.",
+        loading: "Konsultiere das Chronometer...",
+        ui: {
+            authTitle: "Ätherische Identität", authBtn: "Seelenabdruck verifizieren", authDone: "Identität besiegelt",
+            galleryTitle: "MANOR ARCHIV", gallerySub: "Historische Aufzeichnung 1899",
+            manorTitle: "Das mechanische Herz", manorHeirlooms: "Ahnen-Zahnräder", manorEstate: "Anwesen",
+            returnGallery: "Zurück zum Archiv", textOptionTitle: "Namen eintragen",
+            textInputPlaceholder: "Gastname...", textSubmitBtn: "Identität beschwören",
+            uploadTitle: "Äther-Porträt scannen", generateBtn: "Seele schmieden", generating: "Transmutiere...",
+            confirmTitle: "Ist dies Ihre Muttersprache?", confirmBtn: "Ich stimme zu", confirmDone: "Sprache gebunden",
+            todoTitle: "Manifest", todo1: "Identität schmieden", todo2: "Herz inspizieren", todo3: "Schicksal besiegeln", todoDone: "Schicksal manifestiert.",
+            consulting: "Der Algorithmus flüstert...", sealBtn: "Schicksal besiegeln", fateSealed: "Schicksal gesperrt",
+        }
+    },
+    {
+        id: 'ja', name: '日本語', flag: '🇯🇵',
+        welcome: "ロード・マナーへようこそ。運命の歯車があなたを待っています。",
+        loading: "クロノメーターを照合中...",
+        ui: {
+            authTitle: "エーテル身元確認", authBtn: "魂の刻印を確認", authDone: "身元封印完了",
+            galleryTitle: "マナー・アーカイブ", gallerySub: "歴史的記録 1899",
+            manorTitle: "時計仕掛けの心臓", manorHeirlooms: "祖先の歯車", manorEstate: "邸宅の敷地",
+            returnGallery: "アーカイブへ戻る", textOptionTitle: "名を記す",
+            textInputPlaceholder: "来客名...", textSubmitBtn: "身元を召喚",
+            uploadTitle: "エーテル肖像をスキャン", generateBtn: "魂を錬成", generating: "錬成中...",
+            confirmTitle: "この言語があなたの母国語ですか？", confirmBtn: "同意する", confirmDone: "言語バインド完了",
+            todoTitle: "マニフェスト", todo1: "身元を錬成", todo2: "心臓を点検", todo3: "運命を封印", todoDone: "運命が具現化されました。",
+            consulting: "アルゴリズムの囁き...", sealBtn: "運命を封印する", fateSealed: "運命確定",
+        }
+    },
+    {
+        id: 'ar', name: 'العربية', flag: '🇸🇦',
+        welcome: "مرحبًا بكم في لورد مانور. تروس القدر في انتظار لمستك.",
+        loading: "استشارة الكرونومتر...",
+        ui: {
+            authTitle: "هوية الأثير", authBtn: "التحقق من بصمة الروح", authDone: "تم ختم الهوية",
+            galleryTitle: "أرشيف القصر", gallerySub: "سجل تاريخي 1899",
+            manorTitle: "قلب الساعة", manorHeirlooms: "تروس الأجداد", manorEstate: "أراضي القصر",
+            returnGallery: "العودة للأرشيف", textOptionTitle: "أدخل اسمك",
+            textInputPlaceholder: "اسم الضيف...", textSubmitBtn: "استدعاء الهوية",
+            uploadTitle: "مسح صورة الأثير", generateBtn: "صياغة الروح", generating: "تحويل...",
+            confirmTitle: "هل هذه لغتك الأم؟", confirmBtn: "أوافق", confirmDone: "تم ربط اللغة",
+            todoTitle: "البيان", todo1: "صياغة الهوية", todo2: "فحص القلب", todo3: "ختم القدر", todoDone: "القدر يتجلى.",
+            consulting: "الخوارزمية تهمس...", sealBtn: "ختم هذا القدر", fateSealed: "القدر مغلق",
+        }
+    },
+    {
+        id: 'pl', name: 'Polski', flag: '🇵🇱',
+        welcome: "Witamy w Lord Manor. Tryby przeznaczenia czekają na twój dotyk.",
+        loading: "Konsultacja z Chronometrem...",
+        ui: {
+            authTitle: "Eteryczna Tożsamość", authBtn: "Weryfikuj Duszę", authDone: "Tożsamość Zapieczętowana",
+            galleryTitle: "ARCHIWUM DWORU", gallerySub: "Zapis Historyczny 1899",
+            manorTitle: "Mechaniczne Serce", manorHeirlooms: "Zębatki Przodków", manorEstate: "Tereny Dworu",
+            returnGallery: "Powrót do Archiwum", textOptionTitle: "Wpisz Swoje Imię",
+            textInputPlaceholder: "Imię Gościa...", textSubmitBtn: "Przyzwij Tożsamość",
+            uploadTitle: "Skanuj Eteryczny Portret", generateBtn: "Wykuj Duszę", generating: "Transmutacja...",
+            confirmTitle: "Czy to twój język ojczysty?", confirmBtn: "Wyrażam zgodę", confirmDone: "Język Związany",
+            todoTitle: "Manifest", todo1: "Wykuj Tożsamość", todo2: "Zbadaj Serce", todo3: "Zapieczętuj Los", todoDone: "Przeznaczenie zrealizowane.",
+            consulting: "Algorytm Szepcze...", sealBtn: "Zapieczętuj ten los", fateSealed: "Los Zablokowany",
         }
     }
 ];
@@ -279,24 +280,24 @@ const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter,
             "{selectedLang.welcome}"
         </PaperCard>
 
-        <PaperCard className="bg-[#1A1612]/5 border-[#C5A059]/40 border-2 py-4 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-8 h-8 opacity-10"><LucideZap size={32} className="text-[#C5A059]" /></div>
-            <h3 className="text-sm font-black text-[#5C1A1A] uppercase mb-3 tracking-widest flex items-center gap-2">
-                <LucideFeather size={18} /> {selectedLang.ui.textOptionTitle}
+        <PaperCard className={`bg-[#0A0A0B]/60 backdrop-blur-md border border-[${THEME_CONFIG[selectedLang.id]?.border || '#333'}] py-6 p-4 shadow-2xl relative overflow-hidden flex flex-col items-center`}>
+            <div className="absolute top-0 right-0 w-8 h-8 opacity-5"><LucideZap size={32} className={`text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]`} /></div>
+            <h3 className={`text-xs font-black uppercase mb-4 tracking-[0.2em] flex items-center gap-2 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/60'}`}>
+                <LucideFeather size={16} /> {selectedLang.ui.textOptionTitle}
             </h3>
             <input
                 type="text"
                 value={userName}
                 onChange={e => { setUserName(e.target.value); }}
-                onFocus={() => playSfx?.('scratch')}
+                onFocus={() => playSfx?.('click')}
                 placeholder={selectedLang.ui.textInputPlaceholder}
-                className="w-full bg-transparent text-[#5C1A1A] border-b border-[#8B7355] p-2 mb-4 focus:outline-none font-serif text-lg transition-all focus:border-[#C5A059]"
+                className={`w-full bg-transparent border-b border-white/10 p-3 mb-6 focus:outline-none font-serif text-lg transition-all focus:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] placeholder-white/20 text-center ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}
             />
             <button
                 onClick={generateTextCharacter}
                 disabled={isAvatarGenerating || !userName.trim()}
-                onMouseEnter={() => playSfx?.('click')}
-                className="w-full py-3 bg-[#C5A059] text-[#1A1612] font-black uppercase tracking-widest text-xs hover:bg-[#D4C5A3] disabled:opacity-50 transition-all shadow-md active:scale-95"
+                onMouseEnter={() => playSfx?.('hover')}
+                className={`w-full py-4 bg-white/5 border border-white/10 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} font-black uppercase tracking-[0.3em] text-[10px] hover:bg-white/10 disabled:opacity-30 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 backdrop-blur-sm`}
             >
                 {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.textSubmitBtn}
             </button>
@@ -319,9 +320,10 @@ const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter,
             <motion.button
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 onClick={generateCharacter}
-                className="w-full py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-xs hover:bg-[#5C1A1A] transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95"
+                onMouseEnter={() => playSfx?.('hover')}
+                className={`w-full py-4 bg-black/40 border border-white/10 backdrop-blur-md ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white/10 transition-all flex items-center justify-center gap-2 shadow-2xl active:scale-95`}
             >
-                <LucideCamera size={18} />
+                <LucideCamera size={16} />
                 {selectedLang.ui.generateBtn}
             </motion.button>
         )}
@@ -335,87 +337,91 @@ const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter,
     </div>
 );
 
-const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos }) => {
-    const slots = [
-        { id: 1, type: 'manor', title: selectedLang.ui.manorTitle },
-        { id: 2, type: 'archive', title: '1899', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=300' },
-        { id: 3, type: 'ad', title: 'Steam Co.', text: 'Industrial' },
-        { id: 4, type: 'archive', title: '1900', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=300' },
-        { id: 5, type: 'current', isCenter: true },
-        { id: 6, type: 'ad', title: 'Aether', text: 'Wireless' },
-        { id: 7, type: 'empty' },
-        { id: 8, type: 'ad', title: 'Elixir', text: 'Vitality' },
-        { id: 10, type: 'poster', title: 'GRAND OPENING', image: '/assets/opening-poster.jpg' },
-        { id: 9, type: 'empty' },
+const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx }) => {
+    // [V10 UPDATE: Cinematic Editorial 3x3 Grid]
+    const gridItems = [
+        { id: 1, type: 'text', title: 'START THE JOURNEY', subtitle: 'Enter the Core' },
+        { id: 2, type: 'image', title: 'MEMORY', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=300' },
+        { id: 3, type: 'text', title: 'NEXT STOP: SEOUL', subtitle: 'Flight 88' },
+        { id: 4, type: 'image', title: 'ARCHIVE', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=300' },
+        { id: 5, type: 'current', title: '퇴근하고 곧 돌아오겠습니다.', isCenter: true },
+        { id: 6, type: 'manor', title: selectedLang.ui.manorTitle },
+        { id: 7, type: 'text', title: 'DIGITAL SOUL', subtitle: 'Humanity in Code' },
+        { id: 8, type: 'image', title: 'VISION', image: 'https://images.unsplash.com/photo-1440688807730-73e4e2169fb8?auto=format&fit=crop&w=300&q=80' },
+        { id: 9, type: 'rules', title: 'HOUSE RULES', subtitle: 'No Artificial Empathy' },
     ];
 
     return (
-        <div className="w-full max-w-lg mx-auto flex flex-col items-center justify-center space-y-4 h-full py-4 overflow-hidden">
+        <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center space-y-6 h-full py-4 overflow-hidden">
             <div className="text-center">
-                <h1 className="text-3xl font-black text-[#C5A059] mb-1 uppercase tracking-widest leading-none">{selectedLang.ui.galleryTitle}</h1>
-                <p className="text-[#8B7355] text-[8px] font-black uppercase tracking-[0.4em]">{selectedLang.ui.gallerySub}</p>
+                <h1 className={`text-4xl font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-1 uppercase tracking-widest leading-none filter drop-shadow-md`}>{selectedLang.ui.galleryTitle}</h1>
+                <p className={`text-[10px] font-black uppercase tracking-[0.5em] ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/50'}`}>Cinematic Editorial</p>
             </div>
 
-            <div className="flex-1 w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex items-center gap-4 px-10">
-                {slots.map((slot, idx) => (
+            <div className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-[2px] p-2 bg-[#0A0A0B]/80 backdrop-blur-md border border-white/10 shadow-2xl relative">
+                {/* Vintage overlay artifact */}
+                <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-overlay bg-[url('/assets/steampunk_paper_texture.png')]" />
+
+                {gridItems.map((slot, idx) => (
                     <motion.div
                         key={slot.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="min-w-[180px] aspect-square snap-center"
+                        transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
+                        className="w-full h-full relative"
                     >
                         {slot.type === 'current' ? (
                             <button
-                                onClick={() => setViewMode('mission_active')}
-                                className="w-full h-full relative bg-[#2C241B] border-4 border-[#C5A059] shadow-inner overflow-hidden active:scale-95 transition-transform"
+                                onClick={() => { setViewMode('mission_active'); playSfx?.('click'); }}
+                                onMouseEnter={() => playSfx?.('hover')}
+                                className={`w-full h-full relative bg-[#0A0A0B] border border-white/20 overflow-hidden group active:scale-95 transition-transform hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] flex flex-col justify-center items-center`}
                             >
-                                <div className="absolute inset-0 flex items-center justify-center p-2">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 z-10" />
+                                <div className="absolute inset-0 flex items-center justify-center p-2 z-0">
                                     {userAvatar?.isTextAvatar ? (
-                                        <span className="text-[#C5A059] font-black text-xl uppercase text-center leading-tight">{userAvatar.textName}</span>
+                                        <span className={`font-black text-2xl uppercase text-center leading-tight ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} opacity-80 mix-blend-screen`}>{userAvatar.textName}</span>
                                     ) : (
-                                        <img src={userAvatar?.image} className="w-full h-full object-cover" alt="avatar" />
+                                        <img src={userAvatar?.image} className="w-full h-full object-cover opacity-60 mix-blend-luminosity" alt="avatar" />
                                     )}
                                 </div>
-                                <div className="absolute bottom-0 w-full bg-[#5C1A1A] text-[#f4e4bc] text-[8px] font-black py-1 uppercase tracking-widest text-center">Active</div>
+                                <div className="relative z-20 text-center px-1">
+                                    <p className={`text-[8px] font-serif italic mb-1 opacity-70 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>Sean's Persona</p>
+                                    <h4 className={`text-[10px] font-black uppercase tracking-widest leading-tight ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`}>{slot.title}</h4>
+                                </div>
                             </button>
                         ) : slot.type === 'manor' ? (
                             <button
-                                onClick={() => { setViewMode('home_interior'); setTodos(p => ({ ...p, home: true })); }}
-                                className="w-full h-full relative bg-[#2C241B] border-4 border-[#8B7355] flex flex-col items-center justify-center hover:border-[#C5A059] transition-all group active:scale-95"
+                                onClick={() => { setViewMode('home_interior'); setTodos(p => ({ ...p, home: true })); playSfx?.('click'); }}
+                                onMouseEnter={() => playSfx?.('hover')}
+                                className={`w-full h-full relative bg-[#121214] flex flex-col items-center justify-center hover:bg-white/5 transition-colors group active:scale-95 border border-transparent hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/50`}
                             >
-                                <LucideLayout size={32} className="text-[#C5A059] mb-1" />
-                                <span className="text-[#8B7355] text-[8px] font-black uppercase">{slot.title}</span>
+                                <LucideLayout size={24} className={`mb-2 opacity-50 group-hover:opacity-100 transition-opacity ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`} />
+                                <span className="text-white/60 text-[8px] font-black uppercase tracking-widest">{slot.title}</span>
                             </button>
-                        ) : slot.type === 'archive' ? (
-                            <div className="w-full h-full border-4 border-[#2C241B] relative overflow-hidden bg-black grayscale">
-                                <img src={slot.image} className="w-full h-full object-cover opacity-50" alt="archive" />
-                                <div className="absolute bottom-1 left-1 bg-black/80 px-1 text-[#f4e4bc] text-[8px] font-black border border-[#C5A059]/40 uppercase tracking-widest">{slot.title}</div>
+                        ) : slot.type === 'image' ? (
+                            <div className="w-full h-full relative overflow-hidden bg-black grayscale hover:grayscale-0 transition-all duration-1000 group">
+                                <img src={slot.image} className="w-full h-full object-cover opacity-40 group-hover:opacity-80 transition-opacity duration-1000 group-hover:scale-110" alt="archive" />
+                                <div className="absolute bottom-1 left-1 bg-black/80 px-1 py-0.5 text-white/80 text-[7px] font-black uppercase tracking-widest backdrop-blur-sm">{slot.title}</div>
                             </div>
-                        ) : slot.type === 'ad' ? (
-                            <div className="w-full h-full relative bg-[#f4e4bc] border-4 border-[#2C241B] p-2 flex flex-col items-center justify-center text-center bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] shadow-inner">
-                                <span className="font-black text-[10px] uppercase text-[#5C1A1A] leading-none mb-1">{slot.title}</span>
-                                <span className="text-[8px] italic text-[#2C241B] leading-none uppercase">{slot.text}</span>
-                            </div>
-                        ) : slot.type === 'poster' ? (
-                            <div className="w-full h-full border-4 border-[#C5A059] relative overflow-hidden shadow-2xl group">
-                                <img src={slot.image} className="w-full h-full object-cover transition-transform duration-[20s] group-hover:scale-125" alt="teaser" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-2">
-                                    <span className="text-[10px] font-black text-[#C5A059] tracking-widest leading-none mb-1">Coming Soon</span>
-                                    <span className="text-[8px] text-[#f4e4bc] opacity-60 uppercase">{slot.title}</span>
-                                </div>
+                        ) : slot.type === 'rules' ? (
+                            <div className={`w-full h-full relative bg-[${THEME_CONFIG[selectedLang.id]?.accent || '#555'}]/10 flex flex-col items-center justify-center text-center p-2 border border-white/5 hover:bg-white/10 transition-colors`}>
+                                <LucideInfo size={16} className={`mb-1 opacity-60 ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`} />
+                                <span className={`font-black text-[9px] uppercase leading-none mb-1 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{slot.title}</span>
+                                <span className="text-[7px] font-serif italic text-white/50 leading-tight uppercase">{slot.subtitle}</span>
                             </div>
                         ) : (
-                            <div className="w-full h-full relative border-4 border-[#2C241B]/30 bg-black/10 flex items-center justify-center">
-                                <div className="w-1/2 h-1/2 border border-dashed border-[#8B7355]/20" />
+                            <div className="w-full h-full relative bg-[#0D0D10] flex flex-col items-center justify-center p-2 text-center border border-white/5 hover:border-white/20 transition-colors">
+                                <span className={`font-black text-[9px] uppercase leading-tight mb-1 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'}`}>{slot.title}</span>
+                                <span className={`text-[7px] font-serif italic leading-none ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/40'}`}>{slot.subtitle}</span>
                             </div>
                         )}
                     </motion.div>
                 ))}
             </div>
-            <div className="flex gap-1 mb-4">
-                {slots.map((_, i) => <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#C5A059]/20 shadow-sm" />)}
-            </div>
+
+            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/30 text-center px-8 border-t border-white/10 pt-4">
+                "Digital Body. Analog Soul."
+            </p>
         </div>
     );
 };
@@ -426,21 +432,24 @@ const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandle
             <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
         </button>
 
-        <PaperCard className="w-full flex-1 max-h-[75vh] p-0 border-[#C5A059] border-4 bg-[#1A1612] relative overflow-hidden shadow-2xl">
-            {/* Artifact Manor BG: steampunk_manor_background_1772052884363.png */}
+        <PaperCard className={`w-full flex-1 max-h-[75vh] p-0 border border-[${THEME_CONFIG[selectedLang.id]?.border || '#333'}] bg-transparent relative overflow-hidden shadow-2xl backdrop-blur-md`}>
+            {/* Ambient Background with subtle noise/vignette */}
             <div
-                className="absolute inset-0 bg-center bg-cover opacity-30 sepia brightness-75 contrast-125"
+                className="absolute inset-0 bg-center bg-cover opacity-10 mix-blend-overlay"
                 style={{ backgroundImage: "url('/assets/steampunk_manor_background.png')" }}
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80" />
 
             <div className="relative z-10 flex flex-col items-center p-6 h-full overflow-y-auto no-scrollbar">
-                <div className="w-full flex justify-between mb-4 px-2">
-                    <div className="cursor-pointer hover:scale-110 transition-transform" onClick={() => setCandleLit(!candleLit)}>
-                        <LucideFlame size={24} className={candleLit ? 'text-[#FFAA00] drop-shadow-[0_0_10px_#FFAA00]' : 'text-[#2C241B]'} />
+                <div className="w-full flex justify-between mb-8 px-2">
+                    <div className="cursor-pointer hover:scale-110 transition-transform flex items-center gap-2" onClick={() => setCandleLit(!candleLit)} onMouseEnter={() => playSfx?.('hover')}>
+                        <LucideFlame size={20} className={candleLit ? `text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]` : 'text-white/20'} />
+                        <span className="text-[8px] uppercase tracking-widest text-white/30 font-black hidden sm:block">Aether Core</span>
                     </div>
-                    <div className="cursor-pointer hover:rotate-90 transition-transform" onClick={() => setGearsSpinning(!gearsSpinning)}>
+                    <div className="cursor-pointer hover:rotate-90 transition-transform flex items-center gap-2" onClick={() => setGearsSpinning(!gearsSpinning)} onMouseEnter={() => playSfx?.('hover')}>
+                        <span className="text-[8px] uppercase tracking-widest text-white/30 font-black hidden sm:block">Sync</span>
                         <motion.div animate={{ rotate: gearsSpinning ? 360 : 0 }} transition={{ duration: 4, repeat: gearsSpinning ? Infinity : 0, ease: "linear" }}>
-                            <LucideSettings size={24} className="text-[#C5A059]" />
+                            <LucideOrbit size={20} className={`text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]`} />
                         </motion.div>
                     </div>
                 </div>
@@ -456,20 +465,20 @@ const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandle
                     </div>
                 </div>
 
-                <h3 className="text-xl font-serif font-black text-[#f4e4bc] mb-4 uppercase tracking-widest text-center leading-none">{selectedLang.ui.manorTitle}</h3>
+                <h3 className={`text-xl font-serif font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-6 uppercase tracking-[0.3em] text-center leading-none`}>{selectedLang.ui.manorTitle}</h3>
 
-                <div className="w-full flex-1 bg-black/80 p-4 border border-[#8B7355]/40 rounded-sm font-mono text-[10px] text-[#D4C5A3] leading-relaxed relative overflow-y-auto no-scrollbar shadow-inner">
-                    {loreText}<span className="inline-block w-1.5 h-3 bg-[#C5A059] ml-1 animate-ping" />
+                <div className={`w-full flex-1 bg-black/40 backdrop-blur-sm p-5 border-l border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/30 rounded-r-lg font-mono text-[10px] ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'} leading-relaxed relative overflow-y-auto no-scrollbar shadow-inner`}>
+                    {loreText}<span className={`inline-block w-1.5 h-3 bg-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] ml-1 animate-ping`} />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 w-full mt-4 pt-4 border-t border-[#8B7355]/20">
-                    <motion.div whileHover={{ y: -2 }} className="flex flex-col items-center gap-2 cursor-pointer group">
-                        <LucideTrophy size={18} className="text-[#8B7355] group-hover:text-[#C5A059] transition-colors" />
-                        <span className="text-[10px] font-black uppercase text-[#8B7355] group-hover:text-[#C5A059] tracking-widest">{selectedLang.ui.manorHeirlooms}</span>
+                <div className="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-white/10">
+                    <motion.div whileHover={{ y: -2 }} className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => playSfx?.('click')} onMouseEnter={() => playSfx?.('hover')}>
+                        <LucideCompass size={18} className={`text-white/40 group-hover:text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] transition-colors`} />
+                        <span className={`text-[9px] font-black uppercase text-white/40 group-hover:text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] tracking-widest`}>{selectedLang.ui.manorHeirlooms}</span>
                     </motion.div>
-                    <div className="flex flex-col items-center gap-2 opacity-30">
-                        <LucideMapPin size={18} className="text-[#2C241B]" />
-                        <span className="text-[10px] font-black uppercase text-[#2C241B] tracking-widest">{selectedLang.ui.manorEstate}</span>
+                    <div className="flex flex-col items-center gap-2 opacity-20 pointer-events-none">
+                        <LucideMapPin size={18} className="text-white" />
+                        <span className="text-[9px] font-black uppercase text-white tracking-widest">{selectedLang.ui.manorEstate}</span>
                     </div>
                 </div>
             </div>
@@ -589,18 +598,27 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => (
             <div className="h-[1px] w-64 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto" />
             <p className="text-[10px] font-black uppercase tracking-[0.6em] text-white/40">Select Your Reality</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl z-10 p-4">
             {LANGUAGES.map((lang, idx) => (
                 <motion.button
                     key={lang.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
+                    transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
                     onClick={() => handleLanguageSelect(lang)}
-                    className="group relative flex flex-col items-center p-6 bg-white/5 border border-white/10 hover:border-white/40 transition-all rounded-xl backdrop-blur-sm"
+                    onMouseEnter={() => {
+                        const hoverAudio = new Audio(`/assets/sounds/${lang.id}-hover.mp3`);
+                        hoverAudio.volume = 0.5;
+                        hoverAudio.play().catch(() => console.log("hover deferred"));
+                    }}
+                    className={`group relative flex flex-col items-center justify-center p-8 aspect-square bg-[#0D0D10]/40 border border-[#333]/50 hover:border-[${THEME_CONFIG[lang.id]?.accent || '#FFF'}] transition-all duration-500 rounded-sm backdrop-blur-xl overflow-hidden shadow-2xl hover:shadow-[0_0_30px_${THEME_CONFIG[lang.id]?.border || 'rgba(255,255,255,0.1)'}]`}
                 >
-                    <span className="text-4xl mb-3 transition-transform group-hover:scale-125">{lang.flag}</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-white/60 group-hover:text-white transition-colors">{lang.name}</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-50" />
+                    <span className="text-5xl mb-4 transition-transform duration-700 group-hover:scale-110 group-hover:-translate-y-2 z-10 filter drop-shadow-md">{lang.flag}</span>
+                    <span className={`text-[11px] font-black uppercase tracking-[0.4em] text-white/50 group-hover:text-white transition-colors duration-500 z-10 ${THEME_CONFIG[lang.id]?.text}`}>{lang.name}</span>
+
+                    {/* Glowing Accent Line */}
+                    <div className={`absolute bottom-0 left-0 h-[2px] w-0 bg-[${THEME_CONFIG[lang.id]?.accent || '#FFF'}] group-hover:w-full transition-all duration-700`} />
                 </motion.button>
             ))}
         </div>

@@ -7,12 +7,15 @@ const CinematicOpening = ({ onComplete }) => {
 
     const handleIgnite = () => {
         setPhase('ignite');
-        // We'll use a generic power-up sound or existing click for now
-        const audio = new Audio('/assets/sounds/gear-click.mp3');
-        audio.play().catch(e => console.log("Audio play deferred", e));
+        const clickAudio = new Audio('/assets/sounds/en-click.mp3');
+        clickAudio.play().catch(e => console.log("Audio play deferred", e));
 
         // Sequence timing
-        setTimeout(() => setPhase('open'), 3000);
+        setTimeout(() => {
+            setPhase('open');
+            const swellAudio = new Audio('/assets/sounds/en-transition.mp3');
+            swellAudio.play().catch(e => console.log("Audio play deferred", e));
+        }, 3000);
         setTimeout(() => setPhase('flash'), 7000);
         setTimeout(() => {
             setPhase('finish');
