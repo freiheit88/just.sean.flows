@@ -139,7 +139,7 @@ const LANGUAGES = [
     },
     {
         id: 'ar', name: 'العربية', flag: '🇸🇦',
-        image: 'https://images.unsplash.com/photo-1588691880486-99eb59620ed7?q=80&w=800&auto=format&fit=crop', // Desert dunes
+        image: 'https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=800&auto=format&fit=crop', // Reliable Taj Mahal / Arabic architecture image
         welcome: "مرحبًا بكم في لورد مانور. تروس القدر في انتظار لمستك.",
         loading: "استشارة الكرونومتر...",
         ui: {
@@ -1279,53 +1279,62 @@ const App = () => {
                         </AnimatePresence>
                     </main>
 
-                    {/* Status Widgets: Refined Spirit Sense Only */}
-                    <div className="fixed bottom-8 left-8 z-[100] flex flex-col gap-4 items-start">
+                    {/* Status Widgets: Integrated Assistant Only */}
+                    <div className="fixed bottom-8 left-8 z-[100] flex flex-col gap-4 items-start pointer-events-none">
                         <AnimatePresence>
                             {spiritHint && (
                                 <motion.div
                                     initial={{ opacity: 0, x: -20, scale: 0.8 }}
                                     animate={{ opacity: 1, x: 0, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.8 }}
-                                    className="bg-white/10 backdrop-blur-xl text-white p-4 border border-white/20 shadow-2xl max-w-[200px] text-[10px] uppercase font-black tracking-widest leading-relaxed relative flex flex-col gap-2 rounded-sm"
+                                    className="bg-white/5 backdrop-blur-2xl text-white/90 p-5 border border-white/10 shadow-2xl max-w-[280px] text-[11px] font-medium tracking-wide leading-relaxed relative flex flex-col gap-3 rounded-xl"
                                 >
-                                    <div className="text-[8px] text-white/40 tracking-[0.3em]">AI ASSISTANT</div>
-                                    "{spiritHint}"
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-white/40 animate-pulse" />
+                                        <div className="text-[8px] text-white/30 tracking-[0.4em] font-black uppercase">Manor Intelligence</div>
+                                    </div>
+                                    <div className="italic opacity-80 font-serif text-[13px]">
+                                        "{spiritHint}"
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
-
-                        <button
-                            onClick={useSpiritSense}
-                            disabled={isSpiritSensing}
-                            className={`w-12 h-12 rounded-full flex items-center justify-center border border-white/20 bg-white/5 backdrop-blur-xl text-white shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:scale-110 active:scale-90 transition-all group relative ${isSpiritSensing ? 'animate-pulse opacity-50' : 'hover:bg-white/10'}`}
-                        >
-                            <LucideSparkles size={20} className={isSpiritSensing ? 'animate-spin-slow' : ''} />
-                        </button>
                     </div>
 
-                    {/* Todo Widget */}
-                    {showTodo && (
-                        <div className="fixed bottom-8 right-8 z-[100]">
-                            <GlassCard className="p-6 border-white/10 shadow-2xl max-w-[240px]">
-                                <h4 className="font-black text-white/50 text-[10px] mb-4 uppercase tracking-[0.3em] border-b border-white/10 pb-2">{selectedLang.ui.todoTitle}</h4>
-                                <div className="space-y-4 text-[10px] font-black uppercase tracking-widest text-white/80">
-                                    <div className="flex items-center gap-3">
-                                        {todos.avatar ? <LucideCheckSquare size={16} className="text-white/30" /> : <LucideSquare size={16} className="text-white/60" />}
-                                        <span className={todos.avatar ? 'line-through opacity-30' : ''}>{selectedLang.ui.todo1}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        {todos.home ? <LucideCheckSquare size={16} className="text-white/30" /> : <LucideSquare size={16} className="text-white/60" />}
-                                        <span className={todos.home ? 'line-through opacity-30' : ''}>{selectedLang.ui.todo2}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        {todos.voted ? <LucideCheckSquare size={16} className="text-white/30" /> : <LucideSquare size={16} className="text-white/60" />}
-                                        <span className={todos.voted ? 'line-through opacity-30' : ''}>{selectedLang.ui.todo3}</span>
-                                    </div>
+                    {/* Assistant / Todo Widget Redesign */}
+                    <div className="fixed bottom-8 right-8 z-[100]">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={JSON.stringify(todos)}
+                                initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+                                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
+                                transition={{ duration: 0.8, ease: "circOut" }}
+                                onAnimationStart={() => playSfx('hover')}
+                                className="bg-white/5 backdrop-blur-3xl border border-white/10 p-6 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] max-w-[280px] flex flex-col gap-4 overflow-hidden group"
+                            >
+                                <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
+                                    <LucideSparkles size={12} className="text-white animate-pulse" />
                                 </div>
-                            </GlassCard>
-                        </div>
-                    )}
+                                <h4 className="font-black text-white/40 text-[9px] uppercase tracking-[0.4em] flex items-center gap-2">
+                                    <div className="w-1 h-1 bg-white/40 rounded-full" />
+                                    Mina's Directive
+                                </h4>
+                                <div className="text-[12px] font-serif italic text-white/90 leading-relaxed pr-2">
+                                    {!todos.avatar ? "Your essence remains drifting. Forge your digital soul print to anchor yourself." :
+                                        !todos.home ? "The manor's machinery is stagnant. Warm the mechanical heart and wake the spirits." :
+                                            !todos.voted ? "The oracle is silent, awaiting your decree. Seal the fate of the multiverse projects." :
+                                                "Your journey here is fulfilled. The gears pulse in harmony with your presence."}
+                                </div>
+
+                                <div className="flex gap-1 mt-1">
+                                    <div className={`h-0.5 flex-1 rounded-full transition-all duration-1000 ${todos.avatar ? 'bg-white/40' : 'bg-white/5'}`} />
+                                    <div className={`h-0.5 flex-1 rounded-full transition-all duration-1000 ${todos.home ? 'bg-white/40' : 'bg-white/5'}`} />
+                                    <div className={`h-0.5 flex-1 rounded-full transition-all duration-1000 ${todos.voted ? 'bg-white/40' : 'bg-white/5'}`} />
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
                 </>
             )}
         </div>
