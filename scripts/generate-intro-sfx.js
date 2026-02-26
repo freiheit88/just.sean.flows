@@ -26,7 +26,7 @@ const client = new ElevenLabsClient({ apiKey });
 async function generateSignatureIntro() {
     const filename = `signature-intro.mp3`;
     const targetPath = path.join(__dirname, '..', 'public', 'assets', 'sounds', filename);
-    const prompt = 'A Netflix-style logo intro signature sound: combining a single Traditional Korean Gayageum pluck, a soaring classical violin swell, and a heavy modern electronic synth chord, playing together in a mysterious, awe-inspiring harmony.';
+    const prompt = 'A 5-second 3D spatial cinematic audio logo. A single, powerful, and deeply resonant strike of a traditional large wooden drum, followed immediately by a sharp, crisp, and realistic pluck of an acoustic classical string instrument echoing from a different direction. Studio quality, realistic acoustic sound, no background noise, no synthesizers, 3D binaural effect.';
 
     console.log(`Generating ${filename}...`);
     console.log(`Prompt: ${prompt}`);
@@ -34,7 +34,7 @@ async function generateSignatureIntro() {
     try {
         const rs = await client.textToSoundEffects.convert({
             text: prompt,
-            duration_seconds: 3.5, // Short, punchy intro length
+            duration_seconds: 5.5, // 5 seconds tuning
             prompt_influence: 0.5
         });
 

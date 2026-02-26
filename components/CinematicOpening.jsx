@@ -1,23 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucideZap, LucideOrbit } from 'lucide-react';
 
 const CinematicOpening = ({ onComplete }) => {
     const [phase, setPhase] = useState('idle'); // idle, ignite, flash, finish
 
+    const audioRef = useRef(null);
+
     const handleIgnite = () => {
         setPhase('ignite');
         const signatureAudio = new Audio('/assets/sounds/signature-intro.mp3');
         signatureAudio.volume = 0.8;
+        audioRef.current = signatureAudio;
         signatureAudio.play().catch(e => console.log("Audio play deferred", e));
 
-        // Sequence timing: Tailored to the 3.5s signature sound
-        setTimeout(() => setPhase('flash'), 2500); // Trigger flash near the crescendo
+        // Sequence timing: Tailored to the 5.5s signature sound (orchestra tuning)
+        setTimeout(() => {
+            setPhase('flash');
+
+            // Initiate graceful audio fade-out
+            if (audioRef.current) {
+                const fadeOutInterval = setInterval(() => {
+                    if (audioRef.current.volume > 0.05) {
+                        audioRef.current.volume -= 0.05;
+                    } else {
+                        audioRef.current.volume = 0;
+                        audioRef.current.pause();
+                        clearInterval(fadeOutInterval);
+                    }
+                }, 50); // Fade out over ~800ms
+            }
+        }, 4500); // Trigger flash near the crescendo
 
         setTimeout(() => {
             setPhase('finish');
             onComplete();
-        }, 3200);
+        }, 5200);
     };
 
     return (
@@ -71,7 +89,7 @@ const CinematicOpening = ({ onComplete }) => {
                             ]
                         }}
                         transition={{
-                            duration: 2.5,
+                            duration: 4.5, // Match new audio tuning length
                             ease: [0.11, 0, 0.5, 0], // Custom cubic-bezier for a snap at the end
                             times: [0, 0.4, 1]
                         }}
@@ -87,7 +105,7 @@ const CinematicOpening = ({ onComplete }) => {
                             scale: [0.8, 1, 3.2],
                             opacity: [0, 0.5, 0],
                         }}
-                        transition={{ duration: 2.5, ease: [0.11, 0, 0.5, 0], times: [0, 0.4, 1] }}
+                        transition={{ duration: 4.5, ease: [0.11, 0, 0.5, 0], times: [0, 0.4, 1] }}
                         className="absolute text-red-500 text-6xl md:text-8xl font-black uppercase tracking-[0.2em] mix-blend-screen whitespace-nowrap blur-sm"
                         style={{ marginLeft: '-10px' }}
                     >
@@ -99,7 +117,7 @@ const CinematicOpening = ({ onComplete }) => {
                             scale: [0.8, 1, 3.2],
                             opacity: [0, 0.5, 0],
                         }}
-                        transition={{ duration: 2.5, ease: [0.11, 0, 0.5, 0], times: [0, 0.4, 1] }}
+                        transition={{ duration: 4.5, ease: [0.11, 0, 0.5, 0], times: [0, 0.4, 1] }}
                         className="absolute text-blue-500 text-6xl md:text-8xl font-black uppercase tracking-[0.2em] mix-blend-screen whitespace-nowrap blur-sm"
                         style={{ marginLeft: '10px' }}
                     >

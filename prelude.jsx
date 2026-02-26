@@ -88,9 +88,9 @@ const LANGUAGES = [
     },
     {
         id: 'hi', name: 'हिन्दी', flag: '🇮🇳',
-        image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=800&auto=format&fit=crop', // Taj Mahal / India
-        welcome: "लॉर्ड मैनर में आपका स्वागत है। भाग्य के पहिये आपकी प्रतीक्षा कर रहे हैं。",
-        loading: "क्रोनोमीटर से परामर्श...",
+        image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=800&auto=format&fit=crop', // Taj Mahal / India atmospheric
+        welcome: "लॉर्ड मैनर में आपका स्वागत है। भाग्य के पहिये आपकी प्रतीक्षा कर रहे हैं।",
+        loading: "क्रोनोमीटर से परामर्श किया जा रहा है...",
         ui: {
             authTitle: "ईथर पहचान", authBtn: "आत्मा की छाप सत्यापित करें", authDone: "पहचान सील",
             galleryTitle: "मैनर पुरालेख", gallerySub: "ऐतिहासिक रिकॉर्ड 1899",
@@ -563,53 +563,101 @@ const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePre
     </div>
 );
 
+const LanguageCard = ({ lang, idx, onSelect }) => {
+    const [isHolding, setIsHolding] = useState(false);
+    const holdTimer = useRef(null);
+
+    const handleStart = (e) => {
+        // Prevent default to avoid selection/drag issues
+        if (e.type === 'mousedown' && e.button !== 0) return;
+
+        // Start hold
+        setIsHolding(true);
+
+        const holdSfx = new Audio(`/assets/sounds/${lang.id}-hover.mp3`);
+        holdSfx.volume = 0.5;
+        // Use playback rate to sound like winding up
+        holdSfx.playbackRate = 0.5;
+        holdSfx.play().catch(() => { });
+
+        holdTimer.current = setTimeout(() => {
+            setIsHolding(false);
+            onSelect(lang);
+        }, 3000);
+    };
+
+    const handleEnd = () => {
+        if (holdTimer.current) {
+            clearTimeout(holdTimer.current);
+            holdTimer.current = null;
+        }
+        setIsHolding(false);
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
+            className={`relative flex-shrink-0 w-[240px] md:w-[280px] h-full cursor-pointer group rounded-xl overflow-hidden shadow-2xl transition-all duration-300 select-none ${isHolding ? 'scale-95' : 'hover:scale-105'}`}
+            onMouseDown={handleStart}
+            onMouseUp={handleEnd}
+            onMouseLeave={handleEnd}
+            onTouchStart={handleStart}
+            onTouchEnd={handleEnd}
+            onTouchCancel={handleEnd}
+            onContextMenu={(e) => e.preventDefault()}
+            draggable={false}
+            style={{ touchAction: 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
+        >
+            {/* Immersive Background Image */}
+            <motion.div
+                className={`absolute inset-0 bg-cover bg-center transition-all duration-[3000ms] ease-linear ${isHolding ? 'grayscale-0 scale-110' : 'grayscale'}`}
+                style={{ backgroundImage: `url(${lang.image})` }}
+            />
+
+            {/* Hold Progress Overlay - fills up horizontally over 3s */}
+            <div className="absolute bottom-0 left-0 h-1 bg-white/80 z-20 transition-all duration-300 ease-linear" style={{ width: isHolding ? '100%' : '0%', transitionDuration: isHolding ? '3000ms' : '300ms' }} />
+
+            {/* Dark Cinematic Gradient Overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 transition-opacity duration-1000 ${isHolding ? 'from-black/90' : 'group-hover:from-black/80'}`} />
+
+            {/* Text Content */}
+            <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
+                <h3 className={`text-3xl font-black text-white font-serif uppercase tracking-widest break-words leading-none mb-2 transform transition-transform duration-500 ease-out ${isHolding ? 'translate-y-0 scale-110' : 'translate-y-4 group-hover:translate-y-0'}`}>
+                    {lang.name}
+                </h3>
+                <span className={`text-sm text-white/50 uppercase tracking-[0.3em] font-black transition-opacity duration-500 delay-100 ${isHolding ? 'opacity-100 text-[#C5A059]' : 'opacity-0 group-hover:opacity-100'}`}>
+                    {isHolding ? 'Revealing...' : `${lang.flag} Hold to Select`}
+                </span>
+            </div>
+
+            {/* Glow Effect / Glass Border */}
+            <div className={`absolute inset-0 border transition-colors duration-500 rounded-xl z-10 pointer-events-none ${isHolding ? 'border-[#C5A059]/80 shadow-[0_0_30px_rgba(197,160,89,0.3)]' : 'border-white/10 group-hover:border-white/50'}`} />
+        </motion.div>
+    );
+};
+
 const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => {
     return (
-        <div className="w-full max-w-6xl mx-auto h-[80vh] flex flex-col justify-center px-4">
-            <h2 className="text-sm font-black text-white/50 mb-12 uppercase tracking-[0.5em] border-b border-white/10 pb-4 text-center">
+        <div className="w-full max-w-7xl mx-auto h-[80vh] flex flex-col justify-center px-0 md:px-4">
+            <h2 className="text-sm font-black text-white/50 mb-8 uppercase tracking-[0.5em] border-b border-white/10 pb-4 text-center mx-4">
                 Select Origin
             </h2>
 
-            {/* Cinematic Poster Layout */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 h-[60vh]">
+            {/* Mobile-First Cinematic Poster Carousel */}
+            <div className="w-full h-[60vh] overflow-x-auto overflow-y-hidden flex gap-4 px-6 pb-8 snap-x snap-mandatory hide-scrollbar">
                 {LANGUAGES.map((lang, idx) => (
-                    <motion.div
-                        key={lang.id}
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
-                        className="relative w-full h-full cursor-pointer group rounded-xl overflow-hidden shadow-2xl"
-                        onClick={() => handleLanguageSelect(lang)}
-                        onMouseEnter={() => {
-                            const hoverAudio = new Audio(`/assets/sounds/${lang.id}-hover.mp3`);
-                            hoverAudio.volume = 0.5;
-                            hoverAudio.play().catch(() => console.log("hover deferred"));
-                        }}
-                    >
-                        {/* Immersive Background Image */}
-                        <motion.div
-                            className="absolute inset-0 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-700 ease-out"
-                            style={{ backgroundImage: `url(${lang.image})` }}
-                            whileHover={{ scale: 1.05 }}
-                        />
-
-                        {/* Dark Cinematic Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10 transition-opacity duration-500 group-hover:from-black/80" />
-
-                        {/* Text Content */}
-                        <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                            <h3 className="text-3xl font-black text-white font-serif uppercase tracking-widest break-words leading-none mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                {lang.name}
-                            </h3>
-                            <span className="text-sm text-white/50 uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                                {lang.flag} Select
-                            </span>
-                        </div>
-
-                        {/* Glow Effect / Glass Border */}
-                        <div className="absolute inset-0 border border-white/10 group-hover:border-white/50 transition-colors duration-500 rounded-xl" />
-                    </motion.div>
+                    <div key={lang.id} className="snap-center h-full">
+                        <LanguageCard lang={lang} idx={idx} onSelect={handleLanguageSelect} />
+                    </div>
                 ))}
+            </div>
+
+            <div className="text-center mt-4">
+                <span className="text-[9px] text-white/40 uppercase tracking-[0.4em] font-black pointer-events-none animate-pulse">
+                    Hold card for 3 seconds to seal fate
+                </span>
             </div>
         </div>
     );
@@ -760,7 +808,7 @@ const App = () => {
         }
 
         try {
-            const prompt = `Speak with a British 19th-century narrator style, elegant and slightly dramatic: ${text}`;
+            const prompt = `Speak with a 19th-century narrator style in ${selectedLang.name} language: ${text}`;
             const response = await callGemini({
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
@@ -782,11 +830,11 @@ const App = () => {
     };
 
     // [V8 UPDATE: Pre-fetch Logic to eliminate sync issues]
-    const preFetchVoice = async (text, langVoice) => {
+    const preFetchVoice = async (text, langVoice, langName) => {
         if (!apiKey || !text || audioCache[text]) return;
         try {
             const response = await callGemini({
-                contents: [{ parts: [{ text: `Speak with a British 19th-century narrator style: ${text}` }] }],
+                contents: [{ parts: [{ text: `Speak with a 19th-century narrator style in ${langName} language: ${text}` }] }],
                 generationConfig: {
                     responseModalities: ["AUDIO"],
                     speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: langVoice || "Zephyr" } } }
@@ -801,8 +849,8 @@ const App = () => {
         } catch (err) { /* Silent fail for pre-fetch */ }
     };
 
-    const pcmToWav = (base64, sampleRate) => {
-        // [V7 UPDATE: Restored robust audio buffer processing from user source]
+    // [V7 UPDATE: Restored robust audio buffer processing, hoisted standard function]
+    function pcmToWav(base64, sampleRate) {
         const buffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0)).buffer;
         const view = new DataView(new ArrayBuffer(44 + buffer.byteLength));
         const writeString = (offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
@@ -826,8 +874,8 @@ const App = () => {
 
         // [V10: Sequence pre-fetching for better timing]
         setTimeout(() => {
-            preFetchVoice(lang.ui.confirmTitle, lang.voice);
-            preFetchVoice(lang.welcome, lang.voice);
+            preFetchVoice(lang.ui.confirmTitle, lang.voice, lang.name);
+            preFetchVoice(lang.welcome, lang.voice, lang.name);
         }, 300);
     };
 
@@ -1115,9 +1163,26 @@ const App = () => {
 
     return (
         <div className={`relative w-full h-screen ${currentTheme.bg} ${currentTheme.text} ${currentTheme.font} overflow-hidden transition-colors duration-1000`}>
+
+            {/* [V12] Cinematic Video Background */}
+            <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute min-w-full min-h-full object-cover opacity-50 mix-blend-screen scale-105"
+                    src="https://assets.codepen.io/3364143/7btrrd.mp4"
+                />
+                {/* Dark Cinematic Gradient & Blur Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40 backdrop-blur-[2px]" />
+            </div>
+
             <AnimatePresence>
                 {!isOpeningFinished && (
-                    <CinematicOpening onComplete={() => setIsOpeningFinished(true)} />
+                    <div className="relative z-[10000]">
+                        <CinematicOpening onComplete={() => setIsOpeningFinished(true)} />
+                    </div>
                 )}
             </AnimatePresence>
 

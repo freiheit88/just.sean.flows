@@ -28,7 +28,7 @@ const MULTIVERSE = [
         id: 'ko',
         sounds: {
             click: 'Soft traditional Korean Gayageum single pluck, elegant and very short',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Korean traditional fan opening with wind-like whoosh over deep cinematic bass',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Korean, subtle and cinematic'
         }
@@ -37,7 +37,7 @@ const MULTIVERSE = [
         id: 'en',
         sounds: {
             click: 'Clean, sleek modern digital click, minimal and soft',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Deep cinematic bass swell, sci-fi portal opening',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back", subtle and cinematic'
         }
@@ -46,7 +46,7 @@ const MULTIVERSE = [
         id: 'ja',
         sounds: {
             click: 'Japanese Zen stone tap, organic, soft, and peaceful',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Japanese Shamisen string pull transitioning into a smooth cinematic whoosh',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Japanese, subtle and cinematic'
         }
@@ -55,7 +55,7 @@ const MULTIVERSE = [
         id: 'de',
         sounds: {
             click: 'Dark gothic iron lock click, heavy but muffled',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Gothic dark choir echo merging into a deep cinematic bass drop',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in German, subtle and cinematic'
         }
@@ -64,7 +64,7 @@ const MULTIVERSE = [
         id: 'fr',
         sounds: {
             click: 'Baroque Harpsichord single key press, delicate and ornate',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Elegant French palace chime echoing into a cinematic riser',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in French, subtle and cinematic'
         }
@@ -73,7 +73,7 @@ const MULTIVERSE = [
         id: 'cn',
         sounds: {
             click: 'Chinese Guzheng single soft pluck, resonant but quiet',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Chinese temple gong strike heavily muffled with a cinematic sub-bass rumble',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Mandarin, subtle and cinematic'
         }
@@ -82,7 +82,7 @@ const MULTIVERSE = [
         id: 'es',
         sounds: {
             click: 'Soft Spanish Flamenco guitar body tap, rhythmic and warm',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Fast Flamenco strum dissolving into a cinematic woosh',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Spanish, subtle and cinematic'
         }
@@ -91,7 +91,7 @@ const MULTIVERSE = [
         id: 'ar',
         sounds: {
             click: 'Middle Eastern Oud single soft note, warm and exotic',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Desert wind blowing through ancient ruins with a cinematic bass swell',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Arabic, subtle and cinematic'
         }
@@ -100,7 +100,7 @@ const MULTIVERSE = [
         id: 'pl',
         sounds: {
             click: 'Vintage pocket watch tick, very quiet and metallic',
-            hover: 'Muted cinematic synth pad swell, gentle and mysterious',
+            hover: 'A very gentle, pure acoustic resonance from a traditional wooden instrument, soft, warm, and highly organic',
             transition: 'Cinematic orchestral swell with a hint of melancholic strings',
             whisper: 'A soft, breathy whisper of a man saying "Welcome back" in Polish, subtle and cinematic'
         }
