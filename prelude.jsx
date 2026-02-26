@@ -19,7 +19,7 @@ import {
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 // [V9 UPDATE: Masterpiece Version Polish]
-const BUILD_VERSION = "v1.3.0-clockwork-masterpiece-v9";
+const BUILD_VERSION = "v1.4.0-clockwork-masterpiece-final"; // V10: Final Polish
 
 const LANGUAGES = [
     {
@@ -29,170 +29,105 @@ const LANGUAGES = [
         // [V7 UPDATE: Extended loading text for atmosphere]
         loading: '당신의 영혼을 초상화에 담아내고 있습니다... 증기 기관의 예열에는 인내심이 필요한 법이죠. 깃펜의 잉크가 마르기 전에는 끝날 테니, 잠시 홍차 한 잔의 여유를 즐기시길 바랍니다. 1800년대의 최첨단 기술을 믿어보십시오.',
         instrument: '가야금 (Gayageum)',
-        flag: '🇰🇷',
-        voice: 'Kore',
+        id: 'en', name: 'English', flag: '🇬🇧', voice: 'en-GB-Standard-B',
+        welcome: "Welcome to the Lord Manor, guest. The gears of destiny await your touch.",
+        loading: "Consulting the Chronometer...",
+        bgm: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Orchestral
         ui: {
-            confirmTitle: "설계자님, 진행하시겠습니까?",
-            confirmBtn: "서약서 서명하기",
-            textOptionTitle: "영혼의 이름 각인하기",
-            textOptionDesc: "AI가 당신의 초상화를 학습하는 것이 꺼려지신다면, 당신을 부를 이름만 남겨주십시오. 기계 영혼이 그 이름을 가장 찬란하게 조각해 드릴 것입니다.",
-            textInputPlaceholder: "이름 또는 별명을 입력하세요",
-            textSubmitBtn: "이름으로 운명 시작하기",
-            uploadTitle: "당신의 초상화를 제출하십시오",
-            generateBtn: "운명의 초상화 생성",
-            generating: "각인 중...",
-            galleryTitle: "기억의 갤러리",
-            gallerySub: "가문의 유산과 현재",
-            returnGallery: "갤러리로 돌아가기",
-            manorTitle: "대저택 서재",
-            manorHeirlooms: "가보",
-            manorEstate: "영지",
-            authTitle: "신분 증명",
-            // [V7 UPDATE: Added power multiplier label]
-            authBtn: "통행증 제시 (영향력 10배)",
-            authDone: "신분 확인 완료",
-            casePrefix: "사건 번호",
-            prophecyTitle: "예언",
-            consulting: "정령들과 교신 중...",
-            sealBtn: "운명 확정하기",
-            reconsiderBtn: "선택 재고하기",
-            fateSealed: "운명이 봉인되었습니다",
-            projectInitiated: "프로젝트 가동",
-            todoTitle: "오늘의 임무",
-            todo1: "초상화 완성하기",
-            todo2: "대저택 둘러보기",
-            todo3: "운명의 사건 선택",
-            // [V7 UPDATE: Detailed todo done message]
-            todoDone: "모든 임무를 마쳤습니다. 이제 저택을 자유롭게 거니십시오."
-        }
-    },
-    {
-        id: 'en',
-        name: 'English',
-        welcome: 'Welcome, esteemed guest. The Architect of this manor has been expecting you.',
-        // [V7 UPDATE: Extended loading text for atmosphere]
-        loading: 'Distilling your essence into the ether... This mechanism runs on steam and magic, so pray grant us a moment. Do not adjust your monocle, the transformation is imminent. The gears of fate grind slowly but exceedingly fine.',
-        instrument: 'Harpsichord',
-        flag: '🇬🇧',
-        voice: 'Zephyr',
-        ui: {
-            confirmTitle: "Shall we proceed, Architect?",
-            confirmBtn: "Sign the Contract",
-            textOptionTitle: "Engrave Your Name",
-            textOptionDesc: "If you prefer not to share your visage with the machine spirit, simply offer your name. It shall shine brightly in our halls.",
-            textInputPlaceholder: "Enter your name or alias",
-            textSubmitBtn: "Forge Destiny by Name",
-            uploadTitle: "Present Your Portrait",
-            generateBtn: "FORGE IDENTITY",
-            generating: "ENGRAVING...",
-            galleryTitle: "GALLERY OF MEMORIES",
-            gallerySub: "Legacy & Present",
-            returnGallery: "Return to Gallery",
-            manorTitle: "The Study",
-            manorHeirlooms: "Heirlooms",
-            manorEstate: "Estate",
-            authTitle: "Identification",
-            // [V7 UPDATE: Added power multiplier label]
-            authBtn: "PRESENT CREDENTIALS (10x Power)",
-            authDone: "Credentials Verified",
-            casePrefix: "CASE NO.",
-            prophecyTitle: "The Prophecy",
-            consulting: "Consulting the spirits...",
-            sealBtn: "SEAL YOUR FATE",
-            reconsiderBtn: "Reconsider Choice",
-            fateSealed: "Fate Sealed",
-            projectInitiated: "PROJECT INITIATED",
-            todoTitle: "Tasks for Today",
+            authTitle: "Aetherial Identity",
+            authBtn: "Verify Soul Print",
+            authDone: "Identity Sealed",
+            galleryTitle: "MANOR ARCHIVE",
+            gallerySub: "Historical Record 1899",
+            manorTitle: "The Clockwork Heart",
+            manorHeirlooms: "Ancestral Gears",
+            manorEstate: "Manor Grounds",
+            returnGallery: "Back to Archive",
+            textOptionTitle: "Ink Your Name",
+            textInputPlaceholder: "Guest Name...",
+            textSubmitBtn: "Summon Identity",
+            uploadTitle: "Scan Aether Portrait",
+            generateBtn: "Forge Soul",
+            generating: "Transmuting...",
+            confirmTitle: "Is this the tongue you speak?",
+            confirmBtn: "I Consent",
+            confirmDone: "Tongue Bound",
+            todoTitle: "Manifesto",
             todo1: "Forge Identity",
-            todo2: "Inspect the Manor",
-            todo3: "Select a Case",
-            // [V7 UPDATE: Detailed todo done message]
-            todoDone: "Your duties are fulfilled. Feel free to wander the estate at your leisure."
-        }
-    },
-    // [V7 UPDATE: Restored Hindi, Arabic, Chinese, German languages from user source]
-    {
-        id: 'hi',
-        name: 'Hindi',
-        welcome: 'स्वागत है, सम्मानित अतिथि। इस हवेली का वास्तुकार आपकी प्रतीक्षा कर रहा था।',
-        loading: 'आपकी आत्मा को कैनवास पर उतारा जा रहा है... भाप के इंजन को गर्म होने में थोड़ा समय लगता है। धैर्य रखें, यह 19वीं सदी की सबसे बेहतरीन तकनीक है।',
-        instrument: 'Sitar', flag: '🇮🇳', voice: 'Puck',
-        ui: {
-            confirmTitle: "क्या हम आगे बढ़ें, वास्तुकार?", confirmBtn: "अनुबंध पर हस्ताक्षर करें",
-            textOptionTitle: "अपना नाम उकेरें", textOptionDesc: "यदि आप मशीन के साथ अपना चेहरा साझा नहीं करना चाहते हैं, तो बस अपना नाम बताएं। यह हमारे हॉल में चमक उठेगा।",
-            textInputPlaceholder: "अपना नाम या उपनाम दर्ज करें", textSubmitBtn: "नाम से भाग्य बनाएं",
-            uploadTitle: "अपना चित्र प्रस्तुत करें", generateBtn: "पहचान बनाएं", generating: "उत्कीर्णन...",
-            galleryTitle: "यादों की गैलरी", gallerySub: "विरासत और वर्तमान", returnGallery: "गैलरी में लौटें",
-            manorTitle: "अध्ययन कक्ष", manorHeirlooms: "विरासत", manorEstate: "जागीर",
-            authTitle: "पहचान", authBtn: "क्रेडेंशियल प्रस्तुत करें", authDone: "क्रेडेंशियल सत्यापित",
-            casePrefix: "प्रकरण सं.", prophecyTitle: "भविष्यवाणी", consulting: "आत्माओं से परामर्श...",
-            sealBtn: "अपना भाग्य सील करें", reconsiderBtn: "पुनर्विचार करें", fateSealed: "भाग्य सील कर दिया गया",
-            projectInitiated: "परियोजना शुरू की गई", todoTitle: "आज के कार्य",
-            todo1: "पहचान बनाएं", todo2: "हवेली का निरीक्षण करें", todo3: "प्रकरण चुनें",
-            todoDone: "आपके कर्तव्य पूरे हुए। हवेली में स्वतंत्र रूप से घूमें।"
+            todo2: "Inspect Heart",
+            todo3: "Seal Fate",
+            todoDone: "Destiny manifested.",
+            consulting: "The Algorithm Whispers...",
+            sealBtn: "Seal This Fate",
+            fateSealed: "Destiny Locked",
         }
     },
     {
-        id: 'ar',
-        name: 'Arabic',
-        welcome: 'أهلاً بك يا ضيفنا الكريم. مهندس هذا القصر كان في انتظارك.',
-        loading: 'جاري نقش جوهرك على الرق... تروس القدر تدور ببطء ولكن بدقة متناهية. انتظر قليلاً بينما يقوم الخيميائي الرقمي بعمله.',
-        instrument: 'Oud', flag: '🇸🇦', voice: 'Charon',
+        id: 'kr', name: 'Korean', flag: '🇰🇷', voice: 'ko-KR-Standard-A',
+        welcome: "로드 매너에 오신 것을 환영합니다. 운명의 톱니바퀴가 당신을 기다립니다.",
+        loading: "크로노미터 컨설팅 중...",
+        bgm: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", // Melodic
         ui: {
-            confirmTitle: "هل نمضي قدمًا أيها المهندس؟", confirmBtn: "توقيع العقد",
-            textOptionTitle: "انقش اسمك", textOptionDesc: "إذا كنت تفضل عدم مشاركة وجهك مع الآلة، فقط قدم اسمك. سوف يضيء في قاعاتنا.",
-            textInputPlaceholder: "أدخل اسمك أو لقبك", textSubmitBtn: "اصنع مصيرك بالاسم",
-            uploadTitle: "قدم صورتك الشخصية", generateBtn: "تشكيل الهوية", generating: "جاري النقش...",
-            galleryTitle: "معرض الذكريات", gallerySub: "الإرث والحاضر", returnGallery: "العودة للمعرض",
-            manorTitle: "غرفة الدراسة", manorHeirlooms: "الموروثات", manorEstate: "التركة",
-            authTitle: "إثبات الهوية", authBtn: "تقديم أوراق الاعتماد", authDone: "تم التحقق",
-            casePrefix: "قضية رقم", prophecyTitle: "النبؤة", consulting: "استشارة الأرواح...",
-            sealBtn: "ختم مصيرك", reconsiderBtn: "إعادة النظر", fateSealed: "تم ختم المصير",
-            projectInitiated: "بدأ المشروع", todoTitle: "مهام اليوم",
-            todo1: "تشكيل الهوية", todo2: "تفقد القصر", todo3: "اختيار قضية",
-            todoDone: "اكتملت مهامك. تجول بحرية في القصر."
+            authTitle: "에테르 신원 확인",
+            authBtn: "영혼 각인 확인",
+            authDone: "신원 봉인됨",
+            galleryTitle: "매너 아카이브",
+            gallerySub: "역사적 기록 1899",
+            manorTitle: "태엽장치 심장",
+            manorHeirlooms: "조상의 톱니바퀴",
+            manorEstate: "저택 부지",
+            returnGallery: "아카이브로 복귀",
+            textOptionTitle: "직접 이름 기입",
+            textInputPlaceholder: "방문객 성명...",
+            textSubmitBtn: "신원 소환",
+            uploadTitle: "에테르 초상화 스캔",
+            generateBtn: "영혼 연성",
+            generating: "연성 중...",
+            confirmTitle: "이 언어가 당신의 모국어입니까?",
+            confirmBtn: "동의합니다",
+            confirmDone: "언어 결속됨",
+            todoTitle: "선언문",
+            todo1: "신원 연성",
+            todo2: "심장 점검",
+            todo3: "운명 봉인",
+            todoDone: "운명이 실현되었습니다.",
+            consulting: "알고리즘의 속삭임...",
+            sealBtn: "운명을 봉인하기",
+            fateSealed: "운명 확정됨",
         }
     },
     {
-        id: 'zh',
-        name: 'Chinese',
-        welcome: '欢迎，尊贵的客人。这座庄园的建筑师一直在等您。',
-        loading: '正在将您的灵魂描绘在画卷上... 蒸汽机的预热需要耐心。请稍安勿躁，这可是19世纪最尖端的工艺。',
-        instrument: 'Guzheng', flag: '🇨🇳', voice: 'Leda',
+        id: 'jp', name: 'Japanese', flag: '🇯🇵', voice: 'ja-JP-Standard-A',
+        welcome: "ロードマナーへようこそ。運命の歯車があなたの訪れを待っています。",
+        loading: "クロノメーターを照合中...",
+        bgm: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", // Ambient
         ui: {
-            confirmTitle: "我们要 continue 吗，建筑师？", confirmBtn: "签署契约",
-            textOptionTitle: "铭刻您的名字", textOptionDesc: "如果您不愿让机器之魂学习您的容貌，只需留下您的名字。它将在我们的殿堂中熠熠生辉。",
-            textInputPlaceholder: "输入您的名字或别名", textSubmitBtn: "以名铸就命运",
-            uploadTitle: "出示您的肖像", generateBtn: "铸造身份", generating: "雕刻中...",
-            galleryTitle: "记忆画廊", gallerySub: "传承与现在", returnGallery: "返回画廊",
-            manorTitle: "书房", manorHeirlooms: "传家宝", manorEstate: "庄园",
-            authTitle: "身份验证", authBtn: "出示凭证 (10倍影响力)", authDone: "凭证已验证",
-            casePrefix: "案件编号", prophecyTitle: "预言", consulting: "请示神明中...",
-            sealBtn: "封印你的命运", reconsiderBtn: "重新考虑", fateSealed: "命运已定",
-            projectInitiated: "项目已启动", todoTitle: "今日任务",
-            todo1: "铸造身份", todo2: "参观庄园", todo3: "选择案件",
-            todoDone: "任务已完成。请随意在庄园内漫步。"
-        }
-    },
-    {
-        id: 'de',
-        name: 'German',
-        welcome: 'Willkommen, werter Gast. Der Architekt dieses Anwesens hat Sie erwartet.',
-        loading: 'Wir destillieren Ihre Essenz in den Äther... Dieser Mechanismus läuft mit Dampf und Magie. Richten Sie Ihr Monokel nicht, die Transformation steht unmittelbar bevor.',
-        instrument: 'Piano', flag: '🇩🇪', voice: 'Fenrir',
-        ui: {
-            confirmTitle: "Sollen wir fortfahren, Architekt?", confirmBtn: "Vertrag unterzeichnen",
-            textOptionTitle: "Gravieren Sie Ihren Namen", textOptionDesc: "Wenn Sie Ihr Antlitz nicht mit der Maschine teilen möchten, nennen Sie einfach Ihren Namen. Er wird in unseren Hallen hell erstrahlen.",
-            textInputPlaceholder: "Geben Sie Ihren Namen ein", textSubmitBtn: "Schicksal durch Namen schmieden",
-            uploadTitle: "Präsentieren Sie Ihr Porträt", generateBtn: "IDENTITÄT SCHMIEDEN", generating: "GRAVIEREN...",
-            galleryTitle: "GALERIE DER ERINNERUNGEN", gallerySub: "Vermächtnis & Gegenwart", returnGallery: "Zur Galerie zurückkehren",
-            manorTitle: "Das Studierzimmer", manorHeirlooms: "Erbstücke", manorEstate: "Anwesen",
-            authTitle: "Identifikation", authBtn: "REFERENZEN VORLEGEN", authDone: "Referenzen verifiziert",
-            casePrefix: "FALL NR.", prophecyTitle: "Die Prophezeiung", consulting: "Befragung der Geister...",
-            sealBtn: "BESIEGELE DEIN SCHICKSAL", reconsiderBtn: "Wahl überdenken", fateSealed: "Schicksal besiegelt",
-            projectInitiated: "PROJEKT GESTARTET", todoTitle: "Aufgaben",
-            todo1: "Identität schmieden", todo2: "Anwesen inspizieren", todo3: "Fall auswählen",
-            todoDone: "Ihre Pflichten sind erfüllt. Lustwandeln Sie frei auf dem Anwesen."
+            authTitle: "エーテル身分照合",
+            authBtn: "魂の刻印を確認",
+            authDone: "身分封印済み",
+            galleryTitle: "マナーアーカイブ",
+            gallerySub: "1899年 歴史記録",
+            manorTitle: "ゼンマイ仕掛けの心臓",
+            manorHeirlooms: "先祖の歯車",
+            manorEstate: "屋敷の敷地",
+            returnGallery: "アーカイブへ戻る",
+            textOptionTitle: "記名して召喚",
+            textInputPlaceholder: "訪問者名...",
+            textSubmitBtn: "身分を召喚",
+            uploadTitle: "エーテル肖像スキャン",
+            generateBtn: "魂の錬成",
+            generating: "錬成中...",
+            confirmTitle: "この言語で承りますか？",
+            confirmBtn: "承諾する",
+            confirmDone: "言語が結ばれました",
+            todoTitle: "マニフェスト",
+            todo1: "身分錬成",
+            todo2: "心臓点検",
+            todo3: "運命封印",
+            todoDone: "運命が具現化されました。",
+            consulting: "アルゴリズムの囁き...",
+            sealBtn: "この運命を封印",
+            fateSealed: "運命確定",
         }
     }
 ];
@@ -286,19 +221,16 @@ const Background = () => (
     </div>
 );
 
+// [V10: Paper Texture Artifact integration]
 const PaperCard = ({ children, className = "", onClick, delay = 0 }) => (
     <motion.div
-        initial={{ opacity: 0, scale: 0.98, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5, delay }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay, duration: 0.8, ease: "easeOut" }}
         onClick={onClick}
-        className={`relative bg-[#f4e4bc] text-[#2c241b] p-6 md:p-8 shadow-[0_15px_40px_rgba(0,0,0,0.6)] border-2 border-[#d4c5a3] bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] overflow-hidden ${className} group flex flex-col`}
+        className={`bg-[#f4e4bc] border-2 border-[#8B7355] rounded-sm relative shadow-xl overflow-hidden group ${className}`}
+        style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/aged-paper.png')" }}
     >
-        {/* Ornate Corners */}
-        <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#8B7355] m-1 rounded-tl-sm group-hover:scale-110 transition-transform" />
-        <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#8B7355] m-1 rounded-tr-sm group-hover:scale-110 transition-transform" />
-        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#8B7355] m-1 rounded-bl-sm group-hover:scale-110 transition-transform" />
-        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#8B7355] m-1 rounded-br-sm group-hover:scale-110 transition-transform" />
 
         {/* Inner Decorative Border */}
         <div className="absolute inset-1 border border-[#8B7355]/20 pointer-events-none" />
@@ -307,49 +239,7 @@ const PaperCard = ({ children, className = "", onClick, delay = 0 }) => (
     </motion.div>
 );
 
-// [V9 UPDATE: Component moving out of App to fix focus bug]
-
-const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => (
-    <div className="flex flex-row md:grid md:grid-cols-2 gap-4 w-full max-w-4xl px-2 overflow-x-auto pb-4 no-scrollbar">
-        {LANGUAGES.map((lang, idx) => (
-            <PaperCard
-                key={lang.id}
-                delay={idx * 0.1}
-                onClick={() => handleLanguageSelect(lang)}
-                className="min-w-[200px] md:min-w-0 cursor-pointer hover:border-[#C5A059] transition-all"
-            >
-                <div className="flex flex-col items-center gap-2">
-                    <span className="text-4xl group-hover:scale-110 transition-transform drop-shadow-md">{lang.flag}</span>
-                    <h3 className="text-lg font-black uppercase tracking-[0.2em] text-[#8B7355]">{lang.name}</h3>
-                    <div className="w-8 h-0.5 bg-[#8B7355]/20" />
-                </div>
-            </PaperCard>
-        ))}
-    </div>
-);
-
-const ConfirmView = ({ selectedLang, confirmLanguage }) => (
-    <PaperCard className="text-center max-w-sm mx-auto py-8">
-        <motion.div
-            animate={{ scale: [1, 1.02, 1], rotate: [0, 1, -1, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="mb-4"
-        >
-            <LucideFeather className="w-12 h-12 mx-auto text-[#5C1A1A]" />
-        </motion.div>
-        <h2 className="text-xl font-serif font-black mb-6 leading-relaxed text-[#2C241B]">
-            {selectedLang.ui.confirmTitle}
-        </h2>
-        <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={confirmLanguage}
-            className="w-full py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-xs hover:bg-[#5C1A1A] transition-all border-2 border-[#8B7355]/40 shadow-lg active:scale-95"
-        >
-            {selectedLang.ui.confirmBtn}
-        </motion.button>
-    </PaperCard>
-);
+// [V9/V10] View components defined outside for focus stability
 
 const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter, playSfx }) => (
     <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4 scanline">
@@ -489,14 +379,18 @@ const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos }) => {
     );
 };
 
-const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandleLit, gearsSpinning, setGearsSpinning, loreText }) => (
+const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandleLit, gearsSpinning, setGearsSpinning, loreText, playSfx }) => (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-2 py-4">
-        <button onClick={() => setViewMode('gallery')} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
+        <button onClick={() => { setViewMode('gallery'); playSfx?.('click'); }} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
             <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
         </button>
 
-        <PaperCard className="w-full flex-1 max-h-[70vh] p-0 border-[#C5A059] border-4 bg-[#1A1612] relative overflow-hidden shadow-2xl">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800')] opacity-20 sepia brightness-50 contrast-150" />
+        <PaperCard className="w-full flex-1 max-h-[75vh] p-0 border-[#C5A059] border-4 bg-[#1A1612] relative overflow-hidden shadow-2xl">
+            {/* Artifact Manor BG: steampunk_manor_background_1772052884363.png */}
+            <div
+                className="absolute inset-0 bg-center bg-cover opacity-30 sepia brightness-75 contrast-125"
+                style={{ backgroundImage: "url('https://freiheit88-just-sean-flows.vercel.app/steampunk_manor_background.png')" }}
+            />
 
             <div className="relative z-10 flex flex-col items-center p-6 h-full overflow-y-auto no-scrollbar">
                 <div className="w-full flex justify-between mb-4 px-2">
@@ -623,33 +517,63 @@ const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePre
 );
 
 const TrailerView = ({ selectedLang, resetStates, setStep, playSfx }) => (
-    <PaperCard className="text-center max-w-sm mx-auto py-10 shadow-3xl relative overflow-hidden bg-[#f4e4bc] bg-paper scanline">
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-[#C5A059] animate-pulse" />
-        <motion.div
-            animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="mb-8"
-        >
-            <div className="w-24 h-24 mx-auto rounded-full bg-[#556B2F]/20 flex items-center justify-center border-4 border-[#556B2F]/40 shadow-[0_0_30px_rgba(85,107,47,0.4)]">
-                <LucideCheckCircle className="w-12 h-12 text-[#556B2F]" />
-            </div>
-        </motion.div>
-
-        <div className="space-y-4 mb-10 px-6">
-            <h2 className="text-3xl font-serif font-black uppercase tracking-[0.3em] text-[#2C241B] leading-none">
-                {selectedLang.ui.fateSealed}
-            </h2>
-            <div className="w-16 h-1 bg-[#5C1A1A] mx-auto" />
-            <p className="text-[#5C4D3C] italic text-[11px] leading-relaxed font-serif">
-                {selectedLang.ui.todoDone}
-            </p>
+    <PaperCard className="w-full max-w-sm p-8 border-[#5C1A1A] border-4 flex flex-col items-center space-y-6 bg-paper aether-glow">
+        <div className="w-16 h-16 rounded-full border-4 border-[#C5A059] flex items-center justify-center bg-[#1A1612] animate-spin-slow">
+            <LucideLock size={32} className="text-[#C5A059]" />
         </div>
-
+        <div className="text-center space-y-2">
+            <h2 className="text-2xl font-black text-[#5C1A1A] uppercase tracking-widest">{selectedLang.ui.fateSealed}</h2>
+            <p className="text-[10px] font-black uppercase text-[#8B7355] tracking-widest opacity-60">The Chronometer remains silent.</p>
+        </div>
+        <div className="w-full h-[1px] bg-[#8B7355]/20" />
         <button
-            onClick={() => { setStep('language'); resetStates(); }}
+            onClick={() => { resetStates(); setStep('language'); playSfx?.('forge'); }}
             className="w-[85%] py-4 bg-[#2C241B] text-[#f4e4bc] font-black uppercase tracking-widest text-[10px] border-b-4 border-black hover:bg-[#5C1A1A] active:scale-95 transition-all shadow-xl"
         >
             {selectedLang.ui.returnGallery}
+        </button>
+    </PaperCard>
+);
+
+const LanguageView = ({ LANGUAGES, handleLanguageSelect }) => (
+    <div className="flex flex-col items-center space-y-8 animate-in fade-in zoom-in duration-700">
+        <div className="text-center space-y-2">
+            <motion.h1 initial={{ y: -20 }} animate={{ y: 0 }} className="text-5xl font-black text-[#C5A059] tracking-[0.2em] uppercase filter drop-shadow-2xl">LORD MANOR</motion.h1>
+            <div className="h-[2px] w-48 bg-gradient-to-r from-transparent via-[#C5A059] to-transparent mx-auto" />
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-[#8B7355] opacity-60">Est. 1899 • Aether Division</p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-6">
+            {LANGUAGES.map((lang, idx) => (
+                <motion.button
+                    key={lang.id}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    onClick={() => handleLanguageSelect(lang)}
+                    className="group relative px-8 py-4 bg-[#2C241B] border-2 border-[#8B7355] hover:border-[#C5A059] transition-all overflow-hidden"
+                >
+                    <div className="absolute inset-0 bg-[#C5A059]/0 group-hover:bg-[#C5A059]/10 transition-colors" />
+                    <span className="relative z-10 text-2xl mb-1 block">{lang.flag}</span>
+                    <span className="relative z-10 text-[10px] font-black uppercase tracking-widest text-[#f4e4bc] group-hover:text-[#C5A059]">{lang.name}</span>
+                </motion.button>
+            ))}
+        </div>
+    </div>
+);
+
+const ConfirmView = ({ selectedLang, confirmLanguage }) => (
+    <PaperCard className="w-full max-w-sm p-10 border-[#C5A059] border-4 flex flex-col items-center space-y-6 bg-paper aether-glow">
+        <h2 className="text-xl font-black text-[#5C1A1A] uppercase tracking-widest text-center">{selectedLang.ui.confirmTitle}</h2>
+        <div className="flex items-center gap-4 text-4xl mb-2">
+            <span className="opacity-40"><LucideScale size={24} /></span>
+            <span className="filter drop-shadow-lg">{selectedLang.flag}</span>
+            <span className="opacity-40"><LucideScale size={24} className="scale-x-[-1]" /></span>
+        </div>
+        <button
+            onClick={confirmLanguage}
+            className="w-full py-5 bg-[#5C1A1A] text-white font-black uppercase text-xs tracking-[0.3em] border-b-4 border-black hover:bg-[#7D2626] active:scale-95 transition-all shadow-2xl"
+        >
+            {selectedLang.ui.confirmBtn}
         </button>
     </PaperCard>
 );
@@ -827,16 +751,27 @@ const App = () => {
         setSelectedLang(lang);
         setStep('confirm');
         playSfx('click');
-        if (bgmRef.current && bgmRef.current.paused) bgmRef.current.play();
-        // [V8 UPDATE: Actionable pre-fetching]
-        preFetchVoice(lang.ui.confirmTitle, lang.voice);
-        preFetchVoice(lang.welcome, lang.voice);
+
+        // [V10: Personalized BGM Switching]
+        if (bgmRef.current) {
+            bgmRef.current.src = lang.bgm;
+            bgmRef.current.play();
+        }
+
+        // [V10: Sequence pre-fetching for better timing]
+        setTimeout(() => {
+            preFetchVoice(lang.ui.confirmTitle, lang.voice);
+            preFetchVoice(lang.welcome, lang.voice);
+        }, 300);
     };
 
     const confirmLanguage = () => {
         setStep('intro');
         playSfx('shutter');
-        speakText(selectedLang.welcome);
+        // [V10: Delay speech slightly to allow transition to settle]
+        setTimeout(() => {
+            speakText(selectedLang.welcome);
+        }, 1000);
         setShowTodo(true);
     };
 
@@ -1387,7 +1322,7 @@ const App = () => {
                 </AnimatePresence>
             </main>
 
-            {/* Status Widgets */}
+            {/* Status Widgets: [V10] Refined Spirit Sense Only */}
             <div className="fixed bottom-8 left-8 z-[100] flex flex-col gap-4 items-start">
                 <AnimatePresence>
                     {spiritHint && (
@@ -1395,10 +1330,11 @@ const App = () => {
                             initial={{ opacity: 0, x: -20, scale: 0.8 }}
                             animate={{ opacity: 1, x: 0, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.8 }}
-                            className="bg-[#5C1A1A] text-[#f4e4bc] p-4 border-2 border-[#C5A059] shadow-2xl skew-x-[-2deg] max-w-[200px] text-[10px] uppercase font-black tracking-widest leading-relaxed"
+                            className="bg-[#5C1A1A] text-[#f4e4bc] p-4 border-2 border-[#C5A059] shadow-2xl skew-x-[-2deg] max-w-[200px] text-[10px] uppercase font-black tracking-widest leading-relaxed relative"
                         >
-                            <div className="absolute -top-2 left-4 px-2 bg-[#C5A059] text-[#1A1612] text-[8px]">Spirit Sense</div>
+                            <div className="absolute -top-3 -left-2 bg-[#C5A059] text-[#1A1612] text-[9px] px-2 py-0.5 font-black shadow-lg">SPIRIT ADVICE</div>
                             "{spiritHint}"
+                            <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-[#C5A059] rotate-45" />
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -1406,9 +1342,11 @@ const App = () => {
                 <button
                     onClick={useSpiritSense}
                     disabled={isSpiritSensing}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center border-4 border-[#C5A059] bg-[#1A1612] text-[#C5A059] shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:scale-110 active:scale-90 transition-all ${isSpiritSensing ? 'animate-pulse opacity-50' : ''}`}
+                    className={`w-14 h-14 rounded-full flex items-center justify-center border-4 border-[#C5A059] bg-[#1A1612] text-[#C5A059] shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:scale-110 active:scale-90 transition-all group relative ${isSpiritSensing ? 'animate-pulse opacity-50' : ''}`}
                 >
                     <LucideSparkles size={24} />
+                    {!isSpiritSensing && <div className="absolute inset-0 rounded-full border border-[#C5A059]/30 animate-ping" />}
+                    <div className="absolute -top-2 -right-2 bg-[#5C1A1A] text-[7px] text-white px-1.5 py-0.5 rounded-full border border-[#C5A059] opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">SENSE AETHER</div>
                 </button>
             </div>
 
