@@ -665,7 +665,7 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
         AudioManager.playTheme(lang.id);
 
         const startTime = Date.now();
-        const duration = 5000;
+        const duration = 2000; // 2 seconds per user request
 
         holdTimer.current = setTimeout(() => {
             clearInterval(progressInterval.current);
@@ -674,10 +674,23 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
             onSelect(lang);
         }, duration);
 
+        let stage = 0;
         progressInterval.current = setInterval(() => {
             const elapsed = Date.now() - startTime;
             const percentage = Math.min((elapsed / duration) * 100, 100);
             setHoldProgress(percentage);
+
+            // 3-stage audio/visual feedback (30, 70, 100)
+            if (percentage >= 30 && stage < 1) {
+                AudioManager.playSfx('piano-mystic-low', 0.6);
+                stage = 1;
+            } else if (percentage >= 70 && stage < 2) {
+                AudioManager.playSfx('piano-mystic-mid', 0.6);
+                stage = 2;
+            } else if (percentage >= 95 && stage < 3) {
+                AudioManager.playSfx('piano-mystic-high', 0.8);
+                stage = 3;
+            }
 
             if (percentage > 90) updateHint("Fate is nearly sealed...");
             else if (percentage > 50) updateHint("Stabilizing temporal rift...");
@@ -734,10 +747,15 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
                 style={{
                     backgroundImage: `url(${lang.image})`,
                     scale: isHolding ? 1.0 : 1.5,
-                    filter: isHolding ? 'grayscale(0%)' : (isSelected ? 'grayscale(0%)' : 'grayscale(100%)'),
                 }}
                 animate={{
                     scale: isHolding ? 1.0 : 1.5,
+                    filter: isHolding
+                        ? (holdProgress < 30 ? 'saturate(0.1) grayscale(50%)'
+                            : holdProgress < 70 ? 'saturate(0.3)'
+                                : holdProgress < 95 ? 'saturate(0.7)'
+                                    : 'saturate(1.2)')
+                        : (isSelected ? 'saturate(1) grayscale(0%)' : 'grayscale(100%)'),
                 }}
             />
 
@@ -795,7 +813,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4">
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4 translate-y-16">
             <div id="language-grid" className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-1.5 md:gap-3 bg-black/60 backdrop-blur-3xl p-3 md:p-6 border border-white/10 rounded-3xl shadow-[0_0_120px_rgba(0,0,0,0.9)] relative overflow-hidden">
 
                 {/* Background "Flow" Effect */}
@@ -879,13 +897,15 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                 {stagedLang ? `INVITING THE ${stagedLang.name} MULTIVERSE...` : "THE MANOR AWAITS YOUR SOUL'S VOYAGE."}
             </motion.p>
 
-            {/* [V20.3] Mina positioned at Top Top */}
-            <div className="fixed top-8 inset-x-0 pointer-events-none z-[2001]">
-                <SmokeAssistant
-                    isVisible={true}
-                    activeStep="language"
-                    text="PROTOCOL INITIATED. SELECT YOUR MULTIVERSAL ORIGIN. DRAG THE CASE TO THE ANCHOR."
-                />
+            {/* [V21] Mina positioned Higher/Wider to avoid grid overlap */}
+            <div className="fixed top-2 inset-x-0 px-4 pointer-events-none z-[2001]">
+                <div className="max-w-5xl mx-auto">
+                    <SmokeAssistant
+                        isVisible={true}
+                        activeStep="language"
+                        text="PROTOCOL INITIATED. SELECT YOUR MULTIVERSAL ORIGIN. DRAG THE CASE TO THE ANCHOR."
+                    />
+                </div>
             </div>
         </div>
     );

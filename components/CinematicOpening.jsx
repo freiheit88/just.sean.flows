@@ -1,25 +1,73 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LucideSparkles, LucideOrbit } from 'lucide-react';
+import { LucideSparkles, LucideOrbit, LucideInstagram } from 'lucide-react';
 import SmokeAssistant from './SmokeAssistant';
 
 const CinematicOpening = ({ onComplete }) => {
     const [phase, setPhase] = useState('idle'); // idle, ignite, flash, finish
 
     const audioRef = useRef(null);
+    const ambientRef = useRef(null);
+
+    useEffect(() => {
+        // Start ambient music with 4s fade-in to 50%
+        const ambientAudio = new Audio('/assets/sounds/ambient-opening.mp3');
+        ambientAudio.loop = true;
+        ambientAudio.volume = 0;
+        ambientRef.current = ambientAudio;
+        ambientAudio.play().catch(e => console.log("Ambient play deferred", e));
+
+        let startTime = Date.now();
+        const duration = 4000;
+        const fadeInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            if (ambientRef.current) {
+                ambientRef.current.volume = progress * 0.5;
+            }
+            if (progress >= 1) clearInterval(fadeInterval);
+        }, 50);
+
+        return () => {
+            if (ambientRef.current) {
+                ambientRef.current.pause();
+                ambientRef.current = null;
+            }
+            clearInterval(fadeInterval);
+        };
+    }, []);
 
     const handleIgnite = () => {
         setPhase('ignite');
+
+        // Portal transition sound variants
         const signatureAudio = new Audio('/assets/sounds/signature-cannes.mp3');
+        const portalAudio = new Audio('/assets/sounds/portal-transition.mp3');
+
         signatureAudio.volume = 1.0;
         audioRef.current = signatureAudio;
         signatureAudio.play().catch(e => console.log("Audio play deferred", e));
 
-        // Sequence timing: Tailored to the 6s Cannes signature sound
+        // Fade out ambient music as cinematic sequence begins
+        if (ambientRef.current) {
+            let startVol = ambientRef.current.volume;
+            let fadeOutStart = Date.now();
+            const fadeOutDuration = 2000;
+            const fadeOutInterval = setInterval(() => {
+                const elapsed = Date.now() - fadeOutStart;
+                const progress = Math.min(elapsed / fadeOutDuration, 1);
+                if (ambientRef.current) {
+                    ambientRef.current.volume = startVol * (1 - progress);
+                }
+                if (progress >= 1) clearInterval(fadeOutInterval);
+            }, 50);
+        }
+
+        // Sequence timing: portal trigger
         setTimeout(() => {
             setPhase('flash');
+            portalAudio.play().catch(e => console.log("Portal sound deferred", e));
 
-            // Initiate graceful audio fade-out
             if (audioRef.current) {
                 const fadeOutInterval = setInterval(() => {
                     if (audioRef.current.volume > 0.02) {
@@ -31,11 +79,14 @@ const CinematicOpening = ({ onComplete }) => {
                     }
                 }, 40);
             }
-        }, 5000); // Trigger flash near the crescendo of the 6s clip
+        }, 5000);
 
         setTimeout(() => {
             setPhase('finish');
-            onComplete();
+            // Extend display by 2s per user request
+            setTimeout(() => {
+                onComplete();
+            }, 2000);
         }, 5800);
     };
 
@@ -178,18 +229,19 @@ const CinematicOpening = ({ onComplete }) => {
                         />
                     </div>
 
-                    {/* Final Golden Resolve (Syncs with Harmony Chord) */}
+                    {/* Final Golden Resolve with Instagram Icon */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{
                             opacity: phase === 'flash' ? 1 : [0, 0.1, 0],
-                            scale: phase === 'flash' ? 1.2 : 1,
-                            filter: phase === 'flash' ? "blur(0px)" : "blur(20px)"
+                            scale: phase === 'flash' ? 1.5 : 1, // Increased scale by user request (+30%ish)
+                            filter: phase === 'flash' ? "blur(0px) brightness(1.2)" : "blur(20px)" // +20% glow
                         }}
                         transition={{ duration: 1 }}
-                        className="absolute inset-0 flex items-center justify-center"
+                        className="absolute inset-0 flex flex-col items-center justify-center gap-6"
                     >
-                        <h1 className="text-yellow-500/30 text-7xl md:text-9xl font-light italic tracking-[0.25em] blur-xl px-4 text-center">
+                        <LucideInstagram size={64} className="text-white opacity-80" />
+                        <h1 className="text-yellow-500/40 text-7xl md:text-9xl font-light italic tracking-[0.25em] blur-md px-4 text-center">
                             just.sean.flows
                         </h1>
                     </motion.div>
