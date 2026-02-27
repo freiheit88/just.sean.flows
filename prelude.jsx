@@ -943,7 +943,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 setSaturationProgress(percentage);
 
                 if (elapsed >= 2500 && stage < 1) { // 2.5 sec jump
-                    AudioManager.playSfx('piano-mystic-low', 0.6, true);
+                    [...Array(3)].forEach(() => AudioManager.playSfx('piano-mystic-low', 1.0, true));
                     setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500); }, 600); // Delayed 0.6s to sync with audio tail
                     stage = 1;
                 } else if (elapsed >= 3500 && stage < 2) { // 3.5 sec jump
