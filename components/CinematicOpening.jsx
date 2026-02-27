@@ -85,9 +85,9 @@ const CinematicOpening = ({ onComplete }) => {
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 2, duration: 1 }}
                                 onClick={handleIgnite}
-                                className="group relative px-16 py-3 border border-white/30 rounded-full transition-all duration-700 hover:border-white hover:bg-white/5 active:scale-95 overflow-hidden"
+                                className="group relative px-10 md:px-14 py-4 border border-white/20 rounded-full transition-all duration-700 hover:border-white/60 hover:bg-white/[0.02] active:scale-95 overflow-hidden"
                             >
-                                <span className="text-[10px] md:text-xs text-white/80 font-bold uppercase tracking-[0.8em] group-hover:text-white transition-all pl-2">
+                                <span className="text-[9px] md:text-[11px] text-white/70 font-black uppercase tracking-[0.5em] group-hover:text-white transition-all block whitespace-nowrap">
                                     Enter Digital Soul
                                 </span>
 
@@ -110,37 +110,68 @@ const CinematicOpening = ({ onComplete }) => {
 
             {/* Igniting Phase: Golden Cinematic Reveal */}
             {phase === 'ignite' && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[10001]">
-                    <motion.h1
-                        initial={{ scale: 0.9, opacity: 0, filter: "blur(20px)" }}
-                        animate={{
-                            scale: [0.9, 1.1, 4],
-                            opacity: [0, 1, 1],
-                            filter: ["blur(20px)", "blur(0px)", "blur(10px)"],
-                            color: ["#ffffff", "#ffffff", "#ECC94B"] // Fade to gold
-                        }}
-                        transition={{
-                            duration: 5.0,
-                            ease: [0.22, 1, 0.36, 1],
-                            times: [0, 0.3, 1]
-                        }}
-                        className="text-white text-7xl md:text-9xl font-light italic tracking-[0.25em] mix-blend-screen whitespace-nowrap"
-                    >
-                        just.sean.flows
-                    </motion.h1>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[10001] px-4">
+                    <div className="relative">
+                        {/* Elegant Letter Reveal */}
+                        <motion.div
+                            initial="hidden"
+                            animate="visible"
+                            variants={{
+                                visible: { transition: { staggerChildren: 0.1 } }
+                            }}
+                            className="flex flex-wrap justify-center gap-[0.1em]"
+                        >
+                            {"just.sean.flows".split("").map((char, i) => (
+                                <motion.span
+                                    key={i}
+                                    variants={{
+                                        hidden: { opacity: 0, y: 10, filter: "blur(10px)" },
+                                        visible: {
+                                            opacity: 1,
+                                            y: 0,
+                                            filter: "blur(0px)",
+                                            transition: { duration: 0.8, ease: "easeOut" }
+                                        }
+                                    }}
+                                    className="text-white text-5xl md:text-8xl font-light italic tracking-wider mix-blend-screen"
+                                >
+                                    {char === " " ? "\u00A0" : char}
+                                </motion.span>
+                            ))}
+                        </motion.div>
 
-                    {/* Golden Chromatic Ghost layers */}
-                    <motion.h1
+                        {/* Golden Light Sweep Overlay */}
+                        <motion.div
+                            initial={{ scaleX: 0, opacity: 0 }}
+                            animate={{
+                                scaleX: [0, 1, 1],
+                                opacity: [0, 0.8, 0],
+                                x: ["-100%", "100%", "100%"]
+                            }}
+                            transition={{
+                                duration: 5.0,
+                                ease: "easeInOut",
+                                times: [0, 0.5, 1]
+                            }}
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent h-[2px] top-1/2 -mt-[1px] blur-sm"
+                        />
+                    </div>
+
+                    {/* Final Golden Resolve (Syncs with Harmony Chord) */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
                         animate={{
-                            scale: [0.9, 1.15, 4.2],
-                            opacity: [0, 0.4, 0],
+                            opacity: phase === 'flash' ? 1 : [0, 0.1, 0],
+                            scale: phase === 'flash' ? 1.2 : 1,
+                            filter: phase === 'flash' ? "blur(0px)" : "blur(20px)"
                         }}
-                        transition={{ duration: 5.0, ease: [0.22, 1, 0.36, 1], times: [0, 0.3, 1] }}
-                        className="absolute text-yellow-600 text-7xl md:text-9xl font-light italic tracking-[0.25em] mix-blend-screen whitespace-nowrap blur-md"
-                        style={{ marginLeft: '-15px' }}
+                        transition={{ duration: 1 }}
+                        className="absolute inset-0 flex items-center justify-center"
                     >
-                        just.sean.flows
-                    </motion.h1>
+                        <h1 className="text-yellow-500/30 text-7xl md:text-9xl font-light italic tracking-[0.25em] blur-xl px-4 text-center">
+                            just.sean.flows
+                        </h1>
+                    </motion.div>
                 </div>
             )}
 
