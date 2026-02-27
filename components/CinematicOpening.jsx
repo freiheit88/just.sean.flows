@@ -67,11 +67,17 @@ const CinematicOpening = ({ onComplete }) => {
 
                         <div className="relative z-10 flex flex-col items-center">
                             <motion.h1
-                                initial={{ y: 30, opacity: 0, filter: "blur(20px)" }}
-                                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                                transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
-                                className="text-white text-[12rem] md:text-[18rem] font-light italic tracking-[0.05em] mb-2 text-center select-none leading-none drop-shadow-[0_0_60px_rgba(255,255,255,0.3)]"
-                                style={{ fontVariant: "small-caps" }}
+                                initial={{ y: 50, opacity: 0, filter: "blur(30px)", scale: 0.8 }}
+                                animate={{ y: 0, opacity: 1, filter: "blur(0px)", scale: 1 }}
+                                transition={{ delay: 0.8, duration: 2.5, ease: "easeOut" }}
+                                className="text-white text-[15rem] md:text-[24rem] font-light italic tracking-[-0.02em] mb-4 text-center select-none leading-[0.8] drop-shadow-[0_10px_100px_rgba(255,255,255,0.4)]"
+                                style={{
+                                    fontVariant: "small-caps",
+                                    background: "linear-gradient(to bottom, #FFFFFF 20%, #C5A059 100%)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                    mixBlendMode: "screen"
+                                }}
                             >
                                 just.sean.flows
                             </motion.h1>
@@ -84,29 +90,34 @@ const CinematicOpening = ({ onComplete }) => {
                             />
 
                             <motion.button
-                                initial={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: 2.5, duration: 1.5 }}
                                 onClick={handleIgnite}
-                                className="group relative px-16 py-6 overflow-hidden rounded-full transition-all duration-1000 active:scale-95"
+                                whileHover={{ scale: 1.1, backgroundColor: "rgba(197, 160, 89, 0.15)" }}
+                                whileTap={{ scale: 0.95 }}
+                                className="group relative px-20 py-8 overflow-hidden rounded-full transition-all duration-700 active:scale-95 shadow-[0_0_50px_rgba(197,160,89,0.2)] hover:shadow-[0_0_80px_rgba(197,160,89,0.5)]"
                             >
-                                {/* Golden Wax Seal Style Button */}
-                                <div className="absolute inset-0 bg-[#C5A059] opacity-20 group-hover:opacity-30 transition-opacity" />
-                                <div className="absolute inset-0 border border-[#C5A059]/40 group-hover:border-[#C5A059] transition-colors rounded-full" />
+                                {/* Golden Wax Seal Style Button - V20.1 Polish */}
+                                <div className="absolute inset-0 bg-gradient-to-b from-[#C5A059]/40 to-[#5C1A1A]/20 opacity-30 group-hover:opacity-60 transition-opacity" />
+                                <div className="absolute inset-0 border-2 border-[#C5A059]/50 group-hover:border-[#F6E05E] transition-colors rounded-full" />
 
-                                {/* Pulsing Inner Glow */}
+                                {/* Magnetic Pulsing Glow */}
                                 <motion.div
-                                    animate={{ opacity: [0.2, 0.5, 0.2] }}
-                                    transition={{ duration: 3, repeat: Infinity }}
-                                    className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#C5A059_0%,_transparent_70%)]"
+                                    animate={{
+                                        opacity: [0.3, 0.7, 0.3],
+                                        scale: [1, 1.2, 1],
+                                    }}
+                                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                    className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#F6E05E_0%,_transparent_70%)] blur-2xl"
                                 />
 
-                                <span className="relative z-10 text-[12px] md:text-[14px] text-white font-black uppercase tracking-[0.6em] group-hover:text-[#F6E05E] transition-all drop-shadow-md">
+                                <span className="relative z-10 text-[14px] md:text-[18px] text-white font-black uppercase tracking-[0.8em] group-hover:text-[#FDFCF0] transition-all drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
                                     Enter Digital Soul
                                 </span>
 
-                                {/* Shimmer Effect */}
-                                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_3s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
+                                {/* Enhanced Golden Sweep */}
+                                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-20 blur-sm" />
                             </motion.button>
 
                             <motion.div
