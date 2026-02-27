@@ -25,60 +25,60 @@ const client = new ElevenLabsClient({ apiKey });
 
 const GUIDANCE = {
     ko: {
-        language: "로드 매너에 오신 것을 환영합니다. 마음에 드는 '에테르 케이스'를 중앙으로 끌어오세요. 아, 손가락은 조심하시고요.",
-        confirm: "탁월한 선택입니다. 이제 그 케이스를 꾹 눌러서 당신의 세계로 확정하세요. 비가 올지도 모르니까요.",
-        auth: "신원 확인이 필요합니다. 에테르에 당신의 이름을 남기거나 초상화를 스캔하세요. 영혼이 바뀔 일은 없을 겁니다.",
-        avatar: "당신의 새로운 자아가 연성되었습니다. 꽤 근사하군요! 이제 매너의 아카이브를 탐험할 시간입니다.",
-        dashboard: "매너 아카이브에 오신 것을 환영합니다. 각 칸을 눌러 우리 저택의 비밀과 기록들을 살펴보세요. 길을 잃지는 마시고요."
+        language: "동기화 완료. 선택한 포트레잇을 중앙으로 끌어와 멀티버스를 확정하세요. 시간은 가연성 높은 자원이니 지체하지 마시길.",
+        confirm: "탁월한 결단입니다. 이제 지문을 찍어 운명을 봉인하세요. 폭발은 면할 겁니다.",
+        auth: "이름을 등록하거나 초상화를 제출해 신원을 인증하세요. 기계는 유령을 태우지 않습니다.",
+        avatar: "페르소나 연성 완료. 꽤 봐줄 만하군요. 이제 저택의 기록 보관소로 이동하시죠.",
+        dashboard: "기록 보관소 진입 성공. 각 기록을 탭하여 조사하세요. 복도에서 길을 잃어도 구하러 가지 않습니다."
     },
     en: {
-        language: "Welcome to the Lord Manor. Drag your preferred 'Aether Case' to the center. Mind your fingers, they're quite essential.",
-        confirm: "A splendid choice. Now, hold down that case to seal your destination. Don't worry, the leak in the roof is mostly fixed.",
-        auth: "Identity verification required. Ink your name into the Aether or scan your portrait. We promise not to mix up your soul with anyone else's.",
-        avatar: "Your new persona has been forged. Quite dashing! It’s time to explore the Manor's archives.",
-        dashboard: "Welcome to the Manor Archive. Tap each tile to reveal our secrets. Do try not to get lost in the hallways."
+        language: "Synchronization achieved. Drag the chosen portrait to the center to lock your multiverse. Time is highly flammable, do not dawdle.",
+        confirm: "A calculated choice. Imprint your thumb to seal this fate. We should avoid any spontaneous combustion.",
+        auth: "Identity verification required. Ink your name or submit a scan. The machine does not transport ghosts.",
+        avatar: "Persona forged. Passable, I suppose. Proceed to the Manor archives immediately.",
+        dashboard: "Archive breach successful. Tap the records to investigate. If you get lost in the halls, I will not search for you."
     },
     es: {
-        language: "Bienvenido a Lord Manor. Arrastra tu 'Aether Case' preferido al centro. Cuida tus dedos, son bastante esenciales.",
-        confirm: "Una elección espléndida. Ahora, mantén presionado ese estuche para sellar tu destino. No te preocupes, la gotera en el techo está casi arreglada.",
-        auth: "Se requiere verificación de identidad. Escribe tu nombre en el Aether o escanea tu retrato. Prometemos no mezclar tu alma con la de nadie más.",
-        avatar: "Tu nuevo personaje ha sido forjado. ¡Muy apuesto! Es hora de explorar los archivos de la Mansión.",
-        dashboard: "Bienvenido al Archivo de la Mansión. Toca cada mosaico para revelar nuestros secretos. Intenta no perderte en los pasillos."
+        language: "Sincronización lograda. Arrastra el retrato elegido al centro para fijar tu multiverso. El tiempo es muy inflamable, no te demores.",
+        confirm: "Una elección calculada. Imprime tu huella para sellar este destino. Deberíamos evitar la combustión espontánea.",
+        auth: "Se requiere verificación. Escribe tu nombre o escanea tu retrato. La máquina no transporta fantasmas.",
+        avatar: "Persona forjada. Pasable, supongo. Proceda a los archivos de la Mansión inmediatamente.",
+        dashboard: "Infiltración al archivo exitosa. Toca los registros para investigar. Si te pierdes, no iré a buscarte."
     },
     hi: {
-        language: "लॉर्ड मै너 में आपका स्वागत है। अपने पसंदीदा 'ईथर केस' को केंद्र में खींचें। अपनी उंगलियों का ध्यान रखें, वे काफी आवश्यक हैं।",
-        confirm: "एक शानदार विकल्प। अब, अपने गंतव्य को सील करने के लिए उस केस को दबाकर रखें। चिंता न करें, छत का रिساव काफी हद तक ठीक हो गया है।",
-        auth: "पहचान सत्यापन आवश्यक है। ईथर में अपना नाम लिखें या अपना चित्र स्कैन करें। हम आपकी आत्मा को किसी और के साथ नहीं मिलाने का वादा करते हैं।",
-        avatar: "आपका नया व्यक्तित्व गढ़ा गया है। काफी सुंदर! अब मै너 के अभिलेखागार का पता लगाने का समय आ गया है।",
-        dashboard: "मैनर पुरालेख में आपका स्वागत है। हमारे रहस्यों को उजागर करने के लिए प्रत्येक टाइल पर टैप करें। गलियारों में खो न जाने का प्रयास करें।"
+        language: "तुल्यकालन पूरा हुआ। अपने मल्टीवर्स को लॉक करने के लिए चुने गए चित्र को केंद्र में खींचें। समय अत्यधिक ज्वलनशील है, देर न करें।",
+        confirm: "एक सोची-समझी पसंद। इस भाग्य को सील करने के लिए अपना अंगूठा छापें। हमें किसी भी विस्फोट से बचना चाहिए।",
+        auth: "पहचान सत्यापन आवश्यक है। अपना नाम लिखें या चित्र स्कैन करें। मशीन भूतों को नहीं ले जाती।",
+        avatar: "व्यक्तित्व गढ़ा गया। ठीक-ठाक है। तुरंत मैनर के अभिलेखागार में आगे बढ़ें।",
+        dashboard: "अभिलेखागार में प्रवेश सफल। जांच के लिए रिकॉर्ड पर टैप करें। यदि आप खो जाते हैं, तो मैं आपको नहीं ढूंढूंगी।"
     },
     de: {
-        language: "Willkommen im Lord Manor. Ziehen Sie Ihr bevorzugtes 'Äther-Case' in die Mitte. Passen Sie auf Ihre Finger auf, sie sind lebensnotwendig.",
-        confirm: "Eine glänzende Wahl. Halten Sie nun dieses Case gedrückt, um Ihr Ziel zu besiegeln. Keine Sorge, das Leck im Dach ist fast repariert.",
-        auth: "Identitätsprüfung erforderlich. Tragen Sie Ihren Namen in den Äther ein oder scannen Sie Ihr Porträt. Wir versprechen, Ihre Seele nicht mit der eines anderen zu vertauschen.",
-        avatar: "Ihre neue Persona wurde geschmiedet. Ziemlich fesch! Es ist Zeit, die Archive des Herrenhauses zu erkunden.",
-        dashboard: "Willkommen im Manor-Archiv. Tippen Sie auf jede Kachel, um unsere Geheimnisse zu enthüllen. Versuchen Sie, sich nicht in den Fluren zu verirren."
+        language: "Synchronisation erreicht. Ziehen Sie das Porträt in die Mitte, um Ihr Multiversum zu sperren. Zeit ist hochentzündlich, trödeln Sie nicht.",
+        confirm: "Eine kalkulierte Wahl. Drücken Sie Ihren Daumen darauf, um dieses Schicksal zu besiegeln. Wir sollten spontane Selbstentzündung vermeiden.",
+        auth: "Identitätsprüfung erforderlich. Tragen Sie Ihren Namen ein oder scannen Sie Ihr Porträt. Die Maschine transportiert keine Geister.",
+        avatar: "Persona geschmiedet. Akzeptabel, nehme ich an. Begeben Sie sich umgehend in das Manor-Archiv.",
+        dashboard: "Archivzugriff erfolgreich. Tippen Sie auf die Akten, um zu untersuchen. Wenn Sie sich verirren, werde ich nicht nach Ihnen suchen."
     },
     ja: {
-        language: "ロード・マナーへようこそ。お好みの「エーテル・ケース」を中央にドラッグしてください。指を挟まないようにお気をつけください、大切ですから。",
-        confirm: "素晴らしい選択です。では、そのケースを長押しして目的地を確定させましょう。屋根の雨漏りは大体直っていますのでご安心を。",
-        auth: "身元確認が必要です。エーテルにお名前を記すか、肖像画をスキャンしてください。あなたの魂が他の誰かと入れ替わらないよう約束します。",
-        avatar: "あなたの新しいペルソナが錬成されました。なかなかお似合いですよ！それでは、邸宅のアーカイブを探索しましょう。",
-        dashboard: "マナー・アーカイブへようこそ。各タイルをタップして秘密を解き明かしてください。廊下で迷子にならないようにしてくださいね。"
+        language: "同期完了。選択した肖像を中央にドラッグしてマルチバースを確定しなさい。時間は引火性が高いので、ぐずぐずしないでください。",
+        confirm: "計算された選択です。指紋を押してこの運命を封印しなさい。自然発火は避けるべきです。",
+        auth: "身元確認が必要です。署名するか肖像をスキャンしなさい。この機械は幽霊を運びません。",
+        avatar: "ペルソナ錬成完了。まあまあですね。直ちに館の記録保管所へ進みなさい。",
+        dashboard: "アーカイブへの侵入成功。各記録をタップして調査しなさい。廊下で迷子になっても探しに行きませんよ。"
     },
     ar: {
-        language: "مرحبًا بكم في لورد مانور. اسحب 'حقيبة الأثير' المفضلة لديك إلى المركز. انتبه لأصابعك، فهي ضرورية للغاية.",
-        confirm: "اختيار رائع. الآن، اضغط باستمرار على تلك الحقيبة لختم وجهتك. لا تقلق، لقد تم إصلاح تسرب السقف بشكل كبير.",
-        auth: "مطلوب التحقق من الهوية. اكتب اسمك في الأثير أو امسح صورتك الشخصية. نعدك بعدم خلط روحك مع روح أي شخص آخر.",
-        avatar: "لقد تمت صياغة شخصيتك الجديدة. أنيقة للغاية! حان الوقت لاستكشاف أرشيفات القصر.",
-        dashboard: "مرحبًا بكم في أرشيف القصر. اضغط على كل بلاطة للكشف عن أسرارنا. حاول ألا تضيع في الممرات."
+        language: "تمت المزامنة. اسحب الصورة المختارة إلى المركز لقفل الكون المتعدد الخاص بك. الوقت سريع الاشتعال، لا تتباطأ.",
+        confirm: "اختيار محسوب. اطبع إبهامك لختم هذا القدر. يجب أن نتجنب الاحتراق التلقائي.",
+        auth: "مطلوب التحقق من الهوية. اكتب اسمك أو قم بمسح صورتك. الآلة لا تنقل الأشباح.",
+        avatar: "تمت صياغة الشخصية. مقبولة، على ما أظن. تقدم إلى أرشيفات القصر على الفور.",
+        dashboard: "اقتحام الأرشيف ناجح. اضغط على السجلات للتحقيق. إذا ضللت طريقك، فلن أبحث عنك."
     },
     pl: {
-        language: "Witamy w Lord Manor. Przeciągnij wybraną 'Eteryczną Skrzynię' na środek. Uważaj na palce, są całkiem przydatne.",
-        confirm: "Wspaniały wybór. Teraz przytrzymaj tę skrzynię, aby przypieczętować swój cel. Nie martw się, przeciek w dachu został niemal naprawiony.",
-        auth: "Wymagana weryfikacja tożsamości. Wpisz swoje imię w Eter lub zeskanuj swój portret. Obiecujemy nie pomylić twojej duszy z niczyją inną.",
-        avatar: "Twoja nowa postać została wykuta. Całkiem szykownie! Czas odkryć archiwa Dworu.",
-        dashboard: "Witamy w Archiwum Dworu. Dotknij każdego kafela, aby odkryć nasze sekrety. Staraj się nie zgubić w korytarzach."
+        language: "Synchronizacja zakończona. Przeciągnij portret na środek, aby zablokować multiversum. Czas jest wysoce łatwopalny, nie zwlekaj.",
+        confirm: "Wyrachowany wybór. Odciśnij kciuk, aby przypieczętować ten los. Powinniśmy unikać samozapłonu.",
+        auth: "Wymagana weryfikacja. Wpisz imię lub zeskanuj portret. Maszyna nie transportuje duchów.",
+        avatar: "Persona wykuta. Znośna, jak sądzę. Natychmiast udaj się do Archiwum Dworu.",
+        dashboard: "Włamanie do Archiwum udane. Dotknij akt, aby zbadać. Jeśli się zgubisz, nie będę cię szukać."
     }
 };
 

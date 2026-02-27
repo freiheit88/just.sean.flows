@@ -181,8 +181,8 @@ if (args.includes('--list-voices')) {
 } else {
     const type = args[0] === '--voice' ? 'voice' : 'sfx';
     const filterArgs = args.filter(a => a !== '--voice');
-    const promptArg = filterArgs[0] || 'Heavy brass gears turning and locking into place, vintage steampunk mechanism, metallic clank';
-    const fileNameArg = filterArgs[1] || 'gear-click.mp3';
+    const promptArg = filterArgs[0] || "A low, magnificent, and majestic cinematic drone sound. It begins with a short, deep impact and gracefully lingers, fading away softly. Minimalist, grand, and resonant.";
+    const fileNameArg = filterArgs[1] || 'portal-transition.mp3';
     const voiceIdArg = filterArgs[2]; // Optional voice ID
 
     if (type === 'voice') {

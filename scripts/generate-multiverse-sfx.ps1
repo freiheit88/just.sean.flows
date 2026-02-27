@@ -19,22 +19,22 @@ if ([string]::IsNullOrEmpty($apiKey)) {
 }
 
 $sounds = @(
-    @{ country = "ko"; type = "click"; prompt = "Traditional Korean Gayageum pluck, elegant and sharp" },
-    @{ country = "ko"; type = "transition"; prompt = "Korean traditional fan opening, wind-like whoosh" },
-    @{ country = "en"; type = "click"; prompt = "Modern cinematic digital click, clean and sleek" },
-    @{ country = "en"; type = "transition"; prompt = "Deep cinematic bass swell, sci-fi portal opening" },
-    @{ country = "es"; type = "click"; prompt = "Spanish Flamenco guitar tap, rhythmic and warm" },
-    @{ country = "es"; type = "transition"; prompt = "Fast Flamenco strum, energetic and vibrant" },
-    @{ country = "hi"; type = "click"; prompt = "Indian Tabla high resonant tap, crisp and energetic" },
-    @{ country = "hi"; type = "transition"; prompt = "Indian Sitar sweep and grand cinematic resonance" },
-    @{ country = "de"; type = "click"; prompt = "Dark gothic iron door lock, heavy and metallic" },
-    @{ country = "de"; type = "transition"; prompt = "Gothic dark choir echo, haunting and majestic" },
-    @{ country = "ja"; type = "click"; prompt = "Japanese Zen stone click, organic and peaceful" },
-    @{ country = "ja"; type = "transition"; prompt = "Japanese Shamisen string pull, sharp and traditional" },
-    @{ country = "ar"; type = "click"; prompt = "Arabic Oud string pluck, deep and resonant" },
-    @{ country = "ar"; type = "transition"; prompt = "Middle Eastern Darbuka drum roll with mystic wind" },
-    @{ country = "pl"; type = "click"; prompt = "Crisp amber glass clink, bright and sharp" },
-    @{ country = "pl"; type = "transition"; prompt = "Majestic European classical string crescendo, sweeping" }
+    @{ country = "ko"; type = "click"; prompt = "Korean traditional Gayageum sharp pluck, elegant and crisp" },
+    @{ country = "ko"; type = "transition"; prompt = "Deep, grand, loud Korean Buk (drum) strike with a lingering resonant Buk boom, highly resonant and slow trailing off" },
+    @{ country = "en"; type = "click"; prompt = "British traditional harpsichord short pluck, bright and crisp" },
+    @{ country = "en"; type = "transition"; prompt = "Deep, grand, loud English church organ chord swell, highly resonant, overwhelming and slow trailing off" },
+    @{ country = "es"; type = "click"; prompt = "Spanish traditional Flamenco guitar tap, wooden and rhythmic" },
+    @{ country = "es"; type = "transition"; prompt = "Deep, grand, loud Spanish Flamenco acoustic strum echo, highly resonant, passionate and slow trailing off" },
+    @{ country = "hi"; type = "click"; prompt = "Indian traditional Tabla rim shot tap, sharp and metallic" },
+    @{ country = "hi"; type = "transition"; prompt = "Deep, grand, loud Indian Sitar sympathetic string sweep, highly resonant, mystic and slow trailing off" },
+    @{ country = "de"; type = "click"; prompt = "German traditional Zither string pluck, clean and bright" },
+    @{ country = "de"; type = "transition"; prompt = "Deep, grand, loud German Baroque cello low droning sweep, highly resonant, heavy and slow trailing off" },
+    @{ country = "ja"; type = "click"; prompt = "Japanese traditional Koto sharp pluck, elegant and zen" },
+    @{ country = "ja"; type = "transition"; prompt = "Deep, grand, loud Japanese Taiko drum heavy strike with lingering resonance, highly resonant and slow trailing off" },
+    @{ country = "ar"; type = "click"; prompt = "Arabic traditional Oud single string pluck, warm and clean" },
+    @{ country = "ar"; type = "transition"; prompt = "Deep, grand, loud Middle Eastern Darbuka bass hit with Ney flute echo, highly resonant and slow trailing off" },
+    @{ country = "pl"; type = "click"; prompt = "Polish traditional Hurdy-Gurdy crank tap, sharp and wooden" },
+    @{ country = "pl"; type = "transition"; prompt = "Deep, grand, loud Polish accordion bass drone swell, highly resonant, melancholic and slow trailing off" }
 )
 
 $outDir = "public\assets\sounds"
@@ -44,7 +44,7 @@ if (!(Test-Path $outDir)) {
 
 $headers = @{
     "Content-Type" = "application/json"
-    "xi-api-key" = $apiKey
+    "xi-api-key"   = $apiKey
 }
 
 # Fix for TLS 1.2 which is required by some modern APIs
@@ -57,7 +57,7 @@ foreach ($item in $sounds) {
     Write-Host "Generating $filename..." -ForegroundColor Cyan
 
     $body = @{
-        text = $item.prompt
+        text             = $item.prompt
         duration_seconds = 2.0
         prompt_influence = 0.3
     } | ConvertTo-Json
@@ -65,7 +65,8 @@ foreach ($item in $sounds) {
     try {
         Invoke-RestMethod -Uri "https://api.elevenlabs.io/v1/sound-generation" -Method Post -Headers $headers -Body $body -OutFile $targetPath
         Write-Host "Successfully saved $filename" -ForegroundColor Green
-    } catch {
+    }
+    catch {
         Write-Host "Failed to generate $filename : $($_.Exception.Message)" -ForegroundColor Red
     }
 }

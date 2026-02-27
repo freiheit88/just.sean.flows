@@ -10,7 +10,7 @@ import {
     LucideCheckSquare, LucideSquare, LucideFlame, LucideSettings, LucideCamera, LucideZap, LucideScale,
     LucideArrowLeft, LucideArrowRight, LucideLock
 } from 'lucide-react';
-import SmokeAssistant from './components/SmokeAssistant';
+import MinaDirective from './components/MinaDirective';
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const BUILD_VERSION = "v1.4.0-clockwork-masterpiece-final";
@@ -24,29 +24,73 @@ const AudioManager = {
     currentTheme: null,
     currentMina: null,
 
-    playSfx: (id, volume = 0.5) => {
-        if (AudioManager.currentSfx) {
+    playSfx: (id, volume = 0.5, overlap = false) => {
+        if (id === 'transition') {
+            // [V26] Hack to triple the amplitude of the transition effect natively
+            [...Array(3)].forEach(() => {
+                const audio = new Audio(`/assets/sounds/${id}.mp3`);
+                audio.volume = volume;
+                audio.play().catch(() => { });
+            });
+            return;
+        }
+
+        if (AudioManager.currentSfx && !overlap) {
             AudioManager.currentSfx.pause();
             AudioManager.currentSfx = null;
         }
         const audio = new Audio(`/assets/sounds/${id}.mp3`);
         audio.volume = volume;
         audio.play().catch(() => { });
-        AudioManager.currentSfx = audio;
+        if (!overlap) AudioManager.currentSfx = audio;
     },
 
-    playTheme: (langId, volume = 0.4) => {
-        // Point 6: Immediate switch. If already playing this theme, just exit.
-        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`${langId}-theme.mp3`)) return;
+    playTheme: (langId, targetVolume = 0.4, fadeDuration = 3000) => {
+        // V27: Map available new tracks
+        const THEME_TRACKS = {
+            ar: ['ar_song1', 'ar_song2'],
+            en: ['en_song1', 'en_song2'],
+            ja: ['jp_song1', 'jp_song2'], // 'ja' maps to 'jp' tracks internally
+            ko: ['ko_song1', 'ko_song2']
+        };
+
+        let selectedTrack = `${langId}-theme`; // fallback default
+
+        // Randomly pick if mapped
+        if (THEME_TRACKS[langId] && THEME_TRACKS[langId].length > 0) {
+            const tracks = THEME_TRACKS[langId];
+            selectedTrack = tracks[Math.floor(Math.random() * tracks.length)];
+        }
+
+        // Point 6: Immediate switch. If already playing this theme from random array, just exit.
+        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`${selectedTrack}.mp3`)) return;
 
         if (AudioManager.currentTheme) {
             AudioManager.currentTheme.pause();
             AudioManager.currentTheme.currentTime = 0; // Immediate reset for faster switch
         }
-        const audio = new Audio(`/assets/sounds/${langId}-theme.mp3`);
-        audio.volume = volume;
+
+        const audio = new Audio(`/assets/sounds/${selectedTrack}.mp3`);
+
+        // Setup fade-in
+        audio.volume = 0;
         audio.loop = true;
         audio.play().catch(() => { });
+
+        const steps = 20;
+        const stepTime = fadeDuration / steps;
+        const volumeStep = targetVolume / steps;
+        let currentStep = 0;
+
+        const fadeInterval = setInterval(() => {
+            if (currentStep < steps && audio === AudioManager.currentTheme) {
+                audio.volume = Math.min(targetVolume, audio.volume + volumeStep);
+                currentStep++;
+            } else {
+                clearInterval(fadeInterval);
+            }
+        }, stepTime);
+
         AudioManager.currentTheme = audio;
         window.journeyTheme = audio;
     },
@@ -58,12 +102,81 @@ const AudioManager = {
         }
     },
 
+    duckInterval: null,
+    restoreInterval: null,
+    baseThemeVolume: 0.4,
+
     playMina: (langId, step, volume = 1.0) => {
         if (AudioManager.currentMina) {
             AudioManager.currentMina.pause();
         }
+
+        // --- 1. Audio Ducking Down to 20% ---
+        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused) {
+            // Save current volume state before overriding, unless it's already ducked
+            if (!AudioManager.duckInterval && !AudioManager.restoreInterval) {
+                AudioManager.baseThemeVolume = AudioManager.currentTheme.volume;
+            }
+
+            // Clear any existing fades
+            if (AudioManager.duckInterval) clearInterval(AudioManager.duckInterval);
+            if (AudioManager.restoreInterval) clearInterval(AudioManager.restoreInterval);
+
+            // Fade down to 20% of the base volume over 2 seconds
+            const duckVolume = AudioManager.baseThemeVolume * 0.2;
+            const duckDuration = 2000;
+            const steps = 40; // 50ms intervals
+            const stepTime = duckDuration / steps;
+
+            let currentVolume = AudioManager.currentTheme.volume;
+            let currentStep = 0;
+
+            AudioManager.duckInterval = setInterval(() => {
+                if (currentStep < steps && AudioManager.currentTheme) {
+                    currentVolume -= (currentVolume - duckVolume) / (steps - currentStep);
+                    // Safeguard against going below 0 or above 1
+                    AudioManager.currentTheme.volume = Math.max(0, Math.min(1, currentVolume));
+                    currentStep++;
+                } else {
+                    clearInterval(AudioManager.duckInterval);
+                    AudioManager.duckInterval = null;
+                }
+            }, stepTime);
+        }
+
         const audio = new Audio(`/assets/sounds/mina/mina-${langId}-${step}.mp3`);
         audio.volume = volume;
+
+        // --- 2. Restore Volume upon Complete ---
+        audio.onended = () => {
+            if (AudioManager.currentTheme && !AudioManager.currentTheme.paused) {
+                if (AudioManager.duckInterval) clearInterval(AudioManager.duckInterval);
+                if (AudioManager.restoreInterval) clearInterval(AudioManager.restoreInterval);
+
+                // Fade up to base volume over 4 seconds
+                const restoreDuration = 4000;
+                const steps = 80; // 50ms intervals
+                const stepTime = restoreDuration / steps;
+
+                let currentVolume = AudioManager.currentTheme.volume;
+                let currentStep = 0;
+
+                AudioManager.restoreInterval = setInterval(() => {
+                    if (currentStep < steps && AudioManager.currentTheme) {
+                        currentVolume += (AudioManager.baseThemeVolume - currentVolume) / (steps - currentStep);
+                        AudioManager.currentTheme.volume = Math.max(0, Math.min(1, currentVolume));
+                        currentStep++;
+                    } else {
+                        if (AudioManager.currentTheme) {
+                            AudioManager.currentTheme.volume = AudioManager.baseThemeVolume;
+                        }
+                        clearInterval(AudioManager.restoreInterval);
+                        AudioManager.restoreInterval = null;
+                    }
+                }, stepTime);
+            }
+        };
+
         audio.play().catch(() => { });
         AudioManager.currentMina = audio;
     }
@@ -88,15 +201,21 @@ const LANGUAGES = [
         welcome: "로드 매너에 오신 것을 환영합니다. 운명의 톱니바퀴가 당신을 기다립니다.",
         loading: "크로노미터 컨설팅 중...",
         ui: {
-            authTitle: "에테르 신원 확인", authBtn: "영혼 각인 확인", authDone: "신원 봉인됨",
-            galleryTitle: "매너 아카이브", gallerySub: "역사적 기록 1899",
-            manorTitle: "태엽장치 심장", manorHeirlooms: "조상의 톱니바퀴", manorEstate: "저택 부지",
-            returnGallery: "아카이브로 복귀", textOptionTitle: "직접 이름 기입",
-            textInputPlaceholder: "방문객 성명...", textSubmitBtn: "신원 소환",
-            uploadTitle: "에테르 초상화 스캔", generateBtn: "영혼 연성", generating: "연성 중...",
-            confirmTitle: "이 언어가 당신의 모국어입니까?", confirmBtn: "동의합니다", confirmDone: "언어 결속됨",
-            todoTitle: "선언문", todo1: "신원 연성", todo2: "심장 점검", todo3: "운명 봉인", todoDone: "운명이 실현되었습니다.",
-            consulting: "알고리즘의 속삭임...", sealBtn: "운명을 봉인하기", fateSealed: "운명 확정됨",
+            authTitle: "신원 인증", authBtn: "영혼의 자격 증명", authDone: "신원 기록 완료",
+            galleryTitle: "매너 기록 보관소", gallerySub: "역사적 기록 1899",
+            manorTitle: "기계동력 심장부", manorHeirlooms: "선조의 유물", manorEstate: "저택 부지",
+            returnGallery: "보관소로 돌아가기", textOptionTitle: "당신의 이름을 기록하세요",
+            textInputPlaceholder: "방문자 이름...", textSubmitBtn: "이름 남기기",
+            uploadTitle: "에테르 포트레잇 스캔", generateBtn: "자아 연성", generating: "변환 중...",
+            confirmTitle: "당신의 세계가 맞습니까?", confirmBtn: "확정합니다", confirmDone: "언어 동기화 완료",
+            todoTitle: "선언문", todo1: "신원 확립", todo2: "심장 점검", todo3: "운명 봉인", todoDone: "운명이 발현되었습니다.",
+            consulting: "알고리즘이 속삭입니다...", sealBtn: "이 운명을 봉인하기", fateSealed: "운명 확정",
+            directiveLanguage: "동기화 완료. 선택한 포트레잇을 중앙으로 끌어와 멀티버스를 확정하세요. 시간은 가연성 높은 자원이니 지체하지 마시길.",
+            directiveConfirm: "탁월한 결단입니다. 이제 지문을 찍어 운명을 봉인하세요. 폭발은 면할 겁니다.",
+            directiveAuth: "이름을 등록하거나 초상화를 제출해 신원을 인증하세요. 기계는 유령을 태우지 않습니다.",
+            directiveAvatar: "페르소나 연성 완료. 꽤 봐줄 만하군요. 이제 저택의 기록 보관소로 이동하시죠.",
+            directiveDashboard: "기록 보관소 진입 성공. 각 기록을 탭하여 조사하세요. 복도에서 길을 잃어도 구하러 가지 않습니다.",
+            comingSoon: "곧 돌아옵니다"
         }
     },
     {
@@ -105,15 +224,21 @@ const LANGUAGES = [
         welcome: "Welcome to the Lord Manor, guest. The gears of destiny await your touch.",
         loading: "Consulting the Chronometer...",
         ui: {
-            authTitle: "Aetherial Identity", authBtn: "Verify Soul Print", authDone: "Identity Sealed",
+            authTitle: "Aether Identity", authBtn: "Verify Soul Imprint", authDone: "Identity Sealed",
             galleryTitle: "MANOR ARCHIVE", gallerySub: "Historical Record 1899",
             manorTitle: "The Clockwork Heart", manorHeirlooms: "Ancestral Gears", manorEstate: "Manor Grounds",
-            returnGallery: "Back to Archive", textOptionTitle: "Ink Your Name",
+            returnGallery: "Return to Archive", textOptionTitle: "Inscribe Your Name",
             textInputPlaceholder: "Guest Name...", textSubmitBtn: "Summon Identity",
             uploadTitle: "Scan Aether Portrait", generateBtn: "Forge Soul", generating: "Transmuting...",
-            confirmTitle: "Is this the tongue you speak?", confirmBtn: "I Consent", confirmDone: "Tongue Bound",
-            todoTitle: "Manifesto", todo1: "Forge Identity", todo2: "Inspect Heart", todo3: "Seal Fate", todoDone: "Destiny manifested.",
-            consulting: "The Algorithm Whispers...", sealBtn: "Seal This Fate", fateSealed: "Destiny Locked",
+            confirmTitle: "Is this your native tongue?", confirmBtn: "I Agree", confirmDone: "Language Bound",
+            todoTitle: "Manifest", todo1: "Forge Identity", todo2: "Inspect Heart", todo3: "Seal Fate", todoDone: "Destiny manifested.",
+            consulting: "The Algorithm whispers...", sealBtn: "Seal this fate", fateSealed: "Fate Locked",
+            directiveLanguage: "Synchronization achieved. Drag the chosen portrait to the center to lock your multiverse. Time is highly flammable, do not dawdle.",
+            directiveConfirm: "A calculated choice. Imprint your thumb to seal this fate. We should avoid any spontaneous combustion.",
+            directiveAuth: "Identity verification required. Ink your name or submit a scan. The machine does not transport ghosts.",
+            directiveAvatar: "Persona forged. Passable, I suppose. Proceed to the Manor archives immediately.",
+            directiveDashboard: "Archive breach successful. Tap the records to investigate. If you get lost in the halls, I will not search for you.",
+            comingSoon: "Coming Soon"
         }
     },
     {
@@ -122,15 +247,21 @@ const LANGUAGES = [
         welcome: "Bienvenido a Lord Manor. Los engranajes del destino esperan tu toque.",
         loading: "Consultando el Cronómetro...",
         ui: {
-            authTitle: "Identidad Etérea", authBtn: "Verificar huella del alma", authDone: "Identidad sellada",
+            authTitle: "Identidad Étérea", authBtn: "Verificar Huella del Alma", authDone: "Identidad Sellada",
             galleryTitle: "ARCHIVO DE LA MANSIÓN", gallerySub: "Registro Histórico 1899",
             manorTitle: "El Corazón de Relojería", manorHeirlooms: "Engranajes Ancestrales", manorEstate: "Terrenos de la Mansión",
-            returnGallery: "Volver al Archivo", textOptionTitle: "Escribe tu nombre",
-            textInputPlaceholder: "Nombre del invitado...", textSubmitBtn: "Invocar Identidad",
+            returnGallery: "Volver al Archivo", textOptionTitle: "Inscribe Tu Nombre",
+            textInputPlaceholder: "Nombre del Huésped...", textSubmitBtn: "Invocar Identidad",
             uploadTitle: "Escanear Retrato de Éter", generateBtn: "Forjar Alma", generating: "Transmutando...",
-            confirmTitle: "¿Es esta tu lengua materna?", confirmBtn: "Doy mi consentimiento", confirmDone: "Lengua vinculada",
+            confirmTitle: "¿Es esta tu lengua materna?", confirmBtn: "Estoy de acuerdo", confirmDone: "Idioma Vinculado",
             todoTitle: "Manifiesto", todo1: "Forjar Identidad", todo2: "Inspeccionar Corazón", todo3: "Sellar Destino", todoDone: "Destino manifestado.",
             consulting: "El algoritmo susurra...", sealBtn: "Sellar este destino", fateSealed: "Destino bloqueado",
+            directiveLanguage: "Sincronización lograda. Arrastra el retrato elegido al centro para fijar tu multiverso. El tiempo es muy inflamable, no te demores.",
+            directiveConfirm: "Una elección calculada. Imprime tu huella para sellar este destino. Deberíamos evitar la combustión espontánea.",
+            directiveAuth: "Se requiere verificación. Escribe tu nombre o escanea tu retrato. La máquina no transporta fantasmas.",
+            directiveAvatar: "Persona forjada. Pasable, supongo. Proceda a los archivos de la Mansión inmediatamente.",
+            directiveDashboard: "Infiltración al archivo exitosa. Toca los registros para investigar. Si te pierdes, no iré a buscarte.",
+            comingSoon: "Próximamente"
         }
     },
     {
@@ -148,6 +279,12 @@ const LANGUAGES = [
             confirmTitle: "क्या यह आपकी मातृभाषा है?", confirmBtn: "मैं सहमत हूँ", confirmDone: "भाषा बाध्य",
             todoTitle: "घोषणापत्र", todo1: "पहचान बनाएं", todo2: "हृदय का निरीक्षण करें", todo3: "भाग्य को सील करें", todoDone: "भाग्य प्रकट हुआ।",
             consulting: "एल्गोरिथम फुसफुसाता है...", sealBtn: "इस भाग्य को सील करें", fateSealed: "भाग्य लॉक हो गया",
+            directiveLanguage: "तुल्यकालन पूरा हुआ। अपने मल्टीवर्स को लॉक करने के लिए चुने गए चित्र को केंद्र में खींचें। समय अत्यधिक ज्वलनशील है, देर न करें।",
+            directiveConfirm: "एक सोची-समझी पसंद। इस भाग्य को सील करने के लिए अपना अंगूठा छापें। हमें किसी भी विस्फोट से बचना चाहिए।",
+            directiveAuth: "पहचान सत्यापन आवश्यक है। अपना नाम लिखें या चित्र स्कैन करें। मशीन भूतों को नहीं ले जाती।",
+            directiveAvatar: "व्यक्तित्व गढ़ा गया। ठीक-ठाक है। तुरंत मैनर के अभिलेखागार में आगे बढ़ें।",
+            directiveDashboard: "अभिलेखागार में प्रवेश सफल। जांच के लिए रिकॉर्ड पर टैप करें। यदि आप खो जाते हैं, तो मैं आपको नहीं ढूंढूंगी।",
+            comingSoon: "जल्द आ रहा है"
         }
     },
     {
@@ -165,6 +302,12 @@ const LANGUAGES = [
             confirmTitle: "Ist dies Ihre Muttersprache?", confirmBtn: "Ich stimme zu", confirmDone: "Sprache gebunden",
             todoTitle: "Manifest", todo1: "Identität schmieden", todo2: "Herz inspizieren", todo3: "Schicksal besiegeln", todoDone: "Schicksal manifestiert.",
             consulting: "Der Algorithmus flüstert...", sealBtn: "Schicksal besiegeln", fateSealed: "Schicksal gesperrt",
+            directiveLanguage: "Synchronisation erreicht. Ziehen Sie das Porträt in die Mitte, um Ihr Multiversum zu sperren. Zeit ist hochentzündlich, trödeln Sie nicht.",
+            directiveConfirm: "Eine kalkulierte Wahl. Drücken Sie Ihren Daumen darauf, um dieses Schicksal zu besiegeln. Wir sollten spontane Selbstentzündung vermeiden.",
+            directiveAuth: "Identitätsprüfung erforderlich. Tragen Sie Ihren Namen ein oder scannen Sie Ihr Porträt. Die Maschine transportiert keine Geister.",
+            directiveAvatar: "Persona geschmiedet. Akzeptabel, nehme ich an. Begeben Sie sich umgehend in das Manor-Archiv.",
+            directiveDashboard: "Archivzugriff erfolgreich. Tippen Sie auf die Akten, um zu untersuchen. Wenn Sie sich verirren, werde ich nicht nach Ihnen suchen.",
+            comingSoon: "Demnächst"
         }
     },
     {
@@ -182,6 +325,12 @@ const LANGUAGES = [
             confirmTitle: "この言語があなたの母国語ですか？", confirmBtn: "同意する", confirmDone: "言語バインド完了",
             todoTitle: "マニフェスト", todo1: "身元を錬成", todo2: "心臓を点検", todo3: "運命を封印", todoDone: "運命が具現化されました。",
             consulting: "アルゴリズムの囁き...", sealBtn: "運命を封印する", fateSealed: "運命確定",
+            directiveLanguage: "同期完了。選択した肖像を中央にドラッグしてマルチバースを確定しなさい。時間は引火性が高いので、ぐずぐずしないでください。",
+            directiveConfirm: "計算された選択です。指紋を押してこの運命を封印しなさい。自然発火は避けるべきです。",
+            directiveAuth: "身元確認が必要です。署名するか肖像をスキャンしなさい。この機械は幽霊を運びません。",
+            directiveAvatar: "ペルソナ錬成完了。まあまあですね。直ちに館の記録保管所へ進みなさい。",
+            directiveDashboard: "アーカイブへの侵入成功。各記録をタップして調査しなさい。廊下で迷子になっても探しに行きませんよ。",
+            comingSoon: "近日公開"
         }
     },
     {
@@ -199,6 +348,12 @@ const LANGUAGES = [
             confirmTitle: "هل هذه لغتك الأم؟", confirmBtn: "أوافق", confirmDone: "تم ربط اللغة",
             todoTitle: "البيان", todo1: "صياغة الهوية", todo2: "فحص القلب", todo3: "ختم القدر", todoDone: "القدر يتجلى.",
             consulting: "الخوارزمية تهمس...", sealBtn: "ختم هذا القدر", fateSealed: "القدر مغلق",
+            directiveLanguage: "تمت المزامنة. اسحب الصورة المختارة إلى المركز لقفل الكون المتعدد الخاص بك. الوقت سريع الاشتعال، لا تتباطأ.",
+            directiveConfirm: "اختيار محسوب. اطبع إبهامك لختم هذا القدر. يجب أن نتجنب الاحتراق التلقائي.",
+            directiveAuth: "مطلوب التحقق من الهوية. اكتب اسمك أو قم بمسح صورتك. الآلة لا تنقل الأشباح.",
+            directiveAvatar: "تمت صياغة الشخصية. مقبولة، على ما أظن. تقدم إلى أرشيفات القصر على الفور.",
+            directiveDashboard: "اقتحام الأرشيف ناجح. اضغط على السجلات للتحقيق. إذا ضللت طريقك، فلن أبحث عنك.",
+            comingSoon: "قريباً"
         }
     },
     {
@@ -216,6 +371,12 @@ const LANGUAGES = [
             confirmTitle: "Czy to twój język ojczysty?", confirmBtn: "Wyrażam zgodę", confirmDone: "Język Związany",
             todoTitle: "Manifest", todo1: "Wykuj Tożsamość", todo2: "Zbadaj Serce", todo3: "Zapieczętuj Los", todoDone: "Przeznaczenie zrealizowane.",
             consulting: "Algorytm Szepcze...", sealBtn: "Zapieczętuj ten los", fateSealed: "Los Zablokowany",
+            directiveLanguage: "Synchronizacja zakończona. Przeciągnij portret na środek, aby zablokować multiversum. Czas jest wysoce łatwopalny, nie zwlekaj.",
+            directiveConfirm: "Wyrachowany wybór. Odciśnij kciuk, aby przypieczętować ten los. Powinniśmy unikać samozapłonu.",
+            directiveAuth: "Wymagana weryfikacja. Wpisz imię lub zeskanuj portret. Maszyna nie transportuje duchów.",
+            directiveAvatar: "Persona wykuta. Znośna, jak sądzę. Natychmiast udaj się do Archiwum Dworu.",
+            directiveDashboard: "Włamanie do Archiwum udane. Dotknij akt, aby zbadać. Jeśli się zgubisz, nie będę cię szukać.",
+            comingSoon: "Wkrótce"
         }
     }
 ];
@@ -381,7 +542,7 @@ const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter,
     </div>
 );
 
-const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx }) => {
+const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx, todos }) => {
     // [V10 UPDATE: Cinematic Editorial 3x3 Grid]
     const gridItems = [
         { id: 1, type: 'text', title: 'START THE JOURNEY', subtitle: 'Enter the Core' },
@@ -435,7 +596,12 @@ const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx 
                             </button>
                         ) : slot.type === 'manor' ? (
                             <button
-                                onClick={() => { setViewMode('home_interior'); setTodos(p => ({ ...p, home: true })); playSfx?.('click'); }}
+                                onClick={() => {
+                                    if (!todos?.home) AudioManager.playMina(selectedLang.id, 'dashboard');
+                                    setViewMode('home_interior');
+                                    setTodos(p => ({ ...p, home: true }));
+                                    playSfx?.('click');
+                                }}
                                 onMouseEnter={() => playSfx?.('hover')}
                                 className={`w-full h-full relative bg-[#121214] flex flex-col items-center justify-center hover:bg-white/5 transition-colors group active:scale-95 border border-transparent hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/50`}
                             >
@@ -610,182 +776,190 @@ const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePre
     </div>
 );
 
-const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelected, isAnySelected, stagedLang }) => {
-    const [holdProgress, setHoldProgress] = useState(0);
-    const holdTimer = useRef(null);
-    const progressInterval = useRef(null);
-    const lastHint = useRef("");
+const ComingSoonView = ({ selectedLang, currentTheme }) => {
+    // Attempt to play the localized coming soon TTS
+    useEffect(() => {
+        if (selectedLang) {
+            AudioManager.playMina(selectedLang.id, 'comingsoon', 1.0);
+        }
+    }, [selectedLang]);
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`w-full max-w-lg h-full flex flex-col items-center justify-center p-6 text-center z-50`}
+        >
+            <div className="mb-12 relative flex justify-center items-end h-24 gap-1.5 opacity-60">
+                {[...Array(15)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        animate={{
+                            height: ["20%", "100%", "20%"],
+                        }}
+                        transition={{
+                            duration: 0.5 + Math.random(),
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: Math.random() * 0.5
+                        }}
+                        className={`w-1.5 rounded-t-sm border border-black/20 ${currentTheme?.bg || 'bg-[#C5A059]'}`}
+                        style={{ backgroundColor: '#C5A059' }} // Force gold color for visibility
+                    />
+                ))}
+            </div>
+
+            <motion.h2
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className={`text-3xl md:text-5xl font-black uppercase tracking-[0.2em] mb-4 ${currentTheme?.text || 'text-white'}`}
+                style={{ textShadow: "0 0 20px rgba(197,160,89,0.3)" }}
+            >
+                {selectedLang?.ui?.comingSoon || "Coming Soon"}
+            </motion.h2>
+
+            <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className={`text-[10px] md:text-xs font-serif italic max-w-sm leading-relaxed opacity-70 ${currentTheme?.text || 'text-white'}`}
+            >
+                "Thanks for coming all this way! The machine is still being built, but we will be back soon. Enjoy the music and come listen again later!"
+            </motion.p>
+        </motion.div>
+    );
+};
+
+const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady, onSelect }) => {
+    const [saturationProgress, setSaturationProgress] = useState(0);
+    const animInterval = useRef(null);
     const cardRef = useRef(null);
 
-    const updateHint = (msg) => {
-        if (lastHint.current !== msg) {
-            lastHint.current = msg;
-            setSpiritHint(msg);
-        }
-    };
+    useEffect(() => {
+        if (isFocused && !isStaged) {
+            const startTime = Date.now();
+            const duration = 5500; // 5.5s total time
+            let stage = 0;
 
-    const handleDrag = (event, info) => {
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
+            animInterval.current = setInterval(() => {
+                const elapsed = Date.now() - startTime;
 
-        // Point 5: Card Swap Logic
-        // If dragging close to center and NOT the staged card, clear the stage to allow easy switching
-        if (dist < 300 && stagedLang && stagedLang.id !== lang.id) {
-            onSelect(null); // Deselect the current staged card to make room
-        }
+                // Track percentage evenly from 0-100% over 5.5s
+                const percentage = Math.min((elapsed / duration) * 100, 100);
+                setSaturationProgress(percentage);
 
-        if (dist < 400 && !isHolding) {
-            if (AudioManager.currentTheme?.src.split('/').pop() !== `${lang.id}-theme.mp3`) {
-                AudioManager.playTheme(lang.id, 0.25);
-            }
-        }
-    };
+                if (elapsed >= 2500 && stage < 1) { // 2.5 sec jump
+                    AudioManager.playSfx('piano-mystic-low', 0.6, true);
+                    stage = 1;
+                } else if (elapsed >= 3500 && stage < 2) { // 3.5 sec jump
+                    AudioManager.playSfx('piano-mystic-mid', 0.6, true);
+                    stage = 2;
+                } else if (elapsed >= 4500 && stage < 3) { // 4.5 sec (background switch + glow)
+                    AudioManager.playSfx('piano-mystic-high', 0.8, true);
+                    if (onReady) onReady({ ...lang, requestBackground: true });
+                    stage = 3;
+                }
 
-    const handleDragEnd = (event, info) => {
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
+                if (elapsed >= duration) { // 5.5 sec total completion
+                    clearInterval(animInterval.current);
 
-        // Point 4: Stricter center detection (100px instead of 150px) to prevent accidental click-triggers
-        if (dist < 100) {
-            onSelect(lang);
-            AudioManager.playSfx('click');
-        }
-    };
+                    const currentSrc = AudioManager.currentTheme?.src || "";
+                    if (currentSrc.split('/').pop() !== `${lang.id}-theme.mp3`) {
+                        AudioManager.playTheme(lang.id, 0.4, 3000);
+                    }
 
-    const handleStart = (e) => {
-        if (!isSelected) return;
-        if (e.pointerType === 'mouse' && e.button !== 0) return;
-
-        e.currentTarget.setPointerCapture(e.pointerId);
-        setHoldProgress(1);
-        updateHint("Synchronizing multiversal anchor...");
-
-        AudioManager.playTheme(lang.id);
-
-        const startTime = Date.now();
-        const duration = 2000; // 2 seconds per user request
-
-        holdTimer.current = setTimeout(() => {
-            clearInterval(progressInterval.current);
-            setHoldProgress(100);
-            updateHint("Fate Sealed.");
-            onSelect(lang);
-        }, duration);
-
-        let stage = 0;
-        progressInterval.current = setInterval(() => {
-            const elapsed = Date.now() - startTime;
-            const percentage = Math.min((elapsed / duration) * 100, 100);
-            setHoldProgress(percentage);
-
-            // 3-stage audio/visual feedback (30, 70, 100)
-            if (percentage >= 30 && stage < 1) {
-                AudioManager.playSfx('piano-mystic-low', 0.6);
-                stage = 1;
-            } else if (percentage >= 70 && stage < 2) {
-                AudioManager.playSfx('piano-mystic-mid', 0.6);
-                stage = 2;
-            } else if (percentage >= 95 && stage < 3) {
-                AudioManager.playSfx('piano-mystic-high', 0.8);
-                stage = 3;
-            }
-
-            if (percentage > 90) updateHint("Fate is nearly sealed...");
-            else if (percentage > 50) updateHint("Stabilizing temporal rift...");
-            else if (percentage > 20) updateHint("Anchor established. Holding...");
-        }, 50);
-    };
-
-    const handleEnd = (e) => {
-        if (holdTimer.current) {
-            clearTimeout(holdTimer.current);
-            holdTimer.current = null;
+                    if (onReady) onReady({ ...lang, requestSequenceComplete: true });
+                }
+            }, 50);
+        } else {
+            setSaturationProgress(0);
+            if (animInterval.current) clearInterval(animInterval.current);
+            // Immediately stop any lingering theme audio when un-focusing
             AudioManager.stopTheme();
         }
-        if (progressInterval.current) {
-            clearInterval(progressInterval.current);
-            progressInterval.current = null;
+
+        return () => {
+            if (animInterval.current) clearInterval(animInterval.current);
+        };
+    }, [isFocused, isStaged]);
+
+    const handleDragEnd = (event, info) => {
+        if (!isFocused || saturationProgress < 100 || isStaged) return;
+
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
+
+        if (dist < 150) {
+            AudioManager.playSfx('shutter', 0.6);
+            onSelect(lang);
         }
-        if (e && e.currentTarget && e.pointerId) {
-            try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (err) { }
-        }
-        setHoldProgress(0);
-        updateHint("");
     };
 
-    const isHolding = holdProgress > 0;
+    const isDraggable = isFocused && saturationProgress === 100 && !isStaged;
 
     return (
         <motion.div
             ref={cardRef}
-            drag
+            onClick={() => {
+                if (!isFocused && !isStaged) onFocus(lang);
+            }}
+            drag={isDraggable}
             dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
             dragElastic={0.8}
-            onDrag={handleDrag}
             onDragEnd={handleDragEnd}
-            whileDrag={{ scale: 1.1, zIndex: 100, rotate: 2 }}
+            whileDrag={isDraggable ? { scale: 1.1, zIndex: 1000, rotate: 2 } : {}}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
-                opacity: isDimmable ? 0.6 : 1,
-                scale: isSelected ? (isHolding ? 1.5 : 1.1) : (isAnySelected ? 0.95 : 1),
-                zIndex: isSelected ? 1000 : 1,
-                filter: isDimmable ? 'brightness(0.4) grayscale(50%)' : 'brightness(1) grayscale(0%)',
+                opacity: isDimmable ? 0.3 : 1,
+                scale: isStaged ? 1 : (isFocused ? 1.05 : 1),
+                zIndex: isFocused ? 100 : 1,
             }}
             transition={{ type: 'spring', damping: 25, stiffness: 120 }}
-            className={`relative w-full h-full cursor-grab active:cursor-grabbing group rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isHolding ? 'shadow-[0_0_100px_rgba(255,255,255,0.4)]' : ''}`}
-            onPointerDown={handleStart}
-            onPointerUp={handleEnd}
-            onPointerLeave={handleEnd}
-            onPointerCancel={handleEnd}
-            onContextMenu={(e) => e.preventDefault()}
+            className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isFocused && !isStaged ? 'shadow-[0_0_80px_rgba(197,160,89,0.4)] ring-2 ring-[#C5A059]' : 'cursor-pointer hover:ring-1 hover:ring-white/20'}`}
             style={{ touchAction: 'none' }}
         >
             <motion.div
-                className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
-                style={{
-                    backgroundImage: `url(${lang.image})`,
-                    scale: isHolding ? 1.0 : 1.5,
-                }}
+                className="absolute inset-0 bg-cover bg-center transition-all duration-100"
+                style={{ backgroundImage: `url(${lang.image})` }}
                 animate={{
-                    scale: isHolding ? 1.0 : 1.5,
-                    filter: isHolding
-                        ? (holdProgress < 30 ? 'saturate(0.1) grayscale(50%)'
-                            : holdProgress < 70 ? 'saturate(0.3)'
-                                : holdProgress < 95 ? 'saturate(0.7)'
-                                    : 'saturate(1.2)')
-                        : (isSelected ? 'saturate(1) grayscale(0%)' : 'grayscale(100%)'),
+                    scale: 1.5,
+                    filter: isFocused
+                        ? (saturationProgress < 45.45 ? `saturate(${0.1 + (0.2 * (saturationProgress / 45.45))}) grayscale(${80 - (50 * (saturationProgress / 45.45))}%) brightness(${0.1 + (0.2 * (saturationProgress / 45.45))})`
+                            : saturationProgress < 63.63 ? 'saturate(0.7) grayscale(30%) brightness(0.7)'
+                                : saturationProgress < 81.81 ? 'saturate(1) grayscale(0%) brightness(1)'
+                                    : 'saturate(1.2) grayscale(0%) brightness(1.3) drop-shadow(0 0 10px rgba(197,160,89,0.8))')
+                        : (isStaged ? 'saturate(1) grayscale(0%)' : 'saturate(0) grayscale(100%) brightness(0.5)'),
                 }}
             />
 
-            {/* Hold Progress Bar */}
-            <div className="absolute bottom-0 left-0 h-1 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${holdProgress}%` }} />
+            {/* Hold/Focus Progress Bar */}
+            {isFocused && saturationProgress < 100 && (
+                <div className="absolute bottom-0 left-0 h-1 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${saturationProgress}%` }} />
+            )}
 
-            {/* Visual Pulse Overlay */}
-            {isHolding && (
+            {/* Glowing inner overlay for 100% saturation to invite dragging */}
+            {isFocused && saturationProgress === 100 && !isStaged && (
                 <motion.div
-                    animate={{ opacity: [0.1, 0.4, 0.1] }}
-                    transition={{ repeat: Infinity, duration: 1 }}
-                    className="absolute inset-0 bg-white z-20 pointer-events-none"
+                    animate={{ opacity: [0, 0.3, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="absolute inset-0 border-4 border-[#C5A059] pointer-events-none z-40"
                 />
             )}
 
-            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isHolding ? 'opacity-90' : 'opacity-60 group-hover:opacity-80'}`} />
+            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isFocused ? 'opacity-80' : 'opacity-60'}`} />
 
-            <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center">
-                <motion.h3
-                    animate={{ opacity: isDimmable ? 0.8 : 1 }}
-                    className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isHolding ? 'scale-110' : ''}`}
-                >
+            <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
+                <h3 className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
                     {lang.name}
-                </motion.h3>
+                </h3>
                 <div className="overflow-hidden h-4 w-full flex justify-center">
                     <motion.span
-                        animate={{ y: isHolding || isSelected ? 0 : 20 }}
+                        animate={{ y: isFocused || isStaged ? 0 : 20 }}
                         className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block"
                     >
-                        {isSelected ? (isHolding ? `Journeying... ${Math.round(holdProgress)}%` : 'HOLD TO START JOURNEY') : 'CASE LOCKED'}
+                        {isStaged ? 'FATE SEALED' : (saturationProgress === 100 ? 'DRAG TO CENTER' : (isFocused ? `SYNCHRONIZING ${Math.round(saturationProgress)}%` : 'TAP TO SELECT'))}
                     </motion.span>
                 </div>
             </div>
@@ -794,28 +968,116 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
 };
 
 const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
+    const [focusedLang, setFocusedLang] = useState(null);
     const [stagedLang, setStagedLang] = useState(null);
+    const [minaText, setMinaText] = useState("");
+    const [activeBackground, setActiveBackground] = useState(null);
+    const [isIntroActive, setIsIntroActive] = useState(true);
 
-    // [V19] Effect to play Mina's guidance on mount
+    // Use a ref to prevent double audio playback in React strict mode / dev
+    const audioPlayedRef = useRef(false);
+
+    const introSentence = "Hmm... I have been waiting for you. Thank you for visiting my world. Choose where you want to flow.";
+
     useEffect(() => {
-        AudioManager.playMina(stagedLang ? stagedLang.id : 'ko', stagedLang ? 'confirm' : 'language');
-    }, [stagedLang]);
+        const introAudio = new Audio('/assets/sounds/mina-intro-new.mp3');
+        introAudio.volume = 0.8;
 
-    const onCardClick = (lang) => {
-        if (!stagedLang) {
-            setStagedLang(lang);
-            AudioManager.playSfx(`${lang.id}-click`);
+        // Fire and forget audio, ignore block errors silently so text still types.
+        introAudio.play().catch(() => { });
+
+        let i = 0;
+        setMinaText("");
+
+        // Drop overlay after 6 seconds (length of voice line)
+        const overlayTimer = setTimeout(() => {
+            setIsIntroActive(false);
+        }, 6000);
+        const typingInterval = setInterval(() => {
+            if (i <= introSentence.length) {
+                setMinaText(introSentence.slice(0, i));
+                i++;
+            } else {
+                clearInterval(typingInterval);
+            }
+        }, 75);
+
+        return () => {
+            clearInterval(typingInterval);
+            clearTimeout(overlayTimer);
+            introAudio.pause();
+            introAudio.currentTime = 0;
+        };
+    }, []);
+
+    const onCardFocus = (lang) => {
+        // Reset the background to normal dark when preparing to pick again
+        setActiveBackground(null);
+        setFocusedLang(lang);
+        setStagedLang(null);
+        setMinaText(`INITIATING ${lang.name} PROTOCOL. PLEASE WAIT FOR SYNCHRONIZATION TO COMPLETE.`);
+        AudioManager.playSfx('click');
+    };
+
+    const onCardReady = (payload) => {
+        if (payload.requestBackground) {
+            setActiveBackground(payload.image);
+        }
+        if (payload.requestSequenceComplete) {
+            setMinaText(payload.langData.ui.directiveLanguage);
+            // Play the dynamic language voice at exactly 5.5s
+            AudioManager.playMina(payload.id, 'language');
         }
     };
 
-    const onHoldComplete = (lang) => {
-        handleLanguageSelect(lang);
+    // V26: Center Hold Logic
+    const [holdProgress, setHoldProgress] = useState(0);
+    const holdIntervalRef = useRef(null);
+
+    const startHold = () => {
+        if (!stagedLang) return;
+        AudioManager.playSfx('shutter', 0.6); // Feedback sound
+        setHoldProgress(0);
+        holdIntervalRef.current = setInterval(() => {
+            setHoldProgress(prev => {
+                const next = prev + (100 / (5000 / 50)); // Fill 100% over 5s at 50ms intervals
+                if (next >= 100) {
+                    clearInterval(holdIntervalRef.current);
+                    handleLanguageSelect(stagedLang);
+                    return 100;
+                }
+                return next;
+            });
+        }, 50);
+    };
+
+    const cancelHold = () => {
+        if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
+        setHoldProgress(0);
+    };
+
+    const handleAnchorSelect = (lang) => {
+        setStagedLang(lang);
+        AudioManager.playSfx('confirm', 0.8);
+        setMinaText(lang.ui.directiveConfirm);
+        AudioManager.playMina(lang.id, 'confirm');
+    };
+
+    const onCardSelect = (lang) => {
+        setFocusedLang(lang);
+        handleAnchorSelect(lang);
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4 translate-y-16">
-            <div id="language-grid" className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-1.5 md:gap-3 bg-black/60 backdrop-blur-3xl p-3 md:p-6 border border-white/10 rounded-3xl shadow-[0_0_120px_rgba(0,0,0,0.9)] relative overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4 mt-24 md:mt-16 overflow-visible relative">
 
+            {/* Dynamic Native Image Background */}
+            <div
+                className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-30' : 'opacity-0'}`}
+                style={activeBackground ? { backgroundImage: `url(${activeBackground})` } : {}}
+            />
+
+            <div id="language-grid" className={`w-full aspect-square grid grid-cols-3 grid-rows-3 gap-2 md:gap-4 bg-black/40 backdrop-blur-3xl p-3 md:p-6 border border-white/5 rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative z-10 transition-all duration-1000 ${isIntroActive ? 'opacity-40 blur-sm scale-95 pointer-events-none' : 'opacity-100 blur-0 scale-100'}`}>
                 {/* Background "Flow" Effect */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_70%)] animate-pulse pointer-events-none" />
 
@@ -828,40 +1090,54 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                     {stagedLang ? (
                                         <motion.div
                                             key={stagedLang.id}
-                                            id="center-slot"
                                             initial={{ scale: 0, opacity: 0, rotate: -20 }}
-                                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                            exit={{ scale: 0, opacity: 0, rotate: 20 }}
-                                            className="w-full h-full cursor-pointer z-[2000]"
-                                            onClick={() => setStagedLang(null)}
+                                            animate={{ scale: holdProgress > 0 ? 1 + (holdProgress / 100) * 0.5 : 1, opacity: 1, rotate: 0 }}
+                                            onMouseDown={startHold}
+                                            onMouseUp={cancelHold}
+                                            onMouseLeave={cancelHold}
+                                            onTouchStart={startHold}
+                                            onTouchEnd={cancelHold}
+                                            className="w-full h-full z-[2000] cursor-pointer relative"
                                         >
+                                            <div className="absolute -inset-4 bg-[#C5A059]/10 blur-xl pointer-events-none transition-opacity" style={{ opacity: holdProgress / 100 }} />
                                             <LanguageCard
                                                 lang={stagedLang}
-                                                isSelected={true}
-                                                isAnySelected={true}
-                                                onSelect={onHoldComplete}
-                                                setSpiritHint={setSpiritHint}
+                                                isFocused={true}
+                                                isStaged={true}
+                                                onFocus={() => { }}
+                                                onSelect={() => { }}
+                                                onReady={() => { }}
                                             />
-                                            {/* Cancel Hint */}
-                                            <motion.div
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10"
-                                            >
-                                                <span className="text-[8px] text-white/80 uppercase tracking-widest font-black">Tap to Cancel</span>
-                                            </motion.div>
+                                            {/* Hold Progress Instruction */}
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/60 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] pointer-events-none rounded-2xl border border-[#C5A059]/50 backdrop-blur-md">
+                                                <motion.div
+                                                    animate={{ scale: holdProgress > 0 && holdProgress < 100 ? [1, 1.2, 1] : 1 }}
+                                                    transition={{ repeat: Infinity, duration: 0.5 }}
+                                                >
+                                                    <LucideLock className={`mb-3 transition-colors ${holdProgress >= 100 ? 'text-[#8B7355]' : 'text-[#C5A059] drop-shadow-[0_0_8px_rgba(197,160,89,0.8)]'}`} size={32} />
+                                                </motion.div>
+                                                <span className="text-white text-xs md:text-sm font-black uppercase tracking-[0.2em] text-center mb-3 leading-tight drop-shadow-md">
+                                                    {holdProgress >= 100 ? "FATE SEALED" : `HOLD TO SEAL... ${Math.floor(holdProgress)}%`}
+                                                </span>
+                                                <div className="w-4/5 h-1.5 bg-black/80 rounded-full overflow-hidden border border-white/20">
+                                                    <div className="h-full bg-gradient-to-r from-[#8B7355] to-[#C5A059] transition-all duration-75 shadow-[0_0_10px_rgba(197,160,89,0.8)]" style={{ width: `${holdProgress}%` }} />
+                                                </div>
+                                            </div>
                                         </motion.div>
                                     ) : (
                                         <motion.div
                                             key="instruction"
-                                            className="flex flex-col items-center justify-center text-center p-2 md:p-4 bg-white/5 border border-white/20 rounded-lg shadow-[0_0_50px_rgba(255,255,255,0.05)] w-full h-full"
+                                            animate={{
+                                                borderColor: focusedLang ? ['rgba(197,160,89,0.2)', 'rgba(197,160,89,0.8)', 'rgba(197,160,89,0.2)'] : 'rgba(255,255,255,0.1)',
+                                                boxShadow: focusedLang ? ['0 0 10px rgba(197,160,89,0)', '0 0 30px rgba(197,160,89,0.4)', '0 0 10px rgba(197,160,89,0)'] : 'none'
+                                            }}
+                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                            className="flex flex-col items-center justify-center text-center p-2 md:p-4 bg-white/5 border-2 rounded-xl border-dashed w-full h-full"
                                         >
-                                            <LucideCompass className="text-[#C5A059] mb-1 md:mb-3 animate-pulse" size={32} />
-                                            <h2 className="text-[10px] md:text-sm font-black text-white uppercase tracking-[0.8em] leading-tight text-center">
-                                                DROP CASE HERE
+                                            <LucideCompass className={`${focusedLang ? 'text-[#C5A059] animate-spin-slow scale-125' : 'text-white/40'} mb-2 transition-all`} size={32} />
+                                            <h2 className={`text-[10px] md:text-sm font-black ${focusedLang ? 'text-[#C5A059]' : 'text-white/40'} uppercase tracking-[0.4em] leading-tight text-center transition-colors`}>
+                                                {focusedLang ? 'DROP HERE' : 'ANCHOR'}
                                             </h2>
-                                            <div className="w-12 h-[1px] bg-[#C5A059]/40 my-2" />
-                                            <p className="text-[7px] md:text-[8px] font-mono text-white/40 uppercase tracking-[0.2em]">INITIATE SELECTION</p>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -870,19 +1146,28 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                     }
 
                     const lang = LANGUAGES[pos];
-                    const isDimmable = stagedLang && stagedLang.id !== lang.id;
-                    const isOriginal = !stagedLang || stagedLang.id !== lang.id;
+                    const isFocused = focusedLang?.id === lang.id;
+                    const isStaged = stagedLang?.id === lang.id;
+                    const isDimmable = focusedLang && focusedLang.id !== lang.id;
+                    const isOriginalOfStaged = stagedLang && stagedLang.id === lang.id;
 
                     return (
-                        <div key={`slot-${i}`} className="relative h-full w-full">
-                            {isOriginal && (
+                        <div
+                            key={`slot-${i}`}
+                            className="relative h-full w-full transition-opacity duration-300"
+                            style={{ opacity: isOriginalOfStaged ? 0 : Math.max(0, 1 - (holdProgress / 100) * 1.5) }}
+                        >
+                            {/* Hide the original slot card if it's currently staged in the center */}
+                            {!isOriginalOfStaged && (
                                 <LanguageCard
                                     lang={lang}
                                     idx={pos}
-                                    isDimmable={isDimmable}
-                                    isAnySelected={!!stagedLang}
-                                    onSelect={onCardClick}
-                                    setSpiritHint={setSpiritHint}
+                                    isFocused={isFocused}
+                                    isStaged={false}
+                                    isDimmable={isDimmable || stagedLang}
+                                    onFocus={onCardFocus}
+                                    onReady={onCardReady}
+                                    onSelect={onCardSelect}
                                 />
                             )}
                         </div>
@@ -897,13 +1182,15 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                 {stagedLang ? `INVITING THE ${stagedLang.name} MULTIVERSE...` : "THE MANOR AWAITS YOUR SOUL'S VOYAGE."}
             </motion.p>
 
-            {/* [V21] Mina positioned Higher/Wider to avoid grid overlap */}
-            <div className="fixed top-2 inset-x-0 px-4 pointer-events-none z-[2001]">
-                <div className="max-w-5xl mx-auto">
-                    <SmokeAssistant
+            {/* Mina UI (positioned absolutely at the top of the entire screen to avoid grid) */}
+            <div className={`fixed top-0 inset-x-0 pointer-events-none z-[5000] h-screen flex flex-col items-center ${isIntroActive ? 'justify-center' : 'justify-start'}`}>
+                <div className="w-full max-w-5xl mx-auto h-full relative">
+                    <MinaDirective
                         isVisible={true}
                         activeStep="language"
-                        text="PROTOCOL INITIATED. SELECT YOUR MULTIVERSAL ORIGIN. DRAG THE CASE TO THE ANCHOR."
+                        text={minaText}
+                        position={isIntroActive ? 'center' : 'top'}
+                        interactionMode={isIntroActive ? 'reading' : 'action'}
                     />
                 </div>
             </div>
@@ -1166,11 +1453,13 @@ const App = () => {
             const lore = loreResult?.candidates?.[0]?.content?.parts?.[0]?.text || `The enigmatic ${userName}.`;
             setUserAvatar({ image: null, textName: userName, lore, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
+            AudioManager.playMina(selectedLang.id, 'avatar');
             setStep('dashboard');
         } catch (err) {
             console.error(err);
             setUserAvatar({ image: null, textName: userName, lore: `The enigmatic ${userName}.`, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
+            AudioManager.playMina(selectedLang.id, 'avatar');
             setStep('dashboard');
         } finally {
             setIsAvatarGenerating(false);
@@ -1222,12 +1511,14 @@ const App = () => {
 
             setUserAvatar({ image: generatedUrl, lore: generatedLore, isTextAvatar: false });
             setTodos(p => ({ ...p, avatar: true }));
+            AudioManager.playMina(selectedLang.id, 'avatar');
             setStep('dashboard');
         } catch (err) {
             console.error("Generation Error or Timeout:", err);
             // Fallback: Use Text Avatar if image generation hangs/fails
             setUserAvatar({ image: null, textName: "Architect", lore: generatedLore, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
+            AudioManager.playMina(selectedLang.id, 'avatar');
             setStep('dashboard');
         } finally {
             setIsAvatarGenerating(false);
@@ -1426,8 +1717,8 @@ const App = () => {
     // V20: Fix default language logic & first voice trigger
     useEffect(() => {
         if (isOpeningFinished && step === 'language') {
-            // Explicitly play English mina on first load if default
-            AudioManager.playMina('en', 'language');
+            // [V22] - Removed duplicate English playMina trigger
+            // AudioManager.playMina('en', 'language');
         }
     }, [isOpeningFinished]);
 
@@ -1487,6 +1778,9 @@ const App = () => {
                                 {step === 'confirm' && (
                                     <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
                                 )}
+                                {viewMode === 'coming_soon' && (
+                                    <ComingSoonView selectedLang={selectedLang} currentTheme={currentTheme} />
+                                )}
                                 {/* More steps would follow, refactored to use currentTheme classes */}
                                 {step === 'intro' && (
                                     <IntroView
@@ -1509,6 +1803,7 @@ const App = () => {
                                                 userAvatar={userAvatar}
                                                 setViewMode={setViewMode}
                                                 setTodos={setTodos}
+                                                todos={todos}
                                                 playSfx={playSfx}
                                             />
                                         )}
@@ -1549,17 +1844,19 @@ const App = () => {
                         </AnimatePresence>
                     </main>
 
-                    {/* [V19] Mina's Directive global guidance (Post-Language selection) */}
+                    {/* [V25] Mina's Directive global guidance (Post-Language selection) */}
                     {step !== 'language' && (
-                        <SmokeAssistant
+                        <MinaDirective
                             isVisible={true}
                             activeStep={step}
                             text={
-                                step === 'confirm' ? selectedLang.ui.confirmTitle :
-                                    !todos.avatar ? selectedLang.ui.authTitle :
-                                        !todos.home ? selectedLang.ui.manorTitle :
-                                            selectedLang.ui.todoDone
+                                step === 'confirm' ? selectedLang.ui.directiveConfirm :
+                                    !todos.avatar ? selectedLang.ui.directiveAuth :
+                                        !todos.home ? selectedLang.ui.directiveAvatar :
+                                            selectedLang.ui.directiveDashboard
                             }
+                            position="top"
+                            interactionMode="action"
                         />
                     )}
 
