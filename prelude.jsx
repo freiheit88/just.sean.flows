@@ -66,9 +66,26 @@ const AudioManager = {
         // Point 6: Immediate switch. If already playing this theme from random array, just exit.
         if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`${selectedTrack}.mp3`)) return;
 
+        // Force stop mainTheme to ensure no overlap
+        if (AudioManager.mainTheme) {
+            AudioManager.mainTheme.pause();
+            AudioManager.mainTheme.currentTime = 0;
+        }
+
         if (AudioManager.currentTheme) {
-            AudioManager.currentTheme.pause();
-            AudioManager.currentTheme.currentTime = 0; // Immediate reset for faster switch
+            // Quick fade out of the old theme
+            const oldTheme = AudioManager.currentTheme;
+            let oldVol = oldTheme.volume;
+            const fadeOutInterval = setInterval(() => {
+                oldVol -= 0.05;
+                if (oldVol <= 0) {
+                    oldTheme.pause();
+                    oldTheme.currentTime = 0;
+                    clearInterval(fadeOutInterval);
+                } else {
+                    oldTheme.volume = oldVol;
+                }
+            }, 50);
         }
 
         const audio = new Audio(`/assets/sounds/${selectedTrack}.mp3`);
@@ -927,15 +944,15 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
 
                 if (elapsed >= 2500 && stage < 1) { // 2.5 sec jump
                     AudioManager.playSfx('piano-mystic-low', 0.6, true);
-                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500);
+                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500); }, 200);
                     stage = 1;
                 } else if (elapsed >= 3500 && stage < 2) { // 3.5 sec jump
                     AudioManager.playSfx('piano-mystic-mid', 0.6, true);
-                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500);
+                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500); }, 200);
                     stage = 2;
                 } else if (elapsed >= 4500 && stage < 3) { // 4.5 sec (background switch + glow)
                     AudioManager.playSfx('piano-mystic-high', 0.8, true);
-                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500);
+                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500); }, 200);
                     if (onReady) onReady({ ...lang, requestBackground: true });
                     stage = 3;
                 }
