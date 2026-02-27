@@ -5,8 +5,8 @@ import path from 'path';
 const ELEVEN_LABS_API_KEY = process.env.ELEVEN_LABS_API_KEY;
 
 // Original text: "Thank you for coming all this way! The machine is still being built, but we will be back soon. Enjoy the music and come listen again later!"
-// Using Laura's Voice ID for Mina: FGY2WhcCjOexzdzJA50x (adjust if needed based on other scripts)
-const VOICE_ID = 'FGY2WhcCjOexzdzJA50x';
+// Using Laura's Voice ID for Mina: FGY2WhTYpPnrIDTdsKH5 (adjust if needed based on other scripts)
+const VOICE_ID = 'FGY2WhTYpPnrIDTdsKH5';
 
 const translations = {
     'ko': "여기까지 와주셔서 감사합니다! 기계는 아직 조립 중이지만 금방 돌아올 예정입니다. 음악을 감상하시고 나중에 다시 들러주세요!",

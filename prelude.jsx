@@ -1539,8 +1539,8 @@ const App = () => {
     // [V19] Consolidated Language Selection Logic
     const handleLanguageSelect = (lang) => {
         setSelectedLang(lang);
-        setStep('coming_soon');
-        setViewMode('coming_soon');
+        setStep('confirm');
+        setViewMode(null);
         AudioManager.playSfx('click');
         AudioManager.playMina(lang.id, 'confirm');
 
@@ -1561,15 +1561,8 @@ const App = () => {
     };
 
     const confirmLanguage = () => {
-        setStep('intro');
-        AudioManager.playMina(selectedLang.id, 'auth');
-
-        // [V10: Delay speech slightly]
-        setTimeout(() => {
-            speakText(selectedLang.welcome);
-            playSfx('welcome');
-        }, 1000);
-        setShowTodo(true);
+        setStep('coming_soon');
+        setViewMode('coming_soon');
     };
 
     const handleImageUpload = (e) => {
