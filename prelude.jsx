@@ -944,15 +944,15 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
 
                 if (elapsed >= 2500 && stage < 1) { // 2.5 sec jump
                     [...Array(3)].forEach(() => AudioManager.playSfx('piano-mystic-low', 1.0, true));
-                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500); }, 300); // Delayed 0.3s to sync with audio tail
+                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100); // Freeze right as impact hits
                     stage = 1;
                 } else if (elapsed >= 3500 && stage < 2) { // 3.5 sec jump
                     AudioManager.playSfx('piano-mystic-mid', 0.6, true);
-                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500); }, 300);
+                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100);
                     stage = 2;
                 } else if (elapsed >= 4500 && stage < 3) { // 4.5 sec (background switch + glow)
                     AudioManager.playSfx('piano-mystic-high', 0.8, true);
-                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500); }, 300);
+                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100);
                     if (onReady) onReady({ ...lang, requestBackground: true });
                     stage = 3;
                 }
