@@ -11,7 +11,7 @@ const CinematicOpening = ({ onComplete }) => {
 
     useEffect(() => {
         // Start ambient music with 4s fade-in to 50%
-        const ambientAudio = new Audio('/assets/sounds/ambient-opening.mp3');
+        const ambientAudio = new Audio('/assets/manual_upload/Czar_s_Crimson_Sonata.mp3');
         ambientAudio.loop = true;
         ambientAudio.volume = 0;
         ambientRef.current = ambientAudio;
@@ -43,6 +43,7 @@ const CinematicOpening = ({ onComplete }) => {
         // Portal transition sound variants
         const signatureAudio = new Audio('/assets/sounds/signature-cannes.mp3');
         const portalAudio = new Audio('/assets/sounds/portal-transition.mp3');
+        portalAudio.volume = 0.7; // Lowered to 70% per user request
 
         signatureAudio.volume = 1.0;
         audioRef.current = signatureAudio;
@@ -123,7 +124,7 @@ const CinematicOpening = ({ onComplete }) => {
                                 transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
                                 className="text-white font-bold italic tracking-tighter mb-16 text-center select-none leading-[1.1] drop-shadow-[0_15px_60px_rgba(197,160,89,0.5)]"
                                 style={{
-                                    fontSize: "clamp(40px, 8vw, 180px)",
+                                    fontSize: "clamp(20px, 4vw, 90px)", // Reduced scale by 50%
                                     fontVariant: "small-caps",
                                     background: "linear-gradient(to bottom, #FFFFFF 0%, #C5A059 50%, #8B7355 100%)",
                                     WebkitBackgroundClip: "text",

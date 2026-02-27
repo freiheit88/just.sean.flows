@@ -82,9 +82,9 @@ const SmokeAssistant = ({ activeStep, targetRect, text, isVisible }) => {
                     initial={{ opacity: 0, y: -40, filter: 'blur(20px)' }}
                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                     exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-                    className="fixed top-8 left-1/2 -translate-x-1/2 min-w-[360px] max-w-[500px] z-[1000]"
+                    className="fixed top-2 md:top-6 left-1/2 -translate-x-1/2 w-[95vw] md:w-auto min-w-[300px] md:min-w-[360px] max-w-[500px] z-[1000]"
                 >
-                    <div className="relative p-6 bg-[#FDFCF0]/98 backdrop-blur-3xl border border-[#C5A059]/40 shadow-[0_50px_120px_rgba(0,0,0,0.8)]">
+                    <div className="relative p-4 md:p-6 bg-[#FDFCF0]/98 backdrop-blur-3xl border border-[#C5A059]/40 shadow-[0_50px_120px_rgba(0,0,0,0.8)]">
                         {/* Technical Corner Accents */}
                         <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-[#C5A059]" />
                         <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-[#C5A059]" />
