@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucideZap, LucideOrbit } from 'lucide-react';
+import SmokeAssistant from './SmokeAssistant';
 
 const CinematicOpening = ({ onComplete }) => {
     const [phase, setPhase] = useState('idle'); // idle, ignite, flash, finish
