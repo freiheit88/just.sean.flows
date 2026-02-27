@@ -103,14 +103,14 @@ const AudioManager = {
     },
 
     playMainTheme: (targetVolume = 0.5, fadeDuration = 3000) => {
-        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`background_candidate1.mp3`)) return;
+        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`background_candiate1.mp3`)) return;
 
         if (AudioManager.currentTheme) {
             AudioManager.currentTheme.pause();
             AudioManager.currentTheme.currentTime = 0;
         }
 
-        const audio = new Audio('/assets/sounds/background_candidate1.mp3');
+        const audio = new Audio('/assets/sounds/background_candiate1.mp3');
         audio.volume = 0;
         audio.loop = true;
         audio.play().catch(() => { });
@@ -1437,9 +1437,13 @@ const App = () => {
     // [V19] Consolidated Language Selection Logic
     const handleLanguageSelect = (lang) => {
         setSelectedLang(lang);
-        setStep('confirm');
+        setStep('coming_soon');
+        setViewMode('coming_soon');
         AudioManager.playSfx('click');
         AudioManager.playMina(lang.id, 'confirm');
+
+        // Play the specific country theme after selecting language
+        AudioManager.playTheme(lang.id, 0.4, 3000);
 
         // [V10: Personalized BGM Switching]
         if (bgmRef.current) {

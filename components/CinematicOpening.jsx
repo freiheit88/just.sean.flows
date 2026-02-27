@@ -30,7 +30,6 @@ const CinematicOpening = ({ onStart, onComplete }) => {
 
         // Sequence timing: portal trigger
         setTimeout(() => {
-            setPhase('flash');
             portalAudio.play().catch(e => console.log("Portal sound deferred", e));
 
             if (audioRef.current) {
@@ -48,11 +47,10 @@ const CinematicOpening = ({ onStart, onComplete }) => {
 
         setTimeout(() => {
             setPhase('finish');
-            // Extend display by 2s per user request
             setTimeout(() => {
                 onComplete();
             }, 2000);
-        }, 5800);
+        }, 6000);
     };
 
     return (
@@ -107,10 +105,10 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                 style={{
                                     fontSize: "clamp(45px, 10vw, 120px)", // Increased for mobile
                                     fontVariant: "small-caps",
-                                    background: "linear-gradient(to bottom, #FFFFFF 0%, #E8D091 40%, #C5A059 80%, #8B7355 100%)", // Brighter gradient
+                                    background: "linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 60%, #FDFCF0 80%, #E8D091 100%)", // Pure white with very slight gold at bottom
                                     WebkitBackgroundClip: "text",
                                     WebkitTextFillColor: "transparent",
-                                    filter: "drop-shadow(0px 10px 40px rgba(0,0,0,1)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.4)) contrast(1.3)"
+                                    filter: "drop-shadow(0px 10px 40px rgba(0,0,0,1)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6)) contrast(1.5)"
                                 }}
                             >
                                 just.sean.flows
@@ -205,21 +203,11 @@ const CinematicOpening = ({ onStart, onComplete }) => {
             <audio id="bg-audio" loop preload="auto">
                 <source src="/assets/sounds/background_candiate1.mp3" type="audio/mpeg" />
             </audio>
-            {/* Blinding Golden Flash */}
-            {phase === 'flash' && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute inset-0 bg-[#F6E05E] z-[10002]" // Luxurious Gold
-                />
-            )}
-
             {/* Final Clean Fade */}
             {phase === 'finish' && (
                 <motion.div
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     transition={{ duration: 0.8 }}
                     className="absolute inset-0 bg-white z-[10002]"
                 />
