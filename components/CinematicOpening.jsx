@@ -67,16 +67,17 @@ const CinematicOpening = ({ onComplete }) => {
 
                         <div className="relative z-10 flex flex-col items-center">
                             <motion.h1
-                                initial={{ y: 50, opacity: 0, filter: "blur(30px)", scale: 0.8 }}
+                                initial={{ y: 100, opacity: 0, filter: "blur(50px)", scale: 0.5 }}
                                 animate={{ y: 0, opacity: 1, filter: "blur(0px)", scale: 1 }}
-                                transition={{ delay: 0.8, duration: 2.5, ease: "easeOut" }}
-                                className="text-white text-[15rem] md:text-[24rem] font-light italic tracking-[-0.02em] mb-4 text-center select-none leading-[0.8] drop-shadow-[0_10px_100px_rgba(255,255,255,0.4)]"
+                                transition={{ delay: 0.8, duration: 3, ease: "easeOut" }}
+                                className="text-white text-[30rem] md:text-[60rem] font-light italic tracking-[-0.05em] mb-8 text-center select-none leading-[0.7] drop-shadow-[0_20px_150px_rgba(255,255,255,0.6)]"
                                 style={{
                                     fontVariant: "small-caps",
-                                    background: "linear-gradient(to bottom, #FFFFFF 20%, #C5A059 100%)",
+                                    background: "linear-gradient(to bottom, #FFFFFF 0%, #C5A059 50%, #5C1A1A 100%)",
                                     WebkitBackgroundClip: "text",
                                     WebkitTextFillColor: "transparent",
-                                    mixBlendMode: "screen"
+                                    mixBlendMode: "screen",
+                                    filter: "drop-shadow(0 0 30px rgba(197, 160, 89, 0.4)) contrast(1.2)"
                                 }}
                             >
                                 just.sean.flows
@@ -130,12 +131,12 @@ const CinematicOpening = ({ onComplete }) => {
                             </motion.div>
                         </div>
 
-                        {/* V20: Opening Guidance with Mina */}
-                        <div className="absolute inset-0 pointer-events-none">
+                        {/* V20.3: Mina positioned at Top Top */}
+                        <div className="absolute top-12 inset-x-0 pointer-events-none z-[999]">
                             <SmokeAssistant
                                 isVisible={phase === 'idle'}
                                 activeStep="opening"
-                                text="The Manor awaits your presence, Guest. Step into the digital beyond."
+                                text="AUTHENTICATION REQUIRED. GUEST IDENTITY: PENDING. INITIATE PROTOCOL."
                             />
                         </div>
                     </motion.div>

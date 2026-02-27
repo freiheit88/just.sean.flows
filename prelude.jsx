@@ -625,13 +625,17 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
     };
 
     const handleDrag = (event, info) => {
-        // Calculate distance from center of screen
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
         const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
 
-        // Point 3: Faster audio trigger (within 350px of center)
-        if (dist < 350 && !isHolding) {
+        // Point 5: Card Swap Logic
+        // If dragging close to center and NOT the staged card, clear the stage to allow easy switching
+        if (dist < 300 && stagedLang && stagedLang.id !== lang.id) {
+            onSelect(null); // Deselect the current staged card to make room
+        }
+
+        if (dist < 400 && !isHolding) {
             if (AudioManager.currentTheme?.src.split('/').pop() !== `${lang.id}-theme.mp3`) {
                 AudioManager.playTheme(lang.id, 0.25);
             }
@@ -832,15 +836,14 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                     ) : (
                                         <motion.div
                                             key="instruction"
-                                            className="flex flex-col items-center justify-center text-center p-2 md:p-4 bg-white/5 border border-white/10 rounded-lg shadow-inner w-full h-full"
+                                            className="flex flex-col items-center justify-center text-center p-2 md:p-4 bg-white/5 border border-white/20 rounded-lg shadow-[0_0_50px_rgba(255,255,255,0.05)] w-full h-full"
                                         >
-                                            <LucideCompass className="text-[#C5A059] mb-1 md:mb-2 animate-spin-slow" size={20} />
-                                            <h2 className="text-[8px] md:text-xs font-black text-white/80 uppercase tracking-[0.4em] leading-tight text-center">
-                                                Journey Flow
+                                            <LucideCompass className="text-[#C5A059] mb-1 md:mb-3 animate-pulse" size={32} />
+                                            <h2 className="text-[10px] md:text-sm font-black text-white uppercase tracking-[0.8em] leading-tight text-center">
+                                                DROP CASE HERE
                                             </h2>
-                                            <p className="text-[6px] md:text-[7px] font-serif italic text-white/40 mt-1 md:mt-2 uppercase tracking-widest leading-relaxed text-center">
-                                                Select Case to Begin
-                                            </p>
+                                            <div className="w-12 h-[1px] bg-[#C5A059]/40 my-2" />
+                                            <p className="text-[7px] md:text-[8px] font-mono text-white/40 uppercase tracking-[0.2em]">INITIATE SELECTION</p>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -876,12 +879,14 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                 {stagedLang ? `INVITING THE ${stagedLang.name} MULTIVERSE...` : "THE MANOR AWAITS YOUR SOUL'S VOYAGE."}
             </motion.p>
 
-            {/* [V19] Mina's Directive localized to Language Selection */}
-            <SmokeAssistant
-                isVisible={true}
-                activeStep="language"
-                text={stagedLang ? stagedLang.ui.confirmTitle : LANGUAGES[0].welcome}
-            />
+            {/* [V20.3] Mina positioned at Top Top */}
+            <div className="fixed top-8 inset-x-0 pointer-events-none z-[2001]">
+                <SmokeAssistant
+                    isVisible={true}
+                    activeStep="language"
+                    text="PROTOCOL INITIATED. SELECT YOUR MULTIVERSAL ORIGIN. DRAG THE CASE TO THE ANCHOR."
+                />
+            </div>
         </div>
     );
 };
