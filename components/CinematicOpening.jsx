@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LucideZap, LucideOrbit } from 'lucide-react';
+import { LucideSparkles, LucideOrbit } from 'lucide-react';
 import SmokeAssistant from './SmokeAssistant';
 
 const CinematicOpening = ({ onComplete }) => {
@@ -70,7 +70,7 @@ const CinematicOpening = ({ onComplete }) => {
                                 initial={{ y: 50, opacity: 0, filter: "blur(20px)" }}
                                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                                 transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
-                                className="text-white text-6xl md:text-[180px] font-bold italic tracking-tighter mb-16 text-center select-none leading-none drop-shadow-[0_10px_50px_rgba(255,255,255,0.8)]"
+                                className="text-white text-[15vw] md:text-[25vw] font-bold italic tracking-tighter mb-12 text-center select-none leading-none drop-shadow-[0_10px_50px_rgba(255,255,255,0.8)]"
                                 style={{
                                     fontVariant: "small-caps",
                                     background: "linear-gradient(to bottom, #FFFFFF 0%, #C5A059 50%, #5C1A1A 100%)",
@@ -106,23 +106,16 @@ const CinematicOpening = ({ onComplete }) => {
                                 />
 
                                 <span className="relative z-10 text-[18px] md:text-[32px] text-white font-black uppercase tracking-[0.4em] group-hover:tracking-[0.6em] transition-all flex items-center justify-center gap-8">
-                                    <LucideZap size={24} className="text-[#F6E05E] animate-bounce" />
+                                    <LucideSparkles size={24} className="text-[#F6E05E] animate-pulse" />
                                     CLICK TO ENTER
-                                    <LucideZap size={24} className="text-[#F6E05E] animate-bounce" />
+                                    <LucideSparkles size={24} className="text-[#F6E05E] animate-pulse" />
                                 </span>
 
                                 {/* Fast Tech Shimmer */}
                                 <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-12" />
                             </motion.button>
 
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.8 }}
-                                transition={{ delay: 3 }}
-                                className="mt-20 text-[24px] md:text-[32px] font-serif uppercase tracking-[0.8em] text-[#C5A059] font-black italic drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]"
-                            >
-                                A Selection by The Manor
-                            </motion.div>
+
                         </div>
 
                         {/* V20.4: Mina positioned at Top Top */}
