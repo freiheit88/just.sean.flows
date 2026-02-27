@@ -908,6 +908,7 @@ const ComingSoonView = ({ selectedLang, currentTheme }) => {
 
 const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady, onSelect }) => {
     const [saturationProgress, setSaturationProgress] = useState(0);
+    const [isShakePaused, setIsShakePaused] = useState(false);
     const animInterval = useRef(null);
     const cardRef = useRef(null);
 
@@ -926,12 +927,15 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
 
                 if (elapsed >= 2500 && stage < 1) { // 2.5 sec jump
                     AudioManager.playSfx('piano-mystic-low', 0.6, true);
+                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 100);
                     stage = 1;
                 } else if (elapsed >= 3500 && stage < 2) { // 3.5 sec jump
                     AudioManager.playSfx('piano-mystic-mid', 0.6, true);
+                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 100);
                     stage = 2;
                 } else if (elapsed >= 4500 && stage < 3) { // 4.5 sec (background switch + glow)
                     AudioManager.playSfx('piano-mystic-high', 0.8, true);
+                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 100);
                     if (onReady) onReady({ ...lang, requestBackground: true });
                     stage = 3;
                 }
@@ -939,11 +943,11 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 if (elapsed >= duration) { // 5.5 sec total completion
                     clearInterval(animInterval.current);
 
-                    // User requested BGM persistence across screens, disabled country themes here
-                    // const currentSrc = AudioManager.currentTheme?.src || "";
-                    // if (currentSrc.split('/').pop() !== `${lang.id}-theme.mp3`) {
-                    //     AudioManager.playTheme(lang.id, 0.4, 3000);
-                    // }
+                    // Restore country theme playback
+                    const currentSrc = AudioManager.currentTheme?.src || "";
+                    if (currentSrc.split('/').pop() !== `${lang.id}-theme.mp3`) {
+                        AudioManager.playTheme(lang.id, 0.4, 3000);
+                    }
 
                     if (onReady) onReady({ ...lang, requestSequenceComplete: true });
                 }
@@ -991,71 +995,65 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 opacity: isDimmable ? 0.3 : 1,
                 scale: isStaged ? 1 : (isFocused ? 1.05 : 1),
                 zIndex: isFocused ? 100 : 1,
+                x: isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged && !isShakePaused
+                    ? [-2, 2, -2, 2, 0].map(v => v * (1 + (saturationProgress / 100) * 3))
+                    : 0,
+                y: isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged && !isShakePaused
+                    ? [2, -2, 2, -2, 0].map(v => v * (1 + (saturationProgress / 100) * 3))
+                    : 0,
             }}
-            transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+            transition={{
+                x: { duration: 0.1, repeat: isFocused && saturationProgress < 100 && !isShakePaused ? Infinity : 0, ease: "linear" },
+                y: { duration: 0.1, repeat: isFocused && saturationProgress < 100 && !isShakePaused ? Infinity : 0, ease: "linear" },
+                opacity: { duration: 0.3 },
+                scale: { type: 'spring', damping: 25, stiffness: 120 }
+            }}
             className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isFocused && !isStaged ? 'shadow-[0_0_80px_rgba(197,160,89,0.4)] ring-2 ring-[#C5A059]' : 'cursor-pointer hover:ring-1 hover:ring-white/20'}`}
             style={{ touchAction: 'none' }}
         >
-            <motion.div
-                className="absolute inset-0"
-                animate={
-                    isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged
-                        ? {
-                            x: [-1, 1, -1, 1, 0].map(v => v * (1 + (saturationProgress / 100) * 3)),
-                            y: [1, -1, 1, -1, 0].map(v => v * (1 + (saturationProgress / 100) * 3)),
-                        }
-                        : { x: 0, y: 0 }
-                }
-                transition={{
-                    duration: 0.1,
-                    repeat: isFocused && saturationProgress < 100 ? Infinity : 0,
-                    ease: "linear"
+            <div
+                className="absolute inset-0 bg-cover bg-center transition-all duration-100"
+                style={{
+                    backgroundImage: `url(${lang.image})`,
+                    transform: 'scale(1.5)',
+                    filter: isFocused
+                        ? (saturationProgress < 45.45 ? `saturate(${0.1 + (0.2 * (saturationProgress / 45.45))}) grayscale(${80 - (50 * (saturationProgress / 45.45))}%) brightness(${0.1 + (0.2 * (saturationProgress / 45.45))})`
+                            : saturationProgress < 63.63 ? 'saturate(0.7) grayscale(30%) brightness(0.7)'
+                                : saturationProgress < 81.81 ? 'saturate(1) grayscale(0%) brightness(1)'
+                                    : 'saturate(1.2) grayscale(0%) brightness(1.3) drop-shadow(0 0 10px rgba(197,160,89,0.8))')
+                        : (isStaged ? 'saturate(1) grayscale(0%)' : 'saturate(0) grayscale(100%) brightness(0.5)'),
                 }}
-            >
-                <div
-                    className="absolute inset-0 bg-cover bg-center transition-all duration-100"
-                    style={{
-                        backgroundImage: `url(${lang.image})`,
-                        transform: 'scale(1.5)',
-                        filter: isFocused
-                            ? (saturationProgress < 45.45 ? `saturate(${0.1 + (0.2 * (saturationProgress / 45.45))}) grayscale(${80 - (50 * (saturationProgress / 45.45))}%) brightness(${0.1 + (0.2 * (saturationProgress / 45.45))})`
-                                : saturationProgress < 63.63 ? 'saturate(0.7) grayscale(30%) brightness(0.7)'
-                                    : saturationProgress < 81.81 ? 'saturate(1) grayscale(0%) brightness(1)'
-                                        : 'saturate(1.2) grayscale(0%) brightness(1.3) drop-shadow(0 0 10px rgba(197,160,89,0.8))')
-                            : (isStaged ? 'saturate(1) grayscale(0%)' : 'saturate(0) grayscale(100%) brightness(0.5)'),
-                    }}
+            />
+
+            {/* Hold/Focus Progress Bar */}
+            {isFocused && saturationProgress < 100 && (
+                <div className="absolute bottom-0 left-0 h-1 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${saturationProgress}%` }} />
+            )}
+
+            {/* Glowing inner overlay for 100% saturation to invite dragging */}
+            {isFocused && saturationProgress === 100 && !isStaged && (
+                <motion.div
+                    animate={{ opacity: [0, 0.3, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="absolute inset-0 border-4 border-[#C5A059] pointer-events-none z-40"
                 />
+            )}
 
-                {/* Hold/Focus Progress Bar */}
-                {isFocused && saturationProgress < 100 && (
-                    <div className="absolute bottom-0 left-0 h-1 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${saturationProgress}%` }} />
-                )}
+            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isFocused ? 'opacity-80' : 'opacity-60'}`} />
 
-                {/* Glowing inner overlay for 100% saturation to invite dragging */}
-                {isFocused && saturationProgress === 100 && !isStaged && (
-                    <motion.div
-                        animate={{ opacity: [0, 0.3, 0] }}
-                        transition={{ repeat: Infinity, duration: 1.5 }}
-                        className="absolute inset-0 border-4 border-[#C5A059] pointer-events-none z-40"
-                    />
-                )}
-
-                <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isFocused ? 'opacity-80' : 'opacity-60'}`} />
-
-                <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
-                    <h3 className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
-                        {lang.name}
-                    </h3>
-                    <div className="overflow-hidden h-6 md:h-8 w-full flex justify-center items-center">
-                        <motion.span
-                            animate={{ y: isFocused || isStaged ? 0 : 30 }}
-                            className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
-                        >
-                            {isStaged ? 'FATE SEALED' : (saturationProgress === 100 ? 'DRAG TO CENTER' : (isFocused ? `SYNCHRONIZING ${Math.round(saturationProgress)}%` : 'TAP TO SELECT'))}
-                        </motion.span>
-                    </div>
+            <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
+                <h3 className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
+                    {lang.name}
+                </h3>
+                <div className="overflow-hidden h-6 md:h-8 w-full flex justify-center items-center">
+                    <motion.span
+                        animate={{ y: isFocused || isStaged ? 0 : 30 }}
+                        className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
+                    >
+                        {isStaged ? 'FATE SEALED' : (saturationProgress === 100 ? 'DRAG TO CENTER' : (isFocused ? `SYNCHRONIZING ${Math.round(saturationProgress)}%` : 'TAP TO SELECT'))}
+                    </motion.span>
                 </div>
-            </motion.div>
+            </div>
         </motion.div>
     );
 };
@@ -1506,14 +1504,8 @@ const App = () => {
         // Main BGM ducks to 10%
         AudioManager.fadeMainTheme(0.1, 1000);
 
-        // Play the specific country theme after selecting language
+        // Enhance specific country theme volume to 80% with crossfade
         AudioManager.playTheme(lang.id, 0.8, 3000);
-
-        // [V10: Personalized BGM Switching]
-        if (bgmRef.current) {
-            bgmRef.current.src = lang.bgm;
-            bgmRef.current.play();
-        }
 
         // [V10: Sequence pre-fetching]
         setTimeout(() => {
