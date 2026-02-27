@@ -927,15 +927,15 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
 
                 if (elapsed >= 2500 && stage < 1) { // 2.5 sec jump
                     AudioManager.playSfx('piano-mystic-low', 0.6, true);
-                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 100);
+                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500);
                     stage = 1;
                 } else if (elapsed >= 3500 && stage < 2) { // 3.5 sec jump
                     AudioManager.playSfx('piano-mystic-mid', 0.6, true);
-                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 100);
+                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500);
                     stage = 2;
                 } else if (elapsed >= 4500 && stage < 3) { // 4.5 sec (background switch + glow)
                     AudioManager.playSfx('piano-mystic-high', 0.8, true);
-                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 100);
+                    setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 500);
                     if (onReady) onReady({ ...lang, requestBackground: true });
                     stage = 3;
                 }
@@ -996,10 +996,10 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 scale: isStaged ? 1 : (isFocused ? 1.05 : 1),
                 zIndex: isFocused ? 100 : 1,
                 x: isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged && !isShakePaused
-                    ? [-2, 2, -2, 2, 0].map(v => v * (1 + (saturationProgress / 100) * 3))
+                    ? [-1, 1, -1, 1, 0].map(v => v * (1 + (saturationProgress / 100) * 1.5))
                     : 0,
                 y: isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged && !isShakePaused
-                    ? [2, -2, 2, -2, 0].map(v => v * (1 + (saturationProgress / 100) * 3))
+                    ? [1, -1, 1, -1, 0].map(v => v * (1 + (saturationProgress / 100) * 1.5))
                     : 0,
             }}
             transition={{
@@ -1501,8 +1501,11 @@ const App = () => {
         AudioManager.playSfx('click');
         AudioManager.playMina(lang.id, 'confirm');
 
-        // Main BGM ducks to 10%
-        AudioManager.fadeMainTheme(0.1, 1000);
+        // Main BGM stops completely
+        if (AudioManager.mainTheme) {
+            AudioManager.mainTheme.pause();
+            AudioManager.mainTheme.currentTime = 0;
+        }
 
         // Enhance specific country theme volume to 80% with crossfade
         AudioManager.playTheme(lang.id, 0.8, 3000);
@@ -1835,8 +1838,11 @@ const App = () => {
                 {!isOpeningFinished && (
                     <div className="relative z-[10000]">
                         <CinematicOpening
-                            onStart={() => AudioManager.playMainTheme(0.6, 4000)}
-                            onComplete={() => setIsOpeningFinished(true)}
+                            onStart={() => AudioManager.playMainTheme(1.0, 4000)}
+                            onComplete={() => {
+                                AudioManager.fadeMainTheme(0.6, 3000);
+                                setIsOpeningFinished(true);
+                            }}
                         />
                     </div>
                 )}
