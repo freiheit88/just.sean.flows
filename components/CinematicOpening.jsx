@@ -65,78 +65,72 @@ const CinematicOpening = ({ onComplete }) => {
 
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-20 mix-blend-overlay pointer-events-none" />
 
-                        <div className="relative z-10 flex flex-col items-center">
+                        <div className="relative z-10 flex flex-col items-center w-full">
                             <motion.h1
-                                initial={{ y: 100, opacity: 0, filter: "blur(50px)", scale: 0.5 }}
-                                animate={{ y: 0, opacity: 1, filter: "blur(0px)", scale: 1 }}
-                                transition={{ delay: 0.8, duration: 3, ease: "easeOut" }}
-                                className="text-white text-[30rem] md:text-[60rem] font-light italic tracking-[-0.05em] mb-8 text-center select-none leading-[0.7] drop-shadow-[0_20px_150px_rgba(255,255,255,0.6)]"
+                                initial={{ y: 50, opacity: 0, filter: "blur(20px)" }}
+                                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                                transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
+                                className="text-white text-6xl md:text-[180px] font-bold italic tracking-tighter mb-16 text-center select-none leading-none drop-shadow-[0_10px_50px_rgba(255,255,255,0.8)]"
                                 style={{
                                     fontVariant: "small-caps",
                                     background: "linear-gradient(to bottom, #FFFFFF 0%, #C5A059 50%, #5C1A1A 100%)",
                                     WebkitBackgroundClip: "text",
                                     WebkitTextFillColor: "transparent",
                                     mixBlendMode: "screen",
-                                    filter: "drop-shadow(0 0 30px rgba(197, 160, 89, 0.4)) contrast(1.2)"
+                                    filter: "drop-shadow(0 0 40px rgba(197, 160, 89, 0.6))"
                                 }}
                             >
                                 just.sean.flows
                             </motion.h1>
 
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.4 }}
-                                transition={{ delay: 1.5 }}
-                                className="w-16 h-[1px] bg-white mb-12"
-                            />
-
                             <motion.button
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 3, duration: 1.5 }}
+                                transition={{ delay: 2, duration: 1.5 }}
                                 onClick={handleIgnite}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="group relative px-24 py-6 overflow-hidden transition-all duration-500"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="group relative px-28 py-8 overflow-hidden transition-all duration-500 rounded-lg"
                             >
-                                {/* High-Tech Holographic Interface - Added V20.3 */}
-                                <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl border-x border-white/20" />
-                                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent" />
-                                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent" />
+                                {/* Futuristic Click-to-Enter Interface */}
+                                <div className="absolute inset-0 bg-white/10 backdrop-blur-3xl border border-white/30 shadow-[0_0_80px_rgba(197,160,89,0.4)] group-hover:shadow-[0_0_120px_rgba(197,160,89,0.8)] transition-all" />
 
-                                {/* Scanning Ray Effect */}
+                                {/* Intense Iridescent Glow */}
                                 <motion.div
-                                    animate={{ top: ['-100%', '200%'] }}
-                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                    className="absolute inset-x-0 h-[20%] bg-gradient-to-b from-transparent via-[#C5A059]/20 to-transparent pointer-events-none"
+                                    animate={{
+                                        opacity: [0.4, 0.8, 0.4],
+                                        scale: [1, 1.05, 1]
+                                    }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    className="absolute inset-0 bg-gradient-to-r from-transparent via-[#C5A059]/40 to-transparent blur-xl pointer-events-none"
                                 />
 
-                                <span className="relative z-10 text-[14px] md:text-[18px] text-[#FDFCF0] font-black uppercase tracking-[1em] group-hover:text-white transition-all flex items-center gap-4">
-                                    <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
-                                    Initiate Digital Embodiment
-                                    <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
+                                <span className="relative z-10 text-[18px] md:text-[32px] text-white font-black uppercase tracking-[0.4em] group-hover:tracking-[0.6em] transition-all flex items-center justify-center gap-8">
+                                    <LucideZap size={24} className="text-[#F6E05E] animate-bounce" />
+                                    CLICK TO ENTER
+                                    <LucideZap size={24} className="text-[#F6E05E] animate-bounce" />
                                 </span>
 
-                                {/* Glitch Shimmer */}
-                                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-[#C5A059]/30 to-transparent skew-x-12" />
+                                {/* Fast Tech Shimmer */}
+                                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-12" />
                             </motion.button>
 
                             <motion.div
                                 initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.3 }}
+                                animate={{ opacity: 0.8 }}
                                 transition={{ delay: 3 }}
-                                className="mt-12 text-[8px] uppercase tracking-[0.6em] text-white/50 italic"
+                                className="mt-20 text-[24px] md:text-[32px] font-serif uppercase tracking-[0.8em] text-[#C5A059] font-black italic drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]"
                             >
                                 A Selection by The Manor
                             </motion.div>
                         </div>
 
-                        {/* V20.3: Mina positioned at Top Top */}
+                        {/* V20.4: Mina positioned at Top Top */}
                         <div className="absolute top-12 inset-x-0 pointer-events-none z-[999]">
                             <SmokeAssistant
                                 isVisible={phase === 'idle'}
                                 activeStep="opening"
-                                text="AUTHENTICATION REQUIRED. GUEST IDENTITY: PENDING. INITIATE PROTOCOL."
+                                text="AUTHENTICATION REQUIRED. GUEST IDENTITY: PENDING. CLICK TO INITIATE PROTOCOL."
                             />
                         </div>
                     </motion.div>
