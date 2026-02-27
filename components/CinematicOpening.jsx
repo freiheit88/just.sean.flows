@@ -70,8 +70,9 @@ const CinematicOpening = ({ onComplete }) => {
                                 initial={{ y: 50, opacity: 0, filter: "blur(20px)" }}
                                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                                 transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
-                                className="text-white text-[15vw] md:text-[25vw] font-bold italic tracking-tighter mb-12 text-center select-none leading-none drop-shadow-[0_10px_50px_rgba(255,255,255,0.8)]"
+                                className="text-white font-bold italic tracking-tighter mb-12 text-center select-none leading-[1.1] drop-shadow-[0_10px_50px_rgba(255,255,255,0.8)]"
                                 style={{
+                                    fontSize: "clamp(80px, 15vw, 360px)",
                                     fontVariant: "small-caps",
                                     background: "linear-gradient(to bottom, #FFFFFF 0%, #C5A059 50%, #5C1A1A 100%)",
                                     WebkitBackgroundClip: "text",
