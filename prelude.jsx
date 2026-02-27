@@ -36,15 +36,19 @@ const AudioManager = {
     },
 
     playTheme: (langId, volume = 0.4) => {
+        // Point 6: Immediate switch. If already playing this theme, just exit.
+        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`${langId}-theme.mp3`)) return;
+
         if (AudioManager.currentTheme) {
             AudioManager.currentTheme.pause();
+            AudioManager.currentTheme.currentTime = 0; // Immediate reset for faster switch
         }
         const audio = new Audio(`/assets/sounds/${langId}-theme.mp3`);
         audio.volume = volume;
         audio.loop = true;
         audio.play().catch(() => { });
         AudioManager.currentTheme = audio;
-        window.journeyTheme = audio; // Global bridge for transitions
+        window.journeyTheme = audio;
     },
 
     stopTheme: () => {
@@ -620,20 +624,30 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
         }
     };
 
-    const handleDragEnd = (event, info) => {
-        // If let go near center slot (center slot is roughly at center of screen)
-        const distance = Math.sqrt(Math.pow(info.point.x - window.innerWidth / 2, 2) + Math.pow(info.point.y - window.innerHeight / 2, 2));
+    const handleDrag = (event, info) => {
+        // Calculate distance from center of screen
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
 
-        if (distance < 150) {
-            onSelect(lang);
-            AudioManager.playSfx('click');
-        } else if (distance < 400) {
-            // Early audio trigger when dragging toward center
+        // Point 3: Faster audio trigger (within 350px of center)
+        if (dist < 350 && !isHolding) {
             if (AudioManager.currentTheme?.src.split('/').pop() !== `${lang.id}-theme.mp3`) {
-                AudioManager.playTheme(lang.id, 0.2);
+                AudioManager.playTheme(lang.id, 0.25);
             }
         }
+    };
 
+    const handleDragEnd = (event, info) => {
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
+
+        // Point 4: Stricter center detection (100px instead of 150px) to prevent accidental click-triggers
+        if (dist < 100) {
+            onSelect(lang);
+            AudioManager.playSfx('click');
+        }
     };
 
     const handleStart = (e) => {
@@ -689,17 +703,18 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
     return (
         <motion.div
             ref={cardRef}
-            drag={!isAnySelected}
+            drag
             dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
             dragElastic={0.8}
+            onDrag={handleDrag}
             onDragEnd={handleDragEnd}
             whileDrag={{ scale: 1.1, zIndex: 100, rotate: 2 }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
-                opacity: isDimmable ? 0.3 : 1,
-                scale: isSelected ? (isHolding ? 1.5 : 1.1) : (isAnySelected ? 0.9 : 1),
+                opacity: isDimmable ? 0.6 : 1,
+                scale: isSelected ? (isHolding ? 1.5 : 1.1) : (isAnySelected ? 0.95 : 1),
                 zIndex: isSelected ? 1000 : 1,
-                filter: isDimmable ? 'brightness(0.1) grayscale(100%)' : 'brightness(1) grayscale(0%)',
+                filter: isDimmable ? 'brightness(0.4) grayscale(50%)' : 'brightness(1) grayscale(0%)',
             }}
             transition={{ type: 'spring', damping: 25, stiffness: 120 }}
             className={`relative w-full h-full cursor-grab active:cursor-grabbing group rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isHolding ? 'shadow-[0_0_100px_rgba(255,255,255,0.4)]' : ''}`}
@@ -795,7 +810,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                             initial={{ scale: 0, opacity: 0, rotate: -20 }}
                                             animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                             exit={{ scale: 0, opacity: 0, rotate: 20 }}
-                                            className="w-full h-full cursor-pointer"
+                                            className="w-full h-full cursor-pointer z-[2000]"
                                             onClick={() => setStagedLang(null)}
                                         >
                                             <LanguageCard
@@ -809,9 +824,9 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                             <motion.div
                                                 initial={{ opacity: 0 }}
                                                 animate={{ opacity: 1 }}
-                                                className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap"
+                                                className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10"
                                             >
-                                                <span className="text-[7px] text-white/40 uppercase tracking-widest font-black">Tap to Cancel</span>
+                                                <span className="text-[8px] text-white/80 uppercase tracking-widest font-black">Tap to Cancel</span>
                                             </motion.div>
                                         </motion.div>
                                     ) : (
@@ -893,9 +908,14 @@ const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => (
 const App = () => {
     const [isOpeningFinished, setIsOpeningFinished] = useState(false);
     const [step, setStep] = useState('language');
-    const [selectedLang, setSelectedLang] = useState(LANGUAGES[1]); // V20: Default to English (GB)
+    const [selectedLang, setSelectedLang] = useState(LANGUAGES[1]); // V20: English (GB)
 
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    // V20: Immediate voice guidance on load (ENSURE EN-GB)
+    useEffect(() => {
+        if (step === 'language' && !isOpeningFinished) {
+            // Wait for opening to start
+        }
+    }, [step]);
     const [votedId, setVotedId] = useState(null);
     const [viewMode, setViewMode] = useState('gallery');
     const [previewId, setPreviewId] = useState(null);
@@ -1378,13 +1398,13 @@ const App = () => {
     const currentTheme = THEME_CONFIG[selectedLang?.id] || THEME_CONFIG.ko;
 
     // [V19] Effect to handle TTS for later steps
+    // V20: Fix default language logic & first voice trigger
     useEffect(() => {
-        if (step === 'dashboard' && !todos.avatar) {
-            AudioManager.playMina(selectedLang.id, 'avatar');
-        } else if (step === 'dashboard' && todos.avatar) {
-            AudioManager.playMina(selectedLang.id, 'dashboard');
+        if (isOpeningFinished && step === 'language') {
+            // Explicitly play English mina on first load if default
+            AudioManager.playMina('en', 'language');
         }
-    }, [step, todos.avatar]);
+    }, [isOpeningFinished]);
 
     return (
         <div className={`relative w-full h-screen ${currentTheme.bg} ${currentTheme.text} ${currentTheme.font} overflow-hidden transition-colors duration-1000`}>
