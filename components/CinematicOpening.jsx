@@ -3,44 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LucideSparkles, LucideOrbit, LucideInstagram } from 'lucide-react';
 import SmokeAssistant from './SmokeAssistant';
 
-const CinematicOpening = ({ onComplete }) => {
+const CinematicOpening = ({ onStart, onComplete }) => {
     const [phase, setPhase] = useState('locked'); // locked, idle, ignite, flash, finish
     const [isInteracted, setIsInteracted] = useState(false);
 
     const audioRef = useRef(null);
-    const ambientRef = useRef(null);
 
     const handleUnlock = () => {
         setIsInteracted(true);
         setPhase('idle');
 
-        // Start ambient music with 4s fade-in to 70%
-        const ambientAudio = new Audio('/assets/sounds/background_candiate1.mp3');
-        ambientAudio.loop = true;
-        ambientAudio.volume = 0;
-        ambientRef.current = ambientAudio;
-        ambientAudio.play().catch(e => console.log("Ambient play deferred", e));
-
-        let startTime = Date.now();
-        const duration = 4000;
-        const fadeInterval = setInterval(() => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            if (ambientRef.current) {
-                ambientRef.current.volume = progress * 0.5;
-            }
-            if (progress >= 1) clearInterval(fadeInterval);
-        }, 50);
+        if (onStart) onStart();
     };
-
-    useEffect(() => {
-        return () => {
-            if (ambientRef.current) {
-                ambientRef.current.pause();
-                ambientRef.current = null;
-            }
-        };
-    }, []);
 
     const handleIgnite = () => {
         setPhase('ignite');
@@ -53,21 +27,6 @@ const CinematicOpening = ({ onComplete }) => {
         signatureAudio.volume = 1.0;
         audioRef.current = signatureAudio;
         signatureAudio.play().catch(e => console.log("Audio play deferred", e));
-
-        // Fade out ambient music as cinematic sequence begins
-        if (ambientRef.current) {
-            let startVol = ambientRef.current.volume;
-            let fadeOutStart = Date.now();
-            const fadeOutDuration = 2000;
-            const fadeOutInterval = setInterval(() => {
-                const elapsed = Date.now() - fadeOutStart;
-                const progress = Math.min(elapsed / fadeOutDuration, 1);
-                if (ambientRef.current) {
-                    ambientRef.current.volume = startVol * (1 - progress);
-                }
-                if (progress >= 1) clearInterval(fadeOutInterval);
-            }, 50);
-        }
 
         // Sequence timing: portal trigger
         setTimeout(() => {
@@ -144,14 +103,14 @@ const CinematicOpening = ({ onComplete }) => {
                                 initial={{ y: 50, opacity: 0, filter: "blur(20px)" }}
                                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
                                 transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
-                                className="text-white font-bold italic tracking-tighter mb-20 text-center select-none leading-[1.1]"
+                                className="text-white font-bold italic tracking-tighter mb-20 md:mb-24 text-center select-none leading-[1.1]"
                                 style={{
-                                    fontSize: "clamp(30px, 6vw, 120px)", // Tweaked back up slightly for impact, but smaller than original 180px
+                                    fontSize: "clamp(45px, 10vw, 120px)", // Increased for mobile
                                     fontVariant: "small-caps",
-                                    background: "linear-gradient(to bottom, #FFFFFF 0%, #C5A059 60%, #8B7355 100%)",
+                                    background: "linear-gradient(to bottom, #FFFFFF 0%, #E8D091 40%, #C5A059 80%, #8B7355 100%)", // Brighter gradient
                                     WebkitBackgroundClip: "text",
                                     WebkitTextFillColor: "transparent",
-                                    filter: "drop-shadow(0px 10px 40px rgba(0,0,0,1)) drop-shadow(0 0 20px rgba(197, 160, 89, 0.6)) contrast(1.2)"
+                                    filter: "drop-shadow(0px 10px 40px rgba(0,0,0,1)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.4)) contrast(1.3)"
                                 }}
                             >
                                 just.sean.flows
@@ -239,23 +198,6 @@ const CinematicOpening = ({ onComplete }) => {
                             className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent h-[2px] top-1/2 -mt-[1px] blur-sm"
                         />
                     </div>
-
-                    {/* Final Golden Resolve with Instagram Icon */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{
-                            opacity: phase === 'flash' ? 1 : [0, 0.1, 0],
-                            scale: phase === 'flash' ? 1.5 : 1, // Increased scale by user request (+30%ish)
-                            filter: phase === 'flash' ? "blur(0px) brightness(1.2)" : "blur(20px)" // +20% glow
-                        }}
-                        transition={{ duration: 1 }}
-                        className="absolute inset-0 flex flex-col items-center justify-center gap-6"
-                    >
-                        <LucideInstagram size={64} className="text-white opacity-80" />
-                        <h1 className="text-yellow-500/40 text-7xl md:text-9xl font-light italic tracking-[0.25em] blur-md px-4 text-center">
-                            just.sean.flows
-                        </h1>
-                    </motion.div>
                 </div>
             )}
 

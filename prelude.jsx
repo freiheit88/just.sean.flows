@@ -102,6 +102,37 @@ const AudioManager = {
         }
     },
 
+    playMainTheme: (targetVolume = 0.5, fadeDuration = 3000) => {
+        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`background_candidate1.mp3`)) return;
+
+        if (AudioManager.currentTheme) {
+            AudioManager.currentTheme.pause();
+            AudioManager.currentTheme.currentTime = 0;
+        }
+
+        const audio = new Audio('/assets/sounds/background_candidate1.mp3');
+        audio.volume = 0;
+        audio.loop = true;
+        audio.play().catch(() => { });
+
+        const steps = 20;
+        const stepTime = fadeDuration / steps;
+        const volumeStep = targetVolume / steps;
+        let currentStep = 0;
+
+        const fadeInterval = setInterval(() => {
+            if (currentStep < steps && audio === AudioManager.currentTheme) {
+                audio.volume = Math.min(targetVolume, audio.volume + volumeStep);
+                currentStep++;
+            } else {
+                clearInterval(fadeInterval);
+            }
+        }, stepTime);
+
+        AudioManager.currentTheme = audio;
+        window.journeyTheme = audio;
+    },
+
     duckInterval: null,
     restoreInterval: null,
     baseThemeVolume: 0.4,
@@ -864,10 +895,11 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 if (elapsed >= duration) { // 5.5 sec total completion
                     clearInterval(animInterval.current);
 
-                    const currentSrc = AudioManager.currentTheme?.src || "";
-                    if (currentSrc.split('/').pop() !== `${lang.id}-theme.mp3`) {
-                        AudioManager.playTheme(lang.id, 0.4, 3000);
-                    }
+                    // User requested BGM persistence across screens, disabled country themes here
+                    // const currentSrc = AudioManager.currentTheme?.src || "";
+                    // if (currentSrc.split('/').pop() !== `${lang.id}-theme.mp3`) {
+                    //     AudioManager.playTheme(lang.id, 0.4, 3000);
+                    // }
 
                     if (onReady) onReady({ ...lang, requestSequenceComplete: true });
                 }
@@ -875,8 +907,8 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
         } else {
             setSaturationProgress(0);
             if (animInterval.current) clearInterval(animInterval.current);
-            // Immediately stop any lingering theme audio when un-focusing
-            AudioManager.stopTheme();
+            // Disabled stopping theme so BGM persists
+            // AudioManager.stopTheme();
         }
 
         return () => {
@@ -954,10 +986,10 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 <h3 className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
                     {lang.name}
                 </h3>
-                <div className="overflow-hidden h-4 w-full flex justify-center">
+                <div className="overflow-hidden h-6 md:h-8 w-full flex justify-center items-center">
                     <motion.span
-                        animate={{ y: isFocused || isStaged ? 0 : 20 }}
-                        className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block"
+                        animate={{ y: isFocused || isStaged ? 0 : 30 }}
+                        className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
                     >
                         {isStaged ? 'FATE SEALED' : (saturationProgress === 100 ? 'DRAG TO CENTER' : (isFocused ? `SYNCHRONIZING ${Math.round(saturationProgress)}%` : 'TAP TO SELECT'))}
                     </motion.span>
@@ -1742,7 +1774,10 @@ const App = () => {
             <AnimatePresence>
                 {!isOpeningFinished && (
                     <div className="relative z-[10000]">
-                        <CinematicOpening onComplete={() => setIsOpeningFinished(true)} />
+                        <CinematicOpening
+                            onStart={() => AudioManager.playMainTheme(0.6, 4000)}
+                            onComplete={() => setIsOpeningFinished(true)}
+                        />
                     </div>
                 )}
             </AnimatePresence>
