@@ -22,6 +22,7 @@ const BUILD_VERSION = "v1.4.0-clockwork-masterpiece-final";
 const AudioManager = {
     currentSfx: null,
     currentTheme: null,
+    mainTheme: null,
     currentMina: null,
 
     playSfx: (id, volume = 0.5, overlap = false) => {
@@ -103,11 +104,11 @@ const AudioManager = {
     },
 
     playMainTheme: (targetVolume = 0.5, fadeDuration = 3000) => {
-        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`background_candiate1.mp3`)) return;
+        if (AudioManager.mainTheme && !AudioManager.mainTheme.paused && AudioManager.mainTheme.src.includes(`background_candiate1.mp3`)) return;
 
-        if (AudioManager.currentTheme) {
-            AudioManager.currentTheme.pause();
-            AudioManager.currentTheme.currentTime = 0;
+        if (AudioManager.mainTheme) {
+            AudioManager.mainTheme.pause();
+            AudioManager.mainTheme.currentTime = 0;
         }
 
         const audio = new Audio('/assets/sounds/background_candiate1.mp3');
@@ -121,7 +122,7 @@ const AudioManager = {
         let currentStep = 0;
 
         const fadeInterval = setInterval(() => {
-            if (currentStep < steps && audio === AudioManager.currentTheme) {
+            if (currentStep < steps && audio === AudioManager.mainTheme) {
                 audio.volume = Math.min(targetVolume, audio.volume + volumeStep);
                 currentStep++;
             } else {
@@ -129,13 +130,32 @@ const AudioManager = {
             }
         }, stepTime);
 
-        AudioManager.currentTheme = audio;
-        window.journeyTheme = audio;
+        AudioManager.mainTheme = audio;
+    },
+
+    fadeMainTheme: (targetVolume, fadeDuration = 2000) => {
+        if (!AudioManager.mainTheme) return;
+        const audio = AudioManager.mainTheme;
+        const startVolume = audio.volume;
+        const steps = 40;
+        const stepTime = fadeDuration / steps;
+        let currentStep = 0;
+
+        const fadeInterval = setInterval(() => {
+            if (currentStep < steps && audio === AudioManager.mainTheme) {
+                audio.volume = startVolume + (targetVolume - startVolume) * (currentStep / steps);
+                currentStep++;
+            } else {
+                if (audio === AudioManager.mainTheme) audio.volume = targetVolume;
+                clearInterval(fadeInterval);
+            }
+        }, stepTime);
     },
 
     duckInterval: null,
     restoreInterval: null,
     baseThemeVolume: 0.4,
+    baseMainThemeVolume: 0.6,
 
     playMina: (langId, step, volume = 1.0) => {
         if (AudioManager.currentMina) {
@@ -143,10 +163,14 @@ const AudioManager = {
         }
 
         // --- 1. Audio Ducking Down to 20% ---
-        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused) {
+        const hasTheme = AudioManager.currentTheme && !AudioManager.currentTheme.paused;
+        const hasMain = AudioManager.mainTheme && !AudioManager.mainTheme.paused;
+
+        if (hasTheme || hasMain) {
             // Save current volume state before overriding, unless it's already ducked
             if (!AudioManager.duckInterval && !AudioManager.restoreInterval) {
-                AudioManager.baseThemeVolume = AudioManager.currentTheme.volume;
+                if (hasTheme) AudioManager.baseThemeVolume = AudioManager.currentTheme.volume;
+                if (hasMain) AudioManager.baseMainThemeVolume = AudioManager.mainTheme.volume;
             }
 
             // Clear any existing fades
@@ -154,19 +178,26 @@ const AudioManager = {
             if (AudioManager.restoreInterval) clearInterval(AudioManager.restoreInterval);
 
             // Fade down to 20% of the base volume over 2 seconds
-            const duckVolume = AudioManager.baseThemeVolume * 0.2;
+            const duckThemeVolume = AudioManager.baseThemeVolume * 0.2;
+            const duckMainVolume = AudioManager.baseMainThemeVolume * 0.2;
             const duckDuration = 2000;
             const steps = 40; // 50ms intervals
             const stepTime = duckDuration / steps;
 
-            let currentVolume = AudioManager.currentTheme.volume;
+            let currentThemeVol = hasTheme ? AudioManager.currentTheme.volume : 0;
+            let currentMainVol = hasMain ? AudioManager.mainTheme.volume : 0;
             let currentStep = 0;
 
             AudioManager.duckInterval = setInterval(() => {
-                if (currentStep < steps && AudioManager.currentTheme) {
-                    currentVolume -= (currentVolume - duckVolume) / (steps - currentStep);
-                    // Safeguard against going below 0 or above 1
-                    AudioManager.currentTheme.volume = Math.max(0, Math.min(1, currentVolume));
+                if (currentStep < steps) {
+                    if (hasTheme && AudioManager.currentTheme) {
+                        currentThemeVol -= (currentThemeVol - duckThemeVolume) / (steps - currentStep);
+                        AudioManager.currentTheme.volume = Math.max(0, Math.min(1, currentThemeVol));
+                    }
+                    if (hasMain && AudioManager.mainTheme) {
+                        currentMainVol -= (currentMainVol - duckMainVolume) / (steps - currentStep);
+                        AudioManager.mainTheme.volume = Math.max(0, Math.min(1, currentMainVol));
+                    }
                     currentStep++;
                 } else {
                     clearInterval(AudioManager.duckInterval);
@@ -180,7 +211,10 @@ const AudioManager = {
 
         // --- 2. Restore Volume upon Complete ---
         audio.onended = () => {
-            if (AudioManager.currentTheme && !AudioManager.currentTheme.paused) {
+            const hasTheme = AudioManager.currentTheme && !AudioManager.currentTheme.paused;
+            const hasMain = AudioManager.mainTheme && !AudioManager.mainTheme.paused;
+
+            if (hasTheme || hasMain) {
                 if (AudioManager.duckInterval) clearInterval(AudioManager.duckInterval);
                 if (AudioManager.restoreInterval) clearInterval(AudioManager.restoreInterval);
 
@@ -189,17 +223,27 @@ const AudioManager = {
                 const steps = 80; // 50ms intervals
                 const stepTime = restoreDuration / steps;
 
-                let currentVolume = AudioManager.currentTheme.volume;
+                let currentThemeVol = hasTheme ? AudioManager.currentTheme.volume : 0;
+                let currentMainVol = hasMain ? AudioManager.mainTheme.volume : 0;
                 let currentStep = 0;
 
                 AudioManager.restoreInterval = setInterval(() => {
-                    if (currentStep < steps && AudioManager.currentTheme) {
-                        currentVolume += (AudioManager.baseThemeVolume - currentVolume) / (steps - currentStep);
-                        AudioManager.currentTheme.volume = Math.max(0, Math.min(1, currentVolume));
+                    if (currentStep < steps) {
+                        if (hasTheme && AudioManager.currentTheme) {
+                            currentThemeVol += (AudioManager.baseThemeVolume - currentThemeVol) / (steps - currentStep);
+                            AudioManager.currentTheme.volume = Math.max(0, Math.min(1, currentThemeVol));
+                        }
+                        if (hasMain && AudioManager.mainTheme) {
+                            currentMainVol += (AudioManager.baseMainThemeVolume - currentMainVol) / (steps - currentStep);
+                            AudioManager.mainTheme.volume = Math.max(0, Math.min(1, currentMainVol));
+                        }
                         currentStep++;
                     } else {
-                        if (AudioManager.currentTheme) {
+                        if (hasTheme && AudioManager.currentTheme) {
                             AudioManager.currentTheme.volume = AudioManager.baseThemeVolume;
+                        }
+                        if (hasMain && AudioManager.mainTheme) {
+                            AudioManager.mainTheme.volume = AudioManager.baseMainThemeVolume;
                         }
                         clearInterval(AudioManager.restoreInterval);
                         AudioManager.restoreInterval = null;
@@ -953,48 +997,65 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
             style={{ touchAction: 'none' }}
         >
             <motion.div
-                className="absolute inset-0 bg-cover bg-center transition-all duration-100"
-                style={{ backgroundImage: `url(${lang.image})` }}
-                animate={{
-                    scale: 1.5,
-                    filter: isFocused
-                        ? (saturationProgress < 45.45 ? `saturate(${0.1 + (0.2 * (saturationProgress / 45.45))}) grayscale(${80 - (50 * (saturationProgress / 45.45))}%) brightness(${0.1 + (0.2 * (saturationProgress / 45.45))})`
-                            : saturationProgress < 63.63 ? 'saturate(0.7) grayscale(30%) brightness(0.7)'
-                                : saturationProgress < 81.81 ? 'saturate(1) grayscale(0%) brightness(1)'
-                                    : 'saturate(1.2) grayscale(0%) brightness(1.3) drop-shadow(0 0 10px rgba(197,160,89,0.8))')
-                        : (isStaged ? 'saturate(1) grayscale(0%)' : 'saturate(0) grayscale(100%) brightness(0.5)'),
+                className="absolute inset-0"
+                animate={
+                    isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged
+                        ? {
+                            x: [-1, 1, -1, 1, 0].map(v => v * (1 + (saturationProgress / 100) * 3)),
+                            y: [1, -1, 1, -1, 0].map(v => v * (1 + (saturationProgress / 100) * 3)),
+                        }
+                        : { x: 0, y: 0 }
+                }
+                transition={{
+                    duration: 0.1,
+                    repeat: isFocused && saturationProgress < 100 ? Infinity : 0,
+                    ease: "linear"
                 }}
-            />
-
-            {/* Hold/Focus Progress Bar */}
-            {isFocused && saturationProgress < 100 && (
-                <div className="absolute bottom-0 left-0 h-1 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${saturationProgress}%` }} />
-            )}
-
-            {/* Glowing inner overlay for 100% saturation to invite dragging */}
-            {isFocused && saturationProgress === 100 && !isStaged && (
-                <motion.div
-                    animate={{ opacity: [0, 0.3, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                    className="absolute inset-0 border-4 border-[#C5A059] pointer-events-none z-40"
+            >
+                <div
+                    className="absolute inset-0 bg-cover bg-center transition-all duration-100"
+                    style={{
+                        backgroundImage: `url(${lang.image})`,
+                        transform: 'scale(1.5)',
+                        filter: isFocused
+                            ? (saturationProgress < 45.45 ? `saturate(${0.1 + (0.2 * (saturationProgress / 45.45))}) grayscale(${80 - (50 * (saturationProgress / 45.45))}%) brightness(${0.1 + (0.2 * (saturationProgress / 45.45))})`
+                                : saturationProgress < 63.63 ? 'saturate(0.7) grayscale(30%) brightness(0.7)'
+                                    : saturationProgress < 81.81 ? 'saturate(1) grayscale(0%) brightness(1)'
+                                        : 'saturate(1.2) grayscale(0%) brightness(1.3) drop-shadow(0 0 10px rgba(197,160,89,0.8))')
+                            : (isStaged ? 'saturate(1) grayscale(0%)' : 'saturate(0) grayscale(100%) brightness(0.5)'),
+                    }}
                 />
-            )}
 
-            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isFocused ? 'opacity-80' : 'opacity-60'}`} />
+                {/* Hold/Focus Progress Bar */}
+                {isFocused && saturationProgress < 100 && (
+                    <div className="absolute bottom-0 left-0 h-1 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${saturationProgress}%` }} />
+                )}
 
-            <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
-                <h3 className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
-                    {lang.name}
-                </h3>
-                <div className="overflow-hidden h-6 md:h-8 w-full flex justify-center items-center">
-                    <motion.span
-                        animate={{ y: isFocused || isStaged ? 0 : 30 }}
-                        className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
-                    >
-                        {isStaged ? 'FATE SEALED' : (saturationProgress === 100 ? 'DRAG TO CENTER' : (isFocused ? `SYNCHRONIZING ${Math.round(saturationProgress)}%` : 'TAP TO SELECT'))}
-                    </motion.span>
+                {/* Glowing inner overlay for 100% saturation to invite dragging */}
+                {isFocused && saturationProgress === 100 && !isStaged && (
+                    <motion.div
+                        animate={{ opacity: [0, 0.3, 0] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                        className="absolute inset-0 border-4 border-[#C5A059] pointer-events-none z-40"
+                    />
+                )}
+
+                <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isFocused ? 'opacity-80' : 'opacity-60'}`} />
+
+                <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
+                    <h3 className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
+                        {lang.name}
+                    </h3>
+                    <div className="overflow-hidden h-6 md:h-8 w-full flex justify-center items-center">
+                        <motion.span
+                            animate={{ y: isFocused || isStaged ? 0 : 30 }}
+                            className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
+                        >
+                            {isStaged ? 'FATE SEALED' : (saturationProgress === 100 ? 'DRAG TO CENTER' : (isFocused ? `SYNCHRONIZING ${Math.round(saturationProgress)}%` : 'TAP TO SELECT'))}
+                        </motion.span>
+                    </div>
                 </div>
-            </div>
+            </motion.div>
         </motion.div>
     );
 };
@@ -1442,8 +1503,11 @@ const App = () => {
         AudioManager.playSfx('click');
         AudioManager.playMina(lang.id, 'confirm');
 
+        // Main BGM ducks to 10%
+        AudioManager.fadeMainTheme(0.1, 1000);
+
         // Play the specific country theme after selecting language
-        AudioManager.playTheme(lang.id, 0.4, 3000);
+        AudioManager.playTheme(lang.id, 0.8, 3000);
 
         // [V10: Personalized BGM Switching]
         if (bgmRef.current) {
