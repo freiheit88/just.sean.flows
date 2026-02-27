@@ -91,34 +91,34 @@ const CinematicOpening = ({ onComplete }) => {
                             />
 
                             <motion.button
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 2.5, duration: 1.5 }}
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 3, duration: 1.5 }}
                                 onClick={handleIgnite}
-                                whileHover={{ scale: 1.1, backgroundColor: "rgba(197, 160, 89, 0.15)" }}
-                                whileTap={{ scale: 0.95 }}
-                                className="group relative px-20 py-8 overflow-hidden rounded-full transition-all duration-700 active:scale-95 shadow-[0_0_50px_rgba(197,160,89,0.2)] hover:shadow-[0_0_80px_rgba(197,160,89,0.5)]"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="group relative px-24 py-6 overflow-hidden transition-all duration-500"
                             >
-                                {/* Golden Wax Seal Style Button - V20.1 Polish */}
-                                <div className="absolute inset-0 bg-gradient-to-b from-[#C5A059]/40 to-[#5C1A1A]/20 opacity-30 group-hover:opacity-60 transition-opacity" />
-                                <div className="absolute inset-0 border-2 border-[#C5A059]/50 group-hover:border-[#F6E05E] transition-colors rounded-full" />
+                                {/* High-Tech Holographic Interface - Added V20.3 */}
+                                <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl border-x border-white/20" />
+                                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent" />
+                                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent" />
 
-                                {/* Magnetic Pulsing Glow */}
+                                {/* Scanning Ray Effect */}
                                 <motion.div
-                                    animate={{
-                                        opacity: [0.3, 0.7, 0.3],
-                                        scale: [1, 1.2, 1],
-                                    }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                                    className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#F6E05E_0%,_transparent_70%)] blur-2xl"
+                                    animate={{ top: ['-100%', '200%'] }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                                    className="absolute inset-x-0 h-[20%] bg-gradient-to-b from-transparent via-[#C5A059]/20 to-transparent pointer-events-none"
                                 />
 
-                                <span className="relative z-10 text-[14px] md:text-[18px] text-white font-black uppercase tracking-[0.8em] group-hover:text-[#FDFCF0] transition-all drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
-                                    Enter Digital Soul
+                                <span className="relative z-10 text-[14px] md:text-[18px] text-[#FDFCF0] font-black uppercase tracking-[1em] group-hover:text-white transition-all flex items-center gap-4">
+                                    <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
+                                    Initiate Digital Embodiment
+                                    <LucideZap size={16} className="text-[#C5A059] animate-pulse" />
                                 </span>
 
-                                {/* Enhanced Golden Sweep */}
-                                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-20 blur-sm" />
+                                {/* Glitch Shimmer */}
+                                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-[#C5A059]/30 to-transparent skew-x-12" />
                             </motion.button>
 
                             <motion.div

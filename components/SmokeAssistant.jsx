@@ -105,30 +105,7 @@ const SmokeAssistant = ({ activeStep, targetRect, text, isVisible }) => {
                     </div>
                 </motion.div>
             </AnimatePresence>
-            {/* Decorative Corner Guards */}
-            <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[#C5A059]/60" />
-            <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#C5A059]/60" />
-            <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[#C5A059]/60" />
-            <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[#C5A059]/60" />
-
-            <div className="flex items-center gap-3 mb-4 border-b border-[#C5A059]/10 pb-3">
-                <LucideSparkles size={14} className="text-[#C5A059]" />
-                <span className="text-[9px] font-black text-[#8B7355] uppercase tracking-[0.5em] font-serif">Aetherial Dispatch</span>
-            </div>
-
-            <p className="text-[15px] md:text-[17px] font-serif italic text-[#2D241E] font-medium leading-relaxed tracking-wide text-center">
-                "{text}"
-            </p>
-
-            {/* Subtle Wax Seal Sealant Graphic (CSS Circle) */}
-            <div className="absolute -bottom-4 right-8 w-12 h-12 bg-[#5C1A1A]/10 rounded-full border border-[#5C1A1A]/20 flex items-center justify-center rotate-12">
-                <div className="w-8 h-8 rounded-full border border-[#5C1A1A]/30" />
-            </div>
         </div>
-                </motion.div >
-            </AnimatePresence >
-
-        </div >
     );
 };
 
