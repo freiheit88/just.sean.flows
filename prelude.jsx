@@ -307,7 +307,10 @@ const LANGUAGES = [
             directiveAuth: "이름을 등록하거나 초상화를 제출해 신원을 인증하세요. 기계는 유령을 태우지 않습니다.",
             directiveAvatar: "페르소나 연성 완료. 꽤 봐줄 만하군요. 이제 저택의 기록 보관소로 이동하시죠.",
             directiveDashboard: "기록 보관소 진입 성공. 각 기록을 탭하여 조사하세요. 복도에서 길을 잃어도 구하러 가지 않습니다.",
-            comingSoon: "곧 돌아옵니다"
+            comingSoon: "곧 돌아옵니다",
+            minaSystem: "시스템 구조체 : 미나", minaAction: ">> 행동 필요 : 언어를 선택하십시오 <<",
+            inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
+            tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그", fateSealed: "운명 확정"
         }
     },
     {
@@ -330,7 +333,10 @@ const LANGUAGES = [
             directiveAuth: "Identity verification required. Ink your name or submit a scan. The machine does not transport ghosts.",
             directiveAvatar: "Persona forged. Passable, I suppose. Proceed to the Manor archives immediately.",
             directiveDashboard: "Archive breach successful. Tap the records to investigate. If you get lost in the halls, I will not search for you.",
-            comingSoon: "Coming Soon"
+            comingSoon: "Coming Soon",
+            minaSystem: "SYSTEM CONSTRUCT: MINA", minaAction: ">> ACTION REQUIRED: SELECT A MULTIVERSE <<",
+            inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
+            tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER", fateSealed: "FATE SEALED"
         }
     },
     {
@@ -353,7 +359,10 @@ const LANGUAGES = [
             directiveAuth: "Se requiere verificación. Escribe tu nombre o escanea tu retrato. La máquina no transporta fantasmas.",
             directiveAvatar: "Persona forjada. Pasable, supongo. Proceda a los archivos de la Mansión inmediatamente.",
             directiveDashboard: "Infiltración al archivo exitosa. Toca los registros para investigar. Si te pierdes, no iré a buscarte.",
-            comingSoon: "Próximamente"
+            comingSoon: "Próximamente",
+            minaSystem: "CONSTRUCTO DE SISTEMA: MINA", minaAction: ">> ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
+            inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
+            tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO", fateSealed: "DESTINO SELLADO"
         }
     },
     {
@@ -376,7 +385,10 @@ const LANGUAGES = [
             directiveAuth: "पहचान सत्यापन आवश्यक है। अपना नाम लिखें या चित्र स्कैन करें। मशीन भूतों को नहीं ले जाती।",
             directiveAvatar: "व्यक्तित्व गढ़ा गया। ठीक-ठाक है। तुरंत मैनर के अभिलेखागार में आगे बढ़ें।",
             directiveDashboard: "अभिलेखागार में प्रवेश सफल। जांच के लिए रिकॉर्ड पर टैप करें। यदि आप खो जाते हैं, तो मैं आपको नहीं ढूंढूंगी।",
-            comingSoon: "जल्द आ रहा है"
+            comingSoon: "जल्द आ रहा है",
+            minaSystem: "सिस्टम निर्माण: मीना", minaAction: ">> कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
+            inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है।",
+            tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें", fateSealed: "भाग्य सील"
         }
     },
     {
@@ -399,7 +411,10 @@ const LANGUAGES = [
             directiveAuth: "Identitätsprüfung erforderlich. Tragen Sie Ihren Namen ein oder scannen Sie Ihr Porträt. Die Maschine transportiert keine Geister.",
             directiveAvatar: "Persona geschmiedet. Akzeptabel, nehme ich an. Begeben Sie sich umgehend in das Manor-Archiv.",
             directiveDashboard: "Archivzugriff erfolgreich. Tippen Sie auf die Akten, um zu untersuchen. Wenn Sie sich verirren, werde ich nicht nach Ihnen suchen.",
-            comingSoon: "Demnächst"
+            comingSoon: "Demnächst",
+            minaSystem: "SYSTEMKONSTRUKT: MINA", minaAction: ">> AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
+            inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
+            tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN", fateSealed: "SCHICKSAL BESIEGELT"
         }
     },
     {
@@ -422,7 +437,10 @@ const LANGUAGES = [
             directiveAuth: "身元確認が必要です。署名するか肖像をスキャンしなさい。この機械は幽霊を運びません。",
             directiveAvatar: "ペルソナ錬成完了。まあまあですね。直ちに館の記録保管所へ進みなさい。",
             directiveDashboard: "アーカイブへの侵入成功。各記録をタップして調査しなさい。廊下で迷子になっても探しに行きませんよ。",
-            comingSoon: "近日公開"
+            comingSoon: "近日公開",
+            minaSystem: "システム構造体：ミナ", minaAction: ">> アクション要求：マルチバースを選択してください <<",
+            inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
+            tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ", fateSealed: "運命確定"
         }
     },
     {
@@ -445,7 +463,10 @@ const LANGUAGES = [
             directiveAuth: "مطلوب التحقق من الهوية. اكتب اسمك أو قم بمسح صورتك. الآلة لا تنقل الأشباح.",
             directiveAvatar: "تمت صياغة الشخصية. مقبولة، على ما أظن. تقدم إلى أرشيفات القصر على الفور.",
             directiveDashboard: "اقتحام الأرشيف ناجح. اضغط على السجلات للتحقيق. إذا ضللت طريقك، فلن أبحث عنك.",
-            comingSoon: "قريباً"
+            comingSoon: "قريباً",
+            minaSystem: "بناء النظام: مينا", minaAction: ">> الإجراء المطلوب: حدد كونًا متعددًا <<",
+            inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
+            tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز", fateSealed: "تم ختم القدر"
         }
     },
     {
@@ -468,7 +489,10 @@ const LANGUAGES = [
             directiveAuth: "Wymagana weryfikacja. Wpisz imię lub zeskanuj portret. Maszyna nie transportuje duchów.",
             directiveAvatar: "Persona wykuta. Znośna, jak sądzę. Natychmiast udaj się do Archiwum Dworu.",
             directiveDashboard: "Włamanie do Archiwum udane. Dotknij akt, aby zbadać. Jeśli się zgubisz, nie będę cię szukać.",
-            comingSoon: "Wkrótce"
+            comingSoon: "Wkrótce",
+            minaSystem: "KONSTRUKT SYSTEMU: MINA", minaAction: ">> WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
+            inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
+            tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA", fateSealed: "LOS ZAPIECZĘTOWANY"
         }
     }
 ];
@@ -1067,7 +1091,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                         animate={{ y: isFocused || isStaged ? 0 : 30 }}
                         className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
                     >
-                        {isStaged ? 'FATE SEALED' : (saturationProgress === 100 ? 'DRAG TO CENTER' : (isFocused ? `SYNCHRONIZING ${Math.round(saturationProgress)}%` : 'TAP TO SELECT'))}
+                        {isStaged ? lang.ui.fateSealed : (saturationProgress === 100 ? lang.ui.drag : (isFocused ? `${lang.ui.sync} ${Math.round(saturationProgress)}%` : lang.ui.tap))}
                     </motion.span>
                 </div>
             </div>
@@ -1123,7 +1147,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
         setActiveBackground(null);
         setFocusedLang(lang);
         setStagedLang(null);
-        setMinaText(`INITIATING ${lang.name} PROTOCOL. PLEASE WAIT FOR SYNCHRONIZATION TO COMPLETE.`);
+        setMinaText(lang.ui.sync + "...");
         AudioManager.playSfx('click');
     };
 
@@ -1244,7 +1268,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                         >
                                             <LucideCompass className={`${focusedLang ? 'text-[#C5A059] animate-spin-slow scale-125' : 'text-white/40'} mb-2 transition-all`} size={32} />
                                             <h2 className={`text-[10px] md:text-sm font-black ${focusedLang ? 'text-[#C5A059]' : 'text-white/40'} uppercase tracking-[0.4em] leading-tight text-center transition-colors`}>
-                                                {focusedLang ? 'DROP HERE' : 'ANCHOR'}
+                                                {focusedLang ? focusedLang.ui.drag : 'ANCHOR'}
                                             </h2>
                                         </motion.div>
                                     )}
@@ -1287,7 +1311,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                 animate={{ opacity: stagedLang ? 0.8 : 0.2 }}
                 className="text-[9px] font-black uppercase tracking-[0.8em] text-white mt-12 text-center"
             >
-                {stagedLang ? `INVITING THE ${stagedLang.name} MULTIVERSE...` : "THE MANOR AWAITS YOUR SOUL'S VOYAGE."}
+                {stagedLang ? stagedLang.ui.inviting : (focusedLang ? focusedLang.ui.awaiting : "THE MANOR AWAITS YOUR SOUL'S VOYAGE.")}
             </motion.p>
 
             {/* Mina UI (positioned absolutely at the top of the entire screen to avoid grid) */}
@@ -1299,6 +1323,8 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                         text={minaText}
                         position={isIntroActive ? 'center' : 'top'}
                         interactionMode={isIntroActive ? 'reading' : 'action'}
+                        sysName={focusedLang?.ui?.minaSystem || "SYSTEM CONSTRUCT: MINA"}
+                        actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
                     />
                 </div>
             </div>

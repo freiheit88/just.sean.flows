@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucideChevronDown, LucideActivity } from 'lucide-react';
 
-const MinaDirective = ({ text, isVisible, activeStep, position = 'top', interactionMode = 'action' }) => {
+const MinaDirective = ({ text, isVisible, activeStep, position = 'top', interactionMode = 'action', sysName = "SYSTEM CONSTRUCT: MINA", actionReq = ">> ACTION REQUIRED: SELECT A MULTIVERSE <<" }) => {
     if (!isVisible || !text) return null;
 
     // The container dynamically shifts from the center to the top based on the prop.
@@ -45,7 +45,7 @@ const MinaDirective = ({ text, isVisible, activeStep, position = 'top', interact
                                 className="w-2 h-2 rounded-full bg-[#C5A059] shadow-[0_0_8px_#C5A059]"
                             />
                             <span className="text-[10px] md:text-xs font-black text-[#E8D4A6] uppercase tracking-[0.4em] font-mono">
-                                SYSTEM CONSTRUCT: MINA
+                                {sysName}
                             </span>
                         </div>
                         <span className="text-[9px] font-mono text-[#C5A059]/50 tracking-widest hidden md:block">v24.0.0</span>
@@ -90,7 +90,7 @@ const MinaDirective = ({ text, isVisible, activeStep, position = 'top', interact
                                         <LucideChevronDown size={14} />
                                     </motion.div>
                                     <span className="text-[10px] md:text-[11px] font-black font-sans uppercase tracking-[0.3em]">
-                                        &gt;&gt; ACTION REQUIRED: SELECT A MULTIVERSE &lt;&lt;
+                                        {actionReq}
                                     </span>
                                     <motion.div
                                         animate={{ y: [0, 4, 0] }}
