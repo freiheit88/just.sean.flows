@@ -627,7 +627,13 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
         if (distance < 150) {
             onSelect(lang);
             AudioManager.playSfx('click');
+        } else if (distance < 400) {
+            // Early audio trigger when dragging toward center
+            if (AudioManager.currentTheme?.src.split('/').pop() !== `${lang.id}-theme.mp3`) {
+                AudioManager.playTheme(lang.id, 0.2);
+            }
         }
+
     };
 
     const handleStart = (e) => {
@@ -730,17 +736,17 @@ const LanguageCard = ({ lang, idx, onSelect, setSpiritHint, isDimmable, isSelect
 
             <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isHolding ? 'opacity-90' : 'opacity-60 group-hover:opacity-80'}`} />
 
-            <div className="absolute inset-0 p-4 flex flex-col justify-end z-30">
+            <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center">
                 <motion.h3
                     animate={{ opacity: isDimmable ? 0.8 : 1 }}
-                    className={`text-lg md:text-xl font-black text-white font-serif uppercase tracking-widest leading-none mb-1 transition-transform duration-500Draft ${isHolding ? 'scale-110 -translate-y-4' : ''}`}
+                    className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isHolding ? 'scale-110' : ''}`}
                 >
                     {lang.name}
                 </motion.h3>
-                <div className="overflow-hidden h-4">
+                <div className="overflow-hidden h-4 w-full flex justify-center">
                     <motion.span
                         animate={{ y: isHolding || isSelected ? 0 : 20 }}
-                        className="text-[9px] text-[#C5A059] uppercase tracking-[0.4em] font-black block"
+                        className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block"
                     >
                         {isSelected ? (isHolding ? `Journeying... ${Math.round(holdProgress)}%` : 'HOLD TO START JOURNEY') : 'CASE LOCKED'}
                     </motion.span>
@@ -755,7 +761,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
 
     // [V19] Effect to play Mina's guidance on mount
     useEffect(() => {
-        AudioManager.playMina(stagedLang ? stagedLang.id : 'ko', 'language');
+        AudioManager.playMina(stagedLang ? stagedLang.id : 'ko', stagedLang ? 'confirm' : 'language');
     }, [stagedLang]);
 
     const onCardClick = (lang) => {
@@ -770,8 +776,8 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-4">
-            <div id="language-grid" className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-3 bg-black/60 backdrop-blur-3xl p-6 border border-white/10 rounded-3xl shadow-[0_0_120px_rgba(0,0,0,0.9)] relative overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4">
+            <div id="language-grid" className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-1.5 md:gap-3 bg-black/60 backdrop-blur-3xl p-3 md:p-6 border border-white/10 rounded-3xl shadow-[0_0_120px_rgba(0,0,0,0.9)] relative overflow-hidden">
 
                 {/* Background "Flow" Effect */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_70%)] animate-pulse pointer-events-none" />
@@ -789,7 +795,8 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                             initial={{ scale: 0, opacity: 0, rotate: -20 }}
                                             animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                             exit={{ scale: 0, opacity: 0, rotate: 20 }}
-                                            className="w-full h-full"
+                                            className="w-full h-full cursor-pointer"
+                                            onClick={() => setStagedLang(null)}
                                         >
                                             <LanguageCard
                                                 lang={stagedLang}
@@ -798,17 +805,25 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                                 onSelect={onHoldComplete}
                                                 setSpiritHint={setSpiritHint}
                                             />
+                                            {/* Cancel Hint */}
+                                            <motion.div
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap"
+                                            >
+                                                <span className="text-[7px] text-white/40 uppercase tracking-widest font-black">Tap to Cancel</span>
+                                            </motion.div>
                                         </motion.div>
                                     ) : (
                                         <motion.div
                                             key="instruction"
-                                            className="flex flex-col items-center justify-center text-center p-4 bg-white/5 border border-white/10 rounded-lg shadow-inner w-full h-full"
+                                            className="flex flex-col items-center justify-center text-center p-2 md:p-4 bg-white/5 border border-white/10 rounded-lg shadow-inner w-full h-full"
                                         >
-                                            <LucideCompass className="text-[#C5A059] mb-2 animate-spin-slow" size={24} />
-                                            <h2 className="text-[10px] md:text-xs font-black text-white/80 uppercase tracking-[0.4em] leading-tight">
+                                            <LucideCompass className="text-[#C5A059] mb-1 md:mb-2 animate-spin-slow" size={20} />
+                                            <h2 className="text-[8px] md:text-xs font-black text-white/80 uppercase tracking-[0.4em] leading-tight text-center">
                                                 Journey Flow
                                             </h2>
-                                            <p className="text-[7px] font-serif italic text-white/40 mt-2 uppercase tracking-widest leading-relaxed">
+                                            <p className="text-[6px] md:text-[7px] font-serif italic text-white/40 mt-1 md:mt-2 uppercase tracking-widest leading-relaxed text-center">
                                                 Select Case to Begin
                                             </p>
                                         </motion.div>
@@ -878,7 +893,8 @@ const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => (
 const App = () => {
     const [isOpeningFinished, setIsOpeningFinished] = useState(false);
     const [step, setStep] = useState('language');
-    const [selectedLang, setSelectedLang] = useState(LANGUAGES[0]);
+    const [selectedLang, setSelectedLang] = useState(LANGUAGES[1]); // V20: Default to English (GB)
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [votedId, setVotedId] = useState(null);
     const [viewMode, setViewMode] = useState('gallery');

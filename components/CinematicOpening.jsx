@@ -50,25 +50,27 @@ const CinematicOpening = ({ onComplete }) => {
                         transition={{ duration: 1, ease: "easeOut" }}
                         className="flex flex-col items-center justify-center w-full h-full relative"
                     >
-                        {/* Cannes Style Poster Background */}
+                        {/* Aristocratic Invitation Background */}
                         <motion.div
                             initial={{ scale: 1.1, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 0.6 }}
+                            animate={{ scale: 1, opacity: 0.8 }}
                             className="absolute inset-0 bg-cover bg-center"
-                            style={{ backgroundImage: "url('/assets/images/cannes-poster.png')" }}
+                            style={{ backgroundImage: "url('/assets/images/aristocratic-invitation.png')" }}
                         />
 
-                        {/* Film Grain & Vignette Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-80 pointer-events-none" />
+                        {/* Atmospheric Overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 pointer-events-none" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.4)_100%)] pointer-events-none" />
+
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-20 mix-blend-overlay pointer-events-none" />
 
                         <div className="relative z-10 flex flex-col items-center">
                             <motion.h1
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.5, duration: 1.5 }}
-                                className="text-white text-7xl md:text-9xl font-light italic tracking-[0.2em] mb-4 text-center select-none"
-                                style={{ textShadow: "0 0 40px rgba(255,255,255,0.2)" }}
+                                initial={{ y: 30, opacity: 0, filter: "blur(20px)" }}
+                                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                                transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
+                                className="text-white text-[12rem] md:text-[18rem] font-light italic tracking-[0.05em] mb-2 text-center select-none leading-none drop-shadow-[0_0_60px_rgba(255,255,255,0.3)]"
+                                style={{ fontVariant: "small-caps" }}
                             >
                                 just.sean.flows
                             </motion.h1>
@@ -81,18 +83,29 @@ const CinematicOpening = ({ onComplete }) => {
                             />
 
                             <motion.button
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 2, duration: 1 }}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 2.5, duration: 1.5 }}
                                 onClick={handleIgnite}
-                                className="group relative px-10 md:px-14 py-4 border border-white/20 rounded-full transition-all duration-700 hover:border-white/60 hover:bg-white/[0.02] active:scale-95 overflow-hidden"
+                                className="group relative px-16 py-6 overflow-hidden rounded-full transition-all duration-1000 active:scale-95"
                             >
-                                <span className="text-[9px] md:text-[11px] text-white/70 font-black uppercase tracking-[0.5em] group-hover:text-white transition-all block whitespace-nowrap">
+                                {/* Golden Wax Seal Style Button */}
+                                <div className="absolute inset-0 bg-[#C5A059] opacity-20 group-hover:opacity-30 transition-opacity" />
+                                <div className="absolute inset-0 border border-[#C5A059]/40 group-hover:border-[#C5A059] transition-colors rounded-full" />
+
+                                {/* Pulsing Inner Glow */}
+                                <motion.div
+                                    animate={{ opacity: [0.2, 0.5, 0.2] }}
+                                    transition={{ duration: 3, repeat: Infinity }}
+                                    className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#C5A059_0%,_transparent_70%)]"
+                                />
+
+                                <span className="relative z-10 text-[12px] md:text-[14px] text-white font-black uppercase tracking-[0.6em] group-hover:text-[#F6E05E] transition-all drop-shadow-md">
                                     Enter Digital Soul
                                 </span>
 
-                                {/* Cannes Golden Sweep */}
-                                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-yellow-500/20 to-transparent skew-x-12" />
+                                {/* Shimmer Effect */}
+                                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_3s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12" />
                             </motion.button>
 
                             <motion.div
@@ -103,6 +116,15 @@ const CinematicOpening = ({ onComplete }) => {
                             >
                                 A Selection by The Manor
                             </motion.div>
+                        </div>
+
+                        {/* V20: Opening Guidance with Mina */}
+                        <div className="absolute inset-0 pointer-events-none">
+                            <SmokeAssistant
+                                isVisible={phase === 'idle'}
+                                activeStep="opening"
+                                text="The Manor awaits your presence, Guest. Step into the digital beyond."
+                            />
                         </div>
                     </motion.div>
                 )}

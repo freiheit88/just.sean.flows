@@ -40,58 +40,74 @@ const SmokeAssistant = ({ activeStep, targetRect, text, isVisible }) => {
                 height: rect.height + 40
             }}
         >
-            {/* The "Smoke" Swirl Flowing Around the Target */}
+            {/* V20 Golden Mist Effect */}
             <div className="absolute inset-0">
                 {particles.map((p) => (
                     <motion.div
                         key={p.id}
                         initial={{ opacity: 0, scale: 0.5 }}
                         animate={{
-                            opacity: [0.1, 0.3, 0.1],
-                            scale: [1, 1.2, 1],
-                            x: [p.x, -p.x, p.x],
-                            y: [p.y, -p.y, p.y],
-                            rotate: [0, 180, 360]
+                            opacity: [0, 0.4, 0],
+                            scale: [1, 1.4, 1],
+                            x: [p.x, -p.x * 1.5, p.x],
+                            y: [p.y, -p.y * 1.5, p.y],
+                            rotate: [0, 90, 180]
                         }}
                         transition={{
-                            duration: p.duration,
+                            duration: p.duration * 1.5,
                             repeat: Infinity,
                             ease: "easeInOut"
                         }}
-                        className="absolute rounded-full bg-white/20 blur-[40px]"
+                        className="absolute rounded-full bg-gradient-to-br from-[#F6E05E]/40 to-[#C5A059]/20 blur-[50px] mix-blend-screen"
                         style={{
-                            width: p.size,
-                            height: p.size,
+                            width: p.size * 1.2,
+                            height: p.size * 1.2,
                             top: '50%',
                             left: '50%',
                         }}
                     />
                 ))}
+                {/* Center Sparkles */}
+                <motion.div
+                    animate={{ opacity: [0.1, 0.4, 0.1], scale: [0.8, 1.1, 0.8] }}
+                    transition={{ duration: 4, repeat: Infinity }}
+                    className="absolute inset-0 bg-[#C5A059]/10 blur-[80px] rounded-full"
+                />
             </div>
 
-            {/* Localized Floating Guidance Label */}
+            {/* V20 Ethereal Letter (Parchment) UI */}
             <AnimatePresence mode="wait">
                 <motion.div
                     key={text}
-                    initial={{ opacity: 0, y: 10, filter: 'blur(10px)' }}
+                    initial={{ opacity: 0, y: -20, filter: 'blur(20px)' }}
                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0, y: -10, filter: 'blur(10px)' }}
-                    className="absolute top-full mt-8 left-1/2 -translate-x-1/2 min-w-[240px] max-w-[320px]"
+                    exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
+                    className="absolute bottom-full mb-12 left-1/2 -translate-x-1/2 min-w-[320px] max-w-[400px]"
                 >
-                    <div className="bg-white/5 backdrop-blur-3xl border border-white/10 p-5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
-                        <div className="flex items-center gap-2 mb-3">
-                            <LucideSparkles size={10} className="text-[#C5A059] animate-pulse" />
-                            <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.4em]">Mina's Directive</span>
+                    <div className="relative p-8 bg-[#FDFCF0]/95 backdrop-blur-md rounded-[2px] shadow-[0_30px_70px_rgba(0,0,0,0.6)] border border-[#C5A059]/30">
+                        {/* Decorative Corner Guards */}
+                        <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[#C5A059]/60" />
+                        <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#C5A059]/60" />
+                        <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[#C5A059]/60" />
+                        <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[#C5A059]/60" />
+
+                        <div className="flex items-center gap-3 mb-4 border-b border-[#C5A059]/10 pb-3">
+                            <LucideSparkles size={14} className="text-[#C5A059]" />
+                            <span className="text-[9px] font-black text-[#8B7355] uppercase tracking-[0.5em] font-serif">Aetherial Dispatch</span>
                         </div>
-                        <p className="text-[11px] md:text-[12px] font-serif italic text-white/90 leading-relaxed tracking-wide">
+
+                        <p className="text-[15px] md:text-[17px] font-serif italic text-[#2D241E] font-medium leading-relaxed tracking-wide text-center">
                             "{text}"
                         </p>
 
-                        {/* Dynamic Smoke Tail to Target */}
-                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/5 backdrop-blur-3xl rotate-45 border-l border-t border-white/10" />
+                        {/* Subtle Wax Seal Sealant Graphic (CSS Circle) */}
+                        <div className="absolute -bottom-4 right-8 w-12 h-12 bg-[#5C1A1A]/10 rounded-full border border-[#5C1A1A]/20 flex items-center justify-center rotate-12">
+                            <div className="w-8 h-8 rounded-full border border-[#5C1A1A]/30" />
+                        </div>
                     </div>
                 </motion.div>
             </AnimatePresence>
+
         </div>
     );
 };
