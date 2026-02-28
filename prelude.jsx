@@ -100,12 +100,15 @@ const AudioManager = {
         const volumeStep = targetVolume / steps;
         let currentStep = 0;
 
-        const fadeInterval = setInterval(() => {
+        AudioManager.baseThemeVolume = targetVolume;
+        if (AudioManager.themeFadeInterval) clearInterval(AudioManager.themeFadeInterval);
+
+        AudioManager.themeFadeInterval = setInterval(() => {
             if (currentStep < steps && audio === AudioManager.currentTheme) {
                 audio.volume = Math.min(targetVolume, audio.volume + volumeStep);
                 currentStep++;
             } else {
-                clearInterval(fadeInterval);
+                clearInterval(AudioManager.themeFadeInterval);
             }
         }, stepTime);
 
@@ -138,12 +141,15 @@ const AudioManager = {
         const volumeStep = targetVolume / steps;
         let currentStep = 0;
 
-        const fadeInterval = setInterval(() => {
+        AudioManager.baseMainThemeVolume = targetVolume;
+        if (AudioManager.mainThemeFadeInterval) clearInterval(AudioManager.mainThemeFadeInterval);
+
+        AudioManager.mainThemeFadeInterval = setInterval(() => {
             if (currentStep < steps && audio === AudioManager.mainTheme) {
                 audio.volume = Math.min(targetVolume, audio.volume + volumeStep);
                 currentStep++;
             } else {
-                clearInterval(fadeInterval);
+                clearInterval(AudioManager.mainThemeFadeInterval);
             }
         }, stepTime);
 
@@ -158,13 +164,16 @@ const AudioManager = {
         const stepTime = fadeDuration / steps;
         let currentStep = 0;
 
-        const fadeInterval = setInterval(() => {
+        AudioManager.baseMainThemeVolume = targetVolume;
+        if (AudioManager.mainThemeFadeInterval) clearInterval(AudioManager.mainThemeFadeInterval);
+
+        AudioManager.mainThemeFadeInterval = setInterval(() => {
             if (currentStep < steps && audio === AudioManager.mainTheme) {
                 audio.volume = startVolume + (targetVolume - startVolume) * (currentStep / steps);
                 currentStep++;
             } else {
                 if (audio === AudioManager.mainTheme) audio.volume = targetVolume;
-                clearInterval(fadeInterval);
+                clearInterval(AudioManager.mainThemeFadeInterval);
             }
         }, stepTime);
     },
@@ -184,17 +193,15 @@ const AudioManager = {
         const hasMain = AudioManager.mainTheme && !AudioManager.mainTheme.paused;
 
         if (hasTheme || hasMain) {
-            // Save current volume state before overriding, unless it's already ducked
-            if (!AudioManager.duckInterval && !AudioManager.restoreInterval) {
-                if (hasTheme) AudioManager.baseThemeVolume = AudioManager.currentTheme.volume;
-                if (hasMain) AudioManager.baseMainThemeVolume = AudioManager.mainTheme.volume;
-            }
+            // Cancel any ongoing fades to prevent fighting with ducking
+            if (AudioManager.themeFadeInterval) clearInterval(AudioManager.themeFadeInterval);
+            if (AudioManager.mainThemeFadeInterval) clearInterval(AudioManager.mainThemeFadeInterval);
 
-            // Clear any existing fades
+            // Clear any existing duck/restore intervals
             if (AudioManager.duckInterval) clearInterval(AudioManager.duckInterval);
             if (AudioManager.restoreInterval) clearInterval(AudioManager.restoreInterval);
 
-            // Fade down to 20% of the base volume over 2 seconds
+            // Fade down to 20% of the explicitly set base volume over 2 seconds
             const duckThemeVolume = AudioManager.baseThemeVolume * 0.2;
             const duckMainVolume = AudioManager.baseMainThemeVolume * 0.2;
             const duckDuration = 2000;
@@ -1550,8 +1557,8 @@ const App = () => {
             AudioManager.mainTheme.currentTime = 0;
         }
 
-        // Enhance specific country theme volume to 80% with crossfade
-        AudioManager.playTheme(lang.id, 0.8, 3000);
+        // Enhance specific country theme volume to 100% with crossfade
+        AudioManager.playTheme(lang.id, 1.0, 3000);
 
         // [V10: Sequence pre-fetching]
         setTimeout(() => {
