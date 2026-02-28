@@ -974,15 +974,15 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 setSaturationProgress(percentage);
 
                 if (elapsed >= 2500 && stage < 1) { // 2.5 sec jump
-                    [...Array(3)].forEach(() => AudioManager.playSfx('piano-mystic-low', 1.0, true));
+                    [...Array(3)].forEach(() => AudioManager.playSfx('piano-mystic-low', 0.7, true));
                     setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100); // Freeze right as impact hits
                     stage = 1;
                 } else if (elapsed >= 3500 && stage < 2) { // 3.5 sec jump
-                    AudioManager.playSfx('piano-mystic-mid', 0.6, true);
+                    AudioManager.playSfx('piano-mystic-mid', 0.42, true);
                     setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100);
                     stage = 2;
                 } else if (elapsed >= 4500 && stage < 3) { // 4.5 sec (background switch + glow)
-                    AudioManager.playSfx('piano-mystic-high', 0.8, true);
+                    AudioManager.playSfx('piano-mystic-high', 0.56, true);
                     setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100);
                     if (onReady) onReady({ ...lang, requestBackground: true });
                     stage = 3;
@@ -1321,14 +1321,14 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                 {stagedLang ? stagedLang.ui.inviting : (focusedLang ? focusedLang.ui.awaiting : "THE MANOR AWAITS YOUR SOUL'S VOYAGE.")}
             </motion.p>
 
-            {/* Mina UI (positioned absolutely at the top of the entire screen to avoid grid) */}
-            <div className={`fixed top-0 inset-x-0 pointer-events-none z-[5000] h-screen flex flex-col items-center ${isIntroActive ? 'justify-center' : 'justify-start'}`}>
-                <div className="w-full max-w-5xl mx-auto h-full relative">
+            {/* Mina UI Scoreboard - Now strictly matching the Language Grid/Card width */}
+            <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
+                <div className="w-full w-[95vw] md:w-auto md:min-w-[480px] max-w-4xl px-2 md:px-4">
                     <MinaDirective
                         isVisible={true}
                         activeStep="language"
                         text={minaText}
-                        position={isIntroActive ? 'center' : 'top'}
+                        position="top"
                         interactionMode={isIntroActive ? 'reading' : 'action'}
                         sysName={focusedLang?.ui?.minaSystem || "SYSTEM CONSTRUCT: MINA"}
                         actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
