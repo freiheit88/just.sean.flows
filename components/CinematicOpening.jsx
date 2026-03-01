@@ -65,8 +65,8 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         onClick={handleUnlock}
                         className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group"
                     >
-                        <LucideOrbit className="w-16 h-16 text-[#C5A059] opacity-50 mb-6 group-hover:scale-110 transition-transform duration-500 animate-[spin_10s_linear_infinite]" />
-                        <span className="text-[#8B7355] text-xs tracking-[0.5em] uppercase font-mono animate-pulse group-hover:text-[#C5A059] transition-colors">
+                        <LucideOrbit className="w-24 h-24 md:w-32 md:h-32 text-[#C5A059] opacity-50 mb-8 md:mb-12 group-hover:scale-110 transition-transform duration-500 animate-[spin_10s_linear_infinite]" />
+                        <span className="text-[#8B7355] text-lg md:text-2xl tracking-[0.5em] uppercase font-mono animate-pulse group-hover:text-[#C5A059] transition-colors text-center px-4">
                             Click anywhere to begin
                         </span>
                     </motion.div>
@@ -103,7 +103,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                 transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
                                 className="text-white font-bold italic tracking-tighter mb-20 md:mb-24 text-center select-none leading-[1.1]"
                                 style={{
-                                    fontSize: "clamp(45px, 10vw, 120px)", // Increased for mobile
+                                    fontSize: "clamp(45px, 10vw, 120px)", // Reverted back to original size
                                     fontVariant: "small-caps",
                                     background: "linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 60%, #FDFCF0 80%, #E8D091 100%)", // Pure white with very slight gold at bottom
                                     WebkitBackgroundClip: "text",
@@ -133,9 +133,9 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     className="absolute inset-0 border-2 border-[#C5A059]/60 rounded-2xl pointer-events-none"
                                 />
 
-                                <span className="relative z-10 text-[20px] md:text-[32px] text-white font-black uppercase tracking-[0.3em] group-hover:tracking-[0.5em] transition-all text-center drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] flex items-center justify-center gap-4">
+                                <span className="relative z-10 text-[30px] md:text-[60px] text-[var(--gold)] font-black uppercase tracking-[0.3em] group-hover:tracking-[0.5em] transition-all text-center drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] flex items-center justify-center auto-cols-auto gap-4">
                                     <LucideSparkles className="text-[#C5A059] opacity-0 group-hover:opacity-100 transition-opacity" size={24} />
-                                    CLICK TO ENTER
+                                    CLICK ANYWHERE TO BEGIN
                                     <LucideSparkles className="text-[#C5A059] opacity-0 group-hover:opacity-100 transition-opacity" size={24} />
                                 </span>
                             </motion.button>
@@ -159,7 +159,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                             variants={{
                                 visible: { transition: { staggerChildren: 0.1 } }
                             }}
-                            className="flex flex-wrap justify-center gap-[0.1em]"
+                            className="flex flex-nowrap justify-center gap-[0.05em] overflow-visible"
                         >
                             {"just.sean.flows".split("").map((char, i) => (
                                 <motion.span
@@ -169,31 +169,31 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                         visible: {
                                             opacity: 1,
                                             y: 0,
-                                            filter: "blur(0px)",
+                                            filter: "blur(0px) drop-shadow(0 0 15px rgba(232, 208, 145, 0.8)) drop-shadow(0 0 40px rgba(197, 160, 89, 0.9))",
                                             transition: { duration: 0.8, ease: "easeOut" }
                                         }
                                     }}
-                                    className="text-white text-5xl md:text-8xl font-light italic tracking-wider mix-blend-screen"
+                                    className="text-white font-bold italic tracking-tighter mix-blend-screen leading-none"
+                                    style={{
+                                        fontSize: "clamp(30px, 7.5vw, 200px)",
+                                        lineHeight: 1
+                                    }}
                                 >
                                     {char === " " ? "\u00A0" : char}
                                 </motion.span>
                             ))}
                         </motion.div>
 
-                        {/* Golden Light Sweep Overlay */}
+                        {/* Massive Cinematic Light Sweep Overlay (Left to Right) */}
                         <motion.div
-                            initial={{ scaleX: 0, opacity: 0 }}
-                            animate={{
-                                scaleX: [0, 1, 1],
-                                opacity: [0, 0.8, 0],
-                                x: ["-100%", "100%", "100%"]
-                            }}
+                            initial={{ left: "-50%", opacity: 0 }}
+                            animate={{ left: "120%", opacity: [0, 0.9, 0] }}
                             transition={{
-                                duration: 5.0,
-                                ease: "easeInOut",
-                                times: [0, 0.5, 1]
+                                duration: 1.8,
+                                ease: "linear",
+                                delay: 0.2 // Sync with the stagger animation
                             }}
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent h-[2px] top-1/2 -mt-[1px] blur-sm"
+                            className="absolute inset-y-0 w-3/4 bg-gradient-to-r from-transparent via-[#FDFCF0] to-transparent mix-blend-overlay blur-xl pointer-events-none z-50 transform -skew-x-12"
                         />
                     </div>
                 </div>

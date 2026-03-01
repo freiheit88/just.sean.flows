@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CinematicOpening from './components/CinematicOpening';
 import {
@@ -11,6 +11,7 @@ import {
     LucideArrowLeft, LucideArrowRight, LucideLock
 } from 'lucide-react';
 import MinaDirective from './components/MinaDirective';
+import { calculateArchetype } from './components/Archetypes';
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const BUILD_VERSION = "v1.4.0-clockwork-masterpiece-final";
@@ -50,21 +51,27 @@ const AudioManager = {
         // V27: Map available new tracks
         const THEME_TRACKS = {
             ar: ['ar_song1', 'ar_song2'],
+            de: ['de_song1', 'de_song2'],
             en: ['en_song1', 'en_song2'],
-            ja: ['jp_song1', 'jp_song2'], // 'ja' maps to 'jp' tracks internally
-            ko: ['ko_song1', 'ko_song2']
+            es: ['es_song1', 'es_song2'],
+            hi: ['in_song1', 'in_song2'],
+            ja: ['jp_song1', 'jp_song2'],
+            ko: ['ko_song1', 'ko_song2'],
+            pl: ['po_song1', 'po_song2']
         };
 
-        let selectedTrack = `${langId}-theme`; // fallback default
+        let audioSrc = `/assets/sounds/${langId}-theme.mp3`; // fallback
+        let trackName = `${langId}-theme`;
 
         // Randomly pick if mapped
         if (THEME_TRACKS[langId] && THEME_TRACKS[langId].length > 0) {
             const tracks = THEME_TRACKS[langId];
-            selectedTrack = tracks[Math.floor(Math.random() * tracks.length)];
+            trackName = tracks[Math.floor(Math.random() * tracks.length)];
+            audioSrc = `/assets/manual_upload/language_thema/${trackName}.wav`;
         }
 
         // Point 6: Immediate switch. If already playing this theme from random array, just exit.
-        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(`${selectedTrack}.mp3`)) return;
+        if (AudioManager.currentTheme && !AudioManager.currentTheme.paused && AudioManager.currentTheme.src.includes(trackName)) return;
 
         // Force stop mainTheme to ensure no overlap
         if (AudioManager.mainTheme) {
@@ -88,7 +95,7 @@ const AudioManager = {
             }, 50);
         }
 
-        const audio = new Audio(`/assets/sounds/${selectedTrack}.mp3`);
+        const audio = new Audio(audioSrc);
 
         // Setup fade-in
         audio.volume = 0;
@@ -230,11 +237,21 @@ const AudioManager = {
             }, stepTime);
         }
 
-        const audio = new Audio(`/assets/sounds/mina/mina-${langId}-${step}.mp3`);
-        audio.volume = volume;
+        if (window.setMinaSpeaking) window.setMinaSpeaking(true);
+
+        const signatureAudio = new Audio(`/assets/sounds/signature/sig-${langId}.mp3`);
+        signatureAudio.volume = volume;
+
+        const minaAudio = new Audio(`/assets/sounds/mina/mina-${langId}-${step}.mp3`);
+        minaAudio.volume = volume;
+
+        const randomHumanSfx = Math.floor(Math.random() * 10) + 1;
+        const humanAudio = new Audio(`/assets/sounds/mina-human/human-${randomHumanSfx}.mp3`);
+        humanAudio.volume = volume * 0.8;
 
         // --- 2. Restore Volume upon Complete ---
-        audio.onended = () => {
+        minaAudio.onended = () => {
+            if (window.setMinaSpeaking) window.setMinaSpeaking(false);
             const hasTheme = AudioManager.currentTheme && !AudioManager.currentTheme.paused;
             const hasMain = AudioManager.mainTheme && !AudioManager.mainTheme.paused;
 
@@ -264,7 +281,7 @@ const AudioManager = {
                         currentStep++;
                     } else {
                         if (hasTheme && AudioManager.currentTheme) {
-                            AudioManager.currentTheme.volume = AudioManager.baseThemeVolume;
+                            AudioManager.currentTheme.volume = 1.0;
                         }
                         if (hasMain && AudioManager.mainTheme) {
                             AudioManager.mainTheme.volume = AudioManager.baseMainThemeVolume;
@@ -276,8 +293,31 @@ const AudioManager = {
             }
         };
 
-        audio.play().catch(() => { });
-        AudioManager.currentMina = audio;
+        humanAudio.onended = () => {
+            minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
+        };
+
+        signatureAudio.onended = () => {
+            humanAudio.play().catch(() => {
+                minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
+            });
+        };
+
+        signatureAudio.play().catch(() => {
+            // Fallback if signature fails
+            humanAudio.play().catch(() => {
+                minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
+            });
+        });
+        AudioManager.currentMina = minaAudio;
+    },
+
+    preloadTTS: () => {
+        const langs = ['en', 'ko', 'es', 'hi', 'de', 'ja', 'ar', 'pl'];
+        langs.forEach(langId => {
+            const audio = new Audio(`/assets/sounds/mina/mina-${langId}-comingsoon.mp3`);
+            audio.preload = 'auto'; // Fetch in the background automatically
+        });
     }
 };
 
@@ -374,7 +414,7 @@ const LANGUAGES = [
     },
     {
         id: 'hi', name: 'हिन्दी', flag: '🇮🇳',
-        image: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=800&auto=format&fit=crop', // Taj Mahal / India atmospheric
+        image: '/assets/images/countries/india_festival.png', // Indian Holi and Diwali festival fusion
         welcome: "लॉर्ड मैनर में आपका स्वागत है। भाग्य के पहिये आपकी प्रतीक्षा कर रहे हैं।",
         loading: "क्रोनोमीटर से परामर्श किया जा रहा है...",
         ui: {
@@ -452,7 +492,7 @@ const LANGUAGES = [
     },
     {
         id: 'ar', name: 'العربية', flag: '🇸🇦',
-        image: 'https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=800&auto=format&fit=crop', // Reliable Taj Mahal / Arabic architecture image
+        image: '/assets/images/countries/arab_festival.png', // Vibrant Arab street market lantern festival
         welcome: "مرحبًا بكم في لورد مانور. تروس القدر في انتظار لمستك.",
         loading: "استشارة الكرونومتر...",
         ui: {
@@ -478,7 +518,7 @@ const LANGUAGES = [
     },
     {
         id: 'pl', name: 'Polski', flag: '🇵🇱',
-        image: 'https://images.unsplash.com/photo-1519197924294-4ba991a11128?q=80&w=800&auto=format&fit=crop', // Warsaw / Polish landscape
+        image: '/assets/images/countries/poland_festival.png', // Polish traditional festival in Kraków market square
         welcome: "Witamy w Lord Manor. Tryby przeznaczenia czekają na twój dotyk.",
         loading: "Konsultacja z Chronometrem...",
         ui: {
@@ -899,7 +939,21 @@ const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePre
     </div>
 );
 
-const ComingSoonView = ({ selectedLang, currentTheme }) => {
+const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metrics }) => {
+    const [archetype, setArchetype] = useState(null);
+
+    // Calculate Archetype Title on Load
+    useEffect(() => {
+        if (!metrics) return;
+        const enhancedMetrics = {
+            ...metrics,
+            sessionTimeSeconds: metrics.timeSpentMs / 1000,
+            selectedLangId: selectedLang?.id
+        };
+        const calculated = calculateArchetype(enhancedMetrics);
+        setArchetype(calculated);
+    }, [metrics, selectedLang]);
+
     // Attempt to play the localized coming soon TTS
     useEffect(() => {
         if (selectedLang) {
@@ -913,6 +967,31 @@ const ComingSoonView = ({ selectedLang, currentTheme }) => {
             animate={{ opacity: 1, scale: 1 }}
             className={`w-full max-w-lg h-full flex flex-col items-center justify-center p-6 text-center z-50`}
         >
+
+            {/* Archetype Badge */}
+            <AnimatePresence>
+                {archetype && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20, scale: 0.8 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ delay: 1.5, type: "spring" }}
+                        className="mb-12 flex flex-col items-center"
+                    >
+                        <span className="text-white/40 text-[10px] font-black tracking-widest uppercase mb-4 border border-white/20 px-3 py-1 rounded-full">
+                            관측된 영혼의 형태
+                        </span>
+                        <h1 className={`text-4xl md:text-5xl font-black mb-2 bg-gradient-to-r ${archetype.color} text-transparent bg-clip-text drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]`}>
+                            [ {archetype.title} ]
+                        </h1>
+                        <h2 className="text-white/60 text-xs md:text-sm font-black tracking-[0.3em] uppercase mb-4">
+                            {archetype.sub}
+                        </h2>
+                        <p className="text-white/80 text-sm italic font-serif max-w-sm leading-relaxed">
+                            "{archetype.desc}"
+                        </p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             <div className="mb-12 relative flex justify-center items-end h-24 gap-1.5 opacity-60">
                 {[...Array(15)].map((_, i) => (
                     <motion.div
@@ -946,10 +1025,25 @@ const ComingSoonView = ({ selectedLang, currentTheme }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className={`text-[10px] md:text-xs font-serif italic max-w-sm leading-relaxed opacity-70 ${currentTheme?.text || 'text-white'}`}
+                className={`text-sm md:text-base font-bold italic max-w-sm leading-relaxed opacity-90 ${currentTheme?.text || 'text-white'}`}
             >
-                "Thanks for coming all this way! The machine is still being built, but we will be back soon. Enjoy the music and come listen again later!"
+                "일단은 여기 까지입니다! Coming soon! 추후 업데이트 됩니다. 하지만 여기서 각 세계관의 음악은 계속 들을 수 있죠."<br /><br />
+                <span className="text-[#00E5FF] font-black drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]">각 언어별로 총 2곡</span>이 준비되어 있으니깐, 끝까지 감상해보세요!
             </motion.p>
+
+            <motion.button
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
+                onClick={() => {
+                    AudioManager.playSfx('shutter', 0.6);
+                    setStep('dashboard');
+                    setViewMode('gallery');
+                }}
+                className={`mt-10 px-8 py-4 border active:scale-95 transition-all text-[10px] uppercase font-black font-sans tracking-[0.3em] backdrop-blur-md ${currentTheme?.border || 'border-[#C5A059]/40'} ${currentTheme?.text || 'text-white'} hover:bg-white/10 shadow-lg`}
+            >
+                Enter Gallery
+            </motion.button>
         </motion.div>
     );
 };
@@ -1041,8 +1135,10 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
                 opacity: isDimmable ? 0.3 : 1,
-                scale: isStaged ? 1 : (isFocused ? 1.05 : 1),
+                // Only shake when progressing, stop shaking completely at 100% and just gently scale up
+                scale: isStaged ? 1 : (isFocused ? (saturationProgress === 100 && !isStaged ? [1.05, 1.08, 1.05] : 1.05) : 1),
                 zIndex: isFocused ? 100 : 1,
+                // Shake effect while holding, maxes out right before 100%
                 x: isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged && !isShakePaused
                     ? [-1, 1, -1, 1, 0].map(v => v * (1 + (saturationProgress / 100) * 1.5))
                     : 0,
@@ -1054,7 +1150,9 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 x: { duration: 0.1, repeat: isFocused && saturationProgress < 100 && !isShakePaused ? Infinity : 0, ease: "linear" },
                 y: { duration: 0.1, repeat: isFocused && saturationProgress < 100 && !isShakePaused ? Infinity : 0, ease: "linear" },
                 opacity: { duration: 0.3 },
-                scale: { type: 'spring', damping: 25, stiffness: 120 }
+                scale: isFocused && saturationProgress === 100 && !isStaged
+                    ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" }
+                    : { type: 'spring', damping: 25, stiffness: 120 }
             }}
             className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isFocused && !isStaged ? 'shadow-[0_0_80px_rgba(197,160,89,0.4)] ring-2 ring-[#C5A059]' : 'cursor-pointer hover:ring-1 hover:ring-white/20'}`}
             style={{ touchAction: 'none' }}
@@ -1075,7 +1173,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
 
             {/* Hold/Focus Progress Bar */}
             {isFocused && saturationProgress < 100 && (
-                <div className="absolute bottom-0 left-0 h-1 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${saturationProgress}%` }} />
+                <div className="absolute bottom-0 left-0 h-2 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${saturationProgress}%` }} />
             )}
 
             {/* Glowing inner overlay for 100% saturation to invite dragging */}
@@ -1090,13 +1188,13 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
             <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isFocused ? 'opacity-80' : 'opacity-60'}`} />
 
             <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
-                <h3 className={`text-[12px] md:text-xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
+                <h3 className={`text-base md:text-3xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
                     {lang.name}
                 </h3>
-                <div className="overflow-hidden h-6 md:h-8 w-full flex justify-center items-center">
+                <div className="overflow-hidden h-10 md:h-12 w-full flex justify-center items-center">
                     <motion.span
                         animate={{ y: isFocused || isStaged ? 0 : 30 }}
-                        className="text-[7px] md:text-[9px] text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
+                        className="text-lg md:text-2xl text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
                     >
                         {isStaged ? lang.ui.fateSealed : (saturationProgress === 100 ? lang.ui.drag : (isFocused ? `${lang.ui.sync} ${Math.round(saturationProgress)}%` : lang.ui.tap))}
                     </motion.span>
@@ -1106,7 +1204,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
     );
 };
 
-const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
+const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking }) => {
     const [focusedLang, setFocusedLang] = useState(null);
     const [stagedLang, setStagedLang] = useState(null);
     const [minaText, setMinaText] = useState("");
@@ -1116,14 +1214,16 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
     // Use a ref to prevent double audio playback in React strict mode / dev
     const audioPlayedRef = useRef(false);
 
-    const introSentence = "Hmm... I have been waiting for you. Thank you for visiting my world. Choose where you want to flow.";
+    const introSentences = [
+        "Initiating dimensional shift.",
+        "Anchor your consciousness.",
+        "Await multiverse synchronization.",
+        "Select your frequency.",
+        "Choose your anchor point."
+    ];
+    const [introSentence] = useState(() => introSentences[Math.floor(Math.random() * introSentences.length)]);
 
     useEffect(() => {
-        const introAudio = new Audio('/assets/sounds/mina-intro-new.mp3');
-        introAudio.volume = 0.8;
-
-        // Fire and forget audio, ignore block errors silently so text still types.
-        introAudio.play().catch(() => { });
 
         let i = 0;
         setMinaText("");
@@ -1144,12 +1244,18 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
         return () => {
             clearInterval(typingInterval);
             clearTimeout(overlayTimer);
-            introAudio.pause();
-            introAudio.currentTime = 0;
         };
     }, []);
 
     const onCardFocus = (lang) => {
+        // Track unique card views
+        if (setCardsExplored) {
+            setCardsExplored(prev => {
+                const newSet = new Set(prev);
+                newSet.add(lang.id);
+                return newSet;
+            });
+        }
         // Reset the background to normal dark when preparing to pick again
         setActiveBackground(null);
         setFocusedLang(lang);
@@ -1176,6 +1282,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
     const startHold = () => {
         if (!stagedLang) return;
         AudioManager.playSfx('shutter', 0.6); // Feedback sound
+        setMinaText("MAINTAIN FOCUS.");
         setHoldProgress(0);
         holdIntervalRef.current = setInterval(() => {
             setHoldProgress(prev => {
@@ -1208,11 +1315,11 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4 mt-24 md:mt-16 overflow-visible relative">
+        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4 mt-24 md:mt-16 overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
 
             {/* Dynamic Native Image Background */}
             <div
-                className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-30' : 'opacity-0'}`}
+                className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-70' : 'opacity-0'}`}
                 style={activeBackground ? { backgroundImage: `url(${activeBackground})` } : {}}
             />
 
@@ -1247,19 +1354,82 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                                 onSelect={() => { }}
                                                 onReady={() => { }}
                                             />
-                                            {/* Hold Progress Instruction */}
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/60 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] pointer-events-none rounded-2xl border border-[#C5A059]/50 backdrop-blur-md">
-                                                <motion.div
-                                                    animate={{ scale: holdProgress > 0 && holdProgress < 100 ? [1, 1.2, 1] : 1 }}
-                                                    transition={{ repeat: Infinity, duration: 0.5 }}
-                                                >
-                                                    <LucideLock className={`mb-3 transition-colors ${holdProgress >= 100 ? 'text-[#8B7355]' : 'text-[#C5A059] drop-shadow-[0_0_8px_rgba(197,160,89,0.8)]'}`} size={32} />
-                                                </motion.div>
-                                                <span className="text-white text-xs md:text-sm font-black uppercase tracking-[0.2em] text-center mb-3 leading-tight drop-shadow-md">
-                                                    {holdProgress >= 100 ? "FATE SEALED" : `HOLD TO SEAL... ${Math.floor(holdProgress)}%`}
-                                                </span>
-                                                <div className="w-4/5 h-1.5 bg-black/80 rounded-full overflow-hidden border border-white/20">
-                                                    <div className="h-full bg-gradient-to-r from-[#8B7355] to-[#C5A059] transition-all duration-75 shadow-[0_0_10px_rgba(197,160,89,0.8)]" style={{ width: `${holdProgress}%` }} />
+                                            {/* NOVEL UI: Orbital Resonance / Portal Collapse Mechanic */}
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/80 shadow-[inset_0_0_100px_rgba(0,0,0,1)] pointer-events-none rounded-2xl border border-[#C5A059]/30 backdrop-blur-xl overflow-hidden">
+
+                                                {/* Expanding Resonance Rings */}
+                                                <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                                                    <motion.div
+                                                        className="absolute rounded-full border border-[#C5A059]"
+                                                        animate={{
+                                                            width: [`${100 - holdProgress}%`, `${150 - holdProgress}%`],
+                                                            height: [`${100 - holdProgress}%`, `${150 - holdProgress}%`],
+                                                            opacity: [0.8, 0],
+                                                            rotate: holdProgress * 3
+                                                        }}
+                                                        transition={{ repeat: Infinity, duration: Math.max(0.5, 2 - holdProgress / 50) }}
+                                                    />
+                                                    <motion.div
+                                                        className="absolute rounded-full border-2 border-dashed border-[#e5c996]"
+                                                        style={{ width: `${holdProgress * 2.5}%`, height: `${holdProgress * 2.5}%` }}
+                                                        animate={{ rotate: -holdProgress * 5 }}
+                                                    />
+                                                </div>
+
+                                                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
+
+                                                    {/* The Core */}
+                                                    <motion.div
+                                                        className="relative flex items-center justify-center"
+                                                        animate={{
+                                                            scale: holdProgress >= 100 ? [1, 1.5, 1.2] : 1 + (holdProgress / 100),
+                                                            filter: `drop-shadow(0 0 ${holdProgress}px rgba(197,160,89,1))`
+                                                        }}
+                                                    >
+                                                        {/* Outer Energy Shell */}
+                                                        <div
+                                                            className="absolute rounded-full border-t-4 border-l-4 border-[#C5A059] transition-all"
+                                                            style={{
+                                                                width: '120px', height: '120px',
+                                                                transform: `rotate(${holdProgress * 15}deg)`,
+                                                                opacity: holdProgress / 100
+                                                            }}
+                                                        />
+                                                        {/* Inner Core Pulsar */}
+                                                        <div
+                                                            className="absolute rounded-full bg-[#C5A059] transition-all mix-blend-screen"
+                                                            style={{
+                                                                width: `${Math.max(10, holdProgress)}px`,
+                                                                height: `${Math.max(10, holdProgress)}px`,
+                                                                boxShadow: `0 0 ${holdProgress * 2}px #FDFCF0`
+                                                            }}
+                                                        />
+
+                                                        {holdProgress >= 100 ? (
+                                                            <LucideLock className="text-black relative z-10 scale-[2.5]" size={40} />
+                                                        ) : (
+                                                            <LucideOrbit className="text-white relative z-10 scale-[2.0] animate-spin-slow opacity-80" size={40} />
+                                                        )}
+                                                    </motion.div>
+
+                                                    {/* Data Readout */}
+                                                    <div className="mt-16 flex flex-col items-center">
+                                                        <span className="text-[#FDFCF0] text-3xl md:text-5xl font-black uppercase tracking-[0.4em] text-center mb-2 leading-tight mix-blend-screen"
+                                                            style={{ textShadow: `0 0 ${holdProgress / 5}px #C5A059, 0 0 ${holdProgress / 2}px #e5c996` }}>
+                                                            {holdProgress >= 100 ? "FATE SEALED" : "RESONATING"}
+                                                        </span>
+                                                        <span className="text-[#C5A059] text-xl font-mono tracking-widest">
+                                                            [ {holdProgress.toFixed(1)}% ]
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Particle Accelerators (Lines) */}
+                                                    <div className="w-full flex justify-between items-center px-8 mt-12 opacity-50">
+                                                        <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent flex-1" />
+                                                        <LucideActivity className="text-[#C5A059] mx-4 animate-pulse" size={24} />
+                                                        <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent flex-1" />
+                                                    </div>
+
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -1273,8 +1443,8 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                                             transition={{ duration: 1.5, repeat: Infinity }}
                                             className="flex flex-col items-center justify-center text-center p-2 md:p-4 bg-white/5 border-2 rounded-xl border-dashed w-full h-full"
                                         >
-                                            <LucideCompass className={`${focusedLang ? 'text-[#C5A059] animate-spin-slow scale-125' : 'text-white/40'} mb-2 transition-all`} size={32} />
-                                            <h2 className={`text-[10px] md:text-sm font-black ${focusedLang ? 'text-[#C5A059]' : 'text-white/40'} uppercase tracking-[0.4em] leading-tight text-center transition-colors`}>
+                                            <LucideCompass className={`${focusedLang ? 'text-[#C5A059] animate-spin-slow scale-150' : 'text-white/40 scale-125'} mb-4 transition-all`} size={40} />
+                                            <h2 className={`text-xs md:text-base font-black ${focusedLang ? 'text-[#C5A059]' : 'text-white/40'} uppercase tracking-[0.4em] leading-tight text-center transition-colors`}>
                                                 {focusedLang ? focusedLang.ui.drag : 'ANCHOR'}
                                             </h2>
                                         </motion.div>
@@ -1316,7 +1486,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
 
             <motion.p
                 animate={{ opacity: stagedLang ? 0.8 : 0.2 }}
-                className="text-[9px] font-black uppercase tracking-[0.8em] text-white mt-12 text-center"
+                className="text-xs md:text-base font-black uppercase tracking-[0.8em] text-white mt-12 text-center"
             >
                 {stagedLang ? stagedLang.ui.inviting : (focusedLang ? focusedLang.ui.awaiting : "THE MANOR AWAITS YOUR SOUL'S VOYAGE.")}
             </motion.p>
@@ -1332,6 +1502,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
                         interactionMode={isIntroActive ? 'reading' : 'action'}
                         sysName={focusedLang?.ui?.minaSystem || "SYSTEM CONSTRUCT: MINA"}
                         actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
+                        isSpeaking={isMinaSpeaking}
                     />
                 </div>
             </div>
@@ -1341,27 +1512,74 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint }) => {
 
 // All previous inline views have been moved to the top level
 
-const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => (
-    <GlassCard id="confirm-card" className="w-full max-w-sm p-10 flex flex-col items-center space-y-6">
-        <h2 className={`text-xl font-black ${theme?.text || 'text-white'} uppercase tracking-widest text-center`}>{selectedLang.ui.confirmTitle}</h2>
-        <div className="flex items-center gap-4 text-4xl mb-2">
-            <span className="opacity-20"><LucideScale size={24} /></span>
-            <span className="filter drop-shadow-lg">{selectedLang.flag}</span>
-            <span className="opacity-20"><LucideScale size={24} className="scale-x-[-1]" /></span>
+const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
+    useEffect(() => {
+        // Flash and auto transition
+        const timer = setTimeout(() => {
+            confirmLanguage();
+        }, 3500);
+        return () => clearTimeout(timer);
+    }, [confirmLanguage]);
+
+    return (
+        <div className="fixed inset-0 z-[10000] bg-transparent flex flex-col items-center justify-center overflow-hidden">
+            {/* Massive Explosive Flare */}
+            <motion.div
+                initial={{ scale: 0.1, opacity: 0 }}
+                animate={{ scale: [0.1, 4, 15, 30], opacity: [0, 1, 1, 0] }}
+                transition={{ duration: 3.0, ease: "easeInOut" }}
+                className="absolute w-64 h-64 rounded-full bg-gradient-to-r from-yellow-300 via-[#C5A059] to-red-500 mix-blend-screen blur-3xl pointer-events-none"
+            />
+
+            {/* Expanding Shockwave */}
+            <motion.div
+                initial={{ scale: 1, opacity: 1, borderWidth: "20px" }}
+                animate={{ scale: 10, opacity: 0, borderWidth: "1px" }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="absolute w-40 h-40 rounded-full border-white pointer-events-none"
+            />
+
+            <motion.h1
+                initial={{ opacity: 0, filter: "blur(20px)", y: 50 }}
+                animate={{ opacity: [0, 1, 1, 0], filter: ["blur(20px)", "blur(0px)", "blur(0px)", "blur(20px)"], scale: [0.8, 1, 1.1, 1.3], y: [50, 0, 0, -50] }}
+                transition={{ duration: 3.5, ease: "circIn" }}
+                className="text-black text-6xl md:text-8xl font-black uppercase tracking-[0.4em] text-center z-10"
+                style={{ textShadow: "0 0 40px rgba(197,160,89,1)" }}
+            >
+                {selectedLang.ui.confirmTitle || "ALIGNED"}
+            </motion.h1>
+
+            {/* The Flag merging into the light */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.5, filter: "blur(20px)" }}
+                animate={{ opacity: [0, 1, 1, 0], scale: [0.5, 2, 4, 8], filter: ["blur(20px)", "blur(0px)", "blur(10px)", "blur(40px)"] }}
+                transition={{ duration: 3.5, ease: "easeInOut" }}
+                className="absolute z-0 text-[10rem] md:text-[20rem] opacity-30 pointer-events-none mix-blend-multiply"
+            >
+                {selectedLang.flag}
+            </motion.div>
         </div>
-        <button
-            onClick={confirmLanguage}
-            className={`w-full py-5 bg-white/5 ${theme?.text || 'text-white'} font-black uppercase text-xs tracking-[0.3em] hover:bg-white/10 active:scale-95 transition-all border border-white/10 shadow-2xl backdrop-blur-md`}
-        >
-            {selectedLang.ui.confirmBtn}
-        </button>
-    </GlassCard>
-);
+    );
+};
 
 const App = () => {
     const [isOpeningFinished, setIsOpeningFinished] = useState(false);
     const [step, setStep] = useState('language');
     const [selectedLang, setSelectedLang] = useState(LANGUAGES[1]); // V20: English (GB)
+
+    const [isMinaSpeaking, setIsMinaSpeaking] = useState(false);
+
+    useEffect(() => {
+        window.setMinaSpeaking = setIsMinaSpeaking;
+        return () => {
+            window.setMinaSpeaking = null;
+        };
+    }, []);
+
+    // User Achievement Tracking State
+    const [appStartTime] = useState(Date.now());
+    const [totalClicks, setTotalClicks] = useState(0);
+    const [cardsExplored, setCardsExplored] = useState(new Set());
 
     // V20: Immediate voice guidance on load (ENSURE EN-GB)
     useEffect(() => {
@@ -1412,6 +1630,10 @@ const App = () => {
         bgmRef.current = new Audio('/assets/sounds/manor-ambience.mp3'); // Use local ambience
         bgmRef.current.loop = true;
         bgmRef.current.volume = bgmVol;
+
+        // Background TTS preloading to minimize network latency when user gets to Coming Soon
+        AudioManager.preloadTTS();
+
         return () => bgmRef.current.pause();
     }, []);
 
@@ -1490,7 +1712,7 @@ const App = () => {
         }
 
         try {
-            const prompt = `Speak with a 19th-century narrator style in ${selectedLang.name} language: ${text}`;
+            const prompt = `Speak with a bright, cheerful, expressive, and highly human-like voice in ${selectedLang.name} language: ${text}`;
             const response = await callGemini({
                 contents: [{ parts: [{ text: prompt }] }],
                 generationConfig: {
@@ -1516,7 +1738,7 @@ const App = () => {
         if (!apiKey || !text || audioCache[text]) return;
         try {
             const response = await callGemini({
-                contents: [{ parts: [{ text: `Speak with a 19th-century narrator style in ${langName} language: ${text}` }] }],
+                contents: [{ parts: [{ text: `Speak with a bright, cheerful, expressive, and highly human-like voice in ${langName} language: ${text}` }] }],
                 generationConfig: {
                     responseModalities: ["AUDIO"],
                     speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: langVoice || "Zephyr" } } }
@@ -1557,8 +1779,8 @@ const App = () => {
             AudioManager.mainTheme.currentTime = 0;
         }
 
-        // Enhance specific country theme volume to 100% with crossfade
-        AudioManager.playTheme(lang.id, 1.0, 3000);
+        // Enhance specific country theme volume to 70% with crossfade
+        AudioManager.playTheme(lang.id, 0.7, 3000);
 
         // [V10: Sequence pre-fetching]
         setTimeout(() => {
@@ -1567,10 +1789,10 @@ const App = () => {
         }, 300);
     };
 
-    const confirmLanguage = () => {
+    const confirmLanguage = useCallback(() => {
         setStep('coming_soon');
         setViewMode('coming_soon');
-    };
+    }, []);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -1861,7 +2083,10 @@ const App = () => {
     }, [isOpeningFinished]);
 
     return (
-        <div className={`relative w-full h-screen ${currentTheme.bg} ${currentTheme.text} ${currentTheme.font} overflow-hidden transition-colors duration-1000`}>
+        <div
+            onClick={() => setTotalClicks(prev => prev + 1)}
+            className={`relative w-full h-screen ${currentTheme.bg} ${currentTheme.text} ${currentTheme.font} overflow-hidden transition-colors duration-1000`}
+        >
 
             {/* [V12] Cinematic Video Background */}
             <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
@@ -1916,14 +2141,31 @@ const App = () => {
                                 transition={{ duration: 0.8, ease: "easeInOut" }}
                                 className="flex flex-col items-center w-full"
                             >
-                                {step === 'language' && (
-                                    <LanguageView LANGUAGES={LANGUAGES} handleLanguageSelect={handleLanguageSelect} setSpiritHint={setSpiritHint} />
+                                {(step === 'language' || step === 'confirm') && (
+                                    <LanguageView
+                                        LANGUAGES={LANGUAGES}
+                                        handleLanguageSelect={handleLanguageSelect}
+                                        setSpiritHint={setSpiritHint}
+                                        cardsExplored={cardsExplored}
+                                        setCardsExplored={setCardsExplored}
+                                        isMinaSpeaking={isMinaSpeaking}
+                                    />
                                 )}
                                 {step === 'confirm' && (
                                     <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
                                 )}
                                 {viewMode === 'coming_soon' && (
-                                    <ComingSoonView selectedLang={selectedLang} currentTheme={currentTheme} />
+                                    <ComingSoonView
+                                        selectedLang={selectedLang}
+                                        currentTheme={currentTheme}
+                                        setViewMode={setViewMode}
+                                        setStep={setStep}
+                                        metrics={{
+                                            totalClicks,
+                                            uniqueCards: cardsExplored.size,
+                                            timeSpentMs: Date.now() - appStartTime
+                                        }}
+                                    />
                                 )}
                                 {/* More steps would follow, refactored to use currentTheme classes */}
                                 {step === 'intro' && (
@@ -2001,6 +2243,7 @@ const App = () => {
                             }
                             position="top"
                             interactionMode="action"
+                            isSpeaking={isMinaSpeaking}
                         />
                     )}
 

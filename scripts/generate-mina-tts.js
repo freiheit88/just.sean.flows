@@ -12,8 +12,8 @@ const apiKey = 'sk_813aecfa26381420051ec9e010841f917b6e5b8403541914';
 
 const client = new ElevenLabsClient({ apiKey });
 
-// Voice ID for George (Narrator/British/Polished)
-const VOICE_ID = "JBFqnCBv7St9WoD2Ok7h";
+// Voice ID for Jessica (Bright, Cheerful, Human)
+const VOICE_ID = "cgSgspJ2msm6clMCkdW9";
 
 const GUIDANCE = [
     {
