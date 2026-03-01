@@ -66,8 +66,8 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group"
                     >
                         <LucideOrbit className="w-24 h-24 md:w-32 md:h-32 text-[#C5A059] opacity-50 mb-8 md:mb-12 group-hover:scale-110 transition-transform duration-500 animate-[spin_10s_linear_infinite]" />
-                        <span className="text-[#8B7355] text-lg md:text-2xl tracking-[0.5em] uppercase font-mono animate-pulse group-hover:text-[#C5A059] transition-colors text-center px-4">
-                            Click anywhere to begin
+                        <span className="text-[#8B7355] text-2xl md:text-5xl tracking-[0.3em] uppercase font-mono animate-pulse group-hover:text-[#C5A059] transition-colors text-center px-4 font-black drop-shadow-md">
+                            CLICK ANYWHERE TO BEGIN
                         </span>
                     </motion.div>
                 )}
@@ -133,9 +133,9 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     className="absolute inset-0 border-2 border-[#C5A059]/60 rounded-2xl pointer-events-none"
                                 />
 
-                                <span className="relative z-10 text-[30px] md:text-[60px] text-[var(--gold)] font-black uppercase tracking-[0.3em] group-hover:tracking-[0.5em] transition-all text-center drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] flex items-center justify-center auto-cols-auto gap-4">
+                                <span className="relative z-10 text-[20px] md:text-[32px] text-white font-black uppercase tracking-[0.3em] group-hover:tracking-[0.5em] transition-all text-center drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] flex items-center justify-center gap-4">
                                     <LucideSparkles className="text-[#C5A059] opacity-0 group-hover:opacity-100 transition-opacity" size={24} />
-                                    CLICK ANYWHERE TO BEGIN
+                                    CLICK TO ENTER
                                     <LucideSparkles className="text-[#C5A059] opacity-0 group-hover:opacity-100 transition-opacity" size={24} />
                                 </span>
                             </motion.button>

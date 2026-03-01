@@ -8,7 +8,8 @@ import {
     LucideTrophy, LucideLayout, LucideMapPin,
     LucideFeather, LucideScroll, LucideCompass, LucideUser, LucideUpload,
     LucideCheckSquare, LucideSquare, LucideFlame, LucideSettings, LucideCamera, LucideZap, LucideScale,
-    LucideArrowLeft, LucideArrowRight, LucideLock
+    LucideArrowLeft, LucideArrowRight, LucideLock,
+    LucideOrbit
 } from 'lucide-react';
 import MinaDirective from './components/MinaDirective';
 import { calculateArchetype } from './components/Archetypes';
@@ -1191,10 +1192,10 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 <h3 className={`text-base md:text-3xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
                     {lang.name}
                 </h3>
-                <div className="overflow-hidden h-10 md:h-12 w-full flex justify-center items-center">
+                <div className="w-full flex justify-center items-center px-1">
                     <motion.span
                         animate={{ y: isFocused || isStaged ? 0 : 30 }}
-                        className="text-lg md:text-2xl text-[#C5A059] uppercase tracking-[0.3em] font-black block leading-none"
+                        className="text-xs md:text-lg text-[#C5A059] uppercase tracking-[0.1em] md:tracking-[0.2em] font-black block leading-tight text-center"
                     >
                         {isStaged ? lang.ui.fateSealed : (saturationProgress === 100 ? lang.ui.drag : (isFocused ? `${lang.ui.sync} ${Math.round(saturationProgress)}%` : lang.ui.tap))}
                     </motion.span>
