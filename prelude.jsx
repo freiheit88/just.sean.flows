@@ -1188,13 +1188,13 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
 
             <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isFocused ? 'opacity-80' : 'opacity-60'}`} />
 
-            <div className="absolute inset-0 p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
-                <h3 className={`text-base md:text-3xl font-black text-white font-serif uppercase tracking-widest leading-tight mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
+            <div className="absolute inset-0 p-1 md:p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
+                <h3 className={`text-base md:text-3xl font-black text-white font-serif uppercase tracking-widest leading-none mb-1 md:mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
                     {lang.name}
                 </h3>
-                <div className="w-full flex justify-center items-center px-1">
+                <div className="w-full flex justify-center items-center px-1 overflow-visible">
                     <motion.span
-                        animate={{ y: isFocused || isStaged ? 0 : 30 }}
+                        animate={{ y: isFocused || isStaged ? 0 : 10 }}
                         className="text-xs md:text-lg text-[#C5A059] uppercase tracking-[0.1em] md:tracking-[0.2em] font-black block leading-tight text-center"
                     >
                         {isStaged ? lang.ui.fateSealed : (saturationProgress === 100 ? lang.ui.drag : (isFocused ? `${lang.ui.sync} ${Math.round(saturationProgress)}%` : lang.ui.tap))}
@@ -1544,8 +1544,8 @@ const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
                 initial={{ opacity: 0, filter: "blur(20px)", y: 50 }}
                 animate={{ opacity: [0, 1, 1, 0], filter: ["blur(20px)", "blur(0px)", "blur(0px)", "blur(20px)"], scale: [0.8, 1, 1.1, 1.3], y: [50, 0, 0, -50] }}
                 transition={{ duration: 3.5, ease: "circIn" }}
-                className="text-black text-6xl md:text-8xl font-black uppercase tracking-[0.4em] text-center z-10"
-                style={{ textShadow: "0 0 40px rgba(197,160,89,1)" }}
+                className="text-black font-black uppercase tracking-[0.2em] md:tracking-[0.4em] text-center w-full px-4 break-words z-10 leading-tight"
+                style={{ fontSize: "clamp(36px, 8vw, 120px)", textShadow: "0 0 40px rgba(197,160,89,1)" }}
             >
                 {selectedLang.ui.confirmTitle || "ALIGNED"}
             </motion.h1>

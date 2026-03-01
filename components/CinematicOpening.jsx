@@ -159,7 +159,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                             variants={{
                                 visible: { transition: { staggerChildren: 0.1 } }
                             }}
-                            className="flex flex-nowrap justify-center gap-[0.05em] overflow-visible"
+                            className="flex flex-wrap justify-center items-center gap-x-[0.05em] w-full max-w-[100vw] overflow-hidden px-2"
                         >
                             {"just.sean.flows".split("").map((char, i) => (
                                 <motion.span
@@ -173,9 +173,9 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                             transition: { duration: 0.8, ease: "easeOut" }
                                         }
                                     }}
-                                    className="text-white font-bold italic tracking-tighter mix-blend-screen leading-none"
+                                    className="text-white font-bold italic tracking-tighter mix-blend-screen leading-none py-2"
                                     style={{
-                                        fontSize: "clamp(30px, 7.5vw, 200px)",
+                                        fontSize: "clamp(24px, 12vw, 150px)",
                                         lineHeight: 1
                                     }}
                                 >
