@@ -1464,7 +1464,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                     return (
                         <div
                             key={`slot-${i}`}
-                            className="relative h-full w-full transition-opacity duration-300"
+                            className="relative aspect-square w-full transition-opacity duration-300 overflow-hidden"
                             style={{ opacity: isOriginalOfStaged ? 0 : Math.max(0, 1 - (holdProgress / 100) * 1.5) }}
                         >
                             {/* Hide the original slot card if it's currently staged in the center */}
