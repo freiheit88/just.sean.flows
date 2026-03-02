@@ -1227,15 +1227,15 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
     const handleDragEnd = (event, info) => {
         if (!isFocused || saturationProgress < 100 || isStaged) return;
 
-        // V30: Improved drop zone collision for top row elements
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
-        // info.point represents the pointer relative to the document
-        // Expand the drop radius significantly (from 150 to ~300) to ensure corners reach the center zone easily
         const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
 
-        if (dist < 300) {
+        // Strict drop zone: 100px radius or 25% of smaller screen dimension, enforcing a true center-drop
+        const dropRadius = Math.max(100, Math.min(window.innerWidth, window.innerHeight) * 0.2);
+
+        if (dist < dropRadius) {
             AudioManager.playSfx('shutter', 0.6);
             onSelect(lang);
         }
