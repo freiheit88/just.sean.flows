@@ -1205,10 +1205,20 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
 
-        const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
+        let dropX = info.point.x;
+        let dropY = info.point.y;
 
-        // Strict drop zone: 100px radius or 25% of smaller screen dimension, enforcing a true center-drop
-        const dropRadius = Math.max(100, Math.min(window.innerWidth, window.innerHeight) * 0.2);
+        // Use the visual center of the card for drop detection, not the pointer, to fix edge-card drag offsets
+        if (cardRef.current) {
+            const rect = cardRef.current.getBoundingClientRect();
+            dropX = rect.left + rect.width / 2;
+            dropY = rect.top + rect.height / 2;
+        }
+
+        const dist = Math.sqrt(Math.pow(dropX - centerX, 2) + Math.pow(dropY - centerY, 2));
+
+        // Strict drop zone: 120px radius or 25% of smaller screen dimension, enforcing a true center-drop
+        const dropRadius = Math.max(120, Math.min(window.innerWidth, window.innerHeight) * 0.25);
 
         if (dist < dropRadius) {
             AudioManager.playSfx('shutter', 0.6);
