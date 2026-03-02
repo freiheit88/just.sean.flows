@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LucideMessageSquare, LucideAward, LucideSparkles, LucideChevronUp, LucideChevronDown, LucideTrophy } from 'lucide-react';
+import { LucideMessageSquare, LucideAward, LucideSparkles, LucideChevronUp, LucideTrophy, LucideMinimize2, CheckCircle2, Circle } from 'lucide-react';
 
 const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "MINA", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [] }) => {
     const [isFolded, setIsFolded] = useState(true);
@@ -72,11 +72,18 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                         /* EXPANDED STATE : The Modal */
                         <div className="flex flex-col h-full relative">
                             {/* Header Handle */}
-                            <div
-                                className="w-full h-8 flex justify-center items-center cursor-pointer shrink-0 border-b border-white/5 bg-white/[0.02]"
-                                onClick={() => setIsFolded(true)}
-                            >
-                                <div className="w-10 h-1 rounded-full bg-white/20" />
+                            <div className="w-full h-12 flex justify-between items-center shrink-0 border-b border-white/5 bg-white/[0.02] px-3">
+                                <div className="w-8 opacity-0 pointer-events-none" /> {/* Spacer for centering */}
+                                <div
+                                    className="w-12 h-1.5 rounded-full bg-white/20 cursor-pointer hover:bg-white/40 transition-colors"
+                                    onClick={() => setIsFolded(true)}
+                                />
+                                <button
+                                    onClick={() => setIsFolded(true)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                                >
+                                    <LucideMinimize2 size={14} className="text-white/60 hover:text-white" />
+                                </button>
                             </div>
 
                             {/* Inner Content Body */}
@@ -88,17 +95,48 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                             initial={{ opacity: 0, filter: 'blur(4px)' }}
                                             animate={{ opacity: 1, filter: 'blur(0px)' }}
                                             exit={{ opacity: 0, filter: 'blur(4px)' }}
-                                            className="flex flex-col h-full justify-center items-center text-center gap-4 py-4"
+                                            className="flex flex-col h-full items-start gap-3 py-2"
                                         >
-                                            <LucideSparkles size={32} className={`mb-2 ${isSpeaking ? "text-[#00E5FF] animate-pulse" : "text-[#C5A059] opacity-50"}`} />
-                                            <div className={`text-xl md:text-2xl font-light leading-relaxed tracking-wide ${isSpeaking ? 'text-[#00E5FF] drop-shadow-[0_0_10px_rgba(0,229,255,0.4)]' : 'text-white/90'}`}>
-                                                {text}
+                                            <div className="text-[10px] font-black text-white/30 tracking-widest px-1 uppercase mb-2">
+                                                Task Directives Overview
                                             </div>
-                                            {actionReq && (
-                                                <div className="mt-4 px-3 py-1 text-[10px] font-mono tracking-widest text-[#E8D4A6] uppercase border border-[#E8D4A6]/30 rounded-full bg-[#E8D4A6]/5">
-                                                    {actionReq}
+
+                                            <div className="flex flex-col gap-3 w-full">
+                                                {/* Completed Task 1 */}
+                                                <div className="flex items-center gap-3 w-full px-2 py-1 opacity-40">
+                                                    <CheckCircle2 size={16} className="text-[#00E5FF] shrink-0" />
+                                                    <span className="text-sm md:text-base font-semibold text-white line-through break-keep">
+                                                        시스템 부팅 및 자아 동기화
+                                                    </span>
                                                 </div>
-                                            )}
+
+                                                {/* Completed Task 2 */}
+                                                <div className="flex items-center gap-3 w-full px-2 py-1 opacity-40">
+                                                    <CheckCircle2 size={16} className="text-[#00E5FF] shrink-0" />
+                                                    <span className="text-sm md:text-base font-semibold text-white line-through break-keep">
+                                                        다중우주 관측 차원 진입 성공
+                                                    </span>
+                                                </div>
+
+                                                {/* Active Task (from props) */}
+                                                <div className="flex items-center gap-3 w-full bg-white/5 p-4 rounded-xl border border-white/10 relative overflow-hidden mt-2 shadow-[0_5px_20px_rgba(0,0,0,0.5)]">
+                                                    {isSpeaking && <div className="absolute inset-0 bg-[#00E5FF]/10 animate-pulse pointer-events-none" />}
+                                                    <div className="relative shrink-0 flex items-center justify-center">
+                                                        <Circle size={18} className={isSpeaking ? "text-[#00E5FF]" : "text-[#C5A059]"} />
+                                                        {isSpeaking && <div className="absolute inset-0 bg-[#00E5FF] rounded-full opacity-30 animate-ping" />}
+                                                    </div>
+                                                    <div className="flex flex-col gap-1.5 relative z-10">
+                                                        <span className={`text-[15px] md:text-lg font-bold leading-snug break-keep ${isSpeaking ? 'text-[#00E5FF] drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]' : 'text-white'}`}>
+                                                            {text}
+                                                        </span>
+                                                        {actionReq && (
+                                                            <div className="w-fit px-2 py-0.5 mt-1 text-[9px] md:text-[10px] font-mono tracking-widest text-[#E8D4A6] uppercase border border-[#E8D4A6]/20 rounded-md bg-[#E8D4A6]/5">
+                                                                {actionReq}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </motion.div>
                                     ) : (
                                         <motion.div
@@ -123,8 +161,8 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: idx * 0.05 }}
                                                         className={`p-4 relative rounded-2xl flex flex-col gap-1.5 overflow-hidden transition-all ${badge.isMajor
-                                                                ? 'bg-gradient-to-br from-[#C5A059]/15 to-transparent border border-[#C5A059]/30 shadow-[0_4px_20px_rgba(197,160,89,0.1)]'
-                                                                : 'bg-white/5 border border-white/5'
+                                                            ? 'bg-gradient-to-br from-[#C5A059]/15 to-transparent border border-[#C5A059]/30 shadow-[0_4px_20px_rgba(197,160,89,0.1)]'
+                                                            : 'bg-white/5 border border-white/5'
                                                             }`}
                                                     >
                                                         <div className="flex items-center justify-between">
