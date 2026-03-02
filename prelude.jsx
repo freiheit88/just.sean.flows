@@ -49,10 +49,16 @@ const AudioManager = {
     currentMina: null,
 
     playSfx: (id, volume = 0.5, overlap = false) => {
+        let filename = `${id}.mp3`;
+        if (id === 'click') filename = 'en-click.mp3';
+        if (id === 'shutter') filename = 'gear-click.mp3';
+        if (id === 'forge') filename = 'ink-scratching.mp3';
+        if (id === 'confirm') filename = 'portal-transition.mp3';
         if (id === 'transition') {
+            filename = 'portal-transition.mp3';
             // [V26] Hack to triple the amplitude of the transition effect natively
             [...Array(3)].forEach(() => {
-                const audio = new Audio(`/assets/sounds/${id}.mp3`);
+                const audio = new Audio(`/assets/sounds/${filename}`);
                 audio.volume = volume;
                 audio.play().catch(() => { });
             });
@@ -63,7 +69,7 @@ const AudioManager = {
             AudioManager.currentSfx.pause();
             AudioManager.currentSfx = null;
         }
-        const audio = new Audio(`/assets/sounds/${id}.mp3`);
+        const audio = new Audio(`/assets/sounds/${filename}`);
         audio.volume = volume;
         audio.play().catch(() => { });
         if (!overlap) AudioManager.currentSfx = audio;
@@ -305,10 +311,6 @@ const AudioManager = {
             minaAudio.volume = Math.min(volume, 1.0);
         }
 
-        const randomHumanSfx = Math.floor(Math.random() * 10) + 1;
-        const humanAudio = new Audio(`/assets/sounds/mina-human/human-${randomHumanSfx}.mp3`);
-        humanAudio.volume = volume * 0.8;
-
         // --- 2. Restore Volume upon Complete ---
         minaAudio.onended = () => {
             if (window.setMinaSpeaking) window.setMinaSpeaking(false);
@@ -353,24 +355,15 @@ const AudioManager = {
             }
         };
 
-        humanAudio.onended = () => {
-            minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
-        };
-
         signatureAudio.onended = () => {
-            humanAudio.play().catch(() => {
-                minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
-            });
+            minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
         };
 
         signatureAudio.play().catch(() => {
             // Fallback if signature fails
-            humanAudio.play().catch(() => {
-                minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
-            });
+            minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
         });
         AudioManager.currentSignature = signatureAudio;
-        AudioManager.currentHuman = humanAudio;
         AudioManager.currentMina = minaAudio;
     },
 
@@ -417,6 +410,10 @@ const LANGUAGES = [
             directiveAvatar: "당신의 페르소나가 완성되었습니다.",
             directiveDashboard: "기록 보관소를 탐색하세요.",
             comingSoon: "곧 돌아옵니다",
+            archetypeBadge: "관측된 영혼의 형태",
+            comingSoonDesc1: "일단은 여기 까지입니다! Coming soon! 추후 업데이트 됩니다. 하지만 여기서 각 세계관의 음악은 계속 들을 수 있죠.",
+            comingSoonDesc2: "각 언어별로 총 2곡이 준비되어 있으니깐, 끝까지 감상해보세요!",
+            titleEarned: "새로운 칭호 획득",
             minaSystem: "시스템 구조체 : 미나", minaAction: ">> 행동 필요 : 언어를 선택하십시오 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
             tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그", fateSealed: "운명 확정"
@@ -443,6 +440,10 @@ const LANGUAGES = [
             directiveAvatar: "Your persona is forged.",
             directiveDashboard: "Investigate the Manor archives.",
             comingSoon: "Coming Soon",
+            archetypeBadge: "OBSERVED SOUL ARCHETYPE",
+            comingSoonDesc1: "This is the current end of the line! Updates coming soon. However, you can continue listening to the music of each multiverse here.",
+            comingSoonDesc2: "There are a total of 2 tracks prepared for each language, so please enjoy them to the end!",
+            titleEarned: "NEW TITLE ACQUIRED",
             minaSystem: "SYSTEM CONSTRUCT: MINA", minaAction: ">> ACTION REQUIRED: SELECT A MULTIVERSE <<",
             inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
             tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER", fateSealed: "FATE SEALED"
@@ -469,6 +470,10 @@ const LANGUAGES = [
             directiveAvatar: "Tu persona está forjada.",
             directiveDashboard: "Investiga los archivos ahora.",
             comingSoon: "Próximamente",
+            archetypeBadge: "ARQUETIPO DE ALMA OBSERVADA",
+            comingSoonDesc1: "¡Este es el final de la línea por ahora! Próximamente habrá actualizaciones. Sin embargo, puedes seguir escuchando la música de cada multiverso aquí.",
+            comingSoonDesc2: "Hay un total de 2 pistas preparadas para cada idioma, ¡así que disfrútalas hasta el final!",
+            titleEarned: "NUEVO TÍTULO ADQUIRIDO",
             minaSystem: "CONSTRUCTO DE SISTEMA: MINA", minaAction: ">> ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
             tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO", fateSealed: "DESTINO SELLADO"
@@ -495,6 +500,10 @@ const LANGUAGES = [
             directiveAvatar: "आपका व्यक्तित्व तैयार है।",
             directiveDashboard: "अभिलेखागार की जांच करें।",
             comingSoon: "जल्द आ रहा है",
+            archetypeBadge: "देखा गया आत्मा का मूलरूप",
+            comingSoonDesc1: "अभी के लिए बस इतना ही! जल्द ही अपडेट आ रहे हैं। हालाँकि, आप यहाँ प्रत्येक मल्टीवर्स का संगीत सुनना जारी रख सकते हैं।",
+            comingSoonDesc2: "प्रत्येक भाषा के लिए कुल 2 ट्रैक तैयार किए गए हैं, इसलिए कृपया अंत तक उनका आनंद लें!",
+            titleEarned: "नई उपाधि प्राप्त की",
             minaSystem: "सिस्टम निर्माण: मीना", minaAction: ">> कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है।",
             tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें", fateSealed: "भाग्य सील"
@@ -521,6 +530,10 @@ const LANGUAGES = [
             directiveAvatar: "Deine Persona ist geschmiedet.",
             directiveDashboard: "Untersuche die Manor-Archive.",
             comingSoon: "Demnächst",
+            archetypeBadge: "BEOBACHTETER SEELEN-ARCHETYP",
+            comingSoonDesc1: "Das ist vorerst das Ende der Reise! Updates folgen in Kürze. Sie können jedoch weiterhin die Musik jedes Multiversums hier anhören.",
+            comingSoonDesc2: "Es gibt insgesamt 2 Tracks für jede Sprache, also genießen Sie sie bis zum Ende!",
+            titleEarned: "NEUER TITEL ERWORBEN",
             minaSystem: "SYSTEMKONSTRUKT: MINA", minaAction: ">> AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
             tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN", fateSealed: "SCHICKSAL BESIEGELT"
@@ -547,6 +560,10 @@ const LANGUAGES = [
             directiveAvatar: "ペルソナが完成しました。",
             directiveDashboard: "保管所を探索してください。",
             comingSoon: "近日公開",
+            archetypeBadge: "観測された魂の形態",
+            comingSoonDesc1: "今回はここまでです！アップデートは近日公開予定です。ただし、ここでは各世界観の音楽を引き続き楽しむことができます。",
+            comingSoonDesc2: "各言語に合計2曲用意されていますので、最後までお楽しみください！",
+            titleEarned: "新しい称号を獲得",
             minaSystem: "システム構造体：ミナ", minaAction: ">> アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
             tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ", fateSealed: "運命確定"
@@ -573,6 +590,10 @@ const LANGUAGES = [
             directiveAvatar: "تم تشكيل شخصيتك.",
             directiveDashboard: "اكتشف أرشيف القصر.",
             comingSoon: "قريباً",
+            archetypeBadge: "نموذج الروح الملحوظ",
+            comingSoonDesc1: "هذه هي نهاية الرحلة في الوقت الحالي! التحديثات قادمة قريباً. ومع ذلك، يمكنك الاستمرار في الاستماع إلى موسيقى كل كون متعدد هنا.",
+            comingSoonDesc2: "هناك ما مجموعه مساران جاهزان لكل لغة، لذا يرجى الاستمتاع بهما حتى النهاية!",
+            titleEarned: "تم اكتساب لقب جديد",
             minaSystem: "بناء النظام: مينا", minaAction: ">> الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
             tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز", fateSealed: "تم ختم القدر"
@@ -599,6 +620,10 @@ const LANGUAGES = [
             directiveAvatar: "Twoja persona jest gotowa.",
             directiveDashboard: "Zbadaj archiwa Dworu.",
             comingSoon: "Wkrótce",
+            archetypeBadge: "ZAABSERWOWANY ARCHETYP DUSZY",
+            comingSoonDesc1: "Na razie to koniec podróży! Aktualizacje wkrótce. Możesz jednak nadal słuchać muzyki z każdego multiwersum tutaj.",
+            comingSoonDesc2: "Dla każdego języka przygotowano łącznie 2 utwory, więc ciesz się nimi do końca!",
+            titleEarned: "ZDOBYTO NOWY TYTUŁ",
             minaSystem: "KONSTRUKT SYSTEMU: MINA", minaAction: ">> WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
             tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA", fateSealed: "LOS ZAPIECZĘTOWANY"
@@ -1002,7 +1027,8 @@ const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePre
 );
 
 const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metrics }) => {
-    const [archetype, setArchetype] = useState(null);
+    const [archetypes, setArchetypes] = useState([]);
+    const primaryArchetype = archetypes.length > 0 ? archetypes[0] : null;
 
     // Calculate Archetype Title on Load
     useEffect(() => {
@@ -1013,76 +1039,90 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
             selectedLangId: selectedLang?.id
         };
         const calculated = calculateArchetype(enhancedMetrics);
-        setArchetype(calculated);
+        setArchetypes(calculated);
     }, [metrics, selectedLang]);
-
-    // Removed the duplicate PlayMina call since confirmLanguage already calls it once
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            key="coming-soon-wrapper"
+            initial={{ opacity: 1, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={`w-full max-w-lg h-full flex flex-col items-center justify-center p-6 text-center z-50`}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.8 }}
+            className="fixed inset-0 z-[99999] bg-gradient-to-t from-black via-black/80 to-transparent w-full h-full flex flex-col items-center justify-center p-6 text-center overflow-auto pointer-events-auto"
+            style={{ minHeight: '100vh', width: '100vw' }}
         >
-
-            {/* Premium Archetype Badge */}
-            <AnimatePresence>
-                {archetype && (
+            <AnimatePresence mode="wait">
+                {primaryArchetype ? (
                     <motion.div
+                        key="archetype-badge"
                         initial={{ opacity: 0, y: 30, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 1.2, delay: 0.5, type: "spring", bounce: 0.3 }}
-                        className="mb-8 w-full max-w-md relative flex flex-col items-center"
+                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                        transition={{ duration: 1.2, delay: 0.2, type: "spring", bounce: 0.3 }}
+                        className="w-full max-w-md relative flex flex-col items-center mb-8 flex-shrink-0 mt-8"
                     >
                         {/* Glowing Backdrop */}
-                        <div className={`absolute inset-0 bg-gradient-to-b ${archetype.color} opacity-20 blur-3xl rounded-full mix-blend-screen pointer-events-none`} />
+                        <div className={`absolute inset-0 bg-gradient-to-b ${primaryArchetype.color} opacity-20 blur-3xl rounded-full mix-blend-screen pointer-events-none`} />
 
                         {/* Glassmorphic ID Card */}
                         <div className="w-full bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.1)] flex flex-col items-center relative z-10 overflow-hidden">
                             {/* Inner ambient glow */}
-                            <div className={`absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-r ${archetype.color} opacity-30 blur-[50px] mix-blend-screen`} />
+                            <div className={`absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-r ${primaryArchetype.color} opacity-30 blur-[50px] mix-blend-screen pointer-events-none`} />
 
-                            <div className="flex items-center gap-3 mb-6">
+                            <div className="flex items-center gap-3 mb-6 relative z-20">
                                 <LucideTrophy className="text-[#C5A059] opacity-80" size={18} />
                                 <span className="text-white/50 text-[10px] sm:text-xs font-black tracking-[0.4em] uppercase">
-                                    관측된 영혼의 형태
+                                    {selectedLang?.ui?.archetypeBadge || "OBSERVED SOUL ARCHETYPE"}
                                 </span>
                             </div>
 
-                            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-black mb-3 text-center bg-gradient-to-b ${archetype.color} text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]`} style={{ lineHeight: '1.2' }}>
-                                {archetype.title}
+                            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-black mb-3 text-center bg-gradient-to-b ${primaryArchetype.color} text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] relative z-20 w-full md:whitespace-nowrap`} style={{ lineHeight: '1.2' }}>
+                                {primaryArchetype.title}
                             </h1>
 
-                            <h2 className="text-white/60 text-[10px] sm:text-xs font-black tracking-[0.4em] uppercase mb-6 text-center w-full pb-6 border-b border-white/5">
-                                [ {archetype.sub} ]
+                            <h2 className="text-white/60 text-[10px] sm:text-xs font-black tracking-[0.4em] uppercase mb-6 text-center w-full pb-6 border-b border-white/5 relative z-20">
+                                [ {primaryArchetype.sub} ]
                             </h2>
 
-                            <p className="text-white/90 text-sm sm:text-base italic font-serif leading-relaxed text-center px-2">
-                                "{archetype.desc}"
+                            <p className="text-white/90 text-sm sm:text-base italic font-serif leading-relaxed text-center px-2 relative z-20 break-keep">
+                                "{primaryArchetype.desc}"
                             </p>
 
-                            <div className="absolute top-4 right-4 text-[8px] text-white/20 font-mono tracking-widest">
-                                ID: {archetype.id.toUpperCase()}
+                            <div className="absolute top-4 right-4 text-[8px] text-white/20 font-mono tracking-widest z-20">
+                                ID: {primaryArchetype.id.toUpperCase()}
                             </div>
                         </div>
+
+                        {/* Inventory / Title Unlocked Announcement using MinaDirective */}
+                        <div className="mt-8 scale-90 w-full flex justify-center opacity-90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+                            <MinaDirective
+                                isVisible={true}
+                                activeStep="coming_soon"
+                                text={`${selectedLang?.ui?.titleEarned || "NEW TITLE ACQUIRED"}: [ ${primaryArchetype.title} ]`}
+                                position="relative"
+                                interactionMode="passive"
+                                badges={archetypes}
+                                sysName={selectedLang?.ui?.minaSystem || "SYSTEM CONSTRUCT: MINA"}
+                            />
+                        </div>
+
+                    </motion.div>
+                ) : (
+                    <motion.div key="loading-archetype" className="mb-8 w-full max-w-md h-[400px] flex items-center justify-center">
+                        <LucideLoader2 className="animate-spin text-[#C5A059]" size={32} />
                     </motion.div>
                 )}
             </AnimatePresence>
-            <div className="mb-12 relative flex justify-center items-end h-24 gap-1.5 opacity-60">
+
+            <div className="mb-12 relative flex justify-center items-end h-24 gap-1.5 opacity-60 flex-shrink-0">
                 {[...Array(15)].map((_, i) => (
                     <motion.div
                         key={i}
-                        animate={{
-                            height: ["20%", "100%", "20%"],
-                        }}
-                        transition={{
-                            duration: 0.5 + Math.random(),
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: Math.random() * 0.5
-                        }}
-                        className={`w-1.5 rounded-t-sm border border-black/20 ${currentTheme?.bg || 'bg-[#C5A059]'}`}
-                        style={{ backgroundColor: '#C5A059' }} // Force gold color for visibility
+                        animate={{ height: ["20%", "100%", "20%"] }}
+                        transition={{ duration: 0.5 + Math.random(), repeat: Infinity, ease: "easeInOut", delay: Math.random() * 0.5 }}
+                        className="w-1.5 rounded-t-sm border border-black/20"
+                        style={{ backgroundColor: '#C5A059' }}
                     />
                 ))}
             </div>
@@ -1091,7 +1131,7 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className={`text-3xl md:text-5xl font-black uppercase tracking-[0.2em] mb-4 ${currentTheme?.text || 'text-white'}`}
+                className={`text-3xl md:text-5xl font-black uppercase tracking-[0.2em] mb-4 flex-shrink-0 ${currentTheme?.text || 'text-white'}`}
                 style={{ textShadow: "0 0 20px rgba(197,160,89,0.3)" }}
             >
                 {selectedLang?.ui?.comingSoon || "Coming Soon"}
@@ -1101,10 +1141,12 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className={`text-sm md:text-base font-bold italic max-w-sm leading-relaxed opacity-90 ${currentTheme?.text || 'text-white'}`}
+                className={`text-sm md:text-base font-bold italic max-w-sm leading-relaxed opacity-90 break-keep ${currentTheme?.text || 'text-white'}`}
             >
-                "일단은 여기 까지입니다! Coming soon! 추후 업데이트 됩니다. 하지만 여기서 각 세계관의 음악은 계속 들을 수 있죠."<br /><br />
-                <span className="text-[#00E5FF] font-black drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]">각 언어별로 총 2곡</span>이 준비되어 있으니깐, 끝까지 감상해보세요!
+                "{selectedLang?.ui?.comingSoonDesc1 || "This is the current end of the line! Updates coming soon. However, you can continue listening to the music of each multiverse here."}"<br /><br />
+                <span className="text-[#00E5FF] font-black drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]">
+                    {selectedLang?.ui?.comingSoonDesc2 || "There are a total of 2 tracks prepared for each language, so please enjoy them to the end!"}
+                </span>
             </motion.p>
 
             <motion.button
@@ -1185,11 +1227,15 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
     const handleDragEnd = (event, info) => {
         if (!isFocused || saturationProgress < 100 || isStaged) return;
 
+        // V30: Improved drop zone collision for top row elements
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
+
+        // info.point represents the pointer relative to the document
+        // Expand the drop radius significantly (from 150 to ~300) to ensure corners reach the center zone easily
         const dist = Math.sqrt(Math.pow(info.point.x - centerX, 2) + Math.pow(info.point.y - centerY, 2));
 
-        if (dist < 150) {
+        if (dist < 300) {
             AudioManager.playSfx('shutter', 0.6);
             onSelect(lang);
         }
@@ -1261,7 +1307,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
                 />
             )}
 
-            <div className={`absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 ${isFocused ? 'opacity-80' : 'opacity-60'}`} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 opacity-60 pointer-events-none" />
 
             <div className="absolute inset-0 p-1 md:p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
                 <h3 className={`text-base md:text-3xl font-black text-white font-serif uppercase tracking-widest leading-none mb-1 md:mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
@@ -1324,7 +1370,6 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
         setFocusedLang(lang);
         setStagedLang(null);
         setMinaText(lang.ui.sync + "...");
-        AudioManager.playSfx('click');
     };
 
     const onCardReady = (payload) => {
@@ -1545,7 +1590,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                     return (
                         <div
                             key={`slot-${i}`}
-                            className={`relative aspect-[4/5] w-full transition-opacity duration-300 ${isFocused ? 'z-[50]' : 'z-10'}`}
+                            className={`relative aspect-[4/5] w-full transition-opacity duration-300 ${isFocused ? 'z-[50]' : ''}`}
                             style={{ opacity: isOriginalOfStaged ? 0 : Math.max(0, 1 - (holdProgress / 100) * 1.5) }}
                         >
                             {/* Hide the original slot card if it's currently staged in the center */}
@@ -1628,7 +1673,7 @@ const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
                 className="text-black font-black uppercase tracking-[0.2em] md:tracking-[0.4em] text-center w-full px-4 break-words z-10 leading-tight"
                 style={{ fontSize: "clamp(36px, 8vw, 120px)", textShadow: "0 0 40px rgba(197,160,89,1)" }}
             >
-                {selectedLang.ui.confirmTitle || "ALIGNED"}
+                {selectedLang?.ui?.confirmTitle || "ALIGNED"}
             </motion.h1>
 
             {/* The Flag merging into the light */}
@@ -1638,7 +1683,7 @@ const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
                 transition={{ duration: 3.5, ease: "easeInOut" }}
                 className="absolute z-0 text-[10rem] md:text-[20rem] opacity-30 pointer-events-none mix-blend-multiply"
             >
-                {selectedLang.flag}
+                {selectedLang?.flag}
             </motion.div>
         </div>
     );
@@ -1759,14 +1804,14 @@ const App = () => {
                 if (i >= userAvatar.lore.length) {
                     clearInterval(timer);
                     // [V9: Pre-fetch next logic after lore finished]
-                    preFetchVoice(selectedLang.ui.todoDone, selectedLang.voice);
+                    preFetchVoice(selectedLang?.ui?.todoDone, selectedLang?.voice, selectedLang?.name);
                 }
             }, 30);
             return () => clearInterval(timer);
         }
     }, [viewMode, userAvatar]);
 
-    const callGemini = async (payload, endpoint = "generateContent", model = "gemini-1.5-flash") => {
+    const callGemini = async (payload, endpoint = "generateContent", model = "gemini-1.5-flash-latest") => {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}?key=${apiKey}`;
         for (let i = 0; i < 5; i++) {
             try {
@@ -1801,7 +1846,7 @@ const App = () => {
                     responseModalities: ["AUDIO"],
                     speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: selectedLang.voice || "Zephyr" } } }
                 }
-            }, "generateContent", "gemini-1.5-flash");
+            }, "generateContent", "gemini-1.5-flash-latest");
 
             if (response?.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
                 const audioData = response.candidates[0].content.parts[0].inlineData.data;
@@ -1825,7 +1870,7 @@ const App = () => {
                     responseModalities: ["AUDIO"],
                     speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: langVoice || "Zephyr" } } }
                 }
-            }, "generateContent", "gemini-1.5-flash");
+            }, "generateContent", "gemini-1.5-flash-latest");
 
             if (response?.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
                 const audioData = response.candidates[0].content.parts[0].inlineData.data;
@@ -2022,11 +2067,13 @@ const App = () => {
                     loop
                     muted
                     playsInline
-                    className="absolute min-w-full min-h-full object-cover opacity-50 mix-blend-screen scale-105"
-                    src="https://assets.codepen.io/3364143/7btrrd.mp4"
+                    className="absolute min-w-full min-h-full object-cover opacity-60 mix-blend-screen scale-105"
+                    src="https://assets.codepen.io/3364143/7btrrd.mp4" /* Fallback */
+                    poster="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2940&auto=format&fit=crop"
                 />
-                {/* Dark Cinematic Gradient & Blur Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40 backdrop-blur-[2px]" />
+                {/* User Request: More elegant, premium vibe */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#111111]/80 via-[#0a0a0a]/90 to-black backdrop-blur-[6px]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(197,160,89,0.1)_0%,transparent_60%)] pointer-events-none" />
             </div>
 
             <AnimatePresence>
@@ -2059,103 +2106,96 @@ const App = () => {
 
                     {/* Main Content Area: V9 Focus-Fixed Layout */}
                     <main className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4">
+
                         <SimpleErrorBoundary>
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={step + (selectedLang?.id || '')}
-                                    initial={{ opacity: 0, scale: 0.98 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 1.02 }}
-                                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                                    className="flex flex-col items-center w-full h-full flex-1"
-                                >
-                                    {step === 'language' && (
-                                        <LanguageView
-                                            LANGUAGES={LANGUAGES}
-                                            handleLanguageSelect={handleLanguageSelect}
-                                            setSpiritHint={setSpiritHint}
-                                            cardsExplored={cardsExplored}
-                                            setCardsExplored={setCardsExplored}
-                                            isMinaSpeaking={isMinaSpeaking}
-                                        />
-                                    )}
-                                    {step === 'confirm' && (
-                                        <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
-                                    )}
-                                    {step === 'coming_soon' && (
-                                        <ComingSoonView
-                                            selectedLang={selectedLang}
-                                            currentTheme={currentTheme}
-                                            setViewMode={setViewMode}
-                                            setStep={setStep}
-                                            metrics={{
-                                                totalClicks,
-                                                uniqueCards: cardsExplored.size,
-                                                timeSpentMs: Date.now() - appStartTime
-                                            }}
-                                        />
-                                    )}
-                                    {/* More steps would follow, refactored to use currentTheme classes */}
-                                    {step === 'intro' && (
-                                        <IntroView
-                                            selectedLang={selectedLang}
-                                            userName={userName}
-                                            setUserName={setUserName}
-                                            generateTextCharacter={generateTextCharacter}
-                                            isAvatarGenerating={isAvatarGenerating}
-                                            handleImageUpload={handleImageUpload}
-                                            uploadedImage={uploadedImage}
-                                            generateCharacter={generateCharacter}
-                                            playSfx={playSfx}
-                                        />
-                                    )}
-                                    {step === 'dashboard' && (
-                                        <div className="w-full h-full flex flex-col items-center justify-center">
-                                            {viewMode === 'gallery' && (
-                                                <GalleryView
-                                                    selectedLang={selectedLang}
-                                                    userAvatar={userAvatar}
-                                                    setViewMode={setViewMode}
-                                                    setTodos={setTodos}
-                                                    todos={todos}
-                                                    playSfx={playSfx}
-                                                />
-                                            )}
-                                            {viewMode === 'home_interior' && (
-                                                <ManorView
-                                                    selectedLang={selectedLang}
-                                                    setViewMode={setViewMode}
-                                                    userAvatar={userAvatar}
-                                                    candleLit={candleLit}
-                                                    setCandleLit={setCandleLit}
-                                                    gearsSpinning={gearsSpinning}
-                                                    setGearsSpinning={setGearsSpinning}
-                                                    loreText={loreText}
-                                                    playSfx={playSfx}
-                                                />
-                                            )}
-                                            {viewMode === 'mission_active' && (
-                                                <MissionView
-                                                    selectedLang={selectedLang}
-                                                    setViewMode={setViewMode}
-                                                    PROJECTS={PROJECTS}
-                                                    previewId={previewId}
-                                                    handlePreviewVote={handlePreviewVote}
-                                                    isAuthenticated={isAuthenticated}
-                                                    setIsAuthenticated={setIsAuthenticated}
-                                                    oracleMessage={oracleMessage}
-                                                    setStep={setStep}
-                                                    setTodos={setTodos}
-                                                    playSfx={playSfx}
-                                                />
-                                            )}
-                                        </div>
-                                    )}
-                                    {step === 'trailer' && (
-                                        <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={setStep} playSfx={playSfx} />
-                                    )}
-                                </motion.div>
-                            </AnimatePresence>
+                            {/* REMOVED: AnimatePresence mode="wait" to fix layout blanking crashes */}
+                            <div className="flex flex-col items-center w-full h-full flex-1 relative">
+                                {step === 'language' && (
+                                    <LanguageView
+                                        LANGUAGES={LANGUAGES}
+                                        handleLanguageSelect={handleLanguageSelect}
+                                        setSpiritHint={setSpiritHint}
+                                        cardsExplored={cardsExplored}
+                                        setCardsExplored={setCardsExplored}
+                                        isMinaSpeaking={isMinaSpeaking}
+                                    />
+                                )}
+                                {step === 'confirm' && (
+                                    <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
+                                )}
+                                {step === 'coming_soon' && (
+                                    <ComingSoonView
+                                        selectedLang={selectedLang}
+                                        currentTheme={currentTheme}
+                                        setViewMode={setViewMode}
+                                        setStep={setStep}
+                                        metrics={{
+                                            totalClicks,
+                                            uniqueCards: cardsExplored.size,
+                                            timeSpentMs: Date.now() - appStartTime
+                                        }}
+                                    />
+                                )}
+                                {/* More steps would follow, refactored to use currentTheme classes */}
+                                {step === 'intro' && (
+                                    <IntroView
+                                        selectedLang={selectedLang}
+                                        userName={userName}
+                                        setUserName={setUserName}
+                                        generateTextCharacter={generateTextCharacter}
+                                        isAvatarGenerating={isAvatarGenerating}
+                                        handleImageUpload={handleImageUpload}
+                                        uploadedImage={uploadedImage}
+                                        generateCharacter={generateCharacter}
+                                        playSfx={playSfx}
+                                    />
+                                )}
+                                {step === 'dashboard' && (
+                                    <div className="w-full h-full flex flex-col items-center justify-center absolute inset-0 bg-black/80 backdrop-blur-md">
+                                        {viewMode === 'gallery' && (
+                                            <GalleryView
+                                                selectedLang={selectedLang}
+                                                userAvatar={userAvatar}
+                                                setViewMode={setViewMode}
+                                                setTodos={setTodos}
+                                                todos={todos}
+                                                playSfx={playSfx}
+                                            />
+                                        )}
+                                        {viewMode === 'home_interior' && (
+                                            <ManorView
+                                                selectedLang={selectedLang}
+                                                setViewMode={setViewMode}
+                                                userAvatar={userAvatar}
+                                                candleLit={candleLit}
+                                                setCandleLit={setCandleLit}
+                                                gearsSpinning={gearsSpinning}
+                                                setGearsSpinning={setGearsSpinning}
+                                                loreText={loreText}
+                                                playSfx={playSfx}
+                                            />
+                                        )}
+                                        {viewMode === 'mission_active' && (
+                                            <MissionView
+                                                selectedLang={selectedLang}
+                                                setViewMode={setViewMode}
+                                                PROJECTS={PROJECTS}
+                                                previewId={previewId}
+                                                handlePreviewVote={handlePreviewVote}
+                                                isAuthenticated={isAuthenticated}
+                                                setIsAuthenticated={setIsAuthenticated}
+                                                oracleMessage={oracleMessage}
+                                                setStep={setStep}
+                                                setTodos={setTodos}
+                                                playSfx={playSfx}
+                                            />
+                                        )}
+                                    </div>
+                                )}
+                                {step === 'trailer' && (
+                                    <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={setStep} playSfx={playSfx} />
+                                )}
+                            </div>
                         </SimpleErrorBoundary>
                     </main>
 
@@ -2165,10 +2205,10 @@ const App = () => {
                             isVisible={true}
                             activeStep={step}
                             text={
-                                step === 'confirm' ? selectedLang.ui.directiveConfirm :
-                                    !todos.avatar ? selectedLang.ui.directiveAuth :
-                                        !todos.home ? selectedLang.ui.directiveAvatar :
-                                            selectedLang.ui.directiveDashboard
+                                step === 'confirm' ? selectedLang?.ui?.directiveConfirm :
+                                    !todos.avatar ? selectedLang?.ui?.directiveAuth :
+                                        !todos.home ? selectedLang?.ui?.directiveAvatar :
+                                            selectedLang?.ui?.directiveDashboard
                             }
                             position="top"
                             interactionMode="action"
@@ -2199,8 +2239,9 @@ const App = () => {
                     </div>
 
                 </>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
 

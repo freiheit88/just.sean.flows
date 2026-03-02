@@ -165,7 +165,11 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                 <motion.span
                                     key={i}
                                     variants={{
-                                        hidden: { opacity: 0, y: 10, filter: "blur(10px)" },
+                                        hidden: {
+                                            opacity: 0,
+                                            y: 10,
+                                            filter: "blur(10px) drop-shadow(0 0 0px rgba(232, 208, 145, 0)) drop-shadow(0 0 0px rgba(197, 160, 89, 0))"
+                                        },
                                         visible: {
                                             opacity: 1,
                                             y: 0,

@@ -105,6 +105,7 @@ const SmokeAssistant = ({ text, isVisible, activeStep, position = 'top' }) => {
                     initial={{ opacity: 0, filter: 'blur(20px)' }}
                     animate={{ opacity: 1, filter: 'blur(0px)' }}
                     exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
+                    transition={{ filter: { type: "tween", ease: "easeOut", duration: 0.3 } }}
                     className={positionClasses}
                 >
                     <div className="relative p-4 md:p-6 bg-[#FDFCF0]/98 backdrop-blur-3xl border border-[#C5A059]/40 shadow-[0_50px_120px_rgba(0,0,0,0.8)]">
