@@ -5,6 +5,14 @@ import { LucideChevronDown, LucideActivity } from 'lucide-react';
 const MinaDirective = ({ text = "[ 할 말 없어서 멍 때리는중 ]", isVisible, activeStep, position = 'top', interactionMode = 'action', sysName = "SYSTEM CONSTRUCT: MINA", actionReq = ">> ACTION REQUIRED: SELECT A MULTIVERSE <<", isSpeaking = false }) => {
     if (!isVisible || !text) return null;
 
+    const getFontSizeClass = (len) => {
+        if (len > 90) return "text-[28px] sm:text-[32px] md:text-[36px] lg:text-[40px]";
+        if (len > 60) return "text-[32px] sm:text-[36px] md:text-[40px] lg:text-[48px]";
+        if (len > 35) return "text-[36px] sm:text-[40px] md:text-[48px] lg:text-[56px]";
+        if (len > 20) return "text-[40px] sm:text-[48px] md:text-[60px] lg:text-[72px]";
+        return "text-[60px] sm:text-[72px] md:text-[84px] lg:text-[96px]";
+    };
+
     return (
         <AnimatePresence mode="wait">
             <motion.div
@@ -59,12 +67,32 @@ const MinaDirective = ({ text = "[ 할 말 없어서 멍 때리는중 ]", isVisi
                     </div>
 
                     {/* Main Display Area (Text Marquee) */}
-                    <div className="flex-1 flex flex-col justify-center px-2 md:px-4 overflow-hidden relative z-0">
+                    <div className="flex-1 flex flex-col justify-center px-1 md:px-4 overflow-hidden relative z-0 py-1">
                         <div className="relative w-full flex items-center justify-center h-full">
-                            <span className={`w-full font-mono font-bold uppercase text-center transition-all duration-300 break-words ${isSpeaking ? 'scale-105 text-white' : 'text-[#E8D4A6]'}`}
-                                style={{ fontSize: "clamp(18px, 6.5vw, 4.5rem)", letterSpacing: "0.1em", textShadow: isSpeaking ? "0 0 30px rgba(0,229,255,1), 0 0 60px rgba(0,229,255,0.6)" : "0 0 15px rgba(197,160,89,0.8), 0 0 30px rgba(197,160,89,0.4)", lineHeight: '1.2' }}>
-                                {text}
-                            </span>
+                            <motion.span
+                                key={text}
+                                variants={{
+                                    hidden: { opacity: 0 },
+                                    visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
+                                }}
+                                initial="hidden"
+                                animate="visible"
+                                className={`w-full font-mono font-bold uppercase text-center transition-all duration-300 break-words ${isSpeaking ? 'scale-105 text-white' : 'text-[#E8D4A6]'} ${getFontSizeClass(text.length)}`}
+                                style={{ letterSpacing: "0.1em", textShadow: isSpeaking ? "0 0 30px rgba(0,229,255,1), 0 0 60px rgba(0,229,255,0.6)" : "0 0 15px rgba(197,160,89,0.8), 0 0 30px rgba(197,160,89,0.4)", lineHeight: '1.4' }}
+                            >
+                                {text.split("").map((char, index) => (
+                                    <motion.span
+                                        key={`${char}-${index}`}
+                                        variants={{
+                                            hidden: { opacity: 0, y: 10, filter: 'blur(4px)' },
+                                            visible: { opacity: 1, y: 0, filter: 'blur(0px)' }
+                                        }}
+                                        transition={{ type: "spring", stiffness: 150, damping: 10 }}
+                                    >
+                                        {char === ' ' ? '\u00A0' : char}
+                                    </motion.span>
+                                ))}
+                            </motion.span>
                         </div>
                     </div>
 
