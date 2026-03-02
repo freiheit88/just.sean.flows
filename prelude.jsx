@@ -213,9 +213,17 @@ const AudioManager = {
     baseMainThemeVolume: 0.20,
     currentMina: null,
     currentSignature: null,
-    currentHuman: null,
-
     playMina: (langId, step, volume = 1.0) => {
+        const audioKey = `${langId}-${step}`;
+
+        // V30: Prevent duplicate overlapping calls within 1 second
+        if (AudioManager.lastPlayedAudioKey === audioKey && (Date.now() - (AudioManager.lastPlayedAudioTime || 0) < 1000)) {
+            console.log("Blocking duplicate audio call:", audioKey);
+            return;
+        }
+        AudioManager.lastPlayedAudioKey = audioKey;
+        AudioManager.lastPlayedAudioTime = Date.now();
+
         if (AudioManager.currentMina) {
             AudioManager.currentMina.pause();
             AudioManager.currentMina.currentTime = 0;
@@ -1351,13 +1359,21 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                 if (next >= 100) {
                     clearInterval(holdIntervalRef.current);
                     holdIntervalRef.current = null;
-                    if (prev < 100) handleLanguageSelect(stagedLang);
                     return 100;
                 }
                 return next;
             });
         }, 50);
     };
+
+    // V29: Watch for completion cleanly to avoid setState-while-rendering warnings
+    useEffect(() => {
+        if (holdProgress >= 100 && stagedLang) {
+            handleLanguageSelect(stagedLang);
+            // Cancel hold right after to prevent duplicate firing
+            cancelHold();
+        }
+    }, [holdProgress, stagedLang, handleLanguageSelect]);
 
     const cancelHold = () => {
         if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
@@ -1832,7 +1848,7 @@ const App = () => {
     };
 
     // [V19] Consolidated Language Selection Logic
-    const handleLanguageSelect = (lang) => {
+    const handleLanguageSelect = useCallback((lang) => {
         setSelectedLang(lang);
         setStep('coming_soon');
         setViewMode('coming_soon');
@@ -1848,7 +1864,7 @@ const App = () => {
         AudioManager.playTheme(lang.id, 0.7, 3000);
 
         AudioManager.playMina(lang.id, 'comingsoon');
-    };
+    }, []);
 
     const confirmLanguage = useCallback(() => {
         // Obsolete: We bypass ConfirmView now.
