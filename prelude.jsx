@@ -1053,66 +1053,27 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
             style={{ minHeight: '100vh', width: '100vw' }}
         >
             <AnimatePresence mode="wait">
-                {primaryArchetype ? (
-                    <motion.div
-                        key="archetype-badge"
-                        initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                        transition={{ duration: 1.2, delay: 0.2, type: "spring", bounce: 0.3 }}
-                        className="w-full max-w-md relative flex flex-col items-center mb-8 flex-shrink-0 mt-8"
-                    >
-                        {/* Glowing Backdrop */}
-                        <div className={`absolute inset-0 bg-gradient-to-b ${primaryArchetype.color} opacity-20 blur-3xl rounded-full mix-blend-screen pointer-events-none`} />
-
-                        {/* Glassmorphic ID Card */}
-                        <div className="w-full bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.1)] flex flex-col items-center relative z-10 overflow-hidden">
-                            {/* Inner ambient glow */}
-                            <div className={`absolute -top-24 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-r ${primaryArchetype.color} opacity-30 blur-[50px] mix-blend-screen pointer-events-none`} />
-
-                            <div className="flex items-center gap-3 mb-6 relative z-20">
-                                <LucideTrophy className="text-[#C5A059] opacity-80" size={18} />
-                                <span className="text-white/50 text-[10px] sm:text-xs font-black tracking-[0.4em] uppercase">
-                                    {selectedLang?.ui?.archetypeBadge || "OBSERVED SOUL ARCHETYPE"}
-                                </span>
-                            </div>
-
-                            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-black mb-3 text-center bg-gradient-to-b ${primaryArchetype.color} text-transparent bg-clip-text drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] relative z-20 w-full md:whitespace-nowrap`} style={{ lineHeight: '1.2' }}>
-                                {primaryArchetype.title}
-                            </h1>
-
-                            <h2 className="text-white/60 text-[10px] sm:text-xs font-black tracking-[0.4em] uppercase mb-6 text-center w-full pb-6 border-b border-white/5 relative z-20">
-                                [ {primaryArchetype.sub} ]
-                            </h2>
-
-                            <p className="text-white/90 text-sm sm:text-base italic font-serif leading-relaxed text-center px-2 relative z-20 break-keep">
-                                "{primaryArchetype.desc}"
-                            </p>
-
-                            <div className="absolute top-4 right-4 text-[8px] text-white/20 font-mono tracking-widest z-20">
-                                ID: {primaryArchetype.id.toUpperCase()}
-                            </div>
-                        </div>
-
-                        {/* Inventory / Title Unlocked Announcement using MinaDirective */}
-                        <div className="mt-8 scale-90 w-full flex justify-center opacity-90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
-                            <MinaDirective
-                                isVisible={true}
-                                activeStep="coming_soon"
-                                text={`${selectedLang?.ui?.titleEarned || "NEW TITLE ACQUIRED"}: [ ${primaryArchetype.title} ]`}
-                                position="relative"
-                                interactionMode="passive"
-                                badges={archetypes}
-                                sysName={selectedLang?.ui?.minaSystem || "SYSTEM CONSTRUCT: MINA"}
-                            />
-                        </div>
-
-                    </motion.div>
-                ) : (
-                    <motion.div key="loading-archetype" className="mb-8 w-full max-w-md h-[400px] flex items-center justify-center">
-                        <LucideLoader2 className="animate-spin text-[#C5A059]" size={32} />
-                    </motion.div>
-                )}
+                <motion.div
+                    key="mina-announcement"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 1.2, delay: 0.2, type: "spring", bounce: 0.3 }}
+                    className="w-full max-w-md relative flex flex-col items-center mb-12 flex-shrink-0 mt-8"
+                >
+                    {/* Inventory / Title Unlocked Announcement using MinaDirective */}
+                    <div className="w-full flex justify-center opacity-90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+                        <MinaDirective
+                            isVisible={true}
+                            activeStep="coming_soon"
+                            text={primaryArchetype ? `${selectedLang?.ui?.titleEarned || "NEW TITLE ACQUIRED"}: [ ${primaryArchetype.title} ]` : "분석 중..."}
+                            position="relative"
+                            interactionMode="passive"
+                            badges={archetypes}
+                            sysName={selectedLang?.ui?.minaSystem || "SYSTEM CONSTRUCT: MINA"}
+                        />
+                    </div>
+                </motion.div>
             </AnimatePresence>
 
             <div className="mb-12 relative flex justify-center items-end h-24 gap-1.5 opacity-60 flex-shrink-0">
@@ -1149,19 +1110,33 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                 </span>
             </motion.p>
 
-            <motion.button
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.0 }}
-                onClick={() => {
-                    AudioManager.playSfx('shutter', 0.6);
-                    setStep('dashboard');
-                    setViewMode('gallery');
-                }}
-                className={`mt-10 px-8 py-4 border active:scale-95 transition-all text-[10px] uppercase font-black font-sans tracking-[0.3em] backdrop-blur-md ${currentTheme?.border || 'border-[#C5A059]/40'} ${currentTheme?.text || 'text-white'} hover:bg-white/10 shadow-lg`}
-            >
-                Enter Gallery
-            </motion.button>
+            <div className="flex flex-col gap-4 mt-10">
+                <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.0 }}
+                    onClick={() => {
+                        AudioManager.playSfx('shutter', 0.6);
+                        setStep('dashboard');
+                        setViewMode('gallery');
+                    }}
+                    className={`px-8 py-4 border active:scale-95 transition-all text-[10px] uppercase font-black font-sans tracking-[0.3em] backdrop-blur-md ${currentTheme?.border || 'border-[#C5A059]/40'} ${currentTheme?.text || 'text-white'} hover:bg-white/10 shadow-lg`}
+                >
+                    Enter Gallery
+                </motion.button>
+                <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.2 }}
+                    onClick={() => {
+                        AudioManager.playSfx('click', 0.6);
+                        setStep('selection');
+                    }}
+                    className="px-8 py-3 opacity-60 hover:opacity-100 active:scale-95 transition-all text-[10px] uppercase font-black tracking-widest text-[#00E5FF] hover:text-white"
+                >
+                    Return to Multiverse
+                </motion.button>
+            </div>
         </motion.div>
     );
 };
