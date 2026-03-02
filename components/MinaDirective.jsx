@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LucideMessageSquare, LucideAward, LucideMaximize2, LucideMinimize2, LucideGripHorizontal, LucideTrophy } from 'lucide-react';
 
 const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "MINA", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [] }) => {
-    const [isFolded, setIsFolded] = useState(false);
+    const [isFolded, setIsFolded] = useState(true);
     const [activeTab, setActiveTab] = useState('directive'); // 'directive' | 'badges'
 
     if (!isVisible || !text) return null;
