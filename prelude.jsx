@@ -1750,7 +1750,7 @@ const App = () => {
         }
     }, [viewMode, userAvatar]);
 
-    const callGemini = async (payload, endpoint = "generateContent", model = "gemini-2.5-flash-preview-09-2025") => {
+    const callGemini = async (payload, endpoint = "generateContent", model = "gemini-1.5-flash") => {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}?key=${apiKey}`;
         for (let i = 0; i < 5; i++) {
             try {
