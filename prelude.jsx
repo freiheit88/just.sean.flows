@@ -795,12 +795,12 @@ const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter,
 const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx, todos }) => {
     // [V10 UPDATE: Cinematic Editorial 3x3 Grid]
     const gridItems = [
-        { id: 1, type: 'text', title: 'START THE JOURNEY', subtitle: 'Enter the Core' },
-        { id: 2, type: 'image', title: 'MEMORY', image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&q=80&w=300' },
-        { id: 3, type: 'text', title: 'NEXT STOP: SEOUL', subtitle: 'Flight 88' },
+        { id: 1, type: 'text', title: selectedLang.ui.manorTitle || 'MULTIVERSE CORE', subtitle: selectedLang.name },
+        { id: 2, type: 'image', title: 'MEMORY', image: selectedLang.image },
+        { id: 3, type: 'text', title: 'AETHER RECORD', subtitle: 'Sync 88' },
         { id: 4, type: 'image', title: 'ARCHIVE', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=300' },
-        { id: 5, type: 'current', title: '퇴근하고 곧 돌아오겠습니다.', isCenter: true },
-        { id: 6, type: 'manor', title: selectedLang.ui.manorTitle },
+        { id: 5, type: 'current', title: selectedLang.ui.comingSoon || 'COMING SOON', isCenter: true },
+        { id: 6, type: 'manor', title: selectedLang.ui.manorTitle || 'THE MANOR' },
         { id: 7, type: 'text', title: 'DIGITAL SOUL', subtitle: 'Humanity in Code' },
         { id: 8, type: 'image', title: 'VISION', image: 'https://images.unsplash.com/photo-1440688807730-73e4e2169fb8?auto=format&fit=crop&w=300&q=80' },
         { id: 9, type: 'rules', title: 'HOUSE RULES', subtitle: 'No Artificial Empathy' },
@@ -809,8 +809,8 @@ const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx,
     return (
         <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center space-y-6 h-full py-4 overflow-hidden">
             <div className="text-center">
-                <h1 className={`text-4xl font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-1 uppercase tracking-widest leading-none filter drop-shadow-md`}>{selectedLang.ui.galleryTitle}</h1>
-                <p className={`text-[10px] font-black uppercase tracking-[0.5em] ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/50'}`}>Cinematic Editorial</p>
+                <h1 className={`text-3xl md:text-4xl font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-1 uppercase tracking-widest leading-none filter drop-shadow-md`}>{selectedLang.ui.galleryTitle || "ARCHIVE"}</h1>
+                <p className={`text-[10px] font-black uppercase tracking-[0.5em] ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/50'}`}>{selectedLang.ui.gallerySub || "Historical Record"}</p>
             </div>
 
             <div className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-[2px] p-2 bg-[#0A0A0B]/80 backdrop-blur-md border border-white/10 shadow-2xl relative">
@@ -827,20 +827,24 @@ const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx,
                     >
                         {slot.type === 'current' ? (
                             <button
-                                onClick={() => { setViewMode('mission_active'); playSfx?.('click'); }}
+                                onClick={() => { playSfx?.('click'); }}
                                 onMouseEnter={() => playSfx?.('hover')}
                                 className={`w-full h-full relative bg-[#0A0A0B] border border-white/20 overflow-hidden group active:scale-95 transition-transform hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] flex flex-col justify-center items-center`}
                             >
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 z-10" />
                                 <div className="absolute inset-0 flex items-center justify-center p-2 z-0">
-                                    {userAvatar?.isTextAvatar ? (
-                                        <span className={`font-black text-2xl uppercase text-center leading-tight ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} opacity-80 mix-blend-screen`}>{userAvatar.textName}</span>
+                                    {userAvatar?.image ? (
+                                        <img src={userAvatar.image} className="w-full h-full object-cover opacity-60 mix-blend-luminosity" alt="avatar" />
                                     ) : (
-                                        <img src={userAvatar?.image} className="w-full h-full object-cover opacity-60 mix-blend-luminosity" alt="avatar" />
+                                        <div className="w-full h-full flex flex-col items-center justify-center">
+                                            <div className={`w-12 h-12 rounded-full border-2 border-[${THEME_CONFIG[selectedLang.id]?.accent || '#C5A059'}] flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(197,160,89,0.3)]`}>
+                                                <span className={`text-2xl font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{selectedLang.flag}</span>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                                 <div className="relative z-20 text-center px-1">
-                                    <p className={`text-[8px] font-serif italic mb-1 opacity-70 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>Sean's Persona</p>
+                                    <p className={`text-[8px] font-serif italic mb-1 opacity-70 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{userAvatar?.textName || selectedLang.name}</p>
                                     <h4 className={`text-[10px] font-black uppercase tracking-widest leading-tight ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`}>{slot.title}</h4>
                                 </div>
                             </button>
@@ -856,7 +860,7 @@ const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx,
                                 className={`w-full h-full relative bg-[#121214] flex flex-col items-center justify-center hover:bg-white/5 transition-colors group active:scale-95 border border-transparent hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/50`}
                             >
                                 <LucideLayout size={24} className={`mb-2 opacity-50 group-hover:opacity-100 transition-opacity ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`} />
-                                <span className="text-white/60 text-[8px] font-black uppercase tracking-widest">{slot.title}</span>
+                                <span className="text-white/60 text-[8px] font-black uppercase tracking-widest text-center">{slot.title}</span>
                             </button>
                         ) : slot.type === 'image' ? (
                             <div className="w-full h-full relative overflow-hidden bg-black grayscale hover:grayscale-0 transition-all duration-1000 group">
@@ -871,8 +875,8 @@ const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx,
                             </div>
                         ) : (
                             <div className="w-full h-full relative bg-[#0D0D10] flex flex-col items-center justify-center p-2 text-center border border-white/5 hover:border-white/20 transition-colors">
-                                <span className={`font-black text-[9px] uppercase leading-tight mb-1 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'}`}>{slot.title}</span>
-                                <span className={`text-[7px] font-serif italic leading-none ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/40'}`}>{slot.subtitle}</span>
+                                <span className={`font-black text-[8px] uppercase leading-tight mb-1 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'}`}>{slot.title}</span>
+                                <span className={`text-[6px] font-serif italic leading-none ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/40'}`}>{slot.subtitle}</span>
                             </div>
                         )}
                     </motion.div>
@@ -920,7 +924,7 @@ const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandle
                         {userAvatar?.image ? (
                             <img src={userAvatar.image} className="w-full h-full object-cover rounded-full" />
                         ) : (
-                            <span className="text-[#C5A059] font-black text-xl text-center uppercase drop-shadow-md">{userAvatar?.textName?.charAt(0)}</span>
+                            <span className="text-[#C5A059] font-black text-4xl text-center uppercase drop-shadow-md">{userAvatar?.textName?.charAt(0) || selectedLang?.name?.charAt(0) || "M"}</span>
                         )}
                     </div>
                 </div>
@@ -928,7 +932,7 @@ const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandle
                 <h3 className={`text-xl font-serif font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-6 uppercase tracking-[0.3em] text-center leading-none`}>{selectedLang.ui.manorTitle}</h3>
 
                 <div className={`w-full flex-1 bg-black/40 backdrop-blur-sm p-5 border-l border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/30 rounded-r-lg font-mono text-[10px] ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'} leading-relaxed relative overflow-y-auto no-scrollbar shadow-inner`}>
-                    {loreText}<span className={`inline-block w-1.5 h-3 bg-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] ml-1 animate-ping`} />
+                    {loreText || selectedLang?.welcome || "Welcome to the Lord Manor."}<span className={`inline-block w-1.5 h-3 bg-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] ml-1 animate-ping`} />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-white/10">
