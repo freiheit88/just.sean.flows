@@ -27,113 +27,106 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
             >
                 <motion.div
                     layout
-                    className={`flex flex-col overflow-hidden relative backdrop-blur-3xl bg-black/60 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.2)] transition-colors
-                        ${isFolded ? 'rounded-full px-2 py-1 cursor-pointer hover:bg-black/70' : 'rounded-3xl w-[340px] sm:w-[380px] md:w-[420px]'}`}
+                    className={`flex flex-col overflow-hidden relative bg-black border-[3px] shadow-[8px_8px_0px_rgba(197,160,89,0.3)] transition-colors
+                        ${isFolded ? 'rounded-none border-[#C5A059] cursor-pointer hover:bg-[#111]' : 'rounded-none border-white w-[340px] sm:w-[380px] md:w-[420px]'}`}
                     animate={{
                         width: isFolded ? 'auto' : undefined,
-                        height: isFolded ? 52 : (activeTab === 'directive' ? 240 : 420)
+                        height: isFolded ? 64 : (activeTab === 'directive' ? 320 : 420)
                     }}
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 >
-                    {/* Glowing Aura Effect */}
-                    <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[inherit] z-[-1]">
-                        {isSpeaking && <div className="absolute -inset-4 bg-[#00E5FF]/20 blur-2xl animate-pulse" />}
-                        <div className={`absolute top-0 left-1/4 right-1/4 h-[1px] ${isFolded ? 'bg-gradient-to-r from-transparent via-white/40 to-transparent' : 'bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent'}`} />
+                    {/* Glowing Aura Effect - Replaced with scanning line for brutalist feel */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden z-[1]">
+                        {isSpeaking && <div className="absolute top-0 left-0 w-full h-1 bg-[#00E5FF] animate-[scan_2s_linear_infinite] opacity-50" />}
                     </div>
 
-                    {/* FOLDED STATE : The Pill */}
+                    {/* FOLDED STATE : The Console Block */}
                     {isFolded ? (
                         <div
-                            className="flex items-center gap-3 h-full px-4"
+                            className="flex items-center gap-4 h-full pl-6 pr-4 relative z-10"
                             onClick={() => setIsFolded(false)}
                         >
-                            <div className="flex items-center justify-center p-1.5 rounded-full bg-white/10">
-                                <LucideSparkles size={14} className={isSpeaking ? "text-[#00E5FF] animate-pulse" : "text-[#C5A059]"} />
+                            <div className={`p-2 border-2 ${isSpeaking ? "border-[#00E5FF] bg-[#00E5FF]/20" : "border-[#C5A059] bg-[#C5A059]/10"}`}>
+                                <LucideSparkles size={16} className={isSpeaking ? "text-[#00E5FF] animate-pulse" : "text-[#C5A059]"} />
                             </div>
-                            <div className="flex flex-col justify-center min-w-[120px] max-w-[200px]">
-                                <span className={`text-[10px] font-mono font-black tracking-widest uppercase ${isSpeaking ? 'text-[#00E5FF]' : 'text-white/40'}`}>
+                            <div className="flex flex-col justify-center min-w-[140px] max-w-[240px]">
+                                <span className={`text-[10px] font-mono font-black tracking-[0.3em] uppercase ${isSpeaking ? 'text-[#00E5FF]' : 'text-[#C5A059]'}`}>
                                     {sysName} V28
                                 </span>
-                                <span className="text-xs font-semibold text-white/90 truncate">
+                                <span className="text-sm font-black text-white truncate uppercase tracking-wider">
                                     {text}
                                 </span>
                             </div>
-                            <div className="flex items-center gap-2 pl-2 border-l border-white/10">
+                            <div className="flex items-center gap-3 pl-4 border-l-2 border-white/20 h-full py-3">
                                 {badges.length > 0 && (
-                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C5A059]/10 border border-[#C5A059]/20">
-                                        <LucideAward size={10} className="text-[#C5A059]" />
-                                        <span className="text-[10px] font-black text-[#C5A059]">{badges.length}</span>
+                                    <div className="flex items-center gap-1.5 px-2 py-1 bg-[#C5A059] text-black border-2 border-[#C5A059]">
+                                        <LucideAward size={12} className="text-black" />
+                                        <span className="text-[12px] font-black">{badges.length}</span>
                                     </div>
                                 )}
-                                <LucideChevronUp size={16} className="text-white/40" />
+                                <LucideChevronUp size={20} className="text-white hover:text-[#C5A059] transition-colors" />
                             </div>
                         </div>
                     ) : (
-                        /* EXPANDED STATE : The Modal */
-                        <div className="flex flex-col h-full relative">
-                            {/* Header Handle */}
-                            <div className="w-full h-12 flex justify-between items-center shrink-0 border-b border-white/5 bg-white/[0.02] px-3">
-                                <div className="w-8 opacity-0 pointer-events-none" /> {/* Spacer for centering */}
-                                <div
-                                    className="w-12 h-1.5 rounded-full bg-white/20 cursor-pointer hover:bg-white/40 transition-colors"
-                                    onClick={() => setIsFolded(true)}
-                                />
+                        /* EXPANDED STATE : The Terminal */
+                        <div className="flex flex-col h-full relative z-10 bg-[#0A0A0A]">
+                            {/* Header Panel */}
+                            <div className="w-full h-14 flex justify-between items-center shrink-0 border-b-[3px] border-white/20 bg-black px-4">
+                                <span className={`text-[10px] font-mono font-black tracking-[0.4em] uppercase ${isSpeaking ? 'text-[#00E5FF]' : 'text-white/50'}`}>
+                                    {sysName} // TERMINAL
+                                </span>
                                 <button
                                     onClick={() => setIsFolded(true)}
-                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+                                    className="w-10 h-10 flex items-center justify-center bg-transparent hover:bg-white/10 border-2 border-transparent hover:border-white transition-colors"
                                 >
-                                    <LucideMinimize2 size={14} className="text-white/60 hover:text-white" />
+                                    <LucideMinimize2 size={16} className="text-white" />
                                 </button>
                             </div>
 
                             {/* Inner Content Body */}
-                            <div className="flex-1 overflow-y-auto overflow-x-hidden relative scrollbar-hide p-5">
+                            <div className="flex-1 overflow-y-auto overflow-x-hidden relative scrollbar-hide p-6 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
                                 <AnimatePresence mode="wait">
                                     {activeTab === 'directive' ? (
                                         <motion.div
                                             key="tab-directive"
-                                            initial={{ opacity: 0, filter: 'blur(4px)' }}
-                                            animate={{ opacity: 1, filter: 'blur(0px)' }}
-                                            exit={{ opacity: 0, filter: 'blur(4px)' }}
-                                            className="flex flex-col h-full items-start gap-3 py-2"
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: 20 }}
+                                            className="flex flex-col h-full items-start gap-4"
                                         >
-                                            <div className="text-[10px] font-black text-white/30 tracking-widest px-1 uppercase mb-2">
-                                                Task Directives Overview
+                                            <div className="bg-white text-black px-2 py-1 text-[10px] font-black tracking-[0.3em] uppercase border-l-4 border-[#C5A059]">
+                                                SYS.DIRECTIVES
                                             </div>
 
                                             <div className="flex flex-col gap-3 w-full">
                                                 {/* Completed Task 1 */}
-                                                <div className="flex items-center gap-3 w-full px-2 py-1 opacity-40">
-                                                    <CheckCircle2 size={16} className="text-[#00E5FF] shrink-0" />
-                                                    <span className="text-sm md:text-base font-semibold text-white line-through break-keep">
-                                                        시스템 부팅 및 자아 동기화
+                                                <div className="flex items-center gap-4 w-full px-3 py-2 border-2 border-[#00E5FF]/30 bg-[#00E5FF]/5 opacity-60">
+                                                    <div className="w-4 h-4 bg-[#00E5FF] shrink-0 border-2 border-[#00E5FF]" />
+                                                    <span className="text-sm font-black text-white/50 line-through tracking-wider uppercase">
+                                                        SYSTEM BOOT & SYNC
                                                     </span>
                                                 </div>
 
                                                 {/* Completed Task 2 */}
-                                                <div className="flex items-center gap-3 w-full px-2 py-1 opacity-40">
-                                                    <CheckCircle2 size={16} className="text-[#00E5FF] shrink-0" />
-                                                    <span className="text-sm md:text-base font-semibold text-white line-through break-keep">
-                                                        다중우주 관측 차원 진입 성공
+                                                <div className="flex items-center gap-4 w-full px-3 py-2 border-2 border-[#00E5FF]/30 bg-[#00E5FF]/5 opacity-60">
+                                                    <div className="w-4 h-4 bg-[#00E5FF] shrink-0 border-2 border-[#00E5FF]" />
+                                                    <span className="text-sm font-black text-white/50 line-through tracking-wider uppercase">
+                                                        MULTIVERSE BREACH
                                                     </span>
                                                 </div>
 
-                                                {/* Active Task (from props) */}
-                                                <div className="flex items-center gap-3 w-full bg-white/5 p-4 rounded-xl border border-white/10 relative overflow-hidden mt-2 shadow-[0_5px_20px_rgba(0,0,0,0.5)]">
-                                                    {isSpeaking && <div className="absolute inset-0 bg-[#00E5FF]/10 animate-pulse pointer-events-none" />}
-                                                    <div className="relative shrink-0 flex items-center justify-center">
-                                                        <Circle size={18} className={isSpeaking ? "text-[#00E5FF]" : "text-[#C5A059]"} />
-                                                        {isSpeaking && <div className="absolute inset-0 bg-[#00E5FF] rounded-full opacity-30 animate-ping" />}
-                                                    </div>
-                                                    <div className="flex flex-col gap-1.5 relative z-10">
-                                                        <span className={`text-[15px] md:text-lg font-bold leading-snug break-keep ${isSpeaking ? 'text-[#00E5FF] drop-shadow-[0_0_8px_rgba(0,229,255,0.4)]' : 'text-white'}`}>
-                                                            {text}
-                                                        </span>
+                                                {/* Active Task */}
+                                                <div className={`flex items-start gap-4 w-full p-4 border-[3px] relative mt-2 ${isSpeaking ? 'border-[#00E5FF] bg-black shadow-[0_0_20px_rgba(0,229,255,0.2)]' : 'border-[#C5A059] bg-[#111]'}`}>
+                                                    <div className={`w-5 h-5 shrink-0 mt-0.5 border-4 ${isSpeaking ? "border-[#00E5FF] bg-[#00E5FF]/20 animate-pulse" : "border-[#C5A059] bg-[#C5A059]/20"}`} />
+                                                    <div className="flex flex-col gap-2 relative z-10 w-full">
                                                         {actionReq && (
-                                                            <div className="w-fit px-2 py-0.5 mt-1 text-[9px] md:text-[10px] font-mono tracking-widest text-[#E8D4A6] uppercase border border-[#E8D4A6]/20 rounded-md bg-[#E8D4A6]/5">
+                                                            <div className={`w-fit px-2 py-1 text-[9px] font-black tracking-[0.2em] uppercase border-b-2 ${isSpeaking ? 'text-[#00E5FF] border-[#00E5FF]' : 'text-[#C5A059] border-[#C5A059]'}`}>
                                                                 {actionReq}
                                                             </div>
                                                         )}
+                                                        <span className={`text-lg md:text-xl font-black uppercase tracking-wide leading-tight ${isSpeaking ? 'text-white' : 'text-white/90'}`}>
+                                                            {text}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -141,16 +134,16 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                     ) : (
                                         <motion.div
                                             key="tab-badges"
-                                            initial={{ opacity: 0, filter: 'blur(4px)' }}
-                                            animate={{ opacity: 1, filter: 'blur(0px)' }}
-                                            exit={{ opacity: 0, filter: 'blur(4px)' }}
-                                            className="flex flex-col gap-3 pb-8"
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="flex flex-col gap-4 pb-8"
                                         >
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h4 className="text-white/70 font-black tracking-widest text-xs md:text-sm uppercase flex items-center gap-2">
-                                                    <LucideTrophy size={14} className="text-[#C5A059]" /> Titles
-                                                </h4>
-                                                <span className="text-[10px] font-mono text-white/30">{badges.length} EARNED</span>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="bg-[#C5A059] text-black px-2 py-1 text-[10px] font-black tracking-[0.3em] uppercase border-l-4 border-white">
+                                                    SYS.ARCHIVES
+                                                </div>
+                                                <span className="text-[10px] font-black text-white/50 tracking-[0.3em] border-2 border-white/20 px-2 py-1">{badges.length} EARNED</span>
                                             </div>
 
                                             {badges && badges.length > 0 ? (
@@ -160,27 +153,27 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                         initial={{ opacity: 0, y: 15 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         transition={{ delay: idx * 0.05 }}
-                                                        className={`p-4 relative rounded-2xl flex flex-col gap-1.5 overflow-hidden transition-all ${badge.isMajor
-                                                            ? 'bg-gradient-to-br from-[#C5A059]/15 to-transparent border border-[#C5A059]/30 shadow-[0_4px_20px_rgba(197,160,89,0.1)]'
-                                                            : 'bg-white/5 border border-white/5'
+                                                        className={`p-4 flex flex-col gap-2 ${badge.isMajor
+                                                            ? 'bg-black border-[3px] border-[#C5A059]'
+                                                            : 'bg-[#111] border-2 border-white/20'
                                                             }`}
                                                     >
-                                                        <div className="flex items-center justify-between">
-                                                            <div className={`font-bold tracking-wide text-sm ${badge.isMajor ? 'text-[#C5A059]' : 'text-white/80'}`}>
+                                                        <div className="flex items-center justify-between border-b-2 border-white/10 pb-2">
+                                                            <div className={`font-black tracking-[0.2em] uppercase text-sm ${badge.isMajor ? 'text-[#C5A059]' : 'text-white/80'}`}>
                                                                 {badge.title}
                                                             </div>
-                                                            {badge.isMajor && <LucideSparkles size={12} className="text-[#C5A059] opacity-70" />}
+                                                            {badge.isMajor && <LucideSparkles size={14} className="text-[#C5A059]" />}
                                                         </div>
-                                                        <div className={`text-xs break-keep leading-relaxed ${badge.isMajor ? 'text-[#e5c996]/70' : 'text-white/40'}`}>
-                                                            {badge.desc}
+                                                        <div className="text-xs font-bold uppercase tracking-wider text-white/50 leading-relaxed mt-1">
+                                                            // {badge.desc}
                                                         </div>
                                                     </motion.div>
                                                 ))
                                             ) : (
-                                                <div className="flex flex-col items-center justify-center py-10 opacity-40">
-                                                    <LucideAward size={32} className="mb-3 text-white" />
-                                                    <div className="text-center text-white text-xs md:text-sm leading-relaxed max-w-[200px]">
-                                                        배지를 아직 획득하지 못했습니다. 멀티버스를 탐험해보세요.
+                                                <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-white/20 bg-black">
+                                                    <LucideAward size={40} className="mb-4 text-white/20" />
+                                                    <div className="text-center font-black uppercase text-white/40 text-xs tracking-[0.2em]">
+                                                        NO DATA FOUND.<br />EXPLORE THE MULTIVERSE.
                                                     </div>
                                                 </div>
                                             )}
@@ -190,24 +183,24 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                             </div>
 
                             {/* Bottom Context Nav */}
-                            <div className="flex p-2 gap-2 bg-black/40 border-t border-white/5 shrink-0 px-4">
+                            <div className="flex p-4 gap-4 bg-black border-t-[3px] border-white/20 shrink-0">
                                 <button
                                     onClick={() => setActiveTab('directive')}
-                                    className={`flex-1 py-2.5 rounded-xl transition-all flex justify-center items-center gap-2 text-xs font-semibold tracking-wider ${activeTab === 'directive' ? 'bg-white/10 text-white shadow-[inset_0_1px_rgba(255,255,255,0.1)]' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
+                                    className={`flex-1 py-3 transition-colors flex justify-center items-center gap-3 text-xs font-black tracking-[0.3em] uppercase border-2 ${activeTab === 'directive' ? 'bg-white text-black border-white' : 'bg-transparent text-white/50 border-white/20 hover:border-white hover:text-white'}`}
                                 >
-                                    <LucideMessageSquare size={14} /> MINA
+                                    <LucideMessageSquare size={16} /> DIRECTIVE
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('badges')}
-                                    className={`flex-1 py-2.5 rounded-xl transition-all flex justify-center items-center gap-2 text-xs font-semibold tracking-wider ${activeTab === 'badges' ? 'bg-[#C5A059]/15 text-[#C5A059] border border-[#C5A059]/20 shadow-[inset_0_1px_rgba(197,160,89,0.2)]' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
+                                    className={`flex-1 py-3 transition-colors flex justify-center items-center gap-3 text-xs font-black tracking-[0.3em] uppercase border-2 ${activeTab === 'badges' ? 'bg-[#C5A059] text-black border-[#C5A059]' : 'bg-transparent text-white/50 border-white/20 hover:border-[#C5A059] hover:text-[#C5A059]'}`}
                                 >
                                     <div className="relative">
-                                        <LucideAward size={14} />
+                                        <LucideAward size={16} />
                                         {badges.length > 0 && activeTab !== 'badges' && (
-                                            <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse border border-black" />
+                                            <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-red-500 border-2 border-black" />
                                         )}
                                     </div>
-                                    TITLES
+                                    ARCHIVE
                                 </button>
                             </div>
                         </div>

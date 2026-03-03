@@ -2049,20 +2049,28 @@ const App = () => {
             className={`relative w-full h-screen ${currentTheme.bg} ${currentTheme.text} ${currentTheme.font} overflow-hidden transition-colors duration-1000`}
         >
 
-            {/* [V12] Cinematic Video Background */}
-            <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
-                <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="absolute min-w-full min-h-full object-cover opacity-60 mix-blend-screen scale-105"
-                    src="https://assets.codepen.io/3364143/7btrrd.mp4" /* Fallback */
-                    poster="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2940&auto=format&fit=crop"
+            {/* [BOLD UI OVERHAUL] Panning Atmospheric Collage Background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <motion.div
+                    initial={{ scale: 1.2, x: "-5%", y: "-5%" }}
+                    animate={{
+                        x: ["-5%", "5%", "-5%"],
+                        y: ["-5%", "5%", "-5%"],
+                    }}
+                    transition={{
+                        x: { duration: 120, repeat: Infinity, ease: "linear" },
+                        y: { duration: 150, repeat: Infinity, ease: "linear" },
+                    }}
+                    className="absolute inset-[-10%] bg-cover bg-center grayscale-[40%] blur-[8px]"
+                    style={{ backgroundImage: "url('/assets/intro-collage.png')", backgroundSize: 'cover' }}
                 />
-                {/* User Request: More elegant, premium vibe */}
-                <div className="absolute inset-0 bg-gradient-to-b from-[#111111]/80 via-[#0a0a0a]/90 to-black backdrop-blur-[6px]" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(197,160,89,0.1)_0%,transparent_60%)] pointer-events-none" />
+
+                {/* Heavy Dark Overlays for "Flashy but Restrained" feel */}
+                <div className="absolute inset-0 bg-black/80" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/60 to-black/95" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.9)_100%)]" />
+
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-30 mix-blend-overlay" />
             </div>
 
             <AnimatePresence>

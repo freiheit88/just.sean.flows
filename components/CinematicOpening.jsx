@@ -81,18 +81,32 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         transition={{ duration: 1, ease: "easeOut" }}
                         className="flex flex-col items-center justify-center w-full h-full relative"
                     >
-                        {/* Aristocratic Invitation Background - Darkened to 30% Brightness for Cinematic Contrast */}
-                        <motion.div
-                            initial={{ scale: 1.1, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 0.3 }}
-                            className="absolute inset-0 bg-cover bg-center grayscale-[20%]"
-                            style={{ backgroundImage: "url('/assets/images/aristocratic-invitation.png')" }}
-                        />
+                        {/* [BOLD UI OVERHAUL] Panning Atmospheric Collage Background */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                            <motion.div
+                                initial={{ scale: 1.2, x: "-5%", y: "-5%", opacity: 0 }}
+                                animate={{
+                                    scale: 1.2,
+                                    opacity: 1,
+                                    x: ["-5%", "5%", "-5%"],
+                                    y: ["-5%", "5%", "-5%"],
+                                    filter: "blur(8px)" // Atmospheric blur
+                                }}
+                                transition={{
+                                    opacity: { duration: 2 },
+                                    x: { duration: 120, repeat: Infinity, ease: "linear" },
+                                    y: { duration: 150, repeat: Infinity, ease: "linear" },
+                                    filter: { duration: 0 } // static tween
+                                }}
+                                className="absolute inset-[-10%] bg-cover bg-center grayscale-[40%]"
+                                style={{ backgroundImage: "url('/assets/intro-collage.png')", backgroundSize: 'cover' }}
+                            />
+                        </div>
 
-                        {/* Atmospheric Overlays */}
-                        <div className="absolute inset-0 bg-black/50 pointer-events-none" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-transparent to-black/90 pointer-events-none" />
-                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.8)_100%)] pointer-events-none" />
+                        {/* Heavy Dark Overlays for "Flashy but Restrained" feel */}
+                        <div className="absolute inset-0 bg-black/80 pointer-events-none" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/40 to-black/90 pointer-events-none" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_100%)] pointer-events-none" />
 
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-30 mix-blend-overlay pointer-events-none" />
 
