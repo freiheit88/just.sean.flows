@@ -89,6 +89,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                 sysName="SEAN'S COMMENT"
                                 actionReq=">> ACTION REQUIRED: CLICK ANYWHERE TO BEGIN <<"
                                 isSpeaking={false}
+                                disableToggle={true}
                             />
                         </div>
                     </motion.div>
