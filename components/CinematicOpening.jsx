@@ -73,7 +73,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                 animate={{ opacity: 1, filter: "blur(4px)" }}
                                 transition={{ duration: 2 }}
                                 className="absolute inset-0 bg-no-repeat bg-center"
-                                style={{ backgroundImage: "url('/assets/intro_poster.png')", backgroundSize: 'contain' }}
+                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", backgroundSize: 'contain' }}
                             />
                             {/* Dark Overlay for readability and atmosphere */}
                             <div className="absolute inset-0 bg-black/30 pointer-events-none" />
