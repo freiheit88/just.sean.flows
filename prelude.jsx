@@ -47,6 +47,7 @@ const AudioManager = {
     currentTheme: null,
     mainTheme: null,
     currentMina: null,
+    lastPlayedThemeIndex: {},
 
     playSfx: (id, volume = 0.5, overlap = false) => {
         let filename = `${id}.mp3`;
@@ -91,10 +92,19 @@ const AudioManager = {
         let audioSrc = `/assets/sounds/${langId}-theme.mp3`; // fallback
         let trackName = `${langId}-theme`;
 
-        // Randomly pick if mapped
+        // V28: First time random pick, subsequent clicks toggle (alternate)
         if (THEME_TRACKS[langId] && THEME_TRACKS[langId].length > 0) {
             const tracks = THEME_TRACKS[langId];
-            trackName = tracks[Math.floor(Math.random() * tracks.length)];
+
+            if (AudioManager.lastPlayedThemeIndex[langId] === undefined) {
+                // First click: Pick a random track index
+                AudioManager.lastPlayedThemeIndex[langId] = Math.floor(Math.random() * tracks.length);
+            } else {
+                // Subsequent clicks: Cycle to the next track
+                AudioManager.lastPlayedThemeIndex[langId] = (AudioManager.lastPlayedThemeIndex[langId] + 1) % tracks.length;
+            }
+
+            trackName = tracks[AudioManager.lastPlayedThemeIndex[langId]];
             audioSrc = `/assets/manual_upload/language_thema/${trackName}.wav`;
         }
 
