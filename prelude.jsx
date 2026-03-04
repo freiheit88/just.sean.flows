@@ -424,7 +424,7 @@ const LANGUAGES = [
             comingSoonDesc1: "일단은 여기 까지입니다! Coming soon! 추후 업데이트 됩니다. 하지만 여기서 각 세계관의 음악은 계속 들을 수 있죠.",
             comingSoonDesc2: "각 언어별로 총 2곡이 준비되어 있으니깐, 끝까지 감상해보세요!",
             titleEarned: "새로운 칭호 획득",
-            minaSystem: "SEAN'S COMMENT", minaAction: ">> 행동 필요 : 언어를 선택하십시오 <<",
+            minaSystem: "SEAN의 코멘트", minaAction: ">> 행동 필요 : 언어를 선택하십시오 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
             tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그", fateSealed: "운명 확정"
         }
@@ -484,7 +484,7 @@ const LANGUAGES = [
             comingSoonDesc1: "¡Este es el final de la línea por ahora! Próximamente habrá actualizaciones. Sin embargo, puedes seguir escuchando la música de cada multiverso aquí.",
             comingSoonDesc2: "Hay un total de 2 pistas preparadas para cada idioma, ¡así que disfrútalas hasta el final!",
             titleEarned: "NUEVO TÍTULO ADQUIRIDO",
-            minaSystem: "SEAN'S COMMENT", minaAction: ">> ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
+            minaSystem: "COMENTARIO DE SEAN", minaAction: ">> ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
             tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO", fateSealed: "DESTINO SELLADO"
         }
@@ -514,7 +514,7 @@ const LANGUAGES = [
             comingSoonDesc1: "अभी के लिए बस इतना ही! जल्द ही अपडेट आ रहे हैं। हालाँकि, आप यहाँ प्रत्येक मल्टीवर्स का संगीत सुनना जारी रख सकते हैं।",
             comingSoonDesc2: "प्रत्येक भाषा के लिए कुल 2 ट्रैक तैयार किए गए हैं, इसलिए कृपया अंत तक उनका आनंद लें!",
             titleEarned: "नई उपाधि प्राप्त की",
-            minaSystem: "SEAN'S COMMENT", minaAction: ">> कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
+            minaSystem: "शॉन की टिप्पणी", minaAction: ">> कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है。",
             tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें", fateSealed: "भाग्य सील"
         }
@@ -544,7 +544,7 @@ const LANGUAGES = [
             comingSoonDesc1: "Das ist vorerst das Ende der Reise! Updates folgen in Kürze. Sie können jedoch weiterhin die Musik jedes Multiversums hier anhören.",
             comingSoonDesc2: "Es gibt insgesamt 2 Tracks für jede Sprache, also genießen Sie sie bis zum Ende!",
             titleEarned: "NEUER TITEL ERWORBEN",
-            minaSystem: "SEAN'S COMMENT", minaAction: ">> AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
+            minaSystem: "SEANS KOMMENTAR", minaAction: ">> AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
             tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN", fateSealed: "SCHICKSAL BESIEGELT"
         }
@@ -574,7 +574,7 @@ const LANGUAGES = [
             comingSoonDesc1: "今回はここまでです！アップデートは近日公開予定です。ただし、ここでは各世界観の音楽を引き続き楽しむことができます。",
             comingSoonDesc2: "各言語に合計2曲用意されていますので、最後までお楽しみください！",
             titleEarned: "新しい称号を獲得",
-            minaSystem: "SEAN'S COMMENT", minaAction: ">> アクション要求：マルチバースを選択してください <<",
+            minaSystem: "ショーンのコメント", minaAction: ">> アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
             tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ", fateSealed: "運命確定"
         }
@@ -604,7 +604,7 @@ const LANGUAGES = [
             comingSoonDesc1: "هذه هي نهاية الرحلة في الوقت الحالي! التحديثات قادمة قريباً. ومع ذلك، يمكنك الاستمرار في الاستماع إلى موسيقى كل كون متعدد هنا.",
             comingSoonDesc2: "هناك ما مجموعه مساران جاهزان لكل لغة، لذا يرجى الاستمتاع بهما حتى النهاية!",
             titleEarned: "تم اكتساب لقب جديد",
-            minaSystem: "SEAN'S COMMENT", minaAction: ">> الإجراء المطلوب: حدد كونًا متعددًا <<",
+            minaSystem: "تعليق شون", minaAction: ">> الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
             tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز", fateSealed: "تم ختم القدر"
         }
@@ -634,7 +634,7 @@ const LANGUAGES = [
             comingSoonDesc1: "Na razie to koniec podróży! Aktualizacje wkrótce. Możesz jednak nadal słuchać muzyki z każdego multiwersum tutaj.",
             comingSoonDesc2: "Dla każdego języka przygotowano łącznie 2 utwory, więc ciesz się nimi do końca!",
             titleEarned: "ZDOBYTO NOWY TYTUŁ",
-            minaSystem: "SEAN'S COMMENT", minaAction: ">> WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
+            minaSystem: "KOMENTARZ SEANA", minaAction: ">> WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
             tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA", fateSealed: "LOS ZAPIECZĘTOWANY"
         }
@@ -1084,7 +1084,7 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                             position="relative"
                             interactionMode="passive"
                             badges={archetypes}
-                            sysName={selectedLang?.ui?.minaSystem || "SYSTEM CONSTRUCT: MINA"}
+                            sysName={selectedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
                         />
                     </div>
                 </motion.div>
@@ -1632,7 +1632,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                         text={minaText}
                         position="top"
                         interactionMode={isIntroActive ? 'reading' : 'action'}
-                        sysName={focusedLang?.ui?.minaSystem || "SYSTEM CONSTRUCT: MINA"}
+                        sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
                         actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
                         isSpeaking={isMinaSpeaking}
                     />

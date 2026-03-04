@@ -31,7 +31,7 @@ export const calculateArchetype = (metrics) => {
     } else if (totalClicks > 30 && uniqueCards <= 2) {
         badges.push({ id: 'defier', title: '운명을 거스르는 자', sub: 'Defier of Fate', desc: `수많은 터치에도 고집스럽게 좁은 세계만을 파고듦. (클릭: ${totalClicks}회, 탐색: 단 ${uniqueCards}개)`, color: 'from-amber-600 to-amber-800', isMajor: true });
     } else if (seconds > 60 && seconds < 120 && uniqueCards >= 3 && uniqueCards <= 5 && totalClicks < 20) {
-        badges.push({ id: 'loyal', title: '미나의 모범 요원', sub: 'Mina\'s Loyal Agent', desc: `가장 시스템 설계 의도대로 완벽하게 행동했다. (소요: ${sec}초, 탐색: ${uniqueCards}개)`, color: 'from-[#00E5FF] to-blue-500', isMajor: true });
+        badges.push({ id: 'loyal', title: 'SEAN의 모범 요원', sub: 'SEAN\'s Loyal Agent', desc: `가장 시스템 설계 의도대로 완벽하게 행동했다. (소요: ${sec}초, 탐색: ${uniqueCards}개)`, color: 'from-[#00E5FF] to-blue-500', isMajor: true });
     } else if (selectedLangId === 'ko' && seconds < 20) {
         badges.push({ id: 'prophesied', title: '향수병에 걸린 자', sub: 'The Nostalgic One', desc: `향수병에 이끌리듯 즉시 한국을 택했다. (선택: 한국어, 소요: ${sec}초)`, color: 'from-blue-600 via-white to-red-600', isMajor: true });
     } else if ((selectedLangId === 'ar' || selectedLangId === 'hi') && seconds < 40) {
