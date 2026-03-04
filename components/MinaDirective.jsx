@@ -54,16 +54,9 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
 
                     {/* ALWAYS VISIBLE HEADER (MINIMIZED STATE UI) */}
                     <div
-                        className={`flex items-center gap-4 px-6 py-5 md:px-8 md:py-6 relative z-10 ${disableToggle ? '' : 'cursor-pointer'} transition-colors`}
+                        className={`flex items-center gap-4 px-5 py-4 md:px-8 md:py-6 relative z-10 ${disableToggle ? '' : 'cursor-pointer'} transition-colors`}
                         onClick={() => !disableToggle && setIsFolded(!isFolded)}
                     >
-                        {/* Status Icon - Floating glowing orb instead of box */}
-                        <div className="relative shrink-0 flex items-center justify-center w-12 h-12 md:w-16 md:h-16">
-                            {isSpeaking && <div className="absolute inset-0 rounded-full bg-white/20 blur-md animate-[pulse_2s_ease-in-out_infinite]" />}
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#C5A059]/40 to-white/10 backdrop-blur-sm border border-white/30" />
-                            <LucideSparkles className={`w-5 h-5 md:w-7 md:h-7 relative z-10 ${isSpeaking ? "text-white animate-pulse" : "text-[#FDFCF0]"}`} strokeWidth={1.5} />
-                        </div>
-
                         {/* Title & Message */}
                         <div className="flex flex-col justify-center flex-1 min-w-0">
                             <span className="text-xs md:text-sm font-serif italic text-white/60 tracking-[0.2em]">

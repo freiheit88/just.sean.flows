@@ -64,7 +64,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={handleUnlock}
-                        className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group"
+                        className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group pb-[15vh]"
                     >
                         {/* Centered, Contained Intro Poster Background as requested */}
                         <div className="absolute inset-0 overflow-hidden pointer-events-none bg-black flex items-center justify-center">
@@ -103,7 +103,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
                         transition={{ duration: 1, ease: "easeOut" }}
-                        className="flex flex-col items-center justify-center w-full h-full relative"
+                        className="flex flex-col items-center justify-center w-full h-full relative pb-[15vh]"
                     >
                         {/* Centered, Contained Intro Poster Background as requested */}
                         <div className="absolute inset-0 overflow-hidden pointer-events-none bg-black flex items-center justify-center">
@@ -205,13 +205,13 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                         visible: {
                                             opacity: 1,
                                             y: 0,
-                                            filter: "blur(0px) drop-shadow(0 0 15px rgba(232, 208, 145, 0.8)) drop-shadow(0 0 40px rgba(197, 160, 89, 0.9))",
+                                            filter: "blur(0px) drop-shadow(0 0 25px rgba(232, 208, 145, 1)) drop-shadow(0 0 60px rgba(197, 160, 89, 1))",
                                             transition: { duration: 0.8, ease: "easeOut" }
                                         }
                                     }}
                                     className="text-white font-bold italic tracking-tighter mix-blend-screen leading-none px-2"
                                     style={{
-                                        fontSize: "clamp(24px, 6vw, 160px)",
+                                        fontSize: "clamp(16.5px, 4.2vw, 112px)",
                                         lineHeight: 1
                                     }}
                                 >
