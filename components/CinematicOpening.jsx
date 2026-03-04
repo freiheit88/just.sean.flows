@@ -66,13 +66,14 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         onClick={handleUnlock}
                         className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group"
                     >
-                        {/* New Background with Heavy Blur */}
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        {/* Centered, Contained Intro Poster Background as requested */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none bg-black flex items-center justify-center">
                             <motion.div
-                                initial={{ scale: 1.05 }}
-                                animate={{ scale: 1.05 }}
-                                className="absolute inset-[-2%] bg-cover bg-center"
-                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(8px) brightness(0.9)" }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1, filter: "blur(4px)" }}
+                                transition={{ duration: 2 }}
+                                className="absolute inset-0 bg-no-repeat bg-center"
+                                style={{ backgroundImage: "url('/assets/intro_poster.png')", backgroundSize: 'contain' }}
                             />
                             {/* Dark Overlay for readability and atmosphere */}
                             <div className="absolute inset-0 bg-black/30 pointer-events-none" />
