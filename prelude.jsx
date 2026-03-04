@@ -1619,7 +1619,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
 
             {/* Mina UI Scoreboard - Now strictly matching the Language Grid/Card width */}
             <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
-                <div className="w-full w-[95vw] md:w-auto md:min-w-[480px] max-w-4xl px-2 md:px-4">
+                <div className="w-full max-w-5xl px-4 md:px-8 mx-auto">
                     <MinaDirective
                         isVisible={true}
                         activeStep="language"

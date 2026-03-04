@@ -27,10 +27,9 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
             >
                 <motion.div
                     layout
-                    className={`flex flex-col overflow-hidden relative bg-black border-[3px] shadow-[8px_8px_0px_rgba(197,160,89,0.3)] transition-colors
-                        ${isFolded ? 'rounded-none border-[#C5A059] cursor-pointer hover:bg-[#111]' : 'rounded-none border-white w-[340px] sm:w-[380px] md:w-[420px]'}`}
+                    className={`flex flex-col w-full overflow-hidden relative bg-black border-[3px] shadow-[8px_8px_0px_rgba(197,160,89,0.3)] transition-colors
+                        ${isFolded ? 'rounded-none border-[#C5A059] cursor-pointer hover:bg-[#111]' : 'rounded-none border-white'}`}
                     animate={{
-                        width: isFolded ? 'auto' : undefined,
                         height: isFolded ? 64 : (activeTab === 'directive' ? 320 : 420)
                     }}
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
