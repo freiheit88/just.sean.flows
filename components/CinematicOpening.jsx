@@ -72,7 +72,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                 initial={{ scale: 1.05 }}
                                 animate={{ scale: 1.05 }}
                                 className="absolute inset-[-2%] bg-cover bg-center"
-                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(6px) brightness(1.2)" }}
+                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(8px) brightness(0.9)" }}
                             />
                             {/* Dark Overlay for readability and atmosphere */}
                             <div className="absolute inset-0 bg-black/30 pointer-events-none" />

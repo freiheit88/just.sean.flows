@@ -1446,7 +1446,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
             {/* Static SEAN flows background (User provided) */}
             <div
                 className="fixed inset-0 z-[-1] bg-cover bg-center opacity-40 mix-blend-screen pointer-events-none"
-                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(4px)" }}
+                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(6px)" }}
             />
 
             {/* Dynamic Native Image Background */}
