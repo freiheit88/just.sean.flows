@@ -297,31 +297,28 @@ const AudioManager = {
 
         if (window.setMinaSpeaking) window.setMinaSpeaking(true);
 
-        const signatureAudio = new Audio(`/assets/sounds/signature/sig-${langId}.mp3`);
-        signatureAudio.volume = volume;
+        // V31: Tchaikovsky Orchestral SFX Replaces TTS mapping
+        // We bypass the language-specific TTS and directly play the newly generated 1.5s SFX mapping
+        // Mapping: step 'language', 'auth', 'avatar', 'confirm', 'dashboard'
 
-        const minaAudio = new Audio(`/assets/sounds/mina/mina-${langId}-${step}.mp3`);
-        minaAudio.crossOrigin = "anonymous";
+        // Disable signature sound as the new SFX is a full 1.5s orchestration that stands alone
 
-        // V28: Web Audio API Gain Node to push volume beyond HTML max limit (1.0)
-        try {
-            if (!AudioManager.audioCtx) {
-                AudioManager.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (AudioManager.audioCtx.state === 'suspended') {
-                AudioManager.audioCtx.resume();
-            }
-            const source = AudioManager.audioCtx.createMediaElementSource(minaAudio);
-            const gainNode = AudioManager.audioCtx.createGain();
-            gainNode.gain.value = volume * 2.5; // Boost by 250%
-            source.connect(gainNode);
-            gainNode.connect(AudioManager.audioCtx.destination);
-        } catch (e) {
-            console.warn("Web Audio API Gain failed, falling back to standard volume.", e);
-            minaAudio.volume = Math.min(volume, 1.0);
+        let sfxFilePath = `/assets/sounds/mina/mina-ko-${step}.mp3`;
+        // Fallback for steps that might not have a generated SFX (though all 5 core UI steps do)
+        const validSteps = ['language', 'auth', 'avatar', 'confirm', 'dashboard'];
+        if (!validSteps.includes(step)) {
+            sfxFilePath = `/assets/sounds/mina/mina-ko-language.mp3`; // default bright chime
         }
 
+        const minaAudio = new Audio(sfxFilePath);
+        minaAudio.crossOrigin = "anonymous";
+        minaAudio.volume = volume;
+
+        // V28: Web Audio API Removed since Orchestral SFX is pre-mastered loudly
+
+
         // --- 2. Restore Volume upon Complete ---
+        // Since SFX is exactly 1.5s with a 1s natural fade-out tail, we can immediately restore volume
         minaAudio.onended = () => {
             if (window.setMinaSpeaking) window.setMinaSpeaking(false);
             const hasTheme = AudioManager.currentTheme && !AudioManager.currentTheme.paused;
@@ -365,15 +362,8 @@ const AudioManager = {
             }
         };
 
-        signatureAudio.onended = () => {
-            minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
-        };
-
-        signatureAudio.play().catch(() => {
-            // Fallback if signature fails
-            minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
-        });
-        AudioManager.currentSignature = signatureAudio;
+        // Play the SFX directly without signature sound chaining
+        minaAudio.play().catch(() => { if (window.setMinaSpeaking) window.setMinaSpeaking(false); });
         AudioManager.currentMina = minaAudio;
     },
 
@@ -414,17 +404,17 @@ const LANGUAGES = [
             confirmTitle: "당신의 세계가 맞습니까?", confirmBtn: "확정합니다", confirmDone: "언어 동기화 완료",
             todoTitle: "선언문", todo1: "신원 확립", todo2: "심장 점검", todo3: "운명 봉인", todoDone: "운명이 발현되었습니다.",
             consulting: "알고리즘이 속삭입니다...", sealBtn: "이 운명을 봉인하기", fateSealed: "운명 확정",
-            directiveLanguage: "원하는 세계관을 드래그하세요.",
-            directiveConfirm: "지문을 찍어 운명을 확정하세요.",
-            directiveAuth: "이름이나 사진으로 인증하세요.",
-            directiveAvatar: "당신의 페르소나가 완성되었습니다.",
-            directiveDashboard: "기록 보관소를 탐색하세요.",
+            directiveLanguage: "▶️ 원하는 세계를 중앙으로\n[드래그] 하세요.",
+            directiveConfirm: "📜 마지막 맹세입니다.\n낙인을 [클릭] 하세요.",
+            directiveAuth: "👤 자아 증명 대기중...\n[이름] 입력 또는 [사진] 업로드",
+            directiveAvatar: "✨ 그릇 완성!\n하단 버튼 [클릭]",
+            directiveDashboard: "🎭 막이 올랐습니다!\n기록의 전당으로 입장하세요.",
             comingSoon: "곧 돌아옵니다",
             archetypeBadge: "관측된 영혼의 형태",
             comingSoonDesc1: "일단은 여기 까지입니다! Coming soon! 추후 업데이트 됩니다. 하지만 여기서 각 세계관의 음악은 계속 들을 수 있죠.",
             comingSoonDesc2: "각 언어별로 총 2곡이 준비되어 있으니깐, 끝까지 감상해보세요!",
             titleEarned: "새로운 칭호 획득",
-            minaSystem: "SEAN의 코멘트", minaAction: ">> 행동 필요 : 언어를 선택하십시오 <<",
+            minaSystem: "🎻 수석 지휘자", minaAction: ">> 🎼 첫 막: 언어를 선택하세요 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
             tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그", fateSealed: "운명 확정"
         }
@@ -444,17 +434,17 @@ const LANGUAGES = [
             confirmTitle: "Is this your native tongue?", confirmBtn: "I Agree", confirmDone: "Language Bound",
             todoTitle: "Manifest", todo1: "Forge Identity", todo2: "Inspect Heart", todo3: "Seal Fate", todoDone: "Destiny manifested.",
             consulting: "The Algorithm whispers...", sealBtn: "Seal this fate", fateSealed: "Fate Locked",
-            directiveLanguage: "Drag your chosen multiverse.",
-            directiveConfirm: "Imprint to seal fate.",
-            directiveAuth: "Verify identity now.",
-            directiveAvatar: "Your persona is forged.",
-            directiveDashboard: "Investigate the Manor archives.",
+            directiveLanguage: "Drag your chosen\nmultiverse.",
+            directiveConfirm: "Imprint to\nseal fate.",
+            directiveAuth: "Verify identity\nnow.",
+            directiveAvatar: "Your persona\nis forged.",
+            directiveDashboard: "Investigate the\nManor archives.",
             comingSoon: "Coming Soon",
             archetypeBadge: "OBSERVED SOUL ARCHETYPE",
             comingSoonDesc1: "This is the current end of the line! Updates coming soon. However, you can continue listening to the music of each multiverse here.",
             comingSoonDesc2: "There are a total of 2 tracks prepared for each language, so please enjoy them to the end!",
             titleEarned: "NEW TITLE ACQUIRED",
-            minaSystem: "SEAN'S COMMENT", minaAction: ">> ACTION REQUIRED: SELECT A MULTIVERSE <<",
+            minaSystem: "🎻 PRINCIPAL CONDUCTOR", minaAction: ">> 🎼 ACTION REQUIRED: SELECT A MULTIVERSE <<",
             inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
             tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER", fateSealed: "FATE SEALED"
         }
@@ -474,17 +464,17 @@ const LANGUAGES = [
             confirmTitle: "¿Es esta tu lengua materna?", confirmBtn: "Estoy de acuerdo", confirmDone: "Idioma Vinculado",
             todoTitle: "Manifiesto", todo1: "Forjar Identidad", todo2: "Inspeccionar Corazón", todo3: "Sellar Destino", todoDone: "Destino manifestado.",
             consulting: "El algoritmo susurra...", sealBtn: "Sellar este destino", fateSealed: "Destino bloqueado",
-            directiveLanguage: "Arrastra tu multiverso elegido.",
-            directiveConfirm: "Imprime para sellar destino.",
-            directiveAuth: "Verifica tu identidad ahora.",
-            directiveAvatar: "Tu persona está forjada.",
-            directiveDashboard: "Investiga los archivos ahora.",
+            directiveLanguage: "Arrastra el multiverso\nelegido.",
+            directiveConfirm: "Imprime para\nsellar el destino.",
+            directiveAuth: "Verifica\ntu identidad.",
+            directiveAvatar: "Tu persona\nestá forjada.",
+            directiveDashboard: "Investiga los\narchivos de la Mansión.",
             comingSoon: "Próximamente",
             archetypeBadge: "ARQUETIPO DE ALMA OBSERVADA",
             comingSoonDesc1: "¡Este es el final de la línea por ahora! Próximamente habrá actualizaciones. Sin embargo, puedes seguir escuchando la música de cada multiverso aquí.",
             comingSoonDesc2: "Hay un total de 2 pistas preparadas para cada idioma, ¡así que disfrútalas hasta el final!",
             titleEarned: "NUEVO TÍTULO ADQUIRIDO",
-            minaSystem: "COMENTARIO DE SEAN", minaAction: ">> ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
+            minaSystem: "🎻 DIRECTOR PRINCIPAL", minaAction: ">> 🎼 ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
             tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO", fateSealed: "DESTINO SELLADO"
         }
@@ -504,17 +494,17 @@ const LANGUAGES = [
             confirmTitle: "क्या यह आपकी मातृभाषा है?", confirmBtn: "मैं सहमत हूँ", confirmDone: "भाषा बाध्य",
             todoTitle: "घोषणापत्र", todo1: "पहचान बनाएं", todo2: "हृदय का निरीक्षण करें", todo3: "भाग्य को सील करें", todoDone: "भाग्य प्रकट हुआ।",
             consulting: "एल्गोरिथम फुसफुसाता है...", sealBtn: "इस भाग्य को सील करें", fateSealed: "भाग्य लॉक हो गया",
-            directiveLanguage: "अपना मल्टीवर्स खींचें।",
-            directiveConfirm: "भाग्य को सील करें।",
-            directiveAuth: "अपनी पहचान सत्यापित करें।",
-            directiveAvatar: "आपका व्यक्तित्व तैयार है।",
-            directiveDashboard: "अभिलेखागार की जांच करें।",
+            directiveLanguage: "अपना चुना हुआ\nमल्टीवर्स खींचें।",
+            directiveConfirm: "भाग्य पर\nमुहर लगाएँ।",
+            directiveAuth: "अभी पहचान\nसत्यापित करें।",
+            directiveAvatar: "खिलाड़ी\nतैयार है।",
+            directiveDashboard: "जागीर अभिलेखागार\nकी जांच करें।",
             comingSoon: "जल्द आ रहा है",
             archetypeBadge: "देखा गया आत्मा का मूलरूप",
             comingSoonDesc1: "अभी के लिए बस इतना ही! जल्द ही अपडेट आ रहे हैं। हालाँकि, आप यहाँ प्रत्येक मल्टीवर्स का संगीत सुनना जारी रख सकते हैं।",
             comingSoonDesc2: "प्रत्येक भाषा के लिए कुल 2 ट्रैक तैयार किए गए हैं, इसलिए कृपया अंत तक उनका आनंद लें!",
             titleEarned: "नई उपाधि प्राप्त की",
-            minaSystem: "शॉन की टिप्पणी", minaAction: ">> कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
+            minaSystem: "🎻 प्रधान संवाहक", minaAction: ">> 🎼 कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है。",
             tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें", fateSealed: "भाग्य सील"
         }
@@ -534,17 +524,17 @@ const LANGUAGES = [
             confirmTitle: "Ist dies Ihre Muttersprache?", confirmBtn: "Ich stimme zu", confirmDone: "Sprache gebunden",
             todoTitle: "Manifest", todo1: "Identität schmieden", todo2: "Herz inspizieren", todo3: "Schicksal besiegeln", todoDone: "Schicksal manifestiert.",
             consulting: "Der Algorithmus flüstert...", sealBtn: "Schicksal besiegeln", fateSealed: "Schicksal gesperrt",
-            directiveLanguage: "Ziehe dein gewähltes Multiversum.",
-            directiveConfirm: "Drücke, um Schicksal besiegeln.",
-            directiveAuth: "Verifiziere deine Identität jetzt.",
-            directiveAvatar: "Deine Persona ist geschmiedet.",
-            directiveDashboard: "Untersuche die Manor-Archive.",
+            directiveLanguage: "Ziehen Sie das\ngewählte Multiversum.",
+            directiveConfirm: "Aufdrucken, um das\nSchicksal zu besiegeln.",
+            directiveAuth: "Identität\njetzt verfizieren.",
+            directiveAvatar: "Ihre Persona\nist geschmiedet.",
+            directiveDashboard: "Untersuchen Sie die\nArchive des Herrenhauses.",
             comingSoon: "Demnächst",
             archetypeBadge: "BEOBACHTETER SEELEN-ARCHETYP",
             comingSoonDesc1: "Das ist vorerst das Ende der Reise! Updates folgen in Kürze. Sie können jedoch weiterhin die Musik jedes Multiversums hier anhören.",
             comingSoonDesc2: "Es gibt insgesamt 2 Tracks für jede Sprache, also genießen Sie sie bis zum Ende!",
             titleEarned: "NEUER TITEL ERWORBEN",
-            minaSystem: "SEANS KOMMENTAR", minaAction: ">> AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
+            minaSystem: "🎻 CHEFDIRIGENT", minaAction: ">> 🎼 AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
             tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN", fateSealed: "SCHICKSAL BESIEGELT"
         }
@@ -564,17 +554,17 @@ const LANGUAGES = [
             confirmTitle: "この言語があなたの母国語ですか？", confirmBtn: "同意する", confirmDone: "言語バインド完了",
             todoTitle: "マニフェスト", todo1: "身元を錬成", todo2: "心臓を点検", todo3: "運命を封印", todoDone: "運命が具現化されました。",
             consulting: "アルゴリズムの囁き...", sealBtn: "運命を封印する", fateSealed: "運命確定",
-            directiveLanguage: "世界観をドラッグしてください。",
-            directiveConfirm: "指紋で運命を確定。",
-            directiveAuth: "身元を証明してください。",
-            directiveAvatar: "ペルソナが完成しました。",
-            directiveDashboard: "保管所を探索してください。",
+            directiveLanguage: "世界観を中央へ\nドラッグしてください。",
+            directiveConfirm: "指紋で運命を\n確定します。",
+            directiveAuth: "身元を\n証明してください。",
+            directiveAvatar: "ペルソナが\n完成しました。",
+            directiveDashboard: "保管所を\n探索してください。",
             comingSoon: "近日公開",
             archetypeBadge: "観測された魂の形態",
             comingSoonDesc1: "今回はここまでです！アップデートは近日公開予定です。ただし、ここでは各世界観の音楽を引き続き楽しむことができます。",
             comingSoonDesc2: "各言語に合計2曲用意されていますので、最後までお楽しみください！",
             titleEarned: "新しい称号を獲得",
-            minaSystem: "ショーンのコメント", minaAction: ">> アクション要求：マルチバースを選択してください <<",
+            minaSystem: "🎻 首席指揮者", minaAction: ">> 🎼 アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
             tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ", fateSealed: "運命確定"
         }
@@ -594,17 +584,17 @@ const LANGUAGES = [
             confirmTitle: "هل هذه لغتك الأم؟", confirmBtn: "أوافق", confirmDone: "تم ربط اللغة",
             todoTitle: "البيان", todo1: "صياغة الهوية", todo2: "فحص القلب", todo3: "ختم القدر", todoDone: "القدر يتجلى.",
             consulting: "الخوارزمية تهمس...", sealBtn: "ختم هذا القدر", fateSealed: "القدر مغلق",
-            directiveLanguage: "اسحب الكون المتعدد الخاص.",
-            directiveConfirm: "ابصم لختم المصير.",
-            directiveAuth: "تحقق من هويتك الآن.",
-            directiveAvatar: "تم تشكيل شخصيتك.",
-            directiveDashboard: "اكتشف أرشيف القصر.",
+            directiveLanguage: "اسحب الكون\nالمتعدد الخاص بك.",
+            directiveConfirm: "ابصم\nلختم المصير.",
+            directiveAuth: "تحقق من\nهويتك الآن.",
+            directiveAvatar: "تم تشكيل\nشخصيتك.",
+            directiveDashboard: "اكتشف\nأرشيف القصر.",
             comingSoon: "قريباً",
             archetypeBadge: "نموذج الروح الملحوظ",
             comingSoonDesc1: "هذه هي نهاية الرحلة في الوقت الحالي! التحديثات قادمة قريباً. ومع ذلك، يمكنك الاستمرار في الاستماع إلى موسيقى كل كون متعدد هنا.",
             comingSoonDesc2: "هناك ما مجموعه مساران جاهزان لكل لغة، لذا يرجى الاستمتاع بهما حتى النهاية!",
             titleEarned: "تم اكتساب لقب جديد",
-            minaSystem: "تعليق شون", minaAction: ">> الإجراء المطلوب: حدد كونًا متعددًا <<",
+            minaSystem: "🎻 المايسترو الرئيسي", minaAction: ">> 🎼 الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
             tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز", fateSealed: "تم ختم القدر"
         }
@@ -624,17 +614,17 @@ const LANGUAGES = [
             confirmTitle: "Czy to twój język ojczysty?", confirmBtn: "Wyrażam zgodę", confirmDone: "Język Związany",
             todoTitle: "Manifest", todo1: "Wykuj Tożsamość", todo2: "Zbadaj Serce", todo3: "Zapieczętuj Los", todoDone: "Przeznaczenie zrealizowane.",
             consulting: "Algorytm Szepcze...", sealBtn: "Zapieczętuj ten los", fateSealed: "Los Zablokowany",
-            directiveLanguage: "Przeciągnij wybrane multiwersum.",
-            directiveConfirm: "Odciśnij, by zapieczętować los.",
-            directiveAuth: "Zweryfikuj tożsamość teraz.",
-            directiveAvatar: "Twoja persona jest gotowa.",
-            directiveDashboard: "Zbadaj archiwa Dworu.",
+            directiveLanguage: "Przeciągnij wybrane\nmultiwersum.",
+            directiveConfirm: "Odciśnij, by\nzapieczętować los.",
+            directiveAuth: "Zweryfikuj\ntożsamość teraz.",
+            directiveAvatar: "Twoja persona\njest gotowa.",
+            directiveDashboard: "Zbadaj \narchiwa Dworu.",
             comingSoon: "Wkrótce",
             archetypeBadge: "ZAABSERWOWANY ARCHETYP DUSZY",
             comingSoonDesc1: "Na razie to koniec podróży! Aktualizacje wkrótce. Możesz jednak nadal słuchać muzyki z każdego multiwersum tutaj.",
             comingSoonDesc2: "Dla każdego języka przygotowano łącznie 2 utwory, więc ciesz się nimi do końca!",
             titleEarned: "ZDOBYTO NOWY TYTUŁ",
-            minaSystem: "KOMENTARZ SEANA", minaAction: ">> WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
+            minaSystem: "🎻 GŁÓWNY DYRYGENT", minaAction: ">> 🎼 WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
             tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA", fateSealed: "LOS ZAPIECZĘTOWANY"
         }
@@ -1040,9 +1030,8 @@ const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePre
     </div>
 );
 
-const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metrics }) => {
-    const [archetypes, setArchetypes] = useState([]);
-    const primaryArchetype = archetypes.length > 0 ? archetypes[0] : null;
+const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metrics, onEarnBadge, earnedBadges }) => {
+    const primaryArchetype = earnedBadges.length > 0 ? earnedBadges[0] : null;
 
     // Calculate Archetype Title on Load
     useEffect(() => {
@@ -1053,8 +1042,11 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
             selectedLangId: selectedLang?.id
         };
         const calculated = calculateArchetype(enhancedMetrics);
-        setArchetypes(calculated);
-    }, [metrics, selectedLang]);
+        // Only trigger if we found something new to avoid infinite loops, simplistic deduplication by ID
+        if (calculated && calculated.length > 0) {
+            onEarnBadge(calculated);
+        }
+    }, [metrics, selectedLang, onEarnBadge]);
 
     return (
         <motion.div
@@ -1063,34 +1055,34 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.8 }}
-            className="fixed inset-0 z-[99999] bg-gradient-to-t from-black via-black/80 to-transparent w-full h-full flex flex-col items-center justify-center p-6 text-center overflow-auto pointer-events-auto"
+            className="fixed inset-0 z-[99999] bg-gradient-to-t from-black via-black/80 to-transparent w-full h-full flex flex-col items-center justify-center p-6 md:p-8 text-center overflow-auto pointer-events-auto"
             style={{ minHeight: '100vh', width: '100vw' }}
         >
             <AnimatePresence mode="wait">
                 <motion.div
                     key="mina-announcement"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, y: -20, x: "-50%" }}
+                    animate={{ opacity: 1, y: 0, x: "-50%" }}
+                    exit={{ opacity: 0, y: -10, x: "-50%" }}
                     transition={{ duration: 1.2, delay: 0.2, type: "spring", bounce: 0.3 }}
-                    className="w-full max-w-md relative flex flex-col items-center mb-12 flex-shrink-0 mt-8"
+                    className="w-[95%] max-w-[500px] absolute top-6 md:top-8 left-1/2 flex flex-col items-center z-[5000]"
                 >
                     {/* Inventory / Title Unlocked Announcement using MinaDirective */}
-                    <div className="w-full flex justify-center opacity-90 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+                    <div className="w-full flex justify-center opacity-95 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
                         <MinaDirective
                             isVisible={true}
                             activeStep="coming_soon"
-                            text={primaryArchetype ? `${selectedLang?.ui?.titleEarned || "NEW TITLE ACQUIRED"}: [ ${primaryArchetype.title} ]` : "분석 중..."}
+                            text={primaryArchetype ? `${selectedLang?.ui?.titleEarned || "NEW TITLE ACQUIRED"}: [ ${selectedLang?.id === 'ko' ? primaryArchetype.title : (primaryArchetype.sub || primaryArchetype.title)} ]` : "Analyzing..."}
                             position="relative"
                             interactionMode="passive"
-                            badges={archetypes}
+                            badges={earnedBadges}
                             sysName={selectedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
                         />
                     </div>
                 </motion.div>
             </AnimatePresence>
 
-            <div className="mb-12 relative flex justify-center items-end h-24 gap-1.5 opacity-60 flex-shrink-0">
+            <div className="mb-12 mt-40 md:mt-48 relative flex justify-center items-end h-24 gap-1.5 opacity-60 flex-shrink-0">
                 {[...Array(15)].map((_, i) => (
                     <motion.div
                         key={i}
@@ -1106,7 +1098,7 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className={`text-3xl md:text-5xl font-black uppercase tracking-[0.2em] mb-4 flex-shrink-0 ${currentTheme?.text || 'text-white'}`}
+                className={`text-3xl md:text-5xl font-black uppercase tracking-[0.2em] mb-4 flex-shrink-0 px-4 w-full break-words ${currentTheme?.text || 'text-white'}`}
                 style={{ textShadow: "0 0 20px rgba(197,160,89,0.3)" }}
             >
                 {selectedLang?.ui?.comingSoon || "Coming Soon"}
@@ -1116,10 +1108,10 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className={`text-sm md:text-base font-bold italic max-w-sm leading-relaxed opacity-90 break-keep ${currentTheme?.text || 'text-white'}`}
+                className={`text-sm md:text-base font-bold italic max-w-sm w-full px-4 leading-relaxed opacity-90 break-keep word-break ${currentTheme?.text || 'text-white'}`}
             >
                 "{selectedLang?.ui?.comingSoonDesc1 || "This is the current end of the line! Updates coming soon. However, you can continue listening to the music of each multiverse here."}"<br /><br />
-                <span className="text-[#00E5FF] font-black drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]">
+                <span className="text-[#00E5FF] font-black drop-shadow-[0_0_10px_rgba(0,229,255,0.8)] block w-full">
                     {selectedLang?.ui?.comingSoonDesc2 || "There are a total of 2 tracks prepared for each language, so please enjoy them to the end!"}
                 </span>
             </motion.p>
@@ -1136,7 +1128,7 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                     }}
                     className={`px-8 py-4 border active:scale-95 transition-all text-[10px] uppercase font-black font-sans tracking-[0.3em] backdrop-blur-md ${currentTheme?.border || 'border-[#C5A059]/40'} ${currentTheme?.text || 'text-white'} hover:bg-white/10 shadow-lg`}
                 >
-                    Enter Gallery
+                    {selectedLang?.id === 'ko' ? "매너 갤러리" : "Enter Gallery"}
                 </motion.button>
                 <motion.button
                     initial={{ opacity: 0, y: 10 }}
@@ -1144,11 +1136,11 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                     transition={{ delay: 1.2 }}
                     onClick={() => {
                         AudioManager.playSfx('click', 0.6);
-                        setStep('selection');
+                        setStep('language');
                     }}
                     className="px-8 py-3 opacity-60 hover:opacity-100 active:scale-95 transition-all text-[10px] uppercase font-black tracking-widest text-[#00E5FF] hover:text-white"
                 >
-                    Return to Multiverse
+                    {selectedLang?.id === 'ko' ? "다중 우주로 돌아가기" : "Return to Multiverse"}
                 </motion.button>
             </div>
         </motion.div>
@@ -1325,7 +1317,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
     );
 };
 
-const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking }) => {
+const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking, earnedBadges, onEarnBadge }) => {
     const [focusedLang, setFocusedLang] = useState(null);
     const [stagedLang, setStagedLang] = useState(null);
     const [minaText, setMinaText] = useState("");
@@ -1372,6 +1364,20 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
     };
 
     const onCardReady = (payload) => {
+        // [V30 UPDATE: Track Archetypes in Real-Time during exploration]
+        if (onEarnBadge) {
+            const metrics = {
+                totalClicks: payload.clickCount || cardsExplored.size,
+                uniqueCards: cardsExplored.size,
+                sessionTimeSeconds: 5,
+                selectedLangId: payload.id
+            };
+            const calculated = calculateArchetype(metrics);
+            if (calculated && calculated.length > 0) {
+                onEarnBadge(calculated);
+            }
+        }
+
         if (payload.requestBackground) {
             setActiveBackground(payload.image);
         }
@@ -1441,7 +1447,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
     };
 
     return (
-        <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4 mt-24 md:mt-16 overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
+        <div className="w-full mx-auto h-full flex flex-col items-center justify-center p-0 md:p-4 overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
 
             {/* Static SEAN flows background (User provided) */}
             <div
@@ -1455,7 +1461,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                 style={activeBackground ? { backgroundImage: `url(${activeBackground})` } : {}}
             />
 
-            <div id="language-grid" className={`w-full grid grid-cols-3 grid-rows-3 gap-2 md:gap-4 bg-black/40 backdrop-blur-3xl p-3 md:p-6 border border-white/5 rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative z-10 transition-all duration-1000 ${isIntroActive ? 'opacity-40 blur-sm scale-95 pointer-events-none' : 'opacity-100 blur-0 scale-100'}`}>
+            <div id="language-grid" className={`w-full grid grid-cols-3 grid-rows-3 gap-1 md:gap-4 bg-black/40 backdrop-blur-3xl p-1 md:p-6 border border-white/5 rounded-lg md:rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative z-10 transition-all duration-1000 ${isIntroActive ? 'opacity-40 blur-sm scale-95 pointer-events-none' : 'opacity-100 blur-0 scale-100'}`}>
                 {/* Background "Flow" Effect */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_70%)] animate-pulse pointer-events-none" />
 
@@ -1576,7 +1582,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                                             className="flex flex-col items-center justify-center text-center p-2 md:p-4 bg-white/5 border-2 rounded-xl border-dashed w-full h-full"
                                         >
                                             <LucideCompass className={`${focusedLang ? 'text-[#C5A059] animate-spin-slow scale-150' : 'text-white/40 scale-125'} mb-4 transition-all`} size={40} />
-                                            <h2 className={`text-xs md:text-base font-black ${focusedLang ? 'text-[#C5A059]' : 'text-white/40'} uppercase tracking-[0.4em] leading-tight text-center transition-colors`}>
+                                            <h2 className={`text-[9px] sm:text-[10px] md:text-sm font-black ${focusedLang ? 'text-[#C5A059]' : 'text-white/40'} uppercase tracking-widest md:tracking-[0.3em] leading-snug px-1 break-words text-center transition-colors`}>
                                                 {focusedLang ? focusedLang.ui.drag : 'ANCHOR'}
                                             </h2>
                                         </motion.div>
@@ -1629,6 +1635,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                         sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
                         actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
                         isSpeaking={isMinaSpeaking}
+                        badges={earnedBadges}
                     />
                 </div>
             </div>
@@ -1705,6 +1712,11 @@ const App = () => {
     // User Achievement Tracking State
     const [appStartTime] = useState(Date.now());
     const [totalClicks, setTotalClicks] = useState(0);
+
+    // [V29 UPDATE: Lifted state to persist earned titles]
+    const [earnedBadges, setEarnedBadges] = useState([]);
+
+    // Track clicks for archetype calculation
     const [cardsExplored, setCardsExplored] = useState(new Set());
 
     // V20: Immediate voice guidance on load (ENSURE EN-GB)
@@ -2125,6 +2137,14 @@ const App = () => {
                                         cardsExplored={cardsExplored}
                                         setCardsExplored={setCardsExplored}
                                         isMinaSpeaking={isMinaSpeaking}
+                                        earnedBadges={earnedBadges}
+                                        onEarnBadge={(newBadges) => {
+                                            setEarnedBadges(prev => {
+                                                const existingIds = new Set(prev.map(b => b.id));
+                                                const toAdd = newBadges.filter(b => !existingIds.has(b.id));
+                                                return [...toAdd, ...prev];
+                                            });
+                                        }}
                                     />
                                 )}
                                 {step === 'confirm' && (
@@ -2141,6 +2161,14 @@ const App = () => {
                                             uniqueCards: cardsExplored.size,
                                             timeSpentMs: Date.now() - appStartTime
                                         }}
+                                        onEarnBadge={(newBadges) => {
+                                            setEarnedBadges(prev => {
+                                                const existingIds = new Set(prev.map(b => b.id));
+                                                const toAdd = newBadges.filter(b => !existingIds.has(b.id));
+                                                return [...toAdd, ...prev];
+                                            });
+                                        }}
+                                        earnedBadges={earnedBadges}
                                     />
                                 )}
                                 {/* More steps would follow, refactored to use currentTheme classes */}

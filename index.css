@@ -11,13 +11,33 @@
 
     html,
     body {
-        @apply h-screen overflow-hidden bg-[#1A1612];
+        @apply w-screen h-screen overflow-hidden bg-black;
         margin: 0;
         padding: 0;
         -webkit-font-smoothing: antialiased;
         /* V9: Force mobile viewport stability */
         touch-action: manipulation;
         overscroll-behavior: none;
+        /* Desktop wrapper styling */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: radial-gradient(circle at center, #1A1612 0%, #000 100%);
+    }
+
+    #root {
+        position: relative;
+        width: 100%;
+        max-width: 430px;
+        /* Modern mobile width constraint */
+        height: 100dvh;
+        max-height: 100dvh;
+        margin: 0 auto;
+        overflow: hidden;
+        /* Secret to restricting 'fixed' children to this wrapper */
+        contain: layout paint;
+        background-color: #1A1612;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 100px rgba(0, 0, 0, 0.5);
     }
 
     h1,
