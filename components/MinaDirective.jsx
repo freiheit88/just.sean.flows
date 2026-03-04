@@ -11,7 +11,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
     // Draggable container logic
     const containerClasses = position === 'fixed'
         ? "pointer-events-auto fixed bottom-8 left-1/2 -translate-x-1/2 z-[9999]"
-        : "pointer-events-auto mx-auto relative z-[5000] mt-4 flex justify-center";
+        : "pointer-events-auto mx-auto relative z-[5000] mt-4 flex justify-center w-full";
 
     return (
         <AnimatePresence mode="wait">

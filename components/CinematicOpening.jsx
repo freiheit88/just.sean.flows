@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucideSparkles, LucideOrbit, LucideInstagram } from 'lucide-react';
 import SmokeAssistant from './SmokeAssistant';
+import MinaDirective from './MinaDirective';
 
 const CinematicOpening = ({ onStart, onComplete }) => {
     const [phase, setPhase] = useState('locked'); // locked, idle, ignite, flash, finish
@@ -65,10 +66,31 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         onClick={handleUnlock}
                         className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group"
                     >
-                        <LucideOrbit className="w-24 h-24 md:w-32 md:h-32 text-[#C5A059] opacity-50 mb-8 md:mb-12 group-hover:scale-110 transition-transform duration-500 animate-[spin_10s_linear_infinite]" />
-                        <span className="text-[#8B7355] text-2xl md:text-5xl tracking-[0.3em] uppercase font-mono animate-pulse group-hover:text-[#C5A059] transition-colors text-center px-4 font-black drop-shadow-md">
-                            CLICK ANYWHERE TO BEGIN
-                        </span>
+                        {/* New Background with Heavy Blur */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                            <motion.div
+                                initial={{ scale: 1.1 }}
+                                animate={{ scale: 1.1 }}
+                                className="absolute inset-[-5%] bg-cover bg-center grayscale-[20%]"
+                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(20px)" }}
+                            />
+                            {/* Dark Overlay for readability and atmosphere */}
+                            <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+                        </div>
+
+                        {/* SEAN's comment / MinaDirective implementation */}
+                        <div className="relative z-[5000] w-full max-w-5xl px-4 md:px-8 mx-auto pointer-events-none flex justify-center">
+                            <MinaDirective
+                                isVisible={true}
+                                activeStep="locked"
+                                text="PRESS AREA TO INITIATE"
+                                position="top"
+                                interactionMode="reading"
+                                sysName="SEAN'S COMMENT"
+                                actionReq=">> ACTION REQUIRED: CLICK ANYWHERE TO BEGIN <<"
+                                isSpeaking={false}
+                            />
+                        </div>
                     </motion.div>
                 )}
 
