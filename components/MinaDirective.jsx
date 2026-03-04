@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucideMessageSquare, LucideAward, LucideSparkles, LucideChevronUp, LucideTrophy, LucideMinimize2, CheckCircle2, Circle } from 'lucide-react';
 
-const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "MINA", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [] }) => {
+const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [] }) => {
     const [isFolded, setIsFolded] = useState(true);
     const [activeTab, setActiveTab] = useState('directive'); // 'directive' | 'badges'
 
@@ -50,7 +50,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                         </div>
                         <div className="flex flex-col justify-center min-w-[140px] max-w-[240px]">
                             <span className={`text-[10px] font-mono font-black tracking-[0.3em] uppercase ${isSpeaking ? 'text-[#00E5FF]' : 'text-[#C5A059]'}`}>
-                                SYSTEM NOTIFICATION
+                                {sysName}
                             </span>
                             <span className="text-sm font-black text-white truncate uppercase tracking-wider">
                                 {text}
@@ -93,7 +93,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                 className="flex flex-col h-full items-start gap-4"
                                             >
                                                 <div className="bg-white text-black px-2 py-1 text-[10px] font-black tracking-[0.3em] uppercase border-l-4 border-[#C5A059]">
-                                                    SYS.DIRECTIVES
+                                                    SEAN'S GUIDE
                                                 </div>
 
                                                 <div className="flex flex-col gap-3 w-full">
@@ -139,7 +139,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                             >
                                                 <div className="flex items-center justify-between mb-2">
                                                     <div className="bg-[#C5A059] text-black px-2 py-1 text-[10px] font-black tracking-[0.3em] uppercase border-l-4 border-white">
-                                                        SYS.ARCHIVES
+                                                        SEAN'S ARCHIVE
                                                     </div>
                                                     <span className="text-[10px] font-black text-white/50 tracking-[0.3em] border-2 border-white/20 px-2 py-1">{badges.length} EARNED</span>
                                                 </div>
@@ -186,7 +186,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                         onClick={() => setActiveTab('directive')}
                                         className={`flex-1 py-3 transition-colors flex justify-center items-center gap-3 text-xs font-black tracking-[0.3em] uppercase border-2 ${activeTab === 'directive' ? 'bg-white text-black border-white' : 'bg-transparent text-white/50 border-white/20 hover:border-white hover:text-white'}`}
                                     >
-                                        <LucideMessageSquare size={16} /> DIRECTIVE
+                                        <LucideMessageSquare size={16} /> GUIDE
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('badges')}
