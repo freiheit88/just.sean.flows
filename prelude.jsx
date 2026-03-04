@@ -1443,6 +1443,12 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
     return (
         <div className="w-full max-w-4xl mx-auto h-full flex flex-col items-center justify-center p-2 md:p-4 mt-24 md:mt-16 overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
 
+            {/* Static SEAN flows background (User provided) */}
+            <div
+                className="fixed inset-0 z-[-1] bg-cover bg-center opacity-40 mix-blend-screen pointer-events-none"
+                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(4px)" }}
+            />
+
             {/* Dynamic Native Image Background */}
             <div
                 className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-70' : 'opacity-0'}`}

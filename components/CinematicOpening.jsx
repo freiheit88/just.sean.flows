@@ -69,13 +69,13 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         {/* New Background with Heavy Blur */}
                         <div className="absolute inset-0 overflow-hidden pointer-events-none">
                             <motion.div
-                                initial={{ scale: 1.1 }}
-                                animate={{ scale: 1.1 }}
-                                className="absolute inset-[-5%] bg-cover bg-center grayscale-[20%]"
-                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(20px)" }}
+                                initial={{ scale: 1.05 }}
+                                animate={{ scale: 1.05 }}
+                                className="absolute inset-[-2%] bg-cover bg-center"
+                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(6px) brightness(1.2)" }}
                             />
                             {/* Dark Overlay for readability and atmosphere */}
-                            <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+                            <div className="absolute inset-0 bg-black/30 pointer-events-none" />
                         </div>
 
                         {/* SEAN's comment / MinaDirective implementation */}
