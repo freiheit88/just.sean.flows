@@ -47,15 +47,15 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                         <div className={`p-2 border-2 ${isSpeaking ? "border-[#00E5FF] bg-[#00E5FF]/20" : "border-[#C5A059] bg-[#C5A059]/10"}`}>
                             <LucideSparkles size={16} className={isSpeaking ? "text-[#00E5FF] animate-pulse" : "text-[#C5A059]"} />
                         </div>
-                        <div className="flex flex-col justify-center min-w-[140px] max-w-[240px]">
-                            <span className={`text-[10px] font-mono font-black tracking-[0.3em] uppercase ${isSpeaking ? 'text-[#00E5FF]' : 'text-[#C5A059]'}`}>
+                        <div className="flex flex-col justify-center flex-1 min-w-0 pr-4">
+                            <span className={`text-[10px] font-mono font-black tracking-[0.3em] uppercase truncate ${isSpeaking ? 'text-[#00E5FF]' : 'text-[#C5A059]'}`}>
                                 {sysName}
                             </span>
-                            <span className="text-sm font-black text-white truncate uppercase tracking-wider">
+                            <span className="text-sm md:text-base font-black text-white truncate uppercase tracking-wider">
                                 {text}
                             </span>
                         </div>
-                        <div className="flex items-center gap-3 pl-4 border-l-2 border-white/20 h-full py-3">
+                        <div className="flex items-center gap-3 pl-4 border-l-2 border-white/20 h-full py-3 ml-auto shrink-0">
                             {badges.length > 0 && (
                                 <div className="flex items-center gap-1.5 px-2 py-1 bg-[#C5A059] text-black border-2 border-[#C5A059]">
                                     <LucideAward size={12} className="text-black" />
