@@ -30,7 +30,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                     className={`flex flex-col w-full overflow-hidden relative bg-black border-[3px] shadow-[8px_8px_0px_rgba(197,160,89,0.3)] transition-colors
                         ${isFolded ? 'rounded-none border-[#C5A059] cursor-pointer hover:bg-[#111]' : 'rounded-none border-white'}`}
                     animate={{
-                        height: isFolded ? 64 : (activeTab === 'directive' ? 320 : 420)
+                        height: isFolded ? 'auto' : (activeTab === 'directive' ? 400 : 500)
                     }}
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 >
@@ -41,32 +41,39 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
 
                     {/* ALWAYS VISIBLE HEADER (MINIMIZED STATE UI) */}
                     <div
-                        className={`flex items-center gap-4 h-[64px] shrink-0 pl-6 pr-4 relative z-10 cursor-pointer transition-colors border-b-[3px] ${isFolded ? 'border-transparent hover:bg-[#111]' : 'border-white/20 bg-black'}`}
+                        className={`flex items-stretch gap-5 p-5 md:p-6 relative z-10 cursor-pointer transition-colors border-b-[3px] ${isFolded ? 'border-transparent hover:bg-[#111]' : 'border-white/20 bg-black'}`}
                         onClick={() => setIsFolded(!isFolded)}
                     >
-                        <div className={`p-2 border-2 ${isSpeaking ? "border-[#00E5FF] bg-[#00E5FF]/20" : "border-[#C5A059] bg-[#C5A059]/10"}`}>
-                            <LucideSparkles size={16} className={isSpeaking ? "text-[#00E5FF] animate-pulse" : "text-[#C5A059]"} />
+                        {/* Status Icon */}
+                        <div className={`p-2.5 mt-0.5 border-[3px] shrink-0 self-start ${isSpeaking ? "border-[#00E5FF] bg-[#00E5FF]/20" : "border-[#C5A059] bg-[#C5A059]/10"}`}>
+                            <LucideSparkles size={20} className={isSpeaking ? "text-[#00E5FF] animate-pulse" : "text-[#C5A059]"} />
                         </div>
+
+                        {/* Title & Message */}
                         <div className="flex flex-col justify-center flex-1 min-w-0 pr-4">
-                            <span className={`text-[10px] font-mono font-black tracking-[0.3em] uppercase truncate ${isSpeaking ? 'text-[#00E5FF]' : 'text-[#C5A059]'}`}>
+                            <span className={`text-[11px] font-mono font-black tracking-[0.4em] uppercase mb-2 opacity-90 ${isSpeaking ? 'text-[#00E5FF]' : 'text-[#C5A059]'}`}>
                                 {sysName}
                             </span>
-                            <span className="text-sm md:text-base font-black text-white truncate uppercase tracking-wider">
+                            <span className="text-base md:text-xl font-black text-white uppercase tracking-wider leading-snug break-words">
                                 {text}
                             </span>
                         </div>
-                        <div className="flex items-center gap-3 pl-4 border-l-2 border-white/20 h-full py-3 ml-auto shrink-0">
+
+                        {/* Right Controls */}
+                        <div className="flex items-center gap-4 pl-5 border-l-2 border-white/20 ml-auto shrink-0 self-stretch">
                             {badges.length > 0 && (
-                                <div className="flex items-center gap-1.5 px-2 py-1 bg-[#C5A059] text-black border-2 border-[#C5A059]">
-                                    <LucideAward size={12} className="text-black" />
-                                    <span className="text-[12px] font-black">{badges.length}</span>
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-[#C5A059] text-black border-2 border-[#C5A059] hidden sm:flex">
+                                    <LucideAward size={14} className="text-black" />
+                                    <span className="text-xs font-black">{badges.length}</span>
                                 </div>
                             )}
-                            {isFolded ? (
-                                <LucideChevronUp size={20} className="text-white hover:text-[#C5A059] transition-colors" />
-                            ) : (
-                                <LucideMinimize2 size={20} className="text-white hover:text-[#C5A059] transition-colors" />
-                            )}
+                            <div>
+                                {isFolded ? (
+                                    <LucideChevronUp size={24} className="text-white hover:text-[#C5A059] transition-colors" />
+                                ) : (
+                                    <LucideMinimize2 size={24} className="text-white hover:text-[#C5A059] transition-colors" />
+                                )}
+                            </div>
                         </div>
                     </div>
 
