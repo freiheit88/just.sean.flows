@@ -104,25 +104,14 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         transition={{ duration: 1, ease: "easeOut" }}
                         className="flex flex-col items-center justify-center w-full h-full relative"
                     >
-                        {/* [BOLD UI OVERHAUL] Panning Atmospheric Collage Background */}
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        {/* Centered, Contained Intro Poster Background as requested */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none bg-black flex items-center justify-center">
                             <motion.div
-                                initial={{ scale: 1.2, x: "-5%", y: "-5%", opacity: 0 }}
-                                animate={{
-                                    scale: 1.2,
-                                    opacity: 1,
-                                    x: ["-5%", "5%", "-5%"],
-                                    y: ["-5%", "5%", "-5%"],
-                                    filter: "blur(8px)" // Atmospheric blur
-                                }}
-                                transition={{
-                                    opacity: { duration: 2 },
-                                    x: { duration: 120, repeat: Infinity, ease: "linear" },
-                                    y: { duration: 150, repeat: Infinity, ease: "linear" },
-                                    filter: { duration: 0 } // static tween
-                                }}
-                                className="absolute inset-[-10%] bg-cover bg-center grayscale-[40%]"
-                                style={{ backgroundImage: "url('/assets/intro-collage.png')", backgroundSize: 'cover' }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1, filter: "blur(4px)" }}
+                                transition={{ duration: 2 }}
+                                className="absolute inset-0 bg-no-repeat bg-center"
+                                style={{ backgroundImage: "url('/assets/intro_poster.png')", backgroundSize: 'contain' }}
                             />
                         </div>
 
