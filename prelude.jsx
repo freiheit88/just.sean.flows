@@ -1616,12 +1616,6 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                 })}
             </div>
 
-            <motion.p
-                animate={{ opacity: stagedLang ? 0.8 : 0.2 }}
-                className="text-xs md:text-base font-black uppercase tracking-[0.8em] text-white mt-12 text-center"
-            >
-                {stagedLang ? stagedLang.ui.inviting : (focusedLang ? focusedLang.ui.awaiting : "THE MANOR AWAITS YOUR SOUL'S VOYAGE.")}
-            </motion.p>
 
             {/* Mina UI Scoreboard - Now strictly matching the Language Grid/Card width */}
             <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
