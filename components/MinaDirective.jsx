@@ -25,8 +25,11 @@ const TypewriterText = ({ text, speed = 30 }) => {
     return <span>{displayedText}</span>;
 };
 
-const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh' }) => {
-    const [isFolded, setIsFolded] = useState(true);
+const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh', forceExpanded = false }) => {
+    const [isFoldedState, setIsFoldedState] = useState(true);
+    const isFolded = forceExpanded ? false : isFoldedState;
+    const setIsFolded = setIsFoldedState;
+
     const [activeTab, setActiveTab] = useState('directive'); // 'directive' | 'badges'
     const [showStrikethrough, setShowStrikethrough] = useState(false);
     const [expandedBadges, setExpandedBadges] = useState({});
@@ -70,7 +73,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                     layout
                     className={`flex flex-col w-full overflow-hidden relative backdrop-blur-xl bg-white/5 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-500
                             ${isFolded ? 'rounded-3xl cursor-pointer hover:bg-white/10' : 'rounded-[2rem]'}`}
-                    animate={{
+                    style={{
                         height: isFolded ? 'auto' : dynamicMaxHeight, // Force exact stretch to grid bottom even if empty
                         maxHeight: isFolded ? 'none' : dynamicMaxHeight // Dynamic layout lock matching exactly to grid's bottom
                     }}

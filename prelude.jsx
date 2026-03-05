@@ -1625,6 +1625,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
     const [minaText, setMinaText] = useState("");
     const [activeBackground, setActiveBackground] = useState(null);
     const [isIntroActive, setIsIntroActive] = useState(true);
+    const [isSealed, setIsSealed] = useState(false);
 
     // Use a ref to prevent double audio playback in React strict mode / dev
     const audioPlayedRef = useRef(false);
@@ -1744,12 +1745,19 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
 
     // V29: Watch for completion cleanly to avoid setState-while-rendering warnings
     useEffect(() => {
-        if (holdProgress >= 100 && stagedLang) {
-            handleLanguageSelect(stagedLang);
+        if (holdProgress >= 100 && stagedLang && !isSealed) {
+            setIsSealed(true);
+            setMinaText("[🎙️ SEAN'S COMMENT] You just chose that language vibe! 근데 일단은 영어로 좀 진행할게 ㅠㅠ 나 혼자 지휘하느라 힘들어!");
+
+            // 3-second cinematic transition before routing
+            setTimeout(() => {
+                handleLanguageSelect(stagedLang);
+            }, 3000);
+
             // Cancel hold right after to prevent duplicate firing
             cancelHold();
         }
-    }, [holdProgress, stagedLang, handleLanguageSelect]);
+    }, [holdProgress, stagedLang, handleLanguageSelect, isSealed]);
 
     const cancelHold = () => {
         if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
@@ -1794,6 +1802,9 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                 className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-70' : 'opacity-0'}`}
                 style={activeBackground ? { backgroundImage: `url(${activeBackground})` } : {}}
             />
+
+            {/* Cinematic Transition Overlay */}
+            <div className={`fixed inset-0 z-[4900] bg-black/80 backdrop-blur-md transition-opacity duration-1000 pointer-events-none ${isSealed ? 'opacity-100' : 'opacity-0'}`} />
 
             <div id="language-grid" className={`w-full grid grid-cols-3 grid-rows-3 gap-1 md:gap-4 bg-black/40 backdrop-blur-3xl p-1 md:p-6 border border-white/5 rounded-lg md:rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative z-10 transition-all duration-1000 ${isIntroActive ? 'opacity-40 blur-sm scale-95 pointer-events-none' : 'opacity-100 blur-0 scale-100'}`}>
                 {/* Background "Flow" Effect */}
@@ -1930,26 +1941,34 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                     const isStaged = stagedLang?.id === lang.id;
                     const isDimmable = focusedLang && focusedLang.id !== lang.id;
                     const isOriginalOfStaged = stagedLang && stagedLang.id === lang.id;
+                    const instaImgIndex = pos < 4 ? pos + 1 : pos;
 
                     return (
                         <div
                             key={`slot-${i}`}
                             className={`relative aspect-[4/5] w-full transition-opacity duration-300 ${isFocused ? 'z-[50]' : ''}`}
-                            style={{ opacity: isOriginalOfStaged ? 0 : Math.max(0, 1 - (holdProgress / 100) * 1.5) }}
+                            style={{ opacity: isOriginalOfStaged ? 0 : (isSealed ? 1 : Math.max(0, 1 - (holdProgress / 100) * 1.5)) }}
                         >
-                            {/* Hide the original slot card if it's currently staged in the center */}
-                            {!isOriginalOfStaged && (
-                                <LanguageCard
-                                    lang={lang}
-                                    idx={pos}
-                                    isFocused={isFocused}
-                                    isStaged={false}
-                                    isDimmable={isDimmable || stagedLang}
-                                    onFocus={onCardFocus}
-                                    onReady={onCardReady}
-                                    onSelect={onCardSelect}
-                                />
-                            )}
+                            <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed ? 'opacity-0' : 'opacity-100'}`}>
+                                {/* Hide the original slot card if it's currently staged in the center */}
+                                {!isOriginalOfStaged && (
+                                    <LanguageCard
+                                        lang={lang}
+                                        idx={pos}
+                                        isFocused={isFocused}
+                                        isStaged={false}
+                                        isDimmable={isDimmable || stagedLang}
+                                        onFocus={onCardFocus}
+                                        onReady={onCardReady}
+                                        onSelect={onCardSelect}
+                                    />
+                                )}
+                            </div>
+
+                            {/* Instagram Grid Transition */}
+                            <div className={`absolute inset-0 transition-opacity duration-[2000ms] ${isSealed ? 'opacity-100' : 'opacity-0'} pointer-events-none rounded-lg overflow-hidden`}>
+                                <img src={`/assets/manual_upload/insta/img${instaImgIndex}.png`} alt={`Instagram ${instaImgIndex}`} className="w-full h-full object-cover" />
+                            </div>
                         </div>
                     );
                 })}
@@ -1970,6 +1989,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                         badges={earnedBadges}
                         ui={focusedLang?.ui || {}}
                         dynamicMaxHeight={expandedHeight}
+                        forceExpanded={isSealed}
                     />
                 </div>
             </div>
@@ -1978,6 +1998,14 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
 };
 
 // All previous inline views have been moved to the top level
+
+const MultiverseGrid = ({ selectedLang, currentTheme, setStep, setViewMode }) => {
+    return (
+        <div className={`w-full h-full flex items-center justify-center ${currentTheme?.bg} text-white`}>
+            <h1 className="text-4xl">Multiverse Grid</h1>
+        </div>
+    );
+};
 
 const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
     useEffect(() => {
@@ -2249,8 +2277,8 @@ const App = () => {
     // [V19] Consolidated Language Selection Logic
     const handleLanguageSelect = useCallback((lang) => {
         setSelectedLang(lang);
-        setStep('coming_soon');
-        setViewMode('coming_soon');
+        setStep('multiverse_grid'); // Phase 1 update
+        setViewMode('gallery');
         AudioManager.playSfx('click');
 
         // Main BGM stops completely
@@ -2487,6 +2515,15 @@ const App = () => {
                                 {step === 'confirm' && (
                                     <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
                                 )}
+                                {step === 'multiverse_grid' && (
+                                    <MultiverseGrid
+                                        selectedLang={selectedLang}
+                                        currentTheme={currentTheme}
+                                        setStep={setStep}
+                                        setViewMode={setViewMode}
+                                    />
+                                )}
+                                {/* ComingSoonView is preserved but functionally bypassed per Phase 1 */}
                                 {step === 'coming_soon' && (
                                     <ComingSoonView
                                         selectedLang={selectedLang}
