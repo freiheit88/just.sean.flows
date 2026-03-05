@@ -1,6 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CinematicOpening from './components/CinematicOpening';
+import LanguageSelector from './src/components/LanguageSelector';
+import IntroEngraveView from './src/components/IntroEngraveView';
+
 import {
     LucideCheckCircle, LucideGlobe, LucideInstagram,
     LucideSparkles, LucideInfo, LucideVolume2,
@@ -450,7 +453,8 @@ const LANGUAGES = [
                 m_speedrunner: { title: '스피드 러너 🏃', sub: 'Speedrunner', desc: '빛과 같은 스피드. ({sec}초)' },
                 m_marathon: { title: '마라토너 ⏱️', sub: 'Marathoner', desc: '오랜 시간 머무름. (총 체류: {sec}초)' },
                 m_cautious: { title: '신중한 탐험가 🗺️', sub: 'Cautious Explorer', desc: '꼼꼼한 다중우주 탐색. (체류: {sec}초, 탐색: {uniqueCards}개)' },
-                m_dualPersona: { title: '두 얼굴의 관찰자 🎭', sub: 'The Dual Observer', desc: 'SEAN과 수석 지휘자의 공존을 목격했다.' }
+                m_dualPersona: { title: '두 얼굴의 관찰자 🎭', sub: 'The Dual Observer', desc: 'SEAN과 수석 지휘자의 공존을 목격했다.' },
+                keeper_of_rules: { title: '규칙의 수호자 ⚖️', sub: 'Keeper of Rules', desc: '다중우주의 이치를 깨달았습니다.' }
             },
             minaSystem: "🎻 수석 지휘자", minaAction: ">> 🎼 첫 막: 언어를 선택하세요 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
@@ -515,7 +519,8 @@ const LANGUAGES = [
                 m_speedrunner: { title: 'Speedrunner 🏃', sub: 'Swift', desc: 'Cleared the phase instantly. ({sec}s)' },
                 m_marathon: { title: 'Marathoner ⏱️', sub: 'Endurance', desc: 'Lingered seemingly forever. ({sec}s)' },
                 m_cautious: { title: 'Cautious Explorer 🗺️', sub: 'Cartographer', desc: 'Took their sweet time mapping the worlds. ({sec}s, {uniqueCards} domains)' },
-                m_dualPersona: { title: 'The Dual Observer 🎭', sub: 'Two Faces', desc: 'Witnessed the coexistence of SEAN & Principal Conductor.' }
+                m_dualPersona: { title: 'The Dual Observer 🎭', sub: 'Two Faces', desc: 'Witnessed the coexistence of SEAN & Principal Conductor.' },
+                keeper_of_rules: { title: 'Keeper of Rules ⚖️', sub: 'Awareness', desc: 'Internalized the rules of the multiverse.' }
             },
             minaSystem: "🎻 PRINCIPAL CONDUCTOR", minaAction: ">> 🎼 ACTION REQUIRED: SELECT A MULTIVERSE <<",
             inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
@@ -580,7 +585,8 @@ const LANGUAGES = [
                 m_speedrunner: { title: 'Corredor Rápido 🏃', sub: 'Swift', desc: 'Acelerando... ({sec}s)' },
                 m_marathon: { title: 'Maratonista ⏱️', sub: 'Endurance', desc: 'Una eternidad en el lobby. ({sec}s)' },
                 m_cautious: { title: 'Explorador Cauto 🗺️', sub: 'Cartographer', desc: 'Mapeando. ({sec}s, {uniqueCards} zonas)' },
-                m_dualPersona: { title: 'El Observador Dual 🎭', sub: 'Two Faces', desc: 'Presenció la coexistencia de SEAN y el Director Principal.' }
+                m_dualPersona: { title: 'El Observador Dual 🎭', sub: 'Two Faces', desc: 'Presenció la coexistencia de SEAN y el Director Principal.' },
+                keeper_of_rules: { title: 'Guardián de las Reglas ⚖️', sub: 'Awareness', desc: 'Ha internalizado las reglas del multiverso.' }
             },
             minaSystem: "🎻 DIRECTOR PRINCIPAL", minaAction: ">> 🎼 ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
@@ -645,7 +651,8 @@ const LANGUAGES = [
                 m_speedrunner: { title: 'दौड़ 🏃', sub: 'Swift', desc: 'तेज़ रफ़्तार। ({sec}s)' },
                 m_marathon: { title: 'मैराथन ⏱️', sub: 'Endurance', desc: 'लंबे समय तक। ({sec}s)' },
                 m_cautious: { title: 'खोजकर्ता 🗺️', sub: 'Cartographer', desc: 'आराम से खोजा। ({sec}s, {uniqueCards} दुनिया)' },
-                m_dualPersona: { title: 'दोहरा पर्यवेक्षक 🎭', sub: 'Two Faces', desc: 'SEAN और प्रधान संवाहक दोनों को देखा।' }
+                m_dualPersona: { title: 'दोहरा पर्यवेक्षक 🎭', sub: 'Two Faces', desc: 'SEAN और प्रधान संवाहक दोनों को देखा।' },
+                keeper_of_rules: { title: 'नियमों के रक्षक ⚖️', sub: 'Awareness', desc: 'मल्टीवर्स के नियमों को अपनाया।' }
             },
             minaSystem: "🎻 प्रधान संवाहक", minaAction: ">> 🎼 कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है。",
@@ -710,7 +717,8 @@ const LANGUAGES = [
                 m_speedrunner: { title: 'Speedrunner 🏃', sub: 'Swift', desc: 'Cleared instantly. ({sec}s)' },
                 m_marathon: { title: 'Marathonläufer ⏱️', sub: 'Endurance', desc: 'Lingered forever. ({sec}s)' },
                 m_cautious: { title: 'Vorsichtiger Entdecker 🗺️', sub: 'Cartographer', desc: 'Took time mapping the worlds. ({sec}s, {uniqueCards} domains)' },
-                m_dualPersona: { title: 'Der Duale Beobachter 🎭', sub: 'Two Faces', desc: 'Zeuge der Koexistenz von SEAN und Chefdirigent.' }
+                m_dualPersona: { title: 'Der Duale Beobachter 🎭', sub: 'Two Faces', desc: 'Zeuge der Koexistenz von SEAN und Chefdirigent.' },
+                keeper_of_rules: { title: 'Hüter der Regeln ⚖️', sub: 'Awareness', desc: 'Hat die Regeln des Multiversums verinnerlicht.' }
             },
             minaSystem: "🎻 CHEFDIRIGENT", minaAction: ">> 🎼 AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
@@ -775,7 +783,8 @@ const LANGUAGES = [
                 m_speedrunner: { title: 'スピードランナー 🏃', sub: 'Speedrunner', desc: '光の速さで通過。({sec}秒)' },
                 m_marathon: { title: 'マラソンランナー ⏱️', sub: 'Marathoner', desc: '永遠に彷徨った。({sec}秒)' },
                 m_cautious: { title: '慎重な探検家 🗺️', sub: 'Cautious Explorer', desc: '時間をかけてマッピングした。({sec}秒, {uniqueCards}個)' },
-                m_dualPersona: { title: '二つの顔の観察者 🎭', sub: 'Two Faces', desc: 'SEANと首席指揮者の共存を目撃した。' }
+                m_dualPersona: { title: '二つの顔の観察者 🎭', sub: 'Two Faces', desc: 'SEANと首席指揮者の共存を目撃した。' },
+                keeper_of_rules: { title: 'ルールの守護者 ⚖️', sub: 'Awareness', desc: 'マルチバースの原則を理解した。' }
             },
             minaSystem: "🎻 首席指揮者", minaAction: ">> 🎼 アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
@@ -840,7 +849,8 @@ const LANGUAGES = [
                 m_speedrunner: { title: 'سريع 🏃', sub: 'Swift', desc: 'Cleared instantly. ({sec}s)' },
                 m_marathon: { title: 'ماراثون ⏱️', sub: 'Endurance', desc: 'Lingered forever. ({sec}s)' },
                 m_cautious: { title: 'مستكشف حذر 🗺️', sub: 'Cartographer', desc: 'Mapping worlds. ({sec}s, {uniqueCards} domains)' },
-                m_dualPersona: { title: 'مراقب مزدوج 🎭', sub: 'Two Faces', desc: 'شهد تعايش SEAN والمايسترو.' }
+                m_dualPersona: { title: 'مراقب مزدوج 🎭', sub: 'Two Faces', desc: 'شهد تعايش SEAN والمايسترو.' },
+                keeper_of_rules: { title: 'حارس القواعد ⚖️', sub: 'Awareness', desc: 'أدرك قواعد الأكوان المتعددة.' }
             },
             minaSystem: "🎻 المايسترو الرئيسي", minaAction: ">> 🎼 الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
@@ -905,7 +915,8 @@ const LANGUAGES = [
                 m_speedrunner: { title: 'Speedrunner 🏃', sub: 'Swift', desc: 'Szybciej niż światło. ({sec}s)' },
                 m_marathon: { title: 'Maratończyk ⏱️', sub: 'Endurance', desc: 'Został na zawsze. ({sec}s)' },
                 m_cautious: { title: 'Ostrożny Odkrywca 🗺️', sub: 'Cartographer', desc: 'Zmapował wszystkie obszary. ({sec}s, {uniqueCards} domeny)' },
-                m_dualPersona: { title: 'Podwójny Obserwator 🎭', sub: 'Two Faces', desc: 'Był świadkiem współistnienia SEAN i Głównego Dyrygenta.' }
+                m_dualPersona: { title: 'Podwójny Obserwator 🎭', sub: 'Two Faces', desc: 'Był świadkiem współistnienia SEAN i Głównego Dyrygenta.' },
+                keeper_of_rules: { title: 'Strażnik Zasad ⚖️', sub: 'Awareness', desc: 'Zrozumiał zasady multiwersum.' }
             },
             minaSystem: "🎻 GŁÓWNY DYRYGENT", minaAction: ">> 🎼 WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
@@ -1009,309 +1020,6 @@ const GlassCard = ({ children, className = "", onClick, delay = 0 }) => (
 
 // --- View Components (Extracted to fix focus issues) ---
 
-const IntroView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter, playSfx }) => (
-    <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4">
-        <GlassCard className="text-center italic text-sm border-l-4 border-l-white/50 py-4 mb-6">
-            <span className="opacity-80">"{selectedLang.welcome}"</span>
-        </GlassCard>
-
-        <GlassCard className="py-6 px-4 flex flex-col items-center">
-            <div className="absolute top-0 right-0 w-8 h-8 opacity-20"><LucideZap size={32} className="text-white" /></div>
-            <h3 className="text-xs font-black uppercase mb-4 tracking-[0.2em] flex items-center gap-2 text-white/50">
-                <LucideFeather size={16} /> {selectedLang.ui.textOptionTitle}
-            </h3>
-            <input
-                type="text"
-                value={userName}
-                onChange={e => { setUserName(e.target.value); }}
-                onFocus={() => playSfx?.('click')}
-                placeholder={selectedLang.ui.textInputPlaceholder}
-                className="w-full bg-transparent border-b border-white/20 p-3 mb-6 focus:outline-none font-sans text-lg transition-all focus:border-white text-center text-white placeholder-white/20"
-            />
-            <button
-                onClick={generateTextCharacter}
-                disabled={isAvatarGenerating || !userName.trim()}
-                onMouseEnter={() => playSfx?.('hover')}
-                className="w-full py-4 bg-white/10 text-white font-black uppercase tracking-[0.3em] text-[10px] hover:bg-white/20 disabled:opacity-30 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 backdrop-blur-md"
-            >
-                {isAvatarGenerating ? <LucideLoader2 className="animate-spin" size={16} /> : null}
-                {isAvatarGenerating ? selectedLang.ui.generating : selectedLang.ui.textSubmitBtn}
-            </button>
-        </GlassCard>
-
-        <div className="relative py-4">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
-            <div className="relative flex justify-center text-[9px] uppercase font-black tracking-[0.4em] bg-transparent">
-                <span className="px-4 text-white/40 bg-[#0A0A0B]">OR</span>
-            </div>
-        </div>
-
-        <label className="block w-full cursor-pointer group">
-            <div className="p-6 border border-dashed border-white/20 bg-white/5 hover:bg-white/10 rounded-sm flex flex-col items-center transition-all shadow-inner backdrop-blur-sm">
-                <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                <LucideUpload className="text-white/50 mb-3 group-hover:text-white transition-colors" size={24} />
-                <p className="font-black uppercase tracking-widest text-[10px] text-white/50 group-hover:text-white transition-colors">{selectedLang.ui.uploadTitle}</p>
-            </div>
-        </label>
-
-        {uploadedImage && !isAvatarGenerating && (
-            <motion.button
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                onClick={generateCharacter}
-                onMouseEnter={() => playSfx?.('hover')}
-                className={`w-full py-4 bg-black/40 border border-white/10 backdrop-blur-md ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} font-black uppercase tracking-[0.2em] text-[10px] hover:bg-white/10 transition-all flex items-center justify-center gap-2 shadow-2xl active:scale-95`}
-            >
-                <LucideCamera size={16} />
-                {selectedLang.ui.generateBtn}
-            </motion.button>
-        )}
-
-        {isAvatarGenerating && (
-            <div className="text-center p-4">
-                <LucideLoader2 className="animate-spin mx-auto text-[#5C1A1A] mb-2" size={32} />
-                <p className="text-[10px] italic text-[#8B7355] animate-pulse">{selectedLang.loading}</p>
-            </div>
-        )}
-    </div>
-);
-
-const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx, todos }) => {
-    // [V10 UPDATE: Cinematic Editorial 3x3 Grid]
-    const gridItems = [
-        { id: 1, type: 'text', title: selectedLang.ui.manorTitle || 'MULTIVERSE CORE', subtitle: selectedLang.name },
-        { id: 2, type: 'image', title: 'MEMORY', image: selectedLang.image },
-        { id: 3, type: 'text', title: 'AETHER RECORD', subtitle: 'Sync 88' },
-        { id: 4, type: 'image', title: 'ARCHIVE', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=300' },
-        { id: 5, type: 'current', title: selectedLang.ui.comingSoon || 'COMING SOON', isCenter: true },
-        { id: 6, type: 'manor', title: selectedLang.ui.manorTitle || 'THE MANOR' },
-        { id: 7, type: 'text', title: 'DIGITAL SOUL', subtitle: 'Humanity in Code' },
-        { id: 8, type: 'image', title: 'VISION', image: 'https://images.unsplash.com/photo-1440688807730-73e4e2169fb8?auto=format&fit=crop&w=300&q=80' },
-        { id: 9, type: 'rules', title: 'HOUSE RULES', subtitle: 'No Artificial Empathy' },
-    ];
-
-    return (
-        <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center space-y-6 h-full py-4 overflow-hidden">
-            <div className="text-center">
-                <h1 className={`text-3xl md:text-4xl font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-1 uppercase tracking-widest leading-none filter drop-shadow-md`}>{selectedLang.ui.galleryTitle || "ARCHIVE"}</h1>
-                <p className={`text-[10px] font-black uppercase tracking-[0.5em] ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/50'}`}>{selectedLang.ui.gallerySub || "Historical Record"}</p>
-            </div>
-
-            <div className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-[2px] p-2 bg-[#0A0A0B]/80 backdrop-blur-md border border-white/10 shadow-2xl relative">
-                {/* Vintage overlay artifact */}
-                <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-overlay bg-[url('/assets/steampunk_paper_texture.png')]" />
-
-                {gridItems.map((slot, idx) => (
-                    <motion.div
-                        key={slot.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
-                        className="w-full h-full relative"
-                    >
-                        {slot.type === 'current' ? (
-                            <button
-                                onClick={() => { playSfx?.('click'); }}
-                                onMouseEnter={() => playSfx?.('hover')}
-                                className={`w-full h-full relative bg-[#0A0A0B] border border-white/20 overflow-hidden group active:scale-95 transition-transform hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] flex flex-col justify-center items-center`}
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 z-10" />
-                                <div className="absolute inset-0 flex items-center justify-center p-2 z-0">
-                                    {userAvatar?.image ? (
-                                        <img src={userAvatar.image} className="w-full h-full object-cover opacity-60 mix-blend-luminosity" alt="avatar" />
-                                    ) : (
-                                        <div className="w-full h-full flex flex-col items-center justify-center">
-                                            <div className={`w-12 h-12 rounded-full border-2 border-[${THEME_CONFIG[selectedLang.id]?.accent || '#C5A059'}] flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(197,160,89,0.3)]`}>
-                                                <span className={`text-2xl font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{selectedLang.flag}</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="relative z-20 text-center px-1">
-                                    <p className={`text-[8px] font-serif italic mb-1 opacity-70 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{userAvatar?.textName || selectedLang.name}</p>
-                                    <h4 className={`text-[10px] font-black uppercase tracking-widest leading-tight ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`}>{slot.title}</h4>
-                                </div>
-                            </button>
-                        ) : slot.type === 'manor' ? (
-                            <button
-                                onClick={() => {
-                                    if (!todos?.home) AudioManager.playMina(selectedLang.id, 'dashboard');
-                                    setViewMode('home_interior');
-                                    setTodos(p => ({ ...p, home: true }));
-                                    playSfx?.('click');
-                                }}
-                                onMouseEnter={() => playSfx?.('hover')}
-                                className={`w-full h-full relative bg-[#121214] flex flex-col items-center justify-center hover:bg-white/5 transition-colors group active:scale-95 border border-transparent hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/50`}
-                            >
-                                <LucideLayout size={24} className={`mb-2 opacity-50 group-hover:opacity-100 transition-opacity ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`} />
-                                <span className="text-white/60 text-[8px] font-black uppercase tracking-widest text-center">{slot.title}</span>
-                            </button>
-                        ) : slot.type === 'image' ? (
-                            <div className="w-full h-full relative overflow-hidden bg-black grayscale hover:grayscale-0 transition-all duration-1000 group">
-                                <img src={slot.image} className="w-full h-full object-cover opacity-40 group-hover:opacity-80 transition-opacity duration-1000 group-hover:scale-110" alt="archive" />
-                                <div className="absolute bottom-1 left-1 bg-black/80 px-1 py-0.5 text-white/80 text-[7px] font-black uppercase tracking-widest backdrop-blur-sm">{slot.title}</div>
-                            </div>
-                        ) : slot.type === 'rules' ? (
-                            <div className={`w-full h-full relative bg-[${THEME_CONFIG[selectedLang.id]?.accent || '#555'}]/10 flex flex-col items-center justify-center text-center p-2 border border-white/5 hover:bg-white/10 transition-colors`}>
-                                <LucideInfo size={16} className={`mb-1 opacity-60 ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`} />
-                                <span className={`font-black text-[9px] uppercase leading-none mb-1 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{slot.title}</span>
-                                <span className="text-[7px] font-serif italic text-white/50 leading-tight uppercase">{slot.subtitle}</span>
-                            </div>
-                        ) : (
-                            <div className="w-full h-full relative bg-[#0D0D10] flex flex-col items-center justify-center p-2 text-center border border-white/5 hover:border-white/20 transition-colors">
-                                <span className={`font-black text-[8px] uppercase leading-tight mb-1 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'}`}>{slot.title}</span>
-                                <span className={`text-[6px] font-serif italic leading-none ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/40'}`}>{slot.subtitle}</span>
-                            </div>
-                        )}
-                    </motion.div>
-                ))}
-            </div>
-
-            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/30 text-center px-8 border-t border-white/10 pt-4">
-                "Digital Body. Analog Soul."
-            </p>
-        </div>
-    );
-};
-
-const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandleLit, gearsSpinning, setGearsSpinning, loreText, playSfx }) => (
-    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-2 py-4">
-        <button onClick={() => { setViewMode('gallery'); playSfx?.('click'); }} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
-            <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
-        </button>
-
-        <PaperCard className={`w-full flex-1 max-h-[75vh] p-0 border border-[${THEME_CONFIG[selectedLang.id]?.border || '#333'}] bg-transparent relative overflow-hidden shadow-2xl backdrop-blur-md`}>
-            {/* Ambient Background with subtle noise/vignette */}
-            <div
-                className="absolute inset-0 bg-center bg-cover opacity-10 mix-blend-overlay"
-                style={{ backgroundImage: "url('/assets/steampunk_manor_background.png')" }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80" />
-
-            <div className="relative z-10 flex flex-col items-center p-6 h-full overflow-y-auto no-scrollbar">
-                <div className="w-full flex justify-between mb-8 px-2">
-                    <div className="cursor-pointer hover:scale-110 transition-transform flex items-center gap-2" onClick={() => setCandleLit(!candleLit)} onMouseEnter={() => playSfx?.('hover')}>
-                        <LucideFlame size={20} className={candleLit ? `text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]` : 'text-white/20'} />
-                        <span className="text-[8px] uppercase tracking-widest text-white/30 font-black hidden sm:block">Aether Core</span>
-                    </div>
-                    <div className="cursor-pointer hover:rotate-90 transition-transform flex items-center gap-2" onClick={() => setGearsSpinning(!gearsSpinning)} onMouseEnter={() => playSfx?.('hover')}>
-                        <span className="text-[8px] uppercase tracking-widest text-white/30 font-black hidden sm:block">Sync</span>
-                        <motion.div animate={{ rotate: gearsSpinning ? 360 : 0 }} transition={{ duration: 4, repeat: gearsSpinning ? Infinity : 0, ease: "linear" }}>
-                            <LucideOrbit size={20} className={`text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]`} />
-                        </motion.div>
-                    </div>
-                </div>
-
-                <div className={`relative w-28 h-28 mb-4 transition-all duration-700 ${candleLit ? '' : 'brightness-50'}`}>
-                    <div className="absolute inset-0 border-4 border-[#C5A059] rounded-full shadow-[0_0_20px_rgba(197,160,89,0.3)]" />
-                    <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center p-2 border-2 border-[#8B7355]/40 shadow-inner">
-                        {userAvatar?.image ? (
-                            <img src={userAvatar.image} className="w-full h-full object-cover rounded-full" />
-                        ) : (
-                            <span className="text-[#C5A059] font-black text-4xl text-center uppercase drop-shadow-md">{userAvatar?.textName?.charAt(0) || selectedLang?.name?.charAt(0) || "M"}</span>
-                        )}
-                    </div>
-                </div>
-
-                <h3 className={`text-xl font-serif font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-6 uppercase tracking-[0.3em] text-center leading-none`}>{selectedLang.ui.manorTitle}</h3>
-
-                <div className={`w-full flex-1 bg-black/40 backdrop-blur-sm p-5 border-l border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/30 rounded-r-lg font-mono text-[10px] ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'} leading-relaxed relative overflow-y-auto no-scrollbar shadow-inner`}>
-                    {loreText || selectedLang?.welcome || "Welcome to the Lord Manor."}<span className={`inline-block w-1.5 h-3 bg-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] ml-1 animate-ping`} />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-white/10">
-                    <motion.div whileHover={{ y: -2 }} className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => playSfx?.('click')} onMouseEnter={() => playSfx?.('hover')}>
-                        <LucideCompass size={18} className={`text-white/40 group-hover:text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] transition-colors`} />
-                        <span className={`text-[9px] font-black uppercase text-white/40 group-hover:text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] tracking-widest`}>{selectedLang.ui.manorHeirlooms}</span>
-                    </motion.div>
-                    <div className="flex flex-col items-center gap-2 opacity-20 pointer-events-none">
-                        <LucideMapPin size={18} className="text-white" />
-                        <span className="text-[9px] font-black uppercase text-white tracking-widest">{selectedLang.ui.manorEstate}</span>
-                    </div>
-                </div>
-            </div>
-        </PaperCard>
-    </motion.div>
-);
-
-// [V9 UPDATE: MissionView Redesign with IT-tech effects]
-const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePreviewVote, isAuthenticated, setIsAuthenticated, oracleMessage, setStep, setTodos, playSfx }) => (
-    <div className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-4 py-4 overflow-hidden px-4 scanline">
-        <button
-            onClick={() => { setViewMode('gallery'); playSfx?.('click'); }}
-            className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1 transition-all hover:translate-x-1"
-        >
-            <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
-        </button>
-
-        <div className="w-full flex-1 flex flex-col overflow-hidden">
-            <PaperCard className="py-4 px-6 border-[#C5A059] shadow-lg mb-4 shrink-0 bg-paper aether-glow">
-                <h3 className="text-[10px] font-black text-[#5C1A1A] uppercase tracking-[0.2em] flex items-center gap-1 border-b border-black/5 pb-2">
-                    <LucideInfo size={14} /> {selectedLang.ui.authTitle}
-                </h3>
-                {!isAuthenticated ? (
-                    <button onClick={() => { setIsAuthenticated(true); playSfx?.('forge'); }} className="w-full mt-2 py-3 bg-[#1A1612] text-[#C5A059] text-[10px] font-black uppercase border border-[#C5A059]/40 hover:bg-[#5C1A1A] hover:text-white transition-all shadow-md active:scale-95">
-                        {selectedLang.ui.authBtn}
-                    </button>
-                ) : (
-                    <div className="flex items-center justify-center gap-2 text-[#556B2F] font-black bg-[#556B2F]/10 p-2 mt-2 border border-[#556B2F]/30 uppercase text-[10px]">
-                        <LucideCheckCircle size={16} /> {selectedLang.ui.authDone}
-                    </div>
-                )}
-            </PaperCard>
-
-            <div className="flex-1 w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex items-start gap-4 pb-4 px-2">
-                {PROJECTS.map((proj) => {
-                    const isSelected = previewId === proj.id;
-                    const isInactive = previewId && !isSelected;
-                    return (
-                        <div key={proj.id} className={`min-w-[280px] h-full snap-center transition-all duration-500 ${isInactive ? 'opacity-20 grayscale scale-90 blur-[1px]' : 'scale-100'}`}>
-                            <PaperCard
-                                onClick={() => { if (!isInactive && isAuthenticated) { handlePreviewVote(proj.id); playSfx?.('click'); } }}
-                                className={`h-full cursor-pointer transition-all duration-700 overflow-hidden border-2 p-0 shadow-2xl flex flex-col relative ${isSelected ? 'border-[#C5A059] bg-[#2C241B]/20 aether-glow' : 'border-[#2C241B] hover:border-[#8B7355] bg-black/5'}`}
-                            >
-                                {isSelected && <div className="absolute inset-0 bg-[#C5A059]/5 animate-pulse pointer-events-none" />}
-                                <div className="p-6 flex flex-col flex-1 relative z-10">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <span className={`text-[10px] font-mono uppercase px-2 py-1 border transition-colors ${isSelected ? 'border-[#5C1A1A] text-[#5C1A1A] bg-[#5C1A1A]/10' : 'border-[#8B7355] text-[#8B7355]'}`}>Case #0{proj.id}</span>
-                                        {isSelected && <LucideSparkles className="text-[#C5A059] animate-spin-slow" size={18} />}
-                                    </div>
-                                    <h4 className={`text-xl font-serif font-black uppercase tracking-wider mb-4 leading-tight transition-colors ${isSelected ? 'text-[#C5A059]' : 'text-[#8B7355]'}`}>{proj.title}</h4>
-                                    <p className="text-[#8B7355] text-[11px] font-medium leading-relaxed italic opacity-80 mb-6 flex-1">
-                                        {proj.desc}
-                                    </p>
-
-                                    <AnimatePresence>
-                                        {isSelected && (
-                                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="mt-auto">
-                                                <div className="bg-[#1A1612] p-6 border-l-4 border-[#C5A059] mb-4 shadow-inner relative overflow-hidden">
-                                                    <div className="absolute top-0 left-0 w-full h-[1px] bg-[#C5A059]/30 animate-scan-line" />
-                                                    <div className="absolute top-1 right-1"><LucideFeather size={14} className="text-[#5C1A1A] opacity-30" /></div>
-                                                    <p className="text-[#f4e4bc] text-[11px] leading-relaxed text-center font-serif italic">"{oracleMessage || selectedLang.ui.consulting}"</p>
-                                                </div>
-                                                <button
-                                                    onClick={() => { playSfx?.('shutter'); setStep('trailer'); setTodos(p => ({ ...p, voted: true })); }}
-                                                    className="w-full py-4 bg-[#5C1A1A] text-white font-black uppercase text-xs tracking-[0.2em] border-b-4 border-black active:scale-95 transition-transform shadow-2xl hover:bg-[#7D2626]"
-                                                >
-                                                    {selectedLang.ui.sealBtn}
-                                                </button>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                    {!isSelected && isAuthenticated && (
-                                        <div className="mt-auto pt-4 border-t border-[#8B7355]/10 text-[9px] font-black uppercase text-[#8B7355] text-center tracking-widest animate-pulse">Tap to examine destiny</div>
-                                    )}
-                                </div>
-                            </PaperCard>
-                        </div>
-                    );
-                })}
-            </div>
-            <div className="text-center py-2"><span className="text-[8px] font-black uppercase text-[#8B7355] tracking-widest opacity-60 flex items-center gap-2">
-                <LucideArrowLeft size={10} className="animate-bounce-x" /> Swipe Aether Cases <LucideArrowRight size={10} className="animate-bounce-x" />
-            </span></div>
-        </div>
-    </div>
-);
 
 const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metrics, onEarnBadge, earnedBadges }) => {
     const primaryArchetype = earnedBadges.length > 0 ? earnedBadges[0] : null;
@@ -1451,564 +1159,8 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
     );
 };
 
-const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady, onSelect }) => {
-    const [saturationProgress, setSaturationProgress] = useState(0);
-    const [isShakePaused, setIsShakePaused] = useState(false);
-    const animInterval = useRef(null);
-    const cardRef = useRef(null);
 
-    useEffect(() => {
-        if (isFocused && !isStaged) {
-            const startTime = Date.now();
-            const duration = 5500; // 5.5s total time
-            let stage = 0;
-
-            animInterval.current = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-
-                // Track percentage evenly from 0-100% over 5.5s
-                const percentage = Math.min((elapsed / duration) * 100, 100);
-                setSaturationProgress(percentage);
-
-                if (elapsed >= 2500 && stage < 1) { // 2.5 sec jump
-                    [...Array(3)].forEach(() => AudioManager.playSfx('piano-mystic-low', 0.7, true));
-                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100); // Freeze right as impact hits
-                    stage = 1;
-                } else if (elapsed >= 3500 && stage < 2) { // 3.5 sec jump
-                    AudioManager.playSfx('piano-mystic-mid', 0.42, true);
-                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100);
-                    stage = 2;
-                } else if (elapsed >= 4500 && stage < 3) { // 4.5 sec (background switch + glow)
-                    AudioManager.playSfx('piano-mystic-high', 0.56, true);
-                    setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100);
-                    if (onReady) onReady({ ...lang, requestBackground: true });
-                    stage = 3;
-                }
-
-                if (elapsed >= duration) { // 5.5 sec total completion
-                    clearInterval(animInterval.current);
-
-                    // Restore country theme playback
-                    const currentSrc = AudioManager.currentTheme?.src || "";
-                    if (currentSrc.split('/').pop() !== `${lang.id}-theme.mp3`) {
-                        AudioManager.playTheme(lang.id, 0.28, 3000);
-                    }
-
-                    if (onReady) onReady({ ...lang, requestSequenceComplete: true });
-                }
-            }, 50);
-        } else {
-            setSaturationProgress(0);
-            if (animInterval.current) clearInterval(animInterval.current);
-            // Disabled stopping theme so BGM persists
-            // AudioManager.stopTheme();
-        }
-
-        return () => {
-            if (animInterval.current) clearInterval(animInterval.current);
-        };
-    }, [isFocused, isStaged]);
-
-    const handleDragEnd = (event, info) => {
-        if (!isFocused || saturationProgress < 100 || isStaged) return;
-
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-
-        let dropX = info.point.x;
-        let dropY = info.point.y;
-
-        // Use the visual center of the card for drop detection, not the pointer, to fix edge-card drag offsets
-        if (cardRef.current) {
-            const rect = cardRef.current.getBoundingClientRect();
-            dropX = rect.left + rect.width / 2;
-            dropY = rect.top + rect.height / 2;
-        }
-
-        const dist = Math.sqrt(Math.pow(dropX - centerX, 2) + Math.pow(dropY - centerY, 2));
-
-        // Strict drop zone: 120px radius or 25% of smaller screen dimension, enforcing a true center-drop
-        const dropRadius = Math.max(120, Math.min(window.innerWidth, window.innerHeight) * 0.25);
-
-        if (dist < dropRadius) {
-            AudioManager.playSfx('shutter', 0.6);
-            onSelect(lang);
-        }
-    };
-
-    const isDraggable = isFocused && saturationProgress === 100 && !isStaged;
-
-    return (
-        <motion.div
-            ref={cardRef}
-            onClick={() => {
-                if (!isFocused && !isStaged) onFocus(lang);
-            }}
-            drag={isDraggable}
-            dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-            dragElastic={0.8}
-            onDragEnd={handleDragEnd}
-            whileDrag={isDraggable ? { scale: 1.1, zIndex: 1000, rotate: 2 } : {}}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{
-                opacity: isDimmable ? 0.3 : 1,
-                // Only shake when progressing, stop shaking completely at 100% and just gently scale up
-                scale: isStaged ? 1 : (isFocused ? (saturationProgress === 100 && !isStaged ? [1.05, 1.08, 1.05] : 1.05) : 1),
-                zIndex: isFocused ? 100 : 1,
-                // Shake effect while holding, maxes out right before 100%
-                x: isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged && !isShakePaused
-                    ? [-1, 1, -1, 1, 0].map(v => v * (1 + (saturationProgress / 100) * 1.5))
-                    : 0,
-                y: isFocused && saturationProgress > 0 && saturationProgress < 100 && !isStaged && !isShakePaused
-                    ? [1, -1, 1, -1, 0].map(v => v * (1 + (saturationProgress / 100) * 1.5))
-                    : 0,
-            }}
-            transition={{
-                x: { duration: 0.1, repeat: isFocused && saturationProgress < 100 && !isShakePaused ? Infinity : 0, ease: "linear" },
-                y: { duration: 0.1, repeat: isFocused && saturationProgress < 100 && !isShakePaused ? Infinity : 0, ease: "linear" },
-                opacity: { duration: 0.3 },
-                scale: isFocused && saturationProgress === 100 && !isStaged
-                    ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" }
-                    : { type: 'spring', damping: 25, stiffness: 120 }
-            }}
-            className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isFocused && !isStaged ? 'shadow-[0_0_80px_rgba(197,160,89,0.4)] ring-2 ring-[#C5A059]' : 'cursor-pointer hover:ring-1 hover:ring-white/20'}`}
-            style={{ touchAction: 'none' }}
-        >
-            <div
-                className="absolute inset-0 bg-cover bg-center transition-all duration-100"
-                style={{
-                    backgroundImage: `url(${lang.image})`,
-                    transform: 'scale(1.5)',
-                    filter: isFocused
-                        ? (saturationProgress < 45.45 ? `saturate(${0.1 + (0.2 * (saturationProgress / 45.45))}) grayscale(${80 - (50 * (saturationProgress / 45.45))}%) brightness(${0.1 + (0.2 * (saturationProgress / 45.45))})`
-                            : saturationProgress < 63.63 ? 'saturate(0.7) grayscale(30%) brightness(0.7)'
-                                : saturationProgress < 81.81 ? 'saturate(1) grayscale(0%) brightness(1)'
-                                    : 'saturate(1.2) grayscale(0%) brightness(1.3) drop-shadow(0 0 10px rgba(197,160,89,0.8))')
-                        : (isStaged ? 'saturate(1) grayscale(0%)' : 'saturate(0) grayscale(100%) brightness(0.5)'),
-                }}
-            />
-
-            {/* Hold/Focus Progress Bar */}
-            {isFocused && saturationProgress < 100 && (
-                <div className="absolute bottom-0 left-0 h-2 bg-[#C5A059] z-40 transition-all duration-75" style={{ width: `${saturationProgress}%` }} />
-            )}
-
-            {/* Glowing inner overlay for 100% saturation to invite dragging */}
-            {isFocused && saturationProgress === 100 && !isStaged && (
-                <motion.div
-                    animate={{ opacity: [0, 0.3, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                    className="absolute inset-0 border-4 border-[#C5A059] pointer-events-none z-40"
-                />
-            )}
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent transition-opacity duration-700 opacity-60 pointer-events-none" />
-
-            <div className="absolute inset-0 p-1 md:p-2 flex flex-col items-center justify-center z-30 text-center pointer-events-none">
-                <h3 className={`text-base md:text-3xl font-black text-white font-serif uppercase tracking-widest leading-none mb-1 md:mb-2 transition-transform duration-500 ${isFocused ? 'scale-110 drop-shadow-[0_0_10px_rgba(197,160,89,0.8)] text-[#FDFCF0]' : ''}`}>
-                    {lang.name}
-                </h3>
-                <div className="w-full flex justify-center items-center px-1 overflow-visible">
-                    <motion.span
-                        animate={{ y: isFocused || isStaged ? 0 : 10 }}
-                        className="text-xs md:text-lg text-[#C5A059] uppercase tracking-[0.1em] md:tracking-[0.2em] font-black block leading-tight text-center"
-                    >
-                        {isStaged ? lang.ui.fateSealed : (saturationProgress === 100 ? lang.ui.drag : (isFocused ? `${lang.ui.sync} ${Math.round(saturationProgress)}%` : lang.ui.tap))}
-                    </motion.span>
-                </div>
-            </div>
-        </motion.div>
-    );
-};
-
-const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking, earnedBadges, onEarnBadge }) => {
-    const [focusedLang, setFocusedLang] = useState(null);
-    const [stagedLang, setStagedLang] = useState(null);
-    const [minaText, setMinaText] = useState("");
-    const [activeBackground, setActiveBackground] = useState(null);
-    const [isIntroActive, setIsIntroActive] = useState(true);
-    const [isSealed, setIsSealed] = useState(false);
-
-    // Use a ref to prevent double audio playback in React strict mode / dev
-    const audioPlayedRef = useRef(false);
-
-    const introSentences = [
-        "Initiating dimensional shift.",
-        "Anchor your consciousness.",
-        "Await multiverse synchronization.",
-        "Select your frequency.",
-        "Choose your anchor point."
-    ];
-    const [introSentence] = useState(() => introSentences[Math.floor(Math.random() * introSentences.length)]);
-
-    useEffect(() => {
-        setMinaText(introSentence);
-
-        // Drop overlay after 6 seconds (length of voice line)
-        const overlayTimer = setTimeout(() => {
-            setIsIntroActive(false);
-        }, 6000);
-
-        return () => clearTimeout(overlayTimer);
-    }, [introSentence]);
-
-    const onCardFocus = (lang) => {
-        // Track unique card views
-        if (setCardsExplored) {
-            setCardsExplored(prev => {
-                const newSet = new Set(prev);
-                newSet.add(lang.id);
-                return newSet;
-            });
-        }
-        // Reset the background to normal dark when preparing to pick again
-        setActiveBackground(null);
-        setFocusedLang(lang);
-        setStagedLang(null);
-        setMinaText(lang.ui.sync + "...");
-    };
-
-    const onCardReady = (payload) => {
-        // [V30 UPDATE: Track Archetypes in Real-Time during exploration]
-        if (onEarnBadge) {
-            const metrics = {
-                totalClicks: payload.clickCount || cardsExplored.size,
-                uniqueCards: cardsExplored.size,
-                sessionTimeSeconds: 5,
-                selectedLangId: payload.id
-            };
-            const calculated = calculateArchetype(metrics);
-            if (calculated && calculated.length > 0) {
-                onEarnBadge(calculated);
-            }
-        }
-
-        if (payload.requestBackground) {
-            setActiveBackground(payload.image);
-        }
-        if (payload.requestSequenceComplete) {
-            setMinaText(payload.ui.directiveLanguage);
-            // Play the dynamic language voice at exactly 5.5s
-            AudioManager.playMina(payload.id, 'language');
-        }
-    };
-
-    // V26: Center Hold Logic
-    const [holdProgress, setHoldProgress] = useState(0);
-    const holdIntervalRef = useRef(null);
-
-    const startHold = () => {
-        if (!stagedLang) return;
-        if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
-
-        // V28: Rich 4-string harmonic feedback instead of harsh metal
-        // Increased by 30% volume
-        AudioManager.playSfx('piano-mystic-low', 1.0, true);
-        AudioManager.playSfx('piano-mystic-mid', 0.9, true);
-
-        setMinaText(stagedLang.ui.sync + '...');
-        setHoldProgress(0);
-        holdIntervalRef.current = setInterval(() => {
-            setHoldProgress(prev => {
-                const next = prev + (100 / (5000 / 50)); // Fill 100% over 5s at 50ms intervals
-                if (next >= 100) {
-                    clearInterval(holdIntervalRef.current);
-                    holdIntervalRef.current = null;
-                    return 100;
-                }
-                return next;
-            });
-        }, 50);
-    };
-
-    // Dynamic overlay height state
-    const [expandedHeight, setExpandedHeight] = useState('auto');
-
-    useEffect(() => {
-        const updateHeight = () => {
-            const grid = document.getElementById('language-grid');
-            if (grid) {
-                const rect = grid.getBoundingClientRect();
-                const offset = window.innerWidth >= 768 ? 32 : 16; // md:top-8 vs top-4
-                // Calculate Exact Max Height: Distance from top offset to the bottom of the grid viewport rect
-                const newHeight = Math.max(100, rect.bottom - offset);
-                setExpandedHeight(`${newHeight}px`);
-            }
-        };
-
-        // Initial setup and observer to survive window resizes
-        updateHeight();
-        const resizeObserver = new ResizeObserver(updateHeight);
-        const gridEl = document.getElementById('language-grid');
-        if (gridEl) resizeObserver.observe(gridEl);
-
-        return () => resizeObserver.disconnect();
-    }, [isIntroActive]);
-
-    // V29: Watch for completion cleanly to avoid setState-while-rendering warnings
-    useEffect(() => {
-        if (holdProgress >= 100 && stagedLang && !isSealed) {
-            setIsSealed(true);
-            setMinaText("[🎙️ SEAN'S COMMENT] You just chose that language vibe! 근데 일단은 영어로 좀 진행할게 ㅠㅠ 나 혼자 지휘하느라 힘들어!");
-
-            // 3-second cinematic transition before routing
-            setTimeout(() => {
-                handleLanguageSelect(stagedLang);
-            }, 3000);
-
-            // Cancel hold right after to prevent duplicate firing
-            cancelHold();
-        }
-    }, [holdProgress, stagedLang, handleLanguageSelect, isSealed]);
-
-    const cancelHold = () => {
-        if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
-        setHoldProgress(prev => {
-            if (prev > 0 && prev < 100 && stagedLang) {
-                // User released early
-                setMinaText(stagedLang.id === 'ko' ? "▶️ 계속 5초간 길게 누르세요." : (stagedLang.ui?.holdMore || "▶️ Keep holding for 5 seconds."));
-            } else if (prev === 0 && stagedLang) {
-                setMinaText(stagedLang.ui.directiveConfirm);
-            }
-            return 0;
-        });
-    };
-
-    const handleAnchorSelect = (lang) => {
-        setStagedLang(lang);
-
-        // Complete the harmonic string flourish
-        AudioManager.playSfx('piano-mystic-high', 1.0, true);
-        AudioManager.playSfx('transition', 0.7, true);
-
-        setMinaText(lang.ui.directiveConfirm);
-        AudioManager.playMina(lang.id, 'confirm');
-    };
-
-    const onCardSelect = (lang) => {
-        setFocusedLang(lang);
-        handleAnchorSelect(lang);
-    };
-
-    return (
-        <div className="w-full mx-auto h-full flex flex-col items-center justify-center p-0 md:p-4 overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
-
-            {/* Static SEAN flows background (User provided) */}
-            <div
-                className="fixed inset-0 z-[-1] bg-cover bg-center opacity-40 mix-blend-screen pointer-events-none"
-                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(6px)" }}
-            />
-
-            {/* Dynamic Native Image Background */}
-            <div
-                className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-70' : 'opacity-0'}`}
-                style={activeBackground ? { backgroundImage: `url(${activeBackground})` } : {}}
-            />
-
-            {/* Cinematic Transition Overlay */}
-            <div className={`fixed inset-0 z-[4900] bg-black/80 backdrop-blur-md transition-opacity duration-1000 pointer-events-none ${isSealed ? 'opacity-100' : 'opacity-0'}`} />
-
-            <div id="language-grid" className={`w-full grid grid-cols-3 grid-rows-3 gap-1 md:gap-4 bg-black/40 backdrop-blur-3xl p-1 md:p-6 border border-white/5 rounded-lg md:rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative z-10 transition-all duration-1000 ${isIntroActive ? 'opacity-40 blur-sm scale-95 pointer-events-none' : 'opacity-100 blur-0 scale-100'}`}>
-                {/* Background "Flow" Effect */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_70%)] animate-pulse pointer-events-none" />
-
-                {/* Grid Mapping */}
-                {[0, 1, 2, 3, 'center', 4, 5, 6, 7].map((pos, i) => {
-                    if (pos === 'center') {
-                        return (
-                            <div key="center-slot" className="relative z-50">
-                                <AnimatePresence mode="wait">
-                                    {stagedLang ? (
-                                        <motion.div
-                                            key={stagedLang.id}
-                                            initial={{ scale: 0, opacity: 0, rotate: -20 }}
-                                            animate={{ scale: holdProgress > 0 ? 1 + (holdProgress / 100) * 0.5 : 1, opacity: 1, rotate: 0 }}
-                                            onPointerDown={(e) => { e.target.setPointerCapture(e.pointerId); startHold(); }}
-                                            onPointerUp={(e) => { e.target.releasePointerCapture(e.pointerId); cancelHold(); }}
-                                            onPointerCancel={cancelHold}
-                                            className="w-full h-full z-[2000] cursor-pointer relative"
-                                        >
-                                            <div className="absolute -inset-4 bg-[#C5A059]/10 blur-xl pointer-events-none transition-opacity" style={{ opacity: holdProgress / 100 }} />
-                                            <LanguageCard
-                                                lang={stagedLang}
-                                                isFocused={true}
-                                                isStaged={true}
-                                                onFocus={() => { }}
-                                                onSelect={() => { }}
-                                                onReady={() => { }}
-                                            />
-                                            {/* ELEGANT UI: Harmonic Convergence / Cannes Cinematic Glow */}
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/60 shadow-[inset_0_0_150px_rgba(0,0,0,1)] pointer-events-none rounded-2xl border border-white/10 backdrop-blur-2xl overflow-hidden transition-all duration-1000">
-
-                                                {/* Ambient Background Flare */}
-                                                <div
-                                                    className="absolute inset-0 bg-gradient-to-t from-[#C5A059]/0 via-[#C5A059]/10 to-[#C5A059]/0 mix-blend-screen transition-opacity"
-                                                    style={{ opacity: holdProgress / 100 }}
-                                                />
-
-                                                {/* Expanding Sound Waves (Diamonds) */}
-                                                <div className="absolute inset-0 flex items-center justify-center opacity-70">
-                                                    <motion.div
-                                                        className="absolute border border-white/20 rotate-45"
-                                                        animate={{
-                                                            width: [`${20 + holdProgress}%`, `${100 + holdProgress}%`],
-                                                            height: [`${20 + holdProgress}%`, `${100 + holdProgress}%`],
-                                                            opacity: [0.8, 0],
-                                                        }}
-                                                        transition={{ repeat: Infinity, duration: Math.max(0.6, 2.5 - holdProgress / 40), ease: "easeOut" }}
-                                                    />
-                                                    <motion.div
-                                                        className="absolute border-[0.5px] border-[#C5A059]/40 rotate-45"
-                                                        style={{ width: `${holdProgress * 2.5}%`, height: `${holdProgress * 2.5}%` }}
-                                                    />
-                                                </div>
-
-                                                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full mt-10">
-
-                                                    {/* The Core Tuning Diamond */}
-                                                    <motion.div
-                                                        className="relative flex items-center justify-center"
-                                                        animate={{
-                                                            scale: holdProgress >= 100 ? [1, 2.5, 1.5] : 1 + (holdProgress / 100) * 1.2,
-                                                            filter: `drop-shadow(0 0 ${holdProgress}px rgba(197,160,89,0.8))`
-                                                        }}
-                                                    >
-                                                        {/* Inner Core Light */}
-                                                        <div
-                                                            className="absolute bg-gradient-to-tr from-[#C5A059] to-[#FDFCF0] transition-all mix-blend-screen rotate-45"
-                                                            style={{
-                                                                width: `${Math.max(4, holdProgress * 0.8)}px`,
-                                                                height: `${Math.max(4, holdProgress * 0.8)}px`,
-                                                                boxShadow: `0 0 ${holdProgress * 2}px #FDFCF0`,
-                                                                opacity: 0.6 + (holdProgress / 200)
-                                                            }}
-                                                        />
-
-                                                        {holdProgress >= 100 ? (
-                                                            <motion.div
-                                                                initial={{ scale: 0.1, opacity: 0 }}
-                                                                animate={{ scale: [1, 5, 2], opacity: [0, 1, 0] }}
-                                                                transition={{ duration: 0.8, ease: "easeOut" }}
-                                                                className="absolute w-full h-full bg-[#FDFCF0] rounded-full blur-2xl mix-blend-screen z-0"
-                                                            />
-                                                        ) : null}
-
-                                                        {holdProgress >= 100 ? (
-                                                            <LucideCheck className="text-black relative z-10 scale-[2.0]" strokeWidth={1.5} size={32} />
-                                                        ) : (
-                                                            <div className="relative z-10 w-8 h-8 flex items-center justify-center opacity-80">
-                                                                <div className="w-[1px] h-full bg-[#C5A059]" />
-                                                                <div className="absolute w-full h-[1px] bg-[#C5A059] rotate-45" />
-                                                                <div className="absolute w-full h-[1px] bg-[#C5A059] -rotate-45" />
-                                                            </div>
-                                                        )}
-                                                    </motion.div>
-
-                                                    {/* Elegant Data Readout */}
-                                                    <div className="mt-16 flex flex-col items-center gap-3">
-                                                        <span className="text-[#FDFCF0] text-xl md:text-3xl font-serif uppercase tracking-[0.3em] text-center leading-tight mix-blend-screen"
-                                                            style={{ textShadow: `0 0 ${holdProgress / 4}px #C5A059`, opacity: 0.5 + (holdProgress / 200) }}>
-                                                            {holdProgress >= 100 ? "ALIGNED" : "HARMONIZING"}
-                                                        </span>
-                                                        <span className="text-[#C5A059]/80 text-[10px] md:text-xs font-sans font-light tracking-[0.4em]">
-                                                            [ {(holdProgress / 100).toFixed(2)} ]
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    ) : (
-                                        <motion.div
-                                            key="instruction"
-                                            animate={{
-                                                borderColor: focusedLang ? ['rgba(197,160,89,0.2)', 'rgba(197,160,89,0.8)', 'rgba(197,160,89,0.2)'] : 'rgba(255,255,255,0.1)',
-                                                boxShadow: focusedLang ? ['0 0 10px rgba(197,160,89,0)', '0 0 30px rgba(197,160,89,0.4)', '0 0 10px rgba(197,160,89,0)'] : 'none'
-                                            }}
-                                            transition={{ duration: 1.5, repeat: Infinity }}
-                                            className="flex flex-col items-center justify-center text-center p-2 md:p-4 bg-white/5 border-2 rounded-xl border-dashed w-full h-full"
-                                        >
-                                            <LucideCompass className={`${focusedLang ? 'text-[#C5A059] animate-spin-slow scale-150' : 'text-white/40 scale-125'} mb-4 transition-all`} size={40} />
-                                            <h2 className={`text-[9px] sm:text-[10px] md:text-sm font-black ${focusedLang ? 'text-[#C5A059]' : 'text-white/40'} uppercase tracking-widest md:tracking-[0.3em] leading-snug px-1 break-words text-center transition-colors`}>
-                                                {focusedLang ? focusedLang.ui.drag : 'ANCHOR'}
-                                            </h2>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        );
-                    }
-
-                    const lang = LANGUAGES[pos];
-                    const isFocused = focusedLang?.id === lang.id;
-                    const isStaged = stagedLang?.id === lang.id;
-                    const isDimmable = focusedLang && focusedLang.id !== lang.id;
-                    const isOriginalOfStaged = stagedLang && stagedLang.id === lang.id;
-                    const instaImgIndex = pos < 4 ? pos + 1 : pos;
-
-                    return (
-                        <div
-                            key={`slot-${i}`}
-                            className={`relative aspect-[4/5] w-full transition-opacity duration-300 ${isFocused ? 'z-[50]' : ''}`}
-                            style={{ opacity: isOriginalOfStaged ? 0 : (isSealed ? 1 : Math.max(0, 1 - (holdProgress / 100) * 1.5)) }}
-                        >
-                            <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed ? 'opacity-0' : 'opacity-100'}`}>
-                                {/* Hide the original slot card if it's currently staged in the center */}
-                                {!isOriginalOfStaged && (
-                                    <LanguageCard
-                                        lang={lang}
-                                        idx={pos}
-                                        isFocused={isFocused}
-                                        isStaged={false}
-                                        isDimmable={isDimmable || stagedLang}
-                                        onFocus={onCardFocus}
-                                        onReady={onCardReady}
-                                        onSelect={onCardSelect}
-                                    />
-                                )}
-                            </div>
-
-                            {/* Instagram Grid Transition */}
-                            <div className={`absolute inset-0 transition-opacity duration-[2000ms] ${isSealed ? 'opacity-100' : 'opacity-0'} pointer-events-none rounded-lg overflow-hidden`}>
-                                <img src={`/assets/manual_upload/insta/img${instaImgIndex}.png`} alt={`Instagram ${instaImgIndex}`} className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            {/* Mina UI Scoreboard - Floating at the top and acting as an overlay when expanded */}
-            <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
-                <div className="w-full max-w-5xl px-4 md:px-8 mx-auto flex justify-center">
-                    <MinaDirective
-                        isVisible={true}
-                        activeStep="language"
-                        text={minaText}
-                        position="top"
-                        interactionMode={isIntroActive ? 'reading' : 'action'}
-                        sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
-                        actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
-                        isSpeaking={isMinaSpeaking}
-                        badges={earnedBadges}
-                        ui={focusedLang?.ui || {}}
-                        dynamicMaxHeight={expandedHeight}
-                        forceExpanded={isSealed}
-                    />
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// All previous inline views have been moved to the top level
-
-const MultiverseGrid = ({ selectedLang, currentTheme, setStep, setViewMode }) => {
-    return (
-        <div className={`w-full h-full flex items-center justify-center ${currentTheme?.bg} text-white`}>
-            <h1 className="text-4xl">Multiverse Grid</h1>
-        </div>
-    );
-};
-
+// Removed MultiverseGrid component definition per Phase 1 refactoring
 const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
     useEffect(() => {
         // Flash and auto transition
@@ -2201,8 +1353,7 @@ const App = () => {
     // [V19] Consolidated Language Selection Logic
     const handleLanguageSelect = useCallback((lang) => {
         setSelectedLang(lang);
-        setStep('multiverse_grid'); // Phase 1 update
-        setViewMode('gallery');
+        // We no longer route away; Phase 1/2 keeps us on LanguageSelector screen
         AudioManager.playSfx('click');
 
         // Main BGM stops completely
@@ -2425,7 +1576,7 @@ const App = () => {
                             {/* REMOVED: AnimatePresence mode="wait" to fix layout blanking crashes */}
                             <div className="flex flex-col items-center w-full h-full flex-1 relative">
                                 {step === 'language' && (
-                                    <LanguageView
+                                    <LanguageSelector
                                         LANGUAGES={LANGUAGES}
                                         handleLanguageSelect={handleLanguageSelect}
                                         setSpiritHint={setSpiritHint}
@@ -2434,21 +1585,24 @@ const App = () => {
                                         isMinaSpeaking={isMinaSpeaking}
                                         earnedBadges={earnedBadges}
                                         onEarnBadge={handleEarnBadge}
+                                        AudioManager={AudioManager}
+                                        MinaDirective={MinaDirective}
+                                        calculateArchetype={calculateArchetype}
                                     />
                                 )}
                                 {step === 'confirm' && (
                                     <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
                                 )}
-                                {step === 'multiverse_grid' && (
+                                {/* {step === 'multiverse_grid' && (
                                     <MultiverseGrid
                                         selectedLang={selectedLang}
                                         currentTheme={currentTheme}
                                         setStep={setStep}
                                         setViewMode={setViewMode}
                                     />
-                                )}
+                                )} */}
                                 {/* ComingSoonView is preserved but functionally bypassed per Phase 1 */}
-                                {step === 'coming_soon' && (
+                                {/* {step === 'coming_soon' && (
                                     <ComingSoonView
                                         selectedLang={selectedLang}
                                         currentTheme={currentTheme}
@@ -2462,10 +1616,10 @@ const App = () => {
                                         onEarnBadge={handleEarnBadge}
                                         earnedBadges={earnedBadges}
                                     />
-                                )}
+                                )} */}
                                 {/* More steps would follow, refactored to use currentTheme classes */}
                                 {step === 'intro' && (
-                                    <IntroView
+                                    <IntroEngraveView
                                         selectedLang={selectedLang}
                                         userName={userName}
                                         setUserName={setUserName}
@@ -2475,6 +1629,7 @@ const App = () => {
                                         uploadedImage={uploadedImage}
                                         generateCharacter={generateCharacter}
                                         playSfx={playSfx}
+                                        THEME_CONFIG={THEME_CONFIG}
                                     />
                                 )}
                                 {step === 'dashboard' && (
@@ -2487,6 +1642,10 @@ const App = () => {
                                                 setTodos={setTodos}
                                                 todos={todos}
                                                 playSfx={playSfx}
+                                                THEME_CONFIG={THEME_CONFIG}
+                                                AudioManager={AudioManager}
+                                                setMinaText={setMinaText}
+                                                onEarnBadge={handleEarnBadge}
                                             />
                                         )}
                                         {viewMode === 'home_interior' && (
@@ -2500,6 +1659,7 @@ const App = () => {
                                                 setGearsSpinning={setGearsSpinning}
                                                 loreText={loreText}
                                                 playSfx={playSfx}
+                                                THEME_CONFIG={THEME_CONFIG}
                                             />
                                         )}
                                         {viewMode === 'mission_active' && (
