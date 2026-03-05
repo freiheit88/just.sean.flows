@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import MinaDirective from './components/MinaDirective';
 import { calculateArchetype } from './components/Archetypes';
+import { callGemini } from './src/services/aiService';
+import { speakText, preFetchVoice } from './src/services/audioService';
 
 class SimpleErrorBoundary extends React.Component {
     constructor(props) {
@@ -2099,6 +2101,7 @@ const App = () => {
     const [votedId, setVotedId] = useState(null);
     const [viewMode, setViewMode] = useState('gallery');
     const [previewId, setPreviewId] = useState(null);
+    const [audioCache, setAudioCache] = useState({});
 
     const [todos, setTodos] = useState({ avatar: false, home: false, voted: false });
     const [showTodo, setShowTodo] = useState(false);
@@ -2126,7 +2129,7 @@ const App = () => {
                 try {
                     const res = await callGemini({
                         contents: [{ parts: [{ text: "Generate 1 cryptic steampunk word or very short phrase (max 2 words) about souls, gears, or time. Uppercase only." }] }]
-                    });
+                    }, apiKey);
                     setWhisper(res?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "");
                 } catch (e) { /* silent */ }
             }
@@ -2186,93 +2189,14 @@ const App = () => {
                 if (i >= userAvatar.lore.length) {
                     clearInterval(timer);
                     // [V9: Pre-fetch next logic after lore finished]
-                    preFetchVoice(selectedLang?.ui?.todoDone, selectedLang?.voice, selectedLang?.name);
+                    preFetchVoice(selectedLang?.ui?.todoDone, selectedLang?.name, selectedLang?.voice, apiKey, audioCache, setAudioCache);
                 }
             }, 30);
             return () => clearInterval(timer);
         }
     }, [viewMode, userAvatar]);
 
-    const callGemini = async (payload, endpoint = "generateContent", model = "gemini-1.5-flash-latest") => {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:${endpoint}?key=${apiKey}`;
-        for (let i = 0; i < 5; i++) {
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-                if (!response.ok) throw new Error('API request failed');
-                return await response.json();
-            } catch (err) {
-                if (i === 4) throw err;
-                await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
-            }
-        }
-    };
-
-    const speakText = async (text) => {
-        if (!apiKey || !text) return;
-
-        // [V8 UPDATE: Check Cache Path first]
-        if (audioCache[text]) {
-            new Audio(audioCache[text]).play();
-            return;
-        }
-
-        try {
-            const prompt = `Speak with a bright, cheerful, expressive, and highly human-like voice in ${selectedLang.name} language: ${text}`;
-            const response = await callGemini({
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: selectedLang.voice || "Zephyr" } } }
-                }
-            }, "generateContent", "gemini-1.5-flash-latest");
-
-            if (response?.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-                const audioData = response.candidates[0].content.parts[0].inlineData.data;
-                const sampleRate = 24000;
-                const wavUrl = pcmToWav(audioData, sampleRate);
-
-                // Cache for later
-                setAudioCache(prev => ({ ...prev, [text]: wavUrl }));
-                new Audio(wavUrl).play();
-            }
-        } catch (err) { console.error("TTS Error:", err); }
-    };
-
-    // [V8 UPDATE: Pre-fetch Logic to eliminate sync issues]
-    const preFetchVoice = async (text, langVoice, langName) => {
-        if (!apiKey || !text || audioCache[text]) return;
-        try {
-            const response = await callGemini({
-                contents: [{ parts: [{ text: `Speak with a bright, cheerful, expressive, and highly human-like voice in ${langName} language: ${text}` }] }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: langVoice || "Zephyr" } } }
-                }
-            }, "generateContent", "gemini-1.5-flash-latest");
-
-            if (response?.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-                const audioData = response.candidates[0].content.parts[0].inlineData.data;
-                const wavUrl = pcmToWav(audioData, 24000);
-                setAudioCache(prev => ({ ...prev, [text]: wavUrl }));
-            }
-        } catch (err) { /* Silent fail for pre-fetch */ }
-    };
-
-    // [V7 UPDATE: Restored robust audio buffer processing, hoisted standard function]
-    function pcmToWav(base64, sampleRate) {
-        const buffer = Uint8Array.from(atob(base64), c => c.charCodeAt(0)).buffer;
-        const view = new DataView(new ArrayBuffer(44 + buffer.byteLength));
-        const writeString = (offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
-        writeString(0, 'RIFF'); view.setUint32(4, 36 + buffer.byteLength, true); writeString(8, 'WAVE'); writeString(12, 'fmt ');
-        view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
-        view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true); writeString(36, 'data');
-        view.setUint32(40, buffer.byteLength, true); new Uint8Array(view.buffer, 44).set(new Uint8Array(buffer));
-        return URL.createObjectURL(new Blob([view], { type: 'audio/wav' }));
-    };
+    // Extracted callGemini, speakText, pcmToWav to /src/services/
 
     // [V19] Consolidated Language Selection Logic
     const handleLanguageSelect = useCallback((lang) => {
@@ -2312,7 +2236,7 @@ const App = () => {
         try {
             // [V7 UPDATE: Synchronized text avatar prompt from user source]
             const prompt = `Create a short, mysterious 19th-century steampunk persona for someone named "${userName}". Output in ${selectedLang.name}. Max 40 words.`;
-            const loreResult = await callGemini({ contents: [{ parts: [{ text: prompt }] }] });
+            const loreResult = await callGemini({ contents: [{ parts: [{ text: prompt }] }] }, apiKey);
             const lore = loreResult?.candidates?.[0]?.content?.parts?.[0]?.text || `The enigmatic ${userName}.`;
             setUserAvatar({ image: null, textName: userName, lore, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
@@ -2345,7 +2269,7 @@ const App = () => {
                         { inlineData: { mimeType: "image/png", data: uploadedImage } }
                     ]
                 }]
-            });
+            }, apiKey);
             if (loreResult?.candidates?.[0]?.content?.parts?.[0]?.text) {
                 generatedLore = loreResult.candidates[0].content.parts[0].text;
             }
