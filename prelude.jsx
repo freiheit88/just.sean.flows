@@ -1718,6 +1718,30 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
         }, 50);
     };
 
+    // Dynamic overlay height state
+    const [expandedHeight, setExpandedHeight] = useState('auto');
+
+    useEffect(() => {
+        const updateHeight = () => {
+            const grid = document.getElementById('language-grid');
+            if (grid) {
+                const rect = grid.getBoundingClientRect();
+                const offset = window.innerWidth >= 768 ? 32 : 16; // md:top-8 vs top-4
+                // Calculate Exact Max Height: Distance from top offset to the bottom of the grid viewport rect
+                const newHeight = Math.max(100, rect.bottom - offset);
+                setExpandedHeight(`${newHeight}px`);
+            }
+        };
+
+        // Initial setup and observer to survive window resizes
+        updateHeight();
+        const resizeObserver = new ResizeObserver(updateHeight);
+        const gridEl = document.getElementById('language-grid');
+        if (gridEl) resizeObserver.observe(gridEl);
+
+        return () => resizeObserver.disconnect();
+    }, [isIntroActive]);
+
     // V29: Watch for completion cleanly to avoid setState-while-rendering warnings
     useEffect(() => {
         if (holdProgress >= 100 && stagedLang) {
@@ -1945,6 +1969,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                         isSpeaking={isMinaSpeaking}
                         badges={earnedBadges}
                         ui={focusedLang?.ui || {}}
+                        dynamicMaxHeight={expandedHeight}
                     />
                 </div>
             </div>

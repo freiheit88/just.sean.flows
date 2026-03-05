@@ -25,7 +25,7 @@ const TypewriterText = ({ text, speed = 30 }) => {
     return <span>{displayedText}</span>;
 };
 
-const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {} }) => {
+const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh' }) => {
     const [isFolded, setIsFolded] = useState(true);
     const [activeTab, setActiveTab] = useState('directive'); // 'directive' | 'badges'
     const [showStrikethrough, setShowStrikethrough] = useState(false);
@@ -71,8 +71,8 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                     className={`flex flex-col w-full overflow-hidden relative backdrop-blur-xl bg-white/5 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-500
                             ${isFolded ? 'rounded-3xl cursor-pointer hover:bg-white/10' : 'rounded-[2rem]'}`}
                     animate={{
-                        height: isFolded ? 'auto' : 'auto',
-                        maxHeight: isFolded ? 'none' : '75vh' // Covers the grid cleanly from the top
+                        height: isFolded ? 'auto' : dynamicMaxHeight, // Force exact stretch to grid bottom even if empty
+                        maxHeight: isFolded ? 'none' : dynamicMaxHeight // Dynamic layout lock matching exactly to grid's bottom
                     }}
                     transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
@@ -129,9 +129,19 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
 
                         {/* Message: Typewriter Effect (50% visual weight) */}
                         <div className="flex-1 flex items-center justify-center w-full px-8 py-4">
-                            <span className="text-[15px] sm:text-base md:text-lg font-serif text-white/95 tracking-wide leading-relaxed drop-shadow-[0_2px_10px_rgba(255,255,255,0.3)] break-keep whitespace-pre-wrap text-center">
+                            <motion.div
+                                animate={!isConductor ? {
+                                    y: [0, -2, 0],
+                                    scale: [1, 1.04, 1], // Trendy Flinch/Pulse effect specifically for action prompts
+                                    textShadow: ["0px 2px 10px rgba(255,255,255,0.3)", `0px 0px 15px rgba(${themeColorRgb}, 0.8)`, "0px 2px 10px rgba(255,255,255,0.3)"]
+                                } : {
+                                    textShadow: "0px 2px 10px rgba(255,255,255,0.3)"
+                                }}
+                                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                                className="text-[15px] sm:text-base md:text-lg font-serif text-white/95 tracking-wide leading-relaxed break-keep whitespace-pre-wrap text-center cursor-default"
+                            >
                                 <TypewriterText text={text} speed={30} />
-                            </span>
+                            </motion.div>
                         </div>
                     </div>
 

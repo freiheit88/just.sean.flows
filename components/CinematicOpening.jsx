@@ -131,16 +131,14 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     animate={{
                                         y: 0,
                                         opacity: 1,
-                                        filter: "blur(0px) drop-shadow(0px 0px 12px rgba(255, 230, 150, 0.8))",
                                         backgroundPosition: ["200% center", "-200% center"]
                                     }}
                                     transition={{
                                         y: { duration: 2, ease: "easeOut", delay: 0.8 },
                                         opacity: { duration: 2, ease: "easeOut", delay: 0.8 },
-                                        filter: { duration: 2, ease: "easeOut", delay: 0.8 },
                                         backgroundPosition: { duration: 8, ease: "linear", repeat: Infinity, delay: 2.8 }
                                     }}
-                                    className="text-white font-serif uppercase tracking-[0.2em] sm:tracking-[0.3em] font-light text-center select-none leading-[1.1] relative z-10"
+                                    className="text-white font-serif uppercase tracking-[0.2em] sm:tracking-[0.3em] font-light text-center select-none leading-[1.1] relative z-10 animate-[water-ripple_6s_ease-in-out_infinite]"
                                     style={{
                                         fontSize: "clamp(20px, 5vw, 64px)", // Cannes style size - elegant, not screaming
                                         background: "linear-gradient(to right, #e6ce8a 0%, #fdf5c9 20%, #ffffff 50%, #fdf5c9 80%, #e6ce8a 100%)",

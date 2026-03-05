@@ -4,6 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes water-ripple {
+    0% {
+        filter: drop-shadow(0px 2px 5px rgba(223, 193, 109, 0.4)) drop-shadow(0px -2px 10px rgba(255, 230, 150, 0.2));
+    }
+
+    33% {
+        filter: drop-shadow(0px 6px 15px rgba(255, 230, 150, 0.6)) drop-shadow(0px 2px 25px rgba(255, 255, 255, 0.4));
+    }
+
+    66% {
+        filter: drop-shadow(0px 0px 20px rgba(255, 255, 255, 0.8)) drop-shadow(0px 4px 10px rgba(223, 193, 109, 0.5));
+    }
+
+    100% {
+        filter: drop-shadow(0px 2px 5px rgba(223, 193, 109, 0.4)) drop-shadow(0px -2px 10px rgba(255, 230, 150, 0.2));
+    }
+}
+
 @layer base {
     html {
         font-family: 'Castoro', serif;
