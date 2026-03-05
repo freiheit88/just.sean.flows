@@ -72,7 +72,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                             ${isFolded ? 'rounded-3xl cursor-pointer hover:bg-white/10' : 'rounded-[2rem]'}`}
                     animate={{
                         height: isFolded ? 'auto' : 'auto',
-                        maxHeight: isFolded ? 'none' : '55vh' // Fixes layout clipping and enables internal overflow scroll
+                        maxHeight: isFolded ? 'none' : '75vh' // Covers the grid cleanly from the top
                     }}
                     transition={{ duration: 0.4, ease: "easeInOut" }}
                 >

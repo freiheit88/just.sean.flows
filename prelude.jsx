@@ -1929,23 +1929,23 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                         </div>
                     );
                 })}
+            </div>
 
-                {/* Mina UI Scoreboard - Overlaying the Grid perfectly to match bottom bounds */}
-                <div className="absolute inset-x-0 top-0 bottom-0 pointer-events-none z-[5000] flex justify-center py-1 md:py-6 px-1 md:px-6 transition-all duration-1000 overflow-hidden rounded-lg md:rounded-3xl">
-                    <div className="w-full mx-auto max-w-[500px] flex flex-col h-full items-center justify-start">
-                        <MinaDirective
-                            isVisible={true}
-                            activeStep="language"
-                            text={minaText}
-                            position="relative"
-                            interactionMode={isIntroActive ? 'reading' : 'action'}
-                            sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
-                            actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
-                            isSpeaking={isMinaSpeaking}
-                            badges={earnedBadges}
-                            ui={focusedLang?.ui || {}}
-                        />
-                    </div>
+            {/* Mina UI Scoreboard - Floating at the top and acting as an overlay when expanded */}
+            <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
+                <div className="w-full max-w-5xl px-4 md:px-8 mx-auto flex justify-center">
+                    <MinaDirective
+                        isVisible={true}
+                        activeStep="language"
+                        text={minaText}
+                        position="top"
+                        interactionMode={isIntroActive ? 'reading' : 'action'}
+                        sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
+                        actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
+                        isSpeaking={isMinaSpeaking}
+                        badges={earnedBadges}
+                        ui={focusedLang?.ui || {}}
+                    />
                 </div>
             </div>
         </div>
