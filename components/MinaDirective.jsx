@@ -31,6 +31,11 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
     const [showStrikethrough, setShowStrikethrough] = useState(false);
     const [expandedBadges, setExpandedBadges] = useState({});
 
+    // Persona dynamic theme setup
+    const isConductor = sysName.includes('🎻');
+    const themeColor = isConductor ? '#00E5FF' : '#C5A059';
+    const themeColorRgb = isConductor ? '0,229,255' : '197,160,89';
+
     useEffect(() => {
         if (!isFolded) {
             // Reset and trigger delayed strikethrough when opened
@@ -64,33 +69,41 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                 <motion.div
                     layout
                     className={`flex flex-col w-full overflow-hidden relative backdrop-blur-xl bg-white/5 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-500
-                        ${isFolded ? 'rounded-3xl cursor-pointer hover:bg-white/10' : 'rounded-[2rem]'}`}
+                            ${isFolded ? 'rounded-3xl cursor-pointer hover:bg-white/10' : 'rounded-[2rem]'}`}
                     animate={{
-                        height: isFolded ? 'auto' : (activeTab === 'directive' ? 400 : 500)
+                        height: isFolded ? 'auto' : 'auto',
+                        maxHeight: isFolded ? 'none' : '55vh' // Fixes layout clipping and enables internal overflow scroll
                     }}
-                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
                 >
-                    {/* Organic Spotlight Glow */}
+                    {/* Organic Spotlight Glow: Dynamic Persona Top 50% FX */}
                     <div className="absolute inset-0 pointer-events-none overflow-hidden z-[1] rounded-[inherit]">
-                        <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_0%,transparent_50%)]" />
-                        {isSpeaking && <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15)_0%,transparent_60%)] animate-[pulse_3s_ease-in-out_infinite]" />}
+                        {!isFolded && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="absolute -top-[20%] -left-[20%] w-[140%] h-[70%] pointer-events-none"
+                                style={{ background: `radial-gradient(ellipse at center top, rgba(${themeColorRgb}, 0.18) 0%, transparent 70%)` }}
+                            />
+                        )}
+                        {isSpeaking && <div className="absolute inset-0 animate-[pulse_3s_ease-in-out_infinite]" style={{ background: `radial-gradient(ellipse at top, rgba(${themeColorRgb}, 0.25) 0%, transparent 60%)` }} />}
                     </div>
 
                     {/* ALWAYS VISIBLE HEADER (MINIMIZED STATE UI) */}
-                    <div className="flex flex-col min-h-[150px] md:min-h-[170px] relative z-10 transition-colors">
+                    <div className="flex flex-col min-h-[150px] md:min-h-[170px] relative z-10 transition-colors shrink-0">
                         {/* Title Bar: Guide Concept (50% visual weight) - CLICKABLE TOGGLE */}
                         <div
                             className={`flex-1 w-full bg-black/40 border-b border-white/10 flex items-center justify-center relative shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-sm z-10 px-6 py-4 ${disableToggle ? '' : 'cursor-pointer hover:bg-black/50 transition-colors'}`}
                             onClick={() => !disableToggle && setIsFolded(!isFolded)}
                             title={!disableToggle ? (isFolded ? "Click to Expand" : "Click to Collapse") : ""}
                         >
-                            <span className="flex items-center gap-2 text-[16px] md:text-[19px] font-serif text-[#C5A059] tracking-[0.2em] font-bold uppercase drop-shadow-[0_0_8px_rgba(197,160,89,0.5)]">
-                                {/* Dual Persona Icons */}
-                                <div className="flex items-center gap-1.5 mr-1">
-                                    <span className={`text-[15px] md:text-[18px] transition-all duration-700 ${!sysName.includes('🎻') ? 'opacity-100 scale-110 drop-shadow-[0_0_8px_rgba(197,160,89,0.8)]' : 'brightness-[0.08] scale-90 drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]'}`} title="SEAN'S COMMENT Mode">
+                            <span className={`flex items-center gap-2 text-[16px] md:text-[19px] font-serif tracking-[0.2em] font-bold uppercase transition-colors duration-700 drop-shadow-md`} style={{ color: themeColor }}>
+                                {/* Dual Persona Icons: Fixed Inactive brightness/glow */}
+                                <div className="flex items-center gap-1.5 mr-1 text-[17px] md:text-[20px]">
+                                    <span className={`transition-all duration-700 ${!isConductor ? 'opacity-100 scale-110 drop-shadow-[0_0_8px_rgba(197,160,89,0.9)]' : 'opacity-30 grayscale-[0.8] brightness-[0.4] drop-shadow-[0_0_5px_rgba(255,255,255,0.2)] scale-90'}`} title="SEAN'S COMMENT Mode">
                                         🎙️
                                     </span>
-                                    <span className={`text-[15px] md:text-[18px] transition-all duration-700 ${sysName.includes('🎻') ? 'opacity-100 scale-110 drop-shadow-[0_0_8px_rgba(197,160,89,0.8)]' : 'brightness-[0.08] scale-90 drop-shadow-[0_0_8px_rgba(197,160,89,0.3)]'}`} title="Principal Conductor Mode">
+                                    <span className={`transition-all duration-700 ${isConductor ? 'opacity-100 scale-110 drop-shadow-[0_0_8px_rgba(0,229,255,0.9)]' : 'opacity-30 grayscale-[0.8] brightness-[0.4] drop-shadow-[0_0_5px_rgba(255,255,255,0.2)] scale-90'}`} title="Principal Conductor Mode">
                                         🎻
                                     </span>
                                 </div>
@@ -102,13 +115,13 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                 )}
                             </span>
 
-                            {/* Decorative Elegant Divider Line */}
-                            <div className="absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-1/3 h-[1px] bg-gradient-to-r from-transparent via-[#C5A059]/60 to-transparent" />
+                            {/* Decorative Elegant Divider Line: Thicker, Sharper, Dynamic Color */}
+                            <div className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 w-2/3 h-[2px] opacity-90`} style={{ background: `linear-gradient(90deg, transparent 0%, ${themeColor} 50%, transparent 100%)` }} />
 
                             {/* Absolute Right Badges (if any, kept for info but moved controls) */}
                             {!disableToggle && badges.length > 0 && (
                                 <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-6 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 hidden sm:flex">
-                                    <LucideAward size={14} className="text-[#C5A059]" />
+                                    <LucideAward size={14} style={{ color: themeColor }} />
                                     <span className="text-xs font-serif text-white">{badges.length}</span>
                                 </div>
                             )}
@@ -144,12 +157,13 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('badges')}
-                                        className={`flex-1 py-4 transition-all rounded-xl flex justify-center items-center gap-2 text-xs md:text-sm font-serif tracking-widest ${activeTab === 'badges' ? 'bg-[#C5A059]/20 text-[#C5A059] shadow-inner' : 'bg-transparent text-white/40 hover:text-[#C5A059]/80'}`}
+                                        className={`flex-1 py-4 transition-all rounded-xl flex justify-center items-center gap-2 text-xs md:text-sm font-serif tracking-widest ${activeTab === 'badges' ? 'shadow-inner' : 'bg-transparent text-white/40'}`}
+                                        style={activeTab === 'badges' ? { backgroundColor: `rgba(${themeColorRgb}, 0.2)`, color: themeColor } : {}}
                                     >
                                         <div className="relative">
                                             <LucideAward size={14} strokeWidth={1.5} />
                                             {badges.length > 0 && activeTab !== 'badges' && (
-                                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#C5A059] rounded-full shadow-[0_0_5px_#C5A059]" />
+                                                <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full shadow-md" style={{ backgroundColor: themeColor }} />
                                             )}
                                         </div>
                                         {ui.tabArchive || "ARCHIVE"}
@@ -157,7 +171,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                 </div>
 
                                 {/* Inner Content Body */}
-                                <div className="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar px-6 md:px-8 pt-4 md:pt-4 pb-12 md:pb-16">
+                                <div className="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar px-6 md:px-8 pt-4 md:pt-4 pb-8 h-full min-h-[150px]">
                                     <AnimatePresence mode="wait">
                                         {activeTab === 'directive' ? (
                                             <motion.div
@@ -171,7 +185,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                 <div className="flex flex-col gap-3 w-full">
                                                     {/* Section Header */}
                                                     <div className="px-3 pb-1 border-b border-white/10 mb-1">
-                                                        <span className="text-xs font-serif text-[#C5A059] tracking-widest uppercase">
+                                                        <span className="text-xs font-serif tracking-widest uppercase" style={{ color: themeColor }}>
                                                             {ui.guideHeader || "1. Language & Flow"}
                                                         </span>
                                                     </div>
@@ -179,7 +193,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                     {/* Completed Task 1 */}
                                                     <div className="flex items-center justify-between w-full px-3">
                                                         <div className="flex items-center gap-3">
-                                                            <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : 'text-[#C5A059]'}`} strokeWidth={1.5} />
+                                                            <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : ''}`} style={!showStrikethrough ? { color: themeColor } : {}} strokeWidth={1.5} />
                                                             <span className={`text-sm font-serif tracking-wide italic transition-all duration-1000 ${showStrikethrough ? 'text-white/40 line-through' : 'text-white/90'}`}>
                                                                 {ui.guideStep1 || "1-1. System boot & sync"}
                                                             </span>
@@ -187,7 +201,8 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                         <motion.span
                                                             initial={{ opacity: 0, scale: 0.8 }}
                                                             animate={{ opacity: showStrikethrough ? 1 : 0, scale: showStrikethrough ? 1 : 0.8 }}
-                                                            className="text-[9px] font-sans font-black tracking-widest text-[#C5A059]/60 uppercase border border-[#C5A059]/30 px-1.5 py-0.5 rounded-sm h-fit"
+                                                            className="text-[9px] font-sans font-black tracking-widest uppercase border px-1.5 py-0.5 rounded-sm h-fit"
+                                                            style={{ color: `rgba(${themeColorRgb}, 0.6)`, borderColor: `rgba(${themeColorRgb}, 0.3)` }}
                                                         >
                                                             {ui.guideComplete || "Complete"}
                                                         </motion.span>
@@ -196,7 +211,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                     {/* Completed Task 2 */}
                                                     <div className="flex items-center justify-between w-full px-3">
                                                         <div className="flex items-center gap-3">
-                                                            <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : 'text-[#C5A059]'}`} strokeWidth={1.5} />
+                                                            <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : ''}`} style={!showStrikethrough ? { color: themeColor } : {}} strokeWidth={1.5} />
                                                             <span className={`text-sm font-serif tracking-wide italic transition-all duration-1000 ${showStrikethrough ? 'text-white/40 line-through' : 'text-white/90'}`}>
                                                                 {ui.guideStep2 || "1-2. Multiverse Breach"}
                                                             </span>
@@ -204,7 +219,8 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                         <motion.span
                                                             initial={{ opacity: 0, scale: 0.8 }}
                                                             animate={{ opacity: showStrikethrough ? 1 : 0, scale: showStrikethrough ? 1 : 0.8 }}
-                                                            className="text-[9px] font-sans font-black tracking-widest text-[#C5A059]/60 uppercase border border-[#C5A059]/30 px-1.5 py-0.5 rounded-sm h-fit"
+                                                            className="text-[9px] font-sans font-black tracking-widest uppercase border px-1.5 py-0.5 rounded-sm h-fit"
+                                                            style={{ color: `rgba(${themeColorRgb}, 0.6)`, borderColor: `rgba(${themeColorRgb}, 0.3)` }}
                                                         >
                                                             {ui.guideComplete || "Complete"}
                                                         </motion.span>
@@ -213,15 +229,15 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                     {/* Active Task */}
                                                     <motion.div
                                                         animate={{
-                                                            borderColor: ['rgba(197,160,89,0.2)', 'rgba(197,160,89,0.8)', 'rgba(197,160,89,0.2)'],
-                                                            boxShadow: ['0 0 10px rgba(197,160,89,0)', '0 0 20px rgba(197,160,89,0.2)', '0 0 10px rgba(197,160,89,0)']
+                                                            borderColor: [`rgba(${themeColorRgb}, 0.2)`, `rgba(${themeColorRgb}, 0.8)`, `rgba(${themeColorRgb}, 0.2)`],
+                                                            boxShadow: ['0 0 10px rgba(0,0,0,0)', `0 0 20px rgba(${themeColorRgb}, 0.2)`, '0 0 10px rgba(0,0,0,0)']
                                                         }}
                                                         transition={{ duration: 1.5, repeat: Infinity }}
                                                         className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 border-dashed bg-black/40`}
                                                     >
-                                                        <Circle className={`w-4 h-4 mt-0.5 shrink-0 text-[#C5A059] animate-pulse glow`} strokeWidth={2} />
+                                                        <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
                                                         <div className="flex flex-col gap-1 w-full">
-                                                            <span className="text-sm font-serif text-[#C5A059] tracking-wide font-bold">
+                                                            <span className="text-sm font-serif tracking-wide font-bold" style={{ color: themeColor }}>
                                                                 {ui.guideStep3 || "1-3. Select your frequency."}
                                                             </span>
                                                             <span className={`text-sm font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
@@ -243,7 +259,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                     <div className="text-xs font-serif italic tracking-[0.2em] text-white/60">
                                                         {ui.archiveTitle || "Archive Records"}
                                                     </div>
-                                                    <span className="text-xs font-serif text-[#C5A059] bg-[#C5A059]/10 px-4 py-1.5 rounded-full border border-[#C5A059]/30">
+                                                    <span className="text-xs font-serif px-4 py-1.5 rounded-full border" style={{ color: themeColor, backgroundColor: `rgba(${themeColorRgb}, 0.1)`, borderColor: `rgba(${themeColorRgb}, 0.3)` }}>
                                                         {badges.length} {ui.earned || "EARNED"}
                                                     </span>
                                                 </div>
