@@ -124,22 +124,49 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-30 mix-blend-overlay pointer-events-none" />
 
                         <div className="relative z-10 flex flex-col items-center w-full">
-                            <motion.h1
-                                initial={{ y: 50, opacity: 0, filter: "blur(20px)" }}
-                                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                                transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
-                                className="text-white font-bold italic tracking-tighter mb-20 md:mb-24 text-center select-none leading-[1.1] px-4 md:px-6"
-                                style={{
-                                    fontSize: "clamp(28px, 6vw, 84px)", // Further reduced by ~10%
-                                    fontVariant: "small-caps",
-                                    background: "linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 60%, #FDFCF0 80%, #E8D091 100%)", // Pure white with very slight gold at bottom
-                                    WebkitBackgroundClip: "text",
-                                    WebkitTextFillColor: "transparent",
-                                    filter: "drop-shadow(0px 10px 40px rgba(0,0,0,1)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.6)) contrast(1.5)"
-                                }}
-                            >
-                                just.sean.flows
-                            </motion.h1>
+                            {/* Cannes-Style Elegant Trademark Text */}
+                            <div className="relative mb-20 md:mb-24 px-4 md:px-6 z-10 w-full max-w-4xl">
+                                <motion.h1
+                                    initial={{ y: 50, opacity: 0, filter: "blur(20px)" }}
+                                    animate={{
+                                        y: 0,
+                                        opacity: 1,
+                                        filter: "blur(0px) drop-shadow(0px 0px 15px rgba(223, 193, 109, 0.4))",
+                                        backgroundPosition: ["200% center", "-200% center"]
+                                    }}
+                                    transition={{
+                                        y: { duration: 2, ease: "easeOut", delay: 0.8 },
+                                        opacity: { duration: 2, ease: "easeOut", delay: 0.8 },
+                                        filter: { duration: 2, ease: "easeOut", delay: 0.8 },
+                                        backgroundPosition: { duration: 8, ease: "linear", repeat: Infinity, delay: 2.8 }
+                                    }}
+                                    className="text-white font-serif uppercase tracking-[0.2em] sm:tracking-[0.3em] font-light text-center select-none leading-[1.1] relative z-10"
+                                    style={{
+                                        fontSize: "clamp(20px, 5vw, 64px)", // Cannes style size - elegant, not screaming
+                                        background: "linear-gradient(to right, #b49b57 0%, #dfc16d 20%, #ffffff 50%, #dfc16d 80%, #b49b57 100%)",
+                                        backgroundSize: "200% auto",
+                                        WebkitBackgroundClip: "text",
+                                        WebkitTextFillColor: "transparent",
+                                    }}
+                                >
+                                    JUST.SEAN.FLOWS
+                                </motion.h1>
+                                {/* Trademark Floating Sparkle (Lens Flare illusion) */}
+                                <motion.div
+                                    initial={{ opacity: 0, left: "10%" }}
+                                    animate={{
+                                        opacity: [0, 1, 1, 0],
+                                        left: ["10%", "50%", "90%", "90%"],
+                                        scale: [0.5, 1.5, 0.5, 0.5],
+                                        rotate: [0, 90, 180, 180]
+                                    }}
+                                    transition={{ duration: 8, ease: "easeInOut", repeat: Infinity, delay: 2.8 }}
+                                    className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none"
+                                >
+                                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-full shadow-[0_0_20px_4px_rgba(255,255,255,0.9)] filter blur-[0.5px]" />
+                                    <LucideSparkles className="absolute inset-0 text-white w-4 h-4 md:w-6 md:h-6 -translate-x-1/2 -translate-y-1/2 opacity-90 transition-opacity" strokeWidth={1} />
+                                </motion.div>
+                            </div>
 
                             <motion.button
                                 initial={{ opacity: 0, y: 20 }}
@@ -148,7 +175,8 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                 onClick={handleIgnite}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="group relative px-10 md:px-20 py-5 md:py-6 transition-all duration-500 cursor-pointer mt-4"
+                                className="group relative transition-all duration-500 cursor-pointer mt-4"
+                                style={{ padding: '3.5rem 5rem' }}
                             >
                                 {/* Minimalist Glass Container with rounded borders */}
                                 <div className="absolute inset-0 bg-white/5 backdrop-blur-md border border-white/20 shadow-[0_4px_24px_rgba(0,0,0,0.5)] group-hover:bg-white/10 group-hover:border-white/40 transition-all duration-500 rounded-2xl group-hover:rounded-3xl overflow-hidden">
@@ -193,26 +221,29 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                             }}
                             className="flex flex-nowrap justify-center gap-[0.05em] overflow-visible w-full px-8 md:px-12"
                         >
-                            {"just.sean.flows".split("").map((char, i) => (
+                            {"JUST.SEAN.FLOWS".split("").map((char, i) => (
                                 <motion.span
                                     key={i}
                                     variants={{
                                         hidden: {
                                             opacity: 0,
                                             y: 10,
-                                            filter: "blur(10px) drop-shadow(0 0 0px rgba(232, 208, 145, 0)) drop-shadow(0 0 0px rgba(197, 160, 89, 0))"
+                                            filter: "blur(10px) drop-shadow(0 0 0px rgba(223, 193, 109, 0)) drop-shadow(0 0 0px rgba(197, 160, 89, 0))"
                                         },
                                         visible: {
                                             opacity: 1,
                                             y: 0,
-                                            filter: "blur(0px) drop-shadow(0 0 25px rgba(232, 208, 145, 1)) drop-shadow(0 0 60px rgba(197, 160, 89, 1))",
+                                            filter: "blur(0px) drop-shadow(0px 0px 15px rgba(223, 193, 109, 0.6)) drop-shadow(0 0 40px rgba(197, 160, 89, 0.8))",
                                             transition: { duration: 0.8, ease: "easeOut" }
                                         }
                                     }}
-                                    className="text-white font-bold italic tracking-tighter mix-blend-screen leading-none px-2"
+                                    className="font-serif uppercase tracking-widest md:tracking-[0.2em] font-light mix-blend-screen leading-none"
                                     style={{
-                                        fontSize: "clamp(16.5px, 4.2vw, 112px)",
-                                        lineHeight: 1
+                                        fontSize: "clamp(20px, 5vw, 64px)",
+                                        lineHeight: 1,
+                                        background: "linear-gradient(to bottom, #ffffff 0%, #dfc16d 100%)",
+                                        WebkitBackgroundClip: "text",
+                                        WebkitTextFillColor: "transparent"
                                     }}
                                 >
                                     {char === " " ? "\u00A0" : char}

@@ -395,6 +395,7 @@ const LANGUAGES = [
         welcome: "로드 매너에 오신 것을 환영합니다. 운명의 톱니바퀴가 당신을 기다립니다.",
         loading: "크로노미터 컨설팅 중...",
         ui: {
+            tabGuide: '가이드', tabArchive: '기록 보관소', guideHeader: '1. 세계관 및 흐름', guideStep1: '1-1. 시스템 부팅 및 동기화', guideStep2: '1-2. 다중우주 접속', guideStep3: '1-3. 주파수를 선택하세요.', guideComplete: '완료', archiveTitle: '기록 보관소', earned: '획득', noRecords: '기록이 없습니다.', exploreMore: '다중우주를 탐험하여 기억을 수집하세요.',
             authTitle: "신원 인증", authBtn: "영혼의 자격 증명", authDone: "신원 기록 완료",
             galleryTitle: "매너 기록 보관소", gallerySub: "역사적 기록 1899",
             manorTitle: "기계동력 심장부", manorHeirlooms: "선조의 유물", manorEstate: "저택 부지",
@@ -404,16 +405,51 @@ const LANGUAGES = [
             confirmTitle: "당신의 세계가 맞습니까?", confirmBtn: "확정합니다", confirmDone: "언어 동기화 완료",
             todoTitle: "선언문", todo1: "신원 확립", todo2: "심장 점검", todo3: "운명 봉인", todoDone: "운명이 발현되었습니다.",
             consulting: "알고리즘이 속삭입니다...", sealBtn: "이 운명을 봉인하기", fateSealed: "운명 확정",
-            directiveLanguage: "▶️ 원하는 세계를 중앙으로\n[드래그] 하세요.",
-            directiveConfirm: "📜 마지막 맹세입니다.\n낙인을 [클릭] 하세요.",
-            directiveAuth: "👤 자아 증명 대기중...\n[이름] 입력 또는 [사진] 업로드",
-            directiveAvatar: "✨ 그릇 완성!\n하단 버튼 [클릭]",
-            directiveDashboard: "🎭 막이 올랐습니다!\n기록의 전당으로 입장하세요.",
+            directiveLanguage: "▶️ 원하는 세계를 중앙으로 [드래그] 하세요.",
+            directiveConfirm: "📜 마지막 맹세입니다. 낙인을 [클릭] 하세요.",
+            directiveAuth: "👤 자아 증명 대기중... [이름] 입력 또는 [사진] 업로드",
+            directiveAvatar: "✨ 그릇 완성! 하단 버튼 [클릭]",
+            directiveDashboard: "🎭 막이 올랐습니다! 기록의 전당으로 입장하세요.",
             comingSoon: "곧 돌아옵니다",
             archetypeBadge: "관측된 영혼의 형태",
             comingSoonDesc1: "일단은 여기 까지입니다! Coming soon! 추후 업데이트 됩니다. 하지만 여기서 각 세계관의 음악은 계속 들을 수 있죠.",
             comingSoonDesc2: "각 언어별로 총 2곡이 준비되어 있으니깐, 끝까지 감상해보세요!",
             titleEarned: "새로운 칭호 획득",
+
+            // ARCHETYPES
+            badges: {
+                lightspeed: { title: '빛의 속도를 넘은 자', sub: 'The Light-Speed Breaker', desc: '아무것도 보지 않고 직감만으로 돌파했다. (소요: {sec}초, 탐색: {uniqueCards}개, 클릭: {totalClicks}회)' },
+                wanderer: { title: '우주의 방랑객', sub: 'The Cosmic Wanderer', desc: '5분 넘게 공허를 맴돌며 시공간을 관측했다. (소요: {sec}초, 탐색: {uniqueCards}개)' },
+                destroyer: { title: '메뉴얼 파괴자', sub: 'The Manual Destroyer', desc: '광기로 화면을 찢어발겼다. (클릭: {totalClicks}회, 소요: {sec}초)' },
+                indecision: { title: '선택 장애의 화신', sub: 'Master of Indecision', desc: '모든 선택지를 다 눌러보고도 한참을 고민했다. (탐색: {uniqueCards}개, 소요: {sec}초)' },
+                razor: { title: '단호한 결단력', sub: 'The Absolute Razor', desc: '단 한 곳만 바라보고 주저 없이 선택했다. (탐색: 딱 {uniqueCards}개, 소요: {sec}초)' },
+                silent: { title: '침묵의 관찰자', sub: 'The Silent Observer', desc: '거의 아무것도 만지지 않고 조용히 감상했다. (클릭: {totalClicks}회, 소요: {sec}초)' },
+                octopus: { title: '문어발식 탐색가', sub: 'The Octopus Tactician', desc: '준비된 모든 다중우주를 꼼꼼히 확인했다. (탐색: {uniqueCards}개 완료)' },
+                tester: { title: '시스템을 시험하는 자', sub: 'Tester of Systems', desc: '시스템을 파괴할 기세로 실험을 강행. QA팀이 두려워한다. (총 클릭: {totalClicks}회)' },
+                hermit: { title: '음악 속의 은둔자', sub: 'The Musical Hermit', desc: '선택을 미루고 오직 멜로디에 몸을 맡겼다. (소요: {sec}초, 클릭: 불과 {totalClicks}회)' },
+                defier: { title: '운명을 거스르는 자', sub: 'Defier of Fate', desc: '수많은 터치에도 고집스럽게 좁은 세계만을 파고듦. (클릭: {totalClicks}회, 탐색: 단 {uniqueCards}개)' },
+                loyal: { title: 'SEAN의 모범 요원', sub: 'SEAN\'s Loyal Agent', desc: '의도대로 완벽하게 행동했다. (소요: {sec}초, 탐색: {uniqueCards}개)' },
+                fortune: { title: '운명의 수레바퀴', sub: 'The Wheel of Fortune', desc: '자신만의 독특한 패턴으로 움직이는 변수. (소요: {sec}초, 조작: {totalClicks}회, 탐험: {uniqueCards}개)' },
+
+                prophesied: { title: '향수병에 걸린 자', sub: 'The Nostalgic One', desc: '향수병에 걸린 듯 바로 {lang}를 택했다. (소요: {sec}초)' },
+                pioneer: { title: '미지의 개척자', sub: 'The Unknown Pioneer', desc: '낯선 이국으로 기꺼이 발을 내디뎠다. (선택: {lang}, 소요: {sec}초)' },
+                romantic: { title: '감성 충만 로맨티스트', sub: 'The Hopeless Romantic', desc: '열정적인 세계에 결국 정착했다. (선택: {lang}, 돌아본 세계: {uniqueCards}개)' },
+                order: { title: '질서를 수호하는 자', sub: 'Guardian of Order', desc: '기계처럼 정확하고 필요한 조작만을 수행. (선택: {lang}, 단 {totalClicks}회 조작)' },
+                samurai: { title: '벚꽃の무사', sub: 'The Sakura Samurai', desc: '관망하며 대기한 후 단호하게 검을 뽑았다. (선택: {lang}, 대기: {sec}초)' },
+                polar: { title: '백야의 음유시인', sub: 'The Polar Bard', desc: '수많은 세계를 엿보고 북방으로 향했다. (선택: {lang}, 스쳐간 곳: {uniqueCards}개)' },
+                shakespeare: { title: '글로벌 스탠다드', sub: 'The Global Standard', desc: '고민 없이 세계 공용어를 선택. (선택: {lang}, 고민: 단 {sec}초)' },
+                chance: { title: '우연을 믿는 자', sub: 'Believer in Chance', desc: '오직 새로운 카드만을 뽑아든 타짜. (클릭 {totalClicks}회 = 탐색 {uniqueCards}개)' },
+
+                m_firstStep: { title: '첫 걸음 👣', sub: 'First Step', desc: '시스템에 첫 흔적. (클릭: {totalClicks}회)' },
+                m_spammer: { title: '광클러 ⚡', sub: 'Click Spammer', desc: '시스템 부하를 유발하는 연타. ({totalClicks}회)' },
+                m_doubleTap: { title: '더블 탭 🎯', sub: 'Double Tap', desc: '정확하게 {totalClicks}번의 조작.' },
+                m_safety: { title: '안전 제일 🛡️', sub: 'Safety First', desc: '딱 하나만 더 비교해보고 끝냈다. (본 카드: {uniqueCards}개)' },
+                m_paranoid: { title: '의심병 환자 🕵️', sub: 'Paranoid', desc: '치밀한 더블 체크. ({uniqueCards}개에 {totalClicks}회 클릭)' },
+                m_speedrunner: { title: '스피드 러너 🏃', sub: 'Speedrunner', desc: '빛과 같은 스피드. ({sec}초)' },
+                m_marathon: { title: '마라토너 ⏱️', sub: 'Marathoner', desc: '오랜 시간 머무름. (총 체류: {sec}초)' },
+                m_cautious: { title: '신중한 탐험가 🗺️', sub: 'Cautious Explorer', desc: '꼼꼼한 다중우주 탐색. (체류: {sec}초, 탐색: {uniqueCards}개)' },
+                m_dualPersona: { title: '두 얼굴의 관찰자 🎭', sub: 'The Dual Observer', desc: 'SEAN과 수석 지휘자의 공존을 목격했다.' }
+            },
             minaSystem: "🎻 수석 지휘자", minaAction: ">> 🎼 첫 막: 언어를 선택하세요 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
             tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그", fateSealed: "운명 확정"
@@ -425,6 +461,7 @@ const LANGUAGES = [
         welcome: "Welcome to the Lord Manor, guest. The gears of destiny await your touch.",
         loading: "Consulting the Chronometer...",
         ui: {
+            tabGuide: 'GUIDE', tabArchive: 'ARCHIVE', guideHeader: '1. Language & Flow', guideStep1: '1-1. System boot & sync', guideStep2: '1-2. Multiverse Breach', guideStep3: '1-3. Select your frequency.', guideComplete: 'Complete', archiveTitle: 'Archive Records', earned: 'EARNED', noRecords: 'No records found.', exploreMore: 'Explore the multiverse to collect memories.',
             authTitle: "Aether Identity", authBtn: "Verify Soul Imprint", authDone: "Identity Sealed",
             galleryTitle: "MANOR ARCHIVE", gallerySub: "Historical Record 1899",
             manorTitle: "The Clockwork Heart", manorHeirlooms: "Ancestral Gears", manorEstate: "Manor Grounds",
@@ -434,16 +471,50 @@ const LANGUAGES = [
             confirmTitle: "Is this your native tongue?", confirmBtn: "I Agree", confirmDone: "Language Bound",
             todoTitle: "Manifest", todo1: "Forge Identity", todo2: "Inspect Heart", todo3: "Seal Fate", todoDone: "Destiny manifested.",
             consulting: "The Algorithm whispers...", sealBtn: "Seal this fate", fateSealed: "Fate Locked",
-            directiveLanguage: "Drag your chosen\nmultiverse.",
-            directiveConfirm: "Imprint to\nseal fate.",
-            directiveAuth: "Verify identity\nnow.",
-            directiveAvatar: "Your persona\nis forged.",
-            directiveDashboard: "Investigate the\nManor archives.",
+            directiveLanguage: "Drag your chosen multiverse.",
+            directiveConfirm: "Imprint to seal fate.",
+            directiveAuth: "Verify identity now.",
+            directiveAvatar: "Your persona is forged.",
+            directiveDashboard: "Investigate the Manor archives.",
             comingSoon: "Coming Soon",
             archetypeBadge: "OBSERVED SOUL ARCHETYPE",
             comingSoonDesc1: "This is the current end of the line! Updates coming soon. However, you can continue listening to the music of each multiverse here.",
             comingSoonDesc2: "There are a total of 2 tracks prepared for each language, so please enjoy them to the end!",
             titleEarned: "NEW TITLE ACQUIRED",
+
+            badges: {
+                lightspeed: { title: 'The Light-Speed Breaker', sub: 'Beyond Velocity', desc: 'Passed through on instinct alone. (Time: {sec}s, Explored: {uniqueCards}, Clicks: {totalClicks})' },
+                wanderer: { title: 'The Cosmic Wanderer', sub: 'Lost in the Void', desc: 'Observed the void for over 5 minutes. (Time: {sec}s, Explored: {uniqueCards})' },
+                destroyer: { title: 'The Manual Destroyer', sub: 'System Bane', desc: 'Violently clicked through the UI. (Clicks: {totalClicks}, Time: {sec}s)' },
+                indecision: { title: 'Master of Indecision', sub: 'Endless Debater', desc: 'Checked every option and hesitated. (Explored: {uniqueCards}, Time: {sec}s)' },
+                razor: { title: 'The Absolute Razor', sub: 'Surgical Precision', desc: 'Chose a single path without hesitation. (Explored: {uniqueCards}, Time: {sec}s)' },
+                silent: { title: 'The Silent Observer', sub: 'Quiet Listener', desc: 'Touched almost nothing, purely listening. (Clicks: {totalClicks}, Time: {sec}s)' },
+                octopus: { title: 'The Octopus Tactician', sub: 'Thorough Explorer', desc: 'Meticulously examined every universe. (Explored: {uniqueCards})' },
+                tester: { title: 'Tester of Systems', sub: 'QA Nightmare', desc: 'Stress-tested the interface like a developer. (Total Clicks: {totalClicks})' },
+                hermit: { title: 'The Musical Hermit', sub: 'Audio Ascendant', desc: 'Delayed choice to simply bask in the melodies. (Time: {sec}s, Clicks: {totalClicks})' },
+                defier: { title: 'Defier of Fate', sub: 'Stubborn Anchor', desc: 'Obsessively interacted with a narrow slice of worlds. (Clicks: {totalClicks}, Explored: {uniqueCards})' },
+                loyal: { title: 'SEAN\'s Loyal Agent', sub: 'By the Book', desc: 'Acted exactly exactly as the system designers intended. (Time: {sec}s, Explored: {uniqueCards})' },
+                fortune: { title: 'The Wheel of Fortune', sub: 'Variable Anomaly', desc: 'A true wildcard operating on their own unpredictable pattern. (Time: {sec}s, Clicks: {totalClicks}, Explored: {uniqueCards})' },
+
+                prophesied: { title: 'The Nostalgic One', sub: 'Homesick Soul', desc: 'Immediately gravitated towards {lang}. (Time: {sec}s)' },
+                pioneer: { title: 'The Unknown Pioneer', sub: 'Fearless Traveler', desc: 'Fearlessly stepped into a highly alien culture. (Selection: {lang}, Time: {sec}s)' },
+                romantic: { title: 'The Hopeless Romantic', sub: 'Passionate Heart', desc: 'Eventually settled in an intensely passionate realm. (Selection: {lang}, Visited: {uniqueCards})' },
+                order: { title: 'Guardian of Order', sub: 'Precision Machine', desc: 'Operated with machine-like minimum required effort. (Selection: {lang}, Clicks: {totalClicks})' },
+                samurai: { title: 'The Sakura Samurai', sub: 'Patient Blade', desc: 'Waited in stillness before drawing the blade with finality. (Selection: {lang}, Wait: {sec}s)' },
+                polar: { title: 'The Polar Bard', sub: 'Frost Singer', desc: 'Sampled many worlds to finally choose the frozen north. (Selection: {lang}, Sampled: {uniqueCards})' },
+                shakespeare: { title: 'The Global Standard', sub: 'Default Path', desc: 'Instantly chose the most universally known path. (Selection: {lang}, Time: {sec}s)' },
+                chance: { title: 'Believer in Chance', sub: 'Card Shark', desc: 'Pulled new cards exclusively without redundant clicks. (Clicks {totalClicks} = Checked {uniqueCards})' },
+
+                m_firstStep: { title: 'First Step 👣', sub: 'Initiated', desc: 'Left your first mark on Mina\'s system. (Clicks: {totalClicks})' },
+                m_spammer: { title: 'Click Spammer ⚡', sub: 'Overloader', desc: 'Almost induced a system overflow. ({totalClicks} clicks)' },
+                m_doubleTap: { title: 'Double Tap 🎯', sub: 'Sniper', desc: 'Resolved fate in exactly {totalClicks} actions.' },
+                m_safety: { title: 'Safety First 🛡️', sub: 'Cautious', desc: 'Checked exactly one alternative before committing. ({uniqueCards} seen)' },
+                m_paranoid: { title: 'Paranoid 🕵️', sub: 'Hyper-skeptic', desc: 'Double checked everything redundantly. ({totalClicks} clicks on {uniqueCards} cards)' },
+                m_speedrunner: { title: 'Speedrunner 🏃', sub: 'Swift', desc: 'Cleared the phase instantly. ({sec}s)' },
+                m_marathon: { title: 'Marathoner ⏱️', sub: 'Endurance', desc: 'Lingered seemingly forever. ({sec}s)' },
+                m_cautious: { title: 'Cautious Explorer 🗺️', sub: 'Cartographer', desc: 'Took their sweet time mapping the worlds. ({sec}s, {uniqueCards} domains)' },
+                m_dualPersona: { title: 'The Dual Observer 🎭', sub: 'Two Faces', desc: 'Witnessed the coexistence of SEAN & Principal Conductor.' }
+            },
             minaSystem: "🎻 PRINCIPAL CONDUCTOR", minaAction: ">> 🎼 ACTION REQUIRED: SELECT A MULTIVERSE <<",
             inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
             tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER", fateSealed: "FATE SEALED"
@@ -455,6 +526,7 @@ const LANGUAGES = [
         welcome: "Bienvenido a Lord Manor. Los engranajes del destino esperan tu toque.",
         loading: "Consultando el Cronómetro...",
         ui: {
+            tabGuide: 'GUÍA', tabArchive: 'ARCHIVO', guideHeader: '1. Idioma y Flujo', guideStep1: '1-1. Inicio y sincronización', guideStep2: '1-2. Brecha multiversal', guideStep3: '1-3. Selecciona tu frecuencia.', guideComplete: 'Completado', archiveTitle: 'Registros de Archivo', earned: 'OBTENIDOS', noRecords: 'No se encontraron registros.', exploreMore: 'Explora el multiverso para recopilar recuerdos.',
             authTitle: "Identidad Étérea", authBtn: "Verificar Huella del Alma", authDone: "Identidad Sellada",
             galleryTitle: "ARCHIVO DE LA MANSIÓN", gallerySub: "Registro Histórico 1899",
             manorTitle: "El Corazón de Relojería", manorHeirlooms: "Engranajes Ancestrales", manorEstate: "Terrenos de la Mansión",
@@ -474,6 +546,40 @@ const LANGUAGES = [
             comingSoonDesc1: "¡Este es el final de la línea por ahora! Próximamente habrá actualizaciones. Sin embargo, puedes seguir escuchando la música de cada multiverso aquí.",
             comingSoonDesc2: "Hay un total de 2 pistas preparadas para cada idioma, ¡así que disfrútalas hasta el final!",
             titleEarned: "NUEVO TÍTULO ADQUIRIDO",
+
+            badges: {
+                lightspeed: { title: 'Ruptura de la Luz', sub: 'Beyond Velocity', desc: 'Pasó por puro instinto. (Tiempo: {sec}s, Cartas: {uniqueCards}, Clics: {totalClicks})' },
+                wanderer: { title: 'Nómada Cósmico', sub: 'Lost in the Void', desc: 'Observó el vacío por más de 5 min. (Tiempo: {sec}s, Cartas: {uniqueCards})' },
+                destroyer: { title: 'Destructor Manual', sub: 'System Bane', desc: 'Hizo clic de forma violenta. (Clics: {totalClicks}, Tiempo: {sec}s)' },
+                indecision: { title: 'Maestro Indeciso', sub: 'Endless Debater', desc: 'Revisó todo y aún dudó. (Cartas: {uniqueCards}, Tiempo: {sec}s)' },
+                razor: { title: 'Cuchilla Absoluta', sub: 'Surgical Precision', desc: 'Eligió un camino sin dudar. (Cartas: {uniqueCards}, Tiempo: {sec}s)' },
+                silent: { title: 'Observador Silencioso', sub: 'Quiet Listener', desc: 'Casi no tocó nada, disfrutando de la música. (Clics: {totalClicks}, Tiempo: {sec}s)' },
+                octopus: { title: 'Táctico Pulpo', sub: 'Thorough Explorer', desc: 'Examinó todas las opciones posibles. (Cartas: {uniqueCards})' },
+                tester: { title: 'Probador del Sistema', sub: 'QA Nightmare', desc: 'Probó la resistencia de la interfaz. (Clics: {totalClicks})' },
+                hermit: { title: 'Ermitaño Musical', sub: 'Audio Ascendant', desc: 'Retrasó su elección para escuchar. (Tiempo: {sec}s, Clics: {totalClicks})' },
+                defier: { title: 'Desafiante del Destino', sub: 'Stubborn Anchor', desc: 'Interactuó obsesivamente con unas pocas mundos. (Clics: {totalClicks}, Cartas: {uniqueCards})' },
+                loyal: { title: 'Agente Leal de SEAN', sub: 'By the Book', desc: 'Actuó exactamente como se esperaba. (Tiempo: {sec}s, Cartas: {uniqueCards})' },
+                fortune: { title: 'Rueda de la Fortuna', sub: 'Variable Anomaly', desc: 'Un verdadero comodín con patrón propio. (Tiempo: {sec}s, Clics: {totalClicks}, Cartas: {uniqueCards})' },
+
+                prophesied: { title: 'El Nostálgico', sub: 'Homesick Soul', desc: 'Gravitó inmediatamente hacia {lang}. (Tiempo: {sec}s)' },
+                pioneer: { title: 'Pionero Desconocido', sub: 'Fearless Traveler', desc: 'Viajó valientemente a una cultura extraña. ({lang}, Tiempo: {sec}s)' },
+                romantic: { title: 'El Romántico', sub: 'Passionate Heart', desc: 'Se instaló en un reino ardiente. ({lang}, Vistos: {uniqueCards})' },
+                order: { title: 'Guardián del Orden', sub: 'Precision Machine', desc: 'Operó con precisión mecánica. ({lang}, {totalClicks} clics)' },
+                samurai: { title: 'Samurái de Cerezo', sub: 'Patient Blade', desc: 'Esperó antes de desenfundar. ({lang}, Tiempo: {sec}s)' },
+                polar: { title: 'Bardo Polar', sub: 'Frost Singer', desc: 'Miró las opciones y fue al norte helado. ({lang}, Vistos: {uniqueCards})' },
+                shakespeare: { title: 'El Estándar', sub: 'Default Path', desc: 'Eligió el idioma más universal al instante. ({lang}, Tiempo: {sec}s)' },
+                chance: { title: 'Creyente del Azar', sub: 'Card Shark', desc: 'Sacó cartas exclusivamente sin redundancias. (Clics {totalClicks} = Cartas {uniqueCards})' },
+
+                m_firstStep: { title: 'Primer Paso 👣', sub: 'Initiated', desc: 'Tu primera marca en el sistema. ({totalClicks})' },
+                m_spammer: { title: 'Spammer de Clics ⚡', sub: 'Overloader', desc: 'Casi fuerzas el sistema. ({totalClicks} clics)' },
+                m_doubleTap: { title: 'Doble Toque 🎯', sub: 'Sniper', desc: 'Destino en {totalClicks} clics.' },
+                m_safety: { title: 'Seguridad Primero 🛡️', sub: 'Cautious', desc: 'Viendo {uniqueCards} cartas.' },
+                m_paranoid: { title: 'Paranoico 🕵️', sub: 'Hyper-skeptic', desc: 'Chequeo doble. ({totalClicks} clics / {uniqueCards} cartas)' },
+                m_speedrunner: { title: 'Corredor Rápido 🏃', sub: 'Swift', desc: 'Acelerando... ({sec}s)' },
+                m_marathon: { title: 'Maratonista ⏱️', sub: 'Endurance', desc: 'Una eternidad en el lobby. ({sec}s)' },
+                m_cautious: { title: 'Explorador Cauto 🗺️', sub: 'Cartographer', desc: 'Mapeando. ({sec}s, {uniqueCards} zonas)' },
+                m_dualPersona: { title: 'El Observador Dual 🎭', sub: 'Two Faces', desc: 'Presenció la coexistencia de SEAN y el Director Principal.' }
+            },
             minaSystem: "🎻 DIRECTOR PRINCIPAL", minaAction: ">> 🎼 ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
             tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO", fateSealed: "DESTINO SELLADO"
@@ -485,6 +591,7 @@ const LANGUAGES = [
         welcome: "लॉर्ड मैनर में आपका स्वागत है। भाग्य के पहिये आपकी प्रतीक्षा कर रहे हैं।",
         loading: "क्रोनोमीटर से परामर्श किया जा रहा है...",
         ui: {
+            tabGuide: 'मार्गदर्शक', tabArchive: 'अभिलेखागार', guideHeader: '1. भाषा और प्रवाह', guideStep1: '1-1. सिस्टम बूट और सिंक', guideStep2: '1-2. मल्टीवर्स ब्रीच', guideStep3: '1-3. अपनी आवृत्ति चुनें।', guideComplete: 'पूरा', archiveTitle: 'अभिलेखागार रिकॉर्ड', earned: 'अर्जित', noRecords: 'कोई रिकॉर्ड नहीं मिला।', exploreMore: 'यादें इकट्ठा करने के लिए मल्टीवर्स खोजें।',
             authTitle: "ईथर पहचान", authBtn: "आत्मा की छाप सत्यापित करें", authDone: "पहचान सील",
             galleryTitle: "मैनर पुरालेख", gallerySub: "ऐतिहासिक रिकॉर्ड 1899",
             manorTitle: "लॉर्ड मैनर", manorHeirlooms: "पैतृक गियर्स", manorEstate: "मैनर मैदान",
@@ -504,6 +611,40 @@ const LANGUAGES = [
             comingSoonDesc1: "अभी के लिए बस इतना ही! जल्द ही अपडेट आ रहे हैं। हालाँकि, आप यहाँ प्रत्येक मल्टीवर्स का संगीत सुनना जारी रख सकते हैं।",
             comingSoonDesc2: "प्रत्येक भाषा के लिए कुल 2 ट्रैक तैयार किए गए हैं, इसलिए कृपया अंत तक उनका आनंद लें!",
             titleEarned: "नई उपाधि प्राप्त की",
+
+            badges: {
+                lightspeed: { title: 'प्रकाश-गति', sub: 'Beyond Velocity', desc: 'अंतर्ज्ञान पर आधारित पारगमन। (समय: {sec}s, देखा: {uniqueCards}, क्लिक: {totalClicks})' },
+                wanderer: { title: 'ब्रह्मांडीय घुमक्कड़', sub: 'Lost in the Void', desc: '5 मिनट से अधिक शून्य में। (समय: {sec}s, देखा: {uniqueCards})' },
+                destroyer: { title: 'विनाशक', sub: 'System Bane', desc: 'लगातार क्लिक किया। (क्लिक: {totalClicks}, समय: {sec}s)' },
+                indecision: { title: 'अनिर्णय के स्वामी', sub: 'Endless Debater', desc: 'सब जाँचा फिर भी हिचकिचाए। (देखा: {uniqueCards}, समय: {sec}s)' },
+                razor: { title: 'सटीकता', sub: 'Surgical Precision', desc: 'बिना हिचकिचाहट चुना। (देखा: {uniqueCards}, समय: {sec}s)' },
+                silent: { title: 'मौन श्रोता', sub: 'Quiet Listener', desc: 'कुछ नहीं छुआ, बस संगीत का आनंद लिया। (क्लिक: {totalClicks}, समय: {sec}s)' },
+                octopus: { title: 'रणनीतिकार', sub: 'Thorough Explorer', desc: 'हर मल्टीवर्स की जाँच की। (देखा: {uniqueCards})' },
+                tester: { title: 'परीक्षक', sub: 'QA Nightmare', desc: 'डेवलपर की तरह इंटरफ़ेस टेस्ट किया। (क्लिक: {totalClicks})' },
+                hermit: { title: 'तपस्वी', sub: 'Audio Ascendant', desc: 'मेलोडी में खोये रहे। (समय: {sec}s, क्लिक: {totalClicks})' },
+                defier: { title: 'विद्रोही', sub: 'Stubborn Anchor', desc: 'बस कुछ ही दुनिया जाँची। (क्लिक: {totalClicks}, देखा: {uniqueCards})' },
+                loyal: { title: 'वफादार', sub: 'By the Book', desc: 'बिल्कुल सही तरीके से। (समय: {sec}s, देखा: {uniqueCards})' },
+                fortune: { title: 'भाग्य का पहिया', sub: 'Variable Anomaly', desc: 'अप्रत्याशित व्यवहार। (समय: {sec}s, क्लिक: {totalClicks}, देखा: {uniqueCards})' },
+
+                prophesied: { title: 'पुरानी यादें', sub: 'Homesick Soul', desc: '{lang} की ओर खिंचाव। (समय: {sec}s)' },
+                pioneer: { title: 'अज्ञात पायनियर', sub: 'Fearless Traveler', desc: 'निर्भय होकर आगे बढ़े। ({lang}, समय: {sec}s)' },
+                romantic: { title: 'रोमांटिक', sub: 'Passionate Heart', desc: 'जुनून वाले क्षेत्र में बसे। ({lang}, देखा: {uniqueCards})' },
+                order: { title: 'व्यवस्था के रक्षक', sub: 'Precision Machine', desc: 'मशीन जैसा काम। ({lang}, {totalClicks} क्लिक)' },
+                samurai: { title: 'समुराई', sub: 'Patient Blade', desc: 'शांत बैठ कर इंतज़ार किया। ({lang}, समय: {sec}s)' },
+                polar: { title: 'गायक', sub: 'Frost Singer', desc: 'उत्तर का चयन। ({lang}, देखा: {uniqueCards})' },
+                shakespeare: { title: 'मानक', sub: 'Default Path', desc: 'सबसे लोकप्रिय चयन। ({lang}, समय: {sec}s)' },
+                chance: { title: 'संयोग', sub: 'Card Shark', desc: 'बिना दोबारा क्लिक किए कार्ड खींचे। (क्लिक {totalClicks} = देखा {uniqueCards})' },
+
+                m_firstStep: { title: 'पहला कदम 👣', sub: 'Initiated', desc: 'पहला निशान छोड़ा। ({totalClicks} क्लिक)' },
+                m_spammer: { title: 'तीव्र क्लिक ⚡', sub: 'Overloader', desc: 'सिस्टम ओवरफ्लो लगभग। ({totalClicks} क्लिक)' },
+                m_doubleTap: { title: 'निशाना 🎯', sub: 'Sniper', desc: '{totalClicks} क्लिक में सब तय।' },
+                m_safety: { title: 'सुरक्षा 🛡️', sub: 'Cautious', desc: 'बस एक विकल्प जाँचा। ({uniqueCards} कार्ड)' },
+                m_paranoid: { title: 'संदेह 🕵️', sub: 'Hyper-skeptic', desc: 'सब कुछ दुबारा जाँचा। ({totalClicks} क्लिक / {uniqueCards} कार्ड)' },
+                m_speedrunner: { title: 'दौड़ 🏃', sub: 'Swift', desc: 'तेज़ रफ़्तार। ({sec}s)' },
+                m_marathon: { title: 'मैराथन ⏱️', sub: 'Endurance', desc: 'लंबे समय तक। ({sec}s)' },
+                m_cautious: { title: 'खोजकर्ता 🗺️', sub: 'Cartographer', desc: 'आराम से खोजा। ({sec}s, {uniqueCards} दुनिया)' },
+                m_dualPersona: { title: 'दोहरा पर्यवेक्षक 🎭', sub: 'Two Faces', desc: 'SEAN और प्रधान संवाहक दोनों को देखा।' }
+            },
             minaSystem: "🎻 प्रधान संवाहक", minaAction: ">> 🎼 कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है。",
             tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें", fateSealed: "भाग्य सील"
@@ -515,6 +656,7 @@ const LANGUAGES = [
         welcome: "Willkommen im Lord Manor. Die Zahnräder des Schicksals erwarten Sie.",
         loading: "Konsultiere das Chronometer...",
         ui: {
+            tabGuide: 'LEITFADEN', tabArchive: 'ARCHIV', guideHeader: '1. Sprache & Ablauf', guideStep1: '1-1. Systemstart & Sync', guideStep2: '1-2. Multiversum-Riss', guideStep3: '1-3. Wähle deine Frequenz.', guideComplete: 'Abgeschlossen', archiveTitle: 'Archivaufzeichnungen', earned: 'VERDIENT', noRecords: 'Keine Aufzeichnungen gefunden.', exploreMore: 'Erkunde das Multiversum, um Erinnerungen zu sammeln.',
             authTitle: "Ätherische Identität", authBtn: "Seelenabdruck verifizieren", authDone: "Identität besiegelt",
             galleryTitle: "MANOR ARCHIV", gallerySub: "Historische Aufzeichnung 1899",
             manorTitle: "Das mechanische Herz", manorHeirlooms: "Ahnen-Zahnräder", manorEstate: "Anwesen",
@@ -534,6 +676,40 @@ const LANGUAGES = [
             comingSoonDesc1: "Das ist vorerst das Ende der Reise! Updates folgen in Kürze. Sie können jedoch weiterhin die Musik jedes Multiversums hier anhören.",
             comingSoonDesc2: "Es gibt insgesamt 2 Tracks für jede Sprache, also genießen Sie sie bis zum Ende!",
             titleEarned: "NEUER TITEL ERWORBEN",
+
+            badges: {
+                lightspeed: { title: 'Lichtbrecher', sub: 'Beyond Velocity', desc: 'Passed through on instinct alone. (Time: {sec}s, Explored: {uniqueCards}, Clicks: {totalClicks})' },
+                wanderer: { title: 'Kosmischer Wanderer', sub: 'Lost in the Void', desc: 'Observed the void for over 5 mins. (Time: {sec}s, Explored: {uniqueCards})' },
+                destroyer: { title: 'Zerstörer', sub: 'System Bane', desc: 'Violently clicked through the UI. (Clicks: {totalClicks}, Time: {sec}s)' },
+                indecision: { title: 'Meister der Unentschlossenheit', sub: 'Endless Debater', desc: 'Checked every option and hesitated. (Explored: {uniqueCards}, Time: {sec}s)' },
+                razor: { title: 'Die Razor', sub: 'Surgical Precision', desc: 'Chose a single path without hesitation. (Explored: {uniqueCards}, Time: {sec}s)' },
+                silent: { title: 'Stiller Beobachter', sub: 'Quiet Listener', desc: 'Touched almost nothing, purely listening. (Clicks: {totalClicks}, Time: {sec}s)' },
+                octopus: { title: 'Der Oktopus-Taktiker', sub: 'Thorough Explorer', desc: 'Meticulously examined every multiverse. (Explored: {uniqueCards})' },
+                tester: { title: 'Tester der Systeme', sub: 'QA Nightmare', desc: 'Stress-tested the interface like a developer. (Total Clicks: {totalClicks})' },
+                hermit: { title: 'Der musikalische Einsiedler', sub: 'Audio Ascendant', desc: 'Delayed choice to bask in the melodies. (Time: {sec}s, Clicks: {totalClicks})' },
+                defier: { title: 'Trotzer des Schicksals', sub: 'Stubborn Anchor', desc: 'Obsessively interacted with a narrow slice. (Clicks: {totalClicks}, Explored: {uniqueCards})' },
+                loyal: { title: 'Loyaler Agent', sub: 'By the Book', desc: 'Acted exactly as intended. (Time: {sec}s, Explored: {uniqueCards})' },
+                fortune: { title: 'Rad des Schicksals', sub: 'Variable Anomaly', desc: 'A true wildcard. (Time: {sec}s, Clicks: {totalClicks}, Explored: {uniqueCards})' },
+
+                prophesied: { title: 'Der Nostalgiker', sub: 'Homesick Soul', desc: 'Immediately gravitated towards {lang}. (Time: {sec}s)' },
+                pioneer: { title: 'Der Pionier', sub: 'Fearless Traveler', desc: 'Fearlessly stepped into an alien culture. (Selection: {lang}, Time: {sec}s)' },
+                romantic: { title: 'Der Romantiker', sub: 'Passionate Heart', desc: 'Eventually settled in a passionate realm. (Selection: {lang}, Visited: {uniqueCards})' },
+                order: { title: 'Wächter der Ordnung', sub: 'Precision Machine', desc: 'Operated with machine-like effort. (Selection: {lang}, Clicks: {totalClicks})' },
+                samurai: { title: 'Der Sakura-Samurai', sub: 'Patient Blade', desc: 'Waited in stillness before drawing the blade. (Selection: {lang}, Wait: {sec}s)' },
+                polar: { title: 'Der Polar-Barde', sub: 'Frost Singer', desc: 'Sampled many worlds for the frozen north. (Selection: {lang}, Sampled: {uniqueCards})' },
+                shakespeare: { title: 'Der Standard', sub: 'Default Path', desc: 'Instantly chose the recognized path. (Selection: {lang}, Time: {sec}s)' },
+                chance: { title: 'Der Glücksspieler', sub: 'Card Shark', desc: 'Pulled new cards exclusively. (Clicks {totalClicks} = Checked {uniqueCards})' },
+
+                m_firstStep: { title: 'Erster Schritt 👣', sub: 'Initiated', desc: 'Left your first mark. (Clicks: {totalClicks})' },
+                m_spammer: { title: 'Klick-Spammer ⚡', sub: 'Overloader', desc: 'Almost induced an overflow. ({totalClicks} clicks)' },
+                m_doubleTap: { title: 'Doppeltipp 🎯', sub: 'Sniper', desc: 'Resolved fate in {totalClicks} actions.' },
+                m_safety: { title: 'Sicherheit geht vor 🛡️', sub: 'Cautious', desc: 'Checked exactly one alternative. ({uniqueCards} seen)' },
+                m_paranoid: { title: 'Paranoid 🕵️', sub: 'Hyper-skeptic', desc: 'Double checked redundantly. ({totalClicks} clicks / {uniqueCards} cards)' },
+                m_speedrunner: { title: 'Speedrunner 🏃', sub: 'Swift', desc: 'Cleared instantly. ({sec}s)' },
+                m_marathon: { title: 'Marathonläufer ⏱️', sub: 'Endurance', desc: 'Lingered forever. ({sec}s)' },
+                m_cautious: { title: 'Vorsichtiger Entdecker 🗺️', sub: 'Cartographer', desc: 'Took time mapping the worlds. ({sec}s, {uniqueCards} domains)' },
+                m_dualPersona: { title: 'Der Duale Beobachter 🎭', sub: 'Two Faces', desc: 'Zeuge der Koexistenz von SEAN und Chefdirigent.' }
+            },
             minaSystem: "🎻 CHEFDIRIGENT", minaAction: ">> 🎼 AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
             tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN", fateSealed: "SCHICKSAL BESIEGELT"
@@ -545,6 +721,7 @@ const LANGUAGES = [
         welcome: "ロード・マナーへようこそ。運命の歯車があなたを待っています。",
         loading: "クロノメーターを照合中...",
         ui: {
+            tabGuide: 'ガイド', tabArchive: 'アーカイブ', guideHeader: '1. 言語とフロー', guideStep1: '1-1. システム起動と同期', guideStep2: '1-2. マルチバース突破', guideStep3: '1-3. 周波数を選択してください。', guideComplete: '完了', archiveTitle: 'アーカイブ記録', earned: '獲得', noRecords: '記録が見つかりません。', exploreMore: 'マルチバースを探索して記憶を集めましょう。',
             authTitle: "エーテル身元確認", authBtn: "魂の刻印を確認", authDone: "身元封印完了",
             galleryTitle: "マナー・アーカイブ", gallerySub: "歴史的記録 1899",
             manorTitle: "時計仕掛けの心臓", manorHeirlooms: "祖先の歯車", manorEstate: "邸宅の敷地",
@@ -564,6 +741,40 @@ const LANGUAGES = [
             comingSoonDesc1: "今回はここまでです！アップデートは近日公開予定です。ただし、ここでは各世界観の音楽を引き続き楽しむことができます。",
             comingSoonDesc2: "各言語に合計2曲用意されていますので、最後までお楽しみください！",
             titleEarned: "新しい称号を獲得",
+
+            badges: {
+                lightspeed: { title: '光速の突破者', sub: 'The Light-Speed Breaker', desc: '直感のみで突破した。(時間: {sec}秒, 探索: {uniqueCards}個, クリック: {totalClicks}回)' },
+                wanderer: { title: '宇宙の放浪者', sub: 'The Cosmic Wanderer', desc: '5分以上虚空を彷徨った。(時間: {sec}秒, 探索: {uniqueCards}個)' },
+                destroyer: { title: 'マニュアル破壊者', sub: 'The Manual Destroyer', desc: '狂気で画面を切り刻んだ。(クリック: {totalClicks}回, 時間: {sec}秒)' },
+                indecision: { title: '優柔不断の化身', sub: 'Master of Indecision', desc: '全て見てから悩み続けた。(探索: {uniqueCards}個, 時間: {sec}秒)' },
+                razor: { title: '断固たる決断力', sub: 'The Absolute Razor', desc: '踌躇なく選択した。(探索: 僅か {uniqueCards}個, 時間: {sec}秒)' },
+                silent: { title: '沈黙の観察者', sub: 'The Silent Observer', desc: '何も触れず、ただ音楽を楽しんだ。(クリック: {totalClicks}回, 時間: {sec}秒)' },
+                octopus: { title: '八方美人', sub: 'The Octopus Tactician', desc: '全ての宇宙を隅々まで確認した。(探索済: {uniqueCards}個)' },
+                tester: { title: 'システムを試す者', sub: 'Tester of Systems', desc: '破壊する勢いでシステムを試した。(合計: {totalClicks}回)' },
+                hermit: { title: '音楽の仙人', sub: 'The Musical Hermit', desc: '選択を後回しにメロディに身を任せた。(時間: {sec}秒, クリック: {totalClicks}回)' },
+                defier: { title: '運命に逆らう者', sub: 'Defier of Fate', desc: '狭い世界に執着して何度も触れた。(クリック: {totalClicks}回, 探索: {uniqueCards}個)' },
+                loyal: { title: 'SEANの優秀エージェント', sub: 'SEAN\'s Loyal Agent', desc: '設計通りに完璧に動いた。(時間: {sec}秒, 探索: {uniqueCards}個)' },
+                fortune: { title: '運命の輪', sub: 'The Wheel of Fortune', desc: '不規則なパターンで動く変数。(時間: {sec}秒, クリック: {totalClicks}回, 探索: {uniqueCards}個)' },
+
+                prophesied: { title: '郷愁に駆られる者', sub: 'The Nostalgic One', desc: '故郷を求めるように{lang}を選んだ。(時間: {sec}秒)' },
+                pioneer: { title: '未知の開拓者', sub: 'The Unknown Pioneer', desc: '見知らぬ異国へ足を踏み入れた。(選択: {lang}, 時間: {sec}秒)' },
+                romantic: { title: 'ロマンチスト', sub: 'The Hopeless Romantic', desc: '情熱的な世界に定住した。(選択: {lang}, 探索: {uniqueCards}個)' },
+                order: { title: '秩序の守護者', sub: 'Guardian of Order', desc: '機械のように必要最低限の操作。(選択: {lang}, {totalClicks}回のクリック)' },
+                samurai: { title: '桜の武士', sub: 'The Sakura Samurai', desc: 'じっと待った後、断固として刀を抜いた。(選択: {lang}, 待機: {sec}秒)' },
+                polar: { title: '白夜の吟遊詩人', sub: 'The Polar Bard', desc: '多くの世界を見て北の地へ向かった。(選択: {lang}, 回った世界: {uniqueCards}個)' },
+                shakespeare: { title: 'グローバルスタンダード', sub: 'The Global Standard', desc: '無難に世界公用語を選んだ。(選択: {lang}, 悩み: {sec}秒)' },
+                chance: { title: '幸運を信じる者', sub: 'Believer in Chance', desc: '無駄な操作なく新カードを引き続けた。(クリック {totalClicks} = 探索 {uniqueCards})' },
+
+                m_firstStep: { title: '最初の一歩 👣', sub: 'First Step', desc: '痕跡を残した。(クリック: {totalClicks}回)' },
+                m_spammer: { title: '連続クリック魔 ⚡', sub: 'Click Spammer', desc: 'システムに負荷をかける連打。({totalClicks}回)' },
+                m_doubleTap: { title: 'ダブルタップ 🎯', sub: 'Double Tap', desc: 'たった{totalClicks}回の操作で決心した。' },
+                m_safety: { title: '安全第一 🛡️', sub: 'Safety First', desc: '1つだけ比較して決定した。(見たカード: {uniqueCards}個)' },
+                m_paranoid: { title: '疑心暗鬼 🕵️', sub: 'Paranoid', desc: '何度も重複して確認した。({uniqueCards}個を{totalClicks}回操作)' },
+                m_speedrunner: { title: 'スピードランナー 🏃', sub: 'Speedrunner', desc: '光の速さで通過。({sec}秒)' },
+                m_marathon: { title: 'マラソンランナー ⏱️', sub: 'Marathoner', desc: '永遠に彷徨った。({sec}秒)' },
+                m_cautious: { title: '慎重な探検家 🗺️', sub: 'Cautious Explorer', desc: '時間をかけてマッピングした。({sec}秒, {uniqueCards}個)' },
+                m_dualPersona: { title: '二つの顔の観察者 🎭', sub: 'Two Faces', desc: 'SEANと首席指揮者の共存を目撃した。' }
+            },
             minaSystem: "🎻 首席指揮者", minaAction: ">> 🎼 アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
             tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ", fateSealed: "運命確定"
@@ -575,6 +786,7 @@ const LANGUAGES = [
         welcome: "مرحبًا بكم في لورد مانور. تروس القدر في انتظار لمستك.",
         loading: "استشارة الكرونومتر...",
         ui: {
+            tabGuide: 'دليل', tabArchive: 'أرشيف', guideHeader: '1. اللغة والمسار', guideStep1: '1-1. تمهيد النظام والمزامنة', guideStep2: '1-2. اختراق الأكوان المتعددة', guideStep3: '1-3. اختر التردد الخاص بك.', guideComplete: 'مكتمل', archiveTitle: 'سجلات الأرشيف', earned: 'مكتسب', noRecords: 'لم يتم العثور على سجلات.', exploreMore: 'استكشف الأكوان المتعددة لجمع الذكريات.',
             authTitle: "هوية الأثير", authBtn: "التحقق من بصمة الروح", authDone: "تم ختم الهوية",
             galleryTitle: "أرشيف القصر", gallerySub: "سجل تاريخي 1899",
             manorTitle: "قلب الساعة", manorHeirlooms: "تروس الأجداد", manorEstate: "أراضي القصر",
@@ -594,6 +806,40 @@ const LANGUAGES = [
             comingSoonDesc1: "هذه هي نهاية الرحلة في الوقت الحالي! التحديثات قادمة قريباً. ومع ذلك، يمكنك الاستمرار في الاستماع إلى موسيقى كل كون متعدد هنا.",
             comingSoonDesc2: "هناك ما مجموعه مساران جاهزان لكل لغة، لذا يرجى الاستمتاع بهما حتى النهاية!",
             titleEarned: "تم اكتساب لقب جديد",
+
+            badges: {
+                lightspeed: { title: 'سرعة الضوء', sub: 'Beyond Velocity', desc: 'Passed through on instinct alone. (Time: {sec}s, Cards: {uniqueCards}, Clicks: {totalClicks})' },
+                wanderer: { title: 'متجول فلكي', sub: 'Lost in the Void', desc: 'Observed the void for over 5 minutes. (Time: {sec}s, Cards: {uniqueCards})' },
+                destroyer: { title: 'المدمر', sub: 'System Bane', desc: 'Violently clicked. (Clicks: {totalClicks}, Time: {sec}s)' },
+                indecision: { title: 'متردد', sub: 'Endless Debater', desc: 'Checked every option and hesitated. (Cards: {uniqueCards}, Time: {sec}s)' },
+                razor: { title: 'قاطع', sub: 'Surgical Precision', desc: 'Chose a single path instantly. (Cards: {uniqueCards}, Time: {sec}s)' },
+                silent: { title: 'المراقب الصامت', sub: 'Quiet Listener', desc: 'Touched nothing, enjoyed music. (Clicks: {totalClicks}, Time: {sec}s)' },
+                octopus: { title: 'تكتيكي', sub: 'Thorough Explorer', desc: 'Meticulously examined all. (Cards: {uniqueCards})' },
+                tester: { title: 'فاحص', sub: 'QA Nightmare', desc: 'Stress-tested the interface. (Clicks: {totalClicks})' },
+                hermit: { title: 'الناسك', sub: 'Audio Ascendant', desc: 'Delayed choice to bask in music. (Time: {sec}s, Clicks: {totalClicks})' },
+                defier: { title: 'المتحدي', sub: 'Stubborn Anchor', desc: 'Obsessively interacted with few. (Clicks: {totalClicks}, Cards: {uniqueCards})' },
+                loyal: { title: 'عميل مخلص', sub: 'By the Book', desc: 'Acted as seamlessly as intended. (Time: {sec}s, Cards: {uniqueCards})' },
+                fortune: { title: 'عجلة الحظ', sub: 'Variable Anomaly', desc: 'A true wildcard. (Time: {sec}s, Clicks: {totalClicks}, Cards: {uniqueCards})' },
+
+                prophesied: { title: 'حنين', sub: 'Homesick Soul', desc: 'Immediately gravitated towards {lang}. (Time: {sec}s)' },
+                pioneer: { title: 'رائد مجهول', sub: 'Fearless Traveler', desc: 'Stepped into alien culture. (Selection: {lang}, Time: {sec}s)' },
+                romantic: { title: 'رومانسي', sub: 'Passionate Heart', desc: 'Settled in passionate realm. ({lang}, Visited: {uniqueCards})' },
+                order: { title: 'حارس النظام', sub: 'Precision Machine', desc: 'Operated natively. (Selection: {lang}, {totalClicks} clicks)' },
+                samurai: { title: 'ساموراي', sub: 'Patient Blade', desc: 'Waited before drawing blade. ({lang}, Wait: {sec}s)' },
+                polar: { title: 'شاعر قطبي', sub: 'Frost Singer', desc: 'Sampled worlds then chose north. ({lang}, Sampled: {uniqueCards})' },
+                shakespeare: { title: 'المعيار العالمي', sub: 'Default Path', desc: 'Instantly chose known path. ({lang}, Time: {sec}s)' },
+                chance: { title: 'مؤمن بالفرصة', sub: 'Card Shark', desc: 'Pulled new cards without redundancy. (Clicks {totalClicks} = Checked {uniqueCards})' },
+
+                m_firstStep: { title: 'مرحلة أولى 👣', sub: 'Initiated', desc: 'Left first mark. (Clicks: {totalClicks})' },
+                m_spammer: { title: 'مسترسل ⚡', sub: 'Overloader', desc: 'Almost induced overflow. ({totalClicks} clicks)' },
+                m_doubleTap: { title: 'نقرة مزدوجة 🎯', sub: 'Sniper', desc: 'Fate in {totalClicks} actions.' },
+                m_safety: { title: 'أمان 🛡️', sub: 'Cautious', desc: 'Checked one alternative. ({uniqueCards} seen)' },
+                m_paranoid: { title: 'مذعور 🕵️', sub: 'Hyper-skeptic', desc: 'Double checked everything. ({totalClicks} clicks / {uniqueCards} cards)' },
+                m_speedrunner: { title: 'سريع 🏃', sub: 'Swift', desc: 'Cleared instantly. ({sec}s)' },
+                m_marathon: { title: 'ماراثون ⏱️', sub: 'Endurance', desc: 'Lingered forever. ({sec}s)' },
+                m_cautious: { title: 'مستكشف حذر 🗺️', sub: 'Cartographer', desc: 'Mapping worlds. ({sec}s, {uniqueCards} domains)' },
+                m_dualPersona: { title: 'مراقب مزدوج 🎭', sub: 'Two Faces', desc: 'شهد تعايش SEAN والمايسترو.' }
+            },
             minaSystem: "🎻 المايسترو الرئيسي", minaAction: ">> 🎼 الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
             tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز", fateSealed: "تم ختم القدر"
@@ -605,6 +851,7 @@ const LANGUAGES = [
         welcome: "Witamy w Lord Manor. Tryby przeznaczenia czekają na twój dotyk.",
         loading: "Konsultacja z Chronometrem...",
         ui: {
+            tabGuide: 'PRZEWODNIK', tabArchive: 'ARCHIWUM', guideHeader: '1. Język i Przepływ', guideStep1: '1-1. Rozruch systemu i synchronizacja', guideStep2: '1-2. Wyłom w multiwersum', guideStep3: '1-3. Wybierz swoją częstotliwość.', guideComplete: 'Zakończono', archiveTitle: 'Zapisy Archiwalne', earned: 'ZDOBYTE', noRecords: 'Nie znaleziono zapisów.', exploreMore: 'Eksploruj multiwersum, aby zbierać wspomnienia.',
             authTitle: "Eteryczna Tożsamość", authBtn: "Weryfikuj Duszę", authDone: "Tożsamość Zapieczętowana",
             galleryTitle: "ARCHIWUM DWORU", gallerySub: "Zapis Historyczny 1899",
             manorTitle: "Mechaniczne Serce", manorHeirlooms: "Zębatki Przodków", manorEstate: "Tereny Dworu",
@@ -624,6 +871,40 @@ const LANGUAGES = [
             comingSoonDesc1: "Na razie to koniec podróży! Aktualizacje wkrótce. Możesz jednak nadal słuchać muzyki z każdego multiwersum tutaj.",
             comingSoonDesc2: "Dla każdego języka przygotowano łącznie 2 utwory, więc ciesz się nimi do końca!",
             titleEarned: "ZDOBYTO NOWY TYTUŁ",
+
+            badges: {
+                lightspeed: { title: 'Prędkość Światła', sub: 'Beyond Velocity', desc: 'Zrobił to instynktownie. (Czas: {sec}s, Odkryto: {uniqueCards}, Kliknięcia: {totalClicks})' },
+                wanderer: { title: 'Kosmiczny Wędrowiec', sub: 'Lost in the Void', desc: 'Obserwował pustkę przez 5 minut. (Czas: {sec}s, Odkryto: {uniqueCards})' },
+                destroyer: { title: 'Niszczyciel', sub: 'System Bane', desc: 'Szaleńczo klikał. (Kliknięcia: {totalClicks}, Czas: {sec}s)' },
+                indecision: { title: 'Arcymistrz Niezdecydowania', sub: 'Endless Debater', desc: 'Sprawdził wszystko i wciąż się wahał. (Odkryto: {uniqueCards}, Czas: {sec}s)' },
+                razor: { title: 'Absolutna Brzytwa', sub: 'Surgical Precision', desc: 'Wybrał drogę bez wahania. (Odkryto: {uniqueCards}, Czas: {sec}s)' },
+                silent: { title: 'Cichy Obserwator', sub: 'Quiet Listener', desc: 'Nic nie dotykał, tylko słuchał. (Kliknięcia: {totalClicks}, Czas: {sec}s)' },
+                octopus: { title: 'Ośmiornica', sub: 'Thorough Explorer', desc: 'Sprawdził każde możliwe multiwersum (Odkryto: {uniqueCards})' },
+                tester: { title: 'Tester Systemów', sub: 'QA Nightmare', desc: 'Stresował system uderzeniami. (Kliknięcia: {totalClicks})' },
+                hermit: { title: 'Muzyczny Pustelnik', sub: 'Audio Ascendant', desc: 'Zwlekał z wyborem, by słuchać. (Czas: {sec}s, Kliknięcia: {totalClicks})' },
+                defier: { title: 'Buntownik Losu', sub: 'Stubborn Anchor', desc: 'Uparta interakcja z kilkoma światami. (Kliknięcia: {totalClicks}, Odkryto: {uniqueCards})' },
+                loyal: { title: 'Lojalny Agent SEAN', sub: 'By the Book', desc: 'Działał dokładnie wedle przewidywań. (Czas: {sec}s, Odkryto: {uniqueCards})' },
+                fortune: { title: 'Koło Fortuny', sub: 'Variable Anomaly', desc: 'Prawdziwa anomalia. (Czas: {sec}s, Kliknięcia: {totalClicks}, Odkryto: {uniqueCards})' },
+
+                prophesied: { title: 'Nostalgik', sub: 'Homesick Soul', desc: 'Natychmiast poleciał w stronę: {lang}. (Czas: {sec}s)' },
+                pioneer: { title: 'Nieznany Pionier', sub: 'Fearless Traveler', desc: 'Nieulękniony podróżnik. (Wybór: {lang}, Czas: {sec}s)' },
+                romantic: { title: 'Beznadziejny Romantyk', sub: 'Passionate Heart', desc: 'Zatrzymał się w wielkiej namiętności. (Wybór: {lang}, Odkryto: {uniqueCards})' },
+                order: { title: 'Strażnik Porządku', sub: 'Precision Machine', desc: 'Precyzja maszyny z minimalnym wkładem. (Wybór: {lang}, {totalClicks} kliknięcia)' },
+                samurai: { title: 'Samuraj Wiśni', sub: 'Patient Blade', desc: 'Czekał cicho przed ruchem ostrza. (Wybór: {lang}, Czas: {sec}s)' },
+                polar: { title: 'Polarny Bard', sub: 'Frost Singer', desc: 'Zobaczył wiele, by osiąść na północy. (Wybór: {lang}, Odkryto: {uniqueCards})' },
+                shakespeare: { title: 'Globalny Standard', sub: 'Default Path', desc: 'Szybki powrót do normy. (Wybór: {lang}, Czas: {sec}s)' },
+                chance: { title: 'Wyznawca Szansy', sub: 'Card Shark', desc: 'Odkrywał same nowości bez dubli. (Kliknięcia {totalClicks} = Odkrycia {uniqueCards})' },
+
+                m_firstStep: { title: 'Pierwszy Krok 👣', sub: 'Initiated', desc: 'Zostawił swój znak dłoni. (Kliknięcia: {totalClicks})' },
+                m_spammer: { title: 'Spammer Kliknięć ⚡', sub: 'Overloader', desc: 'Prawie przeciążył serwer. ({totalClicks} kliknięć)' },
+                m_doubleTap: { title: 'Podwójny Stuk 🎯', sub: 'Sniper', desc: 'Zdefiniował los używając {totalClicks} akcji.' },
+                m_safety: { title: 'Bezpieczeństwo Przede Wszystkim 🛡️', sub: 'Cautious', desc: 'Sprawdził tylko jedną opcję zanim wybrał. ({uniqueCards} odkryte)' },
+                m_paranoid: { title: 'Paranoik 🕵️', sub: 'Hyper-skeptic', desc: 'Sprawdzał wszystko podwójnie. ({totalClicks} klik, {uniqueCards} kart)' },
+                m_speedrunner: { title: 'Speedrunner 🏃', sub: 'Swift', desc: 'Szybciej niż światło. ({sec}s)' },
+                m_marathon: { title: 'Maratończyk ⏱️', sub: 'Endurance', desc: 'Został na zawsze. ({sec}s)' },
+                m_cautious: { title: 'Ostrożny Odkrywca 🗺️', sub: 'Cartographer', desc: 'Zmapował wszystkie obszary. ({sec}s, {uniqueCards} domeny)' },
+                m_dualPersona: { title: 'Podwójny Obserwator 🎭', sub: 'Two Faces', desc: 'Był świadkiem współistnienia SEAN i Głównego Dyrygenta.' }
+            },
             minaSystem: "🎻 GŁÓWNY DYRYGENT", minaAction: ">> 🎼 WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
             tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA", fateSealed: "LOS ZAPIECZĘTOWANY"
@@ -1042,11 +1323,13 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
             selectedLangId: selectedLang?.id
         };
         const calculated = calculateArchetype(enhancedMetrics);
-        // Only trigger if we found something new to avoid infinite loops, simplistic deduplication by ID
-        if (calculated && calculated.length > 0) {
-            onEarnBadge(calculated);
+
+        // Bail out explicitly and correctly here as well to avoid calling the dispatcher unnecessarily
+        const newBadges = calculated.filter(b => !earnedBadges.some(eb => eb.id === b.id));
+        if (newBadges.length > 0) {
+            onEarnBadge(newBadges);
         }
-    }, [metrics, selectedLang, onEarnBadge]);
+    }, [metrics.totalClicks, metrics.uniqueCards, metrics.timeSpentMs, selectedLang?.id, onEarnBadge, earnedBadges]);
 
     return (
         <motion.div
@@ -1055,8 +1338,8 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.8 }}
-            className="fixed inset-0 z-[99999] bg-gradient-to-t from-black via-black/80 to-transparent w-full h-full flex flex-col items-center justify-center p-6 md:p-8 text-center overflow-auto pointer-events-auto"
-            style={{ minHeight: '100vh', width: '100vw' }}
+            className="fixed inset-0 z-[99999] bg-gradient-to-t from-black via-black/80 to-transparent w-full h-full flex flex-col items-center justify-start py-20 px-4 md:px-8 text-center overflow-y-auto overflow-x-hidden custom-scrollbar pointer-events-auto"
+            style={{ minHeight: '100%' }}
         >
             <AnimatePresence mode="wait">
                 <motion.div
@@ -1069,15 +1352,34 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                 >
                     {/* Inventory / Title Unlocked Announcement using MinaDirective */}
                     <div className="w-full flex justify-center opacity-95 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
-                        <MinaDirective
-                            isVisible={true}
-                            activeStep="coming_soon"
-                            text={primaryArchetype ? `${selectedLang?.ui?.titleEarned || "NEW TITLE ACQUIRED"}: [ ${selectedLang?.id === 'ko' ? primaryArchetype.title : (primaryArchetype.sub || primaryArchetype.title)} ]` : "Analyzing..."}
-                            position="relative"
-                            interactionMode="passive"
-                            badges={earnedBadges}
-                            sysName={selectedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
-                        />
+                        {(() => {
+                            let displayTitle = "Analyzing...";
+                            if (primaryArchetype && selectedLang?.ui?.badges) {
+                                const def = selectedLang.ui.badges[primaryArchetype.id];
+                                if (def) {
+                                    let localizedTitle = def.title;
+                                    let localizedSub = def.sub || def.title;
+                                    if (primaryArchetype.vars) {
+                                        Object.entries(primaryArchetype.vars).forEach(([k, v]) => {
+                                            localizedTitle = localizedTitle.replace(`{${k}}`, v);
+                                            localizedSub = localizedSub.replace(`{${k}}`, v);
+                                        });
+                                    }
+                                    displayTitle = `${selectedLang?.ui?.titleEarned || "NEW TITLE ACQUIRED"}: [ ${selectedLang?.id === 'ko' ? localizedTitle : localizedSub} ]`;
+                                }
+                            }
+                            return (
+                                <MinaDirective
+                                    isVisible={true}
+                                    activeStep="coming_soon"
+                                    text={displayTitle}
+                                    position="relative"
+                                    interactionMode="passive"
+                                    badges={earnedBadges}
+                                    sysName={selectedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
+                                />
+                            );
+                        })()}
                     </div>
                 </motion.div>
             </AnimatePresence>
@@ -1427,7 +1729,15 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
 
     const cancelHold = () => {
         if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
-        setHoldProgress(0);
+        setHoldProgress(prev => {
+            if (prev > 0 && prev < 100 && stagedLang) {
+                // User released early
+                setMinaText(stagedLang.id === 'ko' ? "▶️ 계속 5초간 길게 누르세요." : (stagedLang.ui?.holdMore || "▶️ Keep holding for 5 seconds."));
+            } else if (prev === 0 && stagedLang) {
+                setMinaText(stagedLang.ui.directiveConfirm);
+            }
+            return 0;
+        });
     };
 
     const handleAnchorSelect = (lang) => {
@@ -1476,11 +1786,9 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                                             key={stagedLang.id}
                                             initial={{ scale: 0, opacity: 0, rotate: -20 }}
                                             animate={{ scale: holdProgress > 0 ? 1 + (holdProgress / 100) * 0.5 : 1, opacity: 1, rotate: 0 }}
-                                            onMouseDown={startHold}
-                                            onMouseUp={cancelHold}
-                                            onMouseLeave={cancelHold}
-                                            onTouchStart={startHold}
-                                            onTouchEnd={cancelHold}
+                                            onPointerDown={(e) => { e.target.setPointerCapture(e.pointerId); startHold(); }}
+                                            onPointerUp={(e) => { e.target.releasePointerCapture(e.pointerId); cancelHold(); }}
+                                            onPointerCancel={cancelHold}
                                             className="w-full h-full z-[2000] cursor-pointer relative"
                                         >
                                             <div className="absolute -inset-4 bg-[#C5A059]/10 blur-xl pointer-events-none transition-opacity" style={{ opacity: holdProgress / 100 }} />
@@ -1492,82 +1800,83 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                                                 onSelect={() => { }}
                                                 onReady={() => { }}
                                             />
-                                            {/* NOVEL UI: Orbital Resonance / Portal Collapse Mechanic */}
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/80 shadow-[inset_0_0_100px_rgba(0,0,0,1)] pointer-events-none rounded-2xl border border-[#C5A059]/30 backdrop-blur-xl overflow-hidden">
+                                            {/* ELEGANT UI: Harmonic Convergence / Cannes Cinematic Glow */}
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/60 shadow-[inset_0_0_150px_rgba(0,0,0,1)] pointer-events-none rounded-2xl border border-white/10 backdrop-blur-2xl overflow-hidden transition-all duration-1000">
 
-                                                {/* Expanding Resonance Rings */}
-                                                <div className="absolute inset-0 flex items-center justify-center opacity-40">
+                                                {/* Ambient Background Flare */}
+                                                <div
+                                                    className="absolute inset-0 bg-gradient-to-t from-[#C5A059]/0 via-[#C5A059]/10 to-[#C5A059]/0 mix-blend-screen transition-opacity"
+                                                    style={{ opacity: holdProgress / 100 }}
+                                                />
+
+                                                {/* Expanding Sound Waves (Diamonds) */}
+                                                <div className="absolute inset-0 flex items-center justify-center opacity-70">
                                                     <motion.div
-                                                        className="absolute rounded-full border border-[#C5A059]"
+                                                        className="absolute border border-white/20 rotate-45"
                                                         animate={{
-                                                            width: [`${100 - holdProgress}%`, `${150 - holdProgress}%`],
-                                                            height: [`${100 - holdProgress}%`, `${150 - holdProgress}%`],
+                                                            width: [`${20 + holdProgress}%`, `${100 + holdProgress}%`],
+                                                            height: [`${20 + holdProgress}%`, `${100 + holdProgress}%`],
                                                             opacity: [0.8, 0],
-                                                            rotate: holdProgress * 3
                                                         }}
-                                                        transition={{ repeat: Infinity, duration: Math.max(0.5, 2 - holdProgress / 50) }}
+                                                        transition={{ repeat: Infinity, duration: Math.max(0.6, 2.5 - holdProgress / 40), ease: "easeOut" }}
                                                     />
                                                     <motion.div
-                                                        className="absolute rounded-full border-2 border-dashed border-[#e5c996]"
+                                                        className="absolute border-[0.5px] border-[#C5A059]/40 rotate-45"
                                                         style={{ width: `${holdProgress * 2.5}%`, height: `${holdProgress * 2.5}%` }}
-                                                        animate={{ rotate: -holdProgress * 5 }}
                                                     />
                                                 </div>
 
-                                                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
+                                                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full mt-10">
 
-                                                    {/* The Core */}
+                                                    {/* The Core Tuning Diamond */}
                                                     <motion.div
                                                         className="relative flex items-center justify-center"
                                                         animate={{
-                                                            scale: holdProgress >= 100 ? [1, 1.5, 1.2] : 1 + (holdProgress / 100),
-                                                            filter: `drop-shadow(0 0 ${holdProgress}px rgba(197,160,89,1))`
+                                                            scale: holdProgress >= 100 ? [1, 2.5, 1.5] : 1 + (holdProgress / 100) * 1.2,
+                                                            filter: `drop-shadow(0 0 ${holdProgress}px rgba(197,160,89,0.8))`
                                                         }}
                                                     >
-                                                        {/* Outer Energy Shell */}
+                                                        {/* Inner Core Light */}
                                                         <div
-                                                            className="absolute rounded-full border-t-4 border-l-4 border-[#C5A059] transition-all"
+                                                            className="absolute bg-gradient-to-tr from-[#C5A059] to-[#FDFCF0] transition-all mix-blend-screen rotate-45"
                                                             style={{
-                                                                width: '120px', height: '120px',
-                                                                transform: `rotate(${holdProgress * 15}deg)`,
-                                                                opacity: holdProgress / 100
-                                                            }}
-                                                        />
-                                                        {/* Inner Core Pulsar */}
-                                                        <div
-                                                            className="absolute rounded-full bg-[#C5A059] transition-all mix-blend-screen"
-                                                            style={{
-                                                                width: `${Math.max(10, holdProgress)}px`,
-                                                                height: `${Math.max(10, holdProgress)}px`,
-                                                                boxShadow: `0 0 ${holdProgress * 2}px #FDFCF0`
+                                                                width: `${Math.max(4, holdProgress * 0.8)}px`,
+                                                                height: `${Math.max(4, holdProgress * 0.8)}px`,
+                                                                boxShadow: `0 0 ${holdProgress * 2}px #FDFCF0`,
+                                                                opacity: 0.6 + (holdProgress / 200)
                                                             }}
                                                         />
 
                                                         {holdProgress >= 100 ? (
-                                                            <LucideLock className="text-black relative z-10 scale-[2.5]" size={40} />
+                                                            <motion.div
+                                                                initial={{ scale: 0.1, opacity: 0 }}
+                                                                animate={{ scale: [1, 5, 2], opacity: [0, 1, 0] }}
+                                                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                                                className="absolute w-full h-full bg-[#FDFCF0] rounded-full blur-2xl mix-blend-screen z-0"
+                                                            />
+                                                        ) : null}
+
+                                                        {holdProgress >= 100 ? (
+                                                            <LucideCheck className="text-black relative z-10 scale-[2.0]" strokeWidth={1.5} size={32} />
                                                         ) : (
-                                                            <LucideOrbit className="text-white relative z-10 scale-[2.0] animate-spin-slow opacity-80" size={40} />
+                                                            <div className="relative z-10 w-8 h-8 flex items-center justify-center opacity-80">
+                                                                <div className="w-[1px] h-full bg-[#C5A059]" />
+                                                                <div className="absolute w-full h-[1px] bg-[#C5A059] rotate-45" />
+                                                                <div className="absolute w-full h-[1px] bg-[#C5A059] -rotate-45" />
+                                                            </div>
                                                         )}
                                                     </motion.div>
 
-                                                    {/* Data Readout */}
-                                                    <div className="mt-16 flex flex-col items-center">
-                                                        <span className="text-[#FDFCF0] text-3xl md:text-5xl font-black uppercase tracking-[0.4em] text-center mb-2 leading-tight mix-blend-screen"
-                                                            style={{ textShadow: `0 0 ${holdProgress / 5}px #C5A059, 0 0 ${holdProgress / 2}px #e5c996` }}>
-                                                            {holdProgress >= 100 ? "FATE SEALED" : "RESONATING"}
+                                                    {/* Elegant Data Readout */}
+                                                    <div className="mt-16 flex flex-col items-center gap-3">
+                                                        <span className="text-[#FDFCF0] text-xl md:text-3xl font-serif uppercase tracking-[0.3em] text-center leading-tight mix-blend-screen"
+                                                            style={{ textShadow: `0 0 ${holdProgress / 4}px #C5A059`, opacity: 0.5 + (holdProgress / 200) }}>
+                                                            {holdProgress >= 100 ? "ALIGNED" : "HARMONIZING"}
                                                         </span>
-                                                        <span className="text-[#C5A059] text-xl font-mono tracking-widest">
-                                                            [ {holdProgress.toFixed(1)}% ]
+                                                        <span className="text-[#C5A059]/80 text-[10px] md:text-xs font-sans font-light tracking-[0.4em]">
+                                                            [ {(holdProgress / 100).toFixed(2)} ]
                                                         </span>
                                                     </div>
-
-                                                    {/* Particle Accelerators (Lines) */}
-                                                    <div className="w-full flex justify-between items-center px-8 mt-12 opacity-50">
-                                                        <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent flex-1" />
-                                                        <LucideActivity className="text-[#C5A059] mx-4 animate-pulse" size={24} />
-                                                        <div className="h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent flex-1" />
-                                                    </div>
-
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -1636,6 +1945,7 @@ const LanguageView = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExp
                         actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
                         isSpeaking={isMinaSpeaking}
                         badges={earnedBadges}
+                        ui={focusedLang?.ui || {}}
                     />
                 </div>
             </div>
@@ -1715,6 +2025,15 @@ const App = () => {
 
     // [V29 UPDATE: Lifted state to persist earned titles]
     const [earnedBadges, setEarnedBadges] = useState([]);
+
+    const handleEarnBadge = useCallback((newBadges) => {
+        setEarnedBadges(prev => {
+            const existingIds = new Set(prev.map(b => b.id));
+            const toAdd = newBadges.filter(b => !existingIds.has(b.id));
+            if (toAdd.length === 0) return prev;
+            return [...toAdd, ...prev];
+        });
+    }, []);
 
     // Track clicks for archetype calculation
     const [cardsExplored, setCardsExplored] = useState(new Set());
@@ -2138,13 +2457,7 @@ const App = () => {
                                         setCardsExplored={setCardsExplored}
                                         isMinaSpeaking={isMinaSpeaking}
                                         earnedBadges={earnedBadges}
-                                        onEarnBadge={(newBadges) => {
-                                            setEarnedBadges(prev => {
-                                                const existingIds = new Set(prev.map(b => b.id));
-                                                const toAdd = newBadges.filter(b => !existingIds.has(b.id));
-                                                return [...toAdd, ...prev];
-                                            });
-                                        }}
+                                        onEarnBadge={handleEarnBadge}
                                     />
                                 )}
                                 {step === 'confirm' && (
@@ -2161,13 +2474,7 @@ const App = () => {
                                             uniqueCards: cardsExplored.size,
                                             timeSpentMs: Date.now() - appStartTime
                                         }}
-                                        onEarnBadge={(newBadges) => {
-                                            setEarnedBadges(prev => {
-                                                const existingIds = new Set(prev.map(b => b.id));
-                                                const toAdd = newBadges.filter(b => !existingIds.has(b.id));
-                                                return [...toAdd, ...prev];
-                                            });
-                                        }}
+                                        onEarnBadge={handleEarnBadge}
                                         earnedBadges={earnedBadges}
                                     />
                                 )}
