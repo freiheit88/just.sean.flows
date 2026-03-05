@@ -131,7 +131,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     animate={{
                                         y: 0,
                                         opacity: 1,
-                                        filter: "blur(0px) drop-shadow(0px 0px 15px rgba(223, 193, 109, 0.4))",
+                                        filter: "blur(0px) drop-shadow(0px 0px 12px rgba(255, 230, 150, 0.8))",
                                         backgroundPosition: ["200% center", "-200% center"]
                                     }}
                                     transition={{
@@ -143,7 +143,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     className="text-white font-serif uppercase tracking-[0.2em] sm:tracking-[0.3em] font-light text-center select-none leading-[1.1] relative z-10"
                                     style={{
                                         fontSize: "clamp(20px, 5vw, 64px)", // Cannes style size - elegant, not screaming
-                                        background: "linear-gradient(to right, #b49b57 0%, #dfc16d 20%, #ffffff 50%, #dfc16d 80%, #b49b57 100%)",
+                                        background: "linear-gradient(to right, #e6ce8a 0%, #fdf5c9 20%, #ffffff 50%, #fdf5c9 80%, #e6ce8a 100%)",
                                         backgroundSize: "200% auto",
                                         WebkitBackgroundClip: "text",
                                         WebkitTextFillColor: "transparent",
