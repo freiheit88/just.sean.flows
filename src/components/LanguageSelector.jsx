@@ -516,10 +516,10 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     const isDimmed = isSealed; // Cards permanently dim after sealed
 
                     return (
-                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''}`} style={{ opacity: isOriginalOfStaged ? 0 : (isSealed ? (isDimmed ? 0.2 : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)), filter: (isSealed && isDimmed) ? 'grayscale(100%) brightness(0.5)' : 'none' }}>
-                            <div className={`absolute inset-0 transition-opacity duration-1000 opacity-100`}>
+                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-opacity duration-300 ${isFocused ? 'z-[50]' : ''}`} style={holdProgress > 0 && !isOriginalOfStaged && !isSealed ? { opacity: Math.max(0, 1 - (holdProgress / 100) * 1.5) } : (isOriginalOfStaged ? { opacity: 0 } : {})}>
+                            <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed && isDimmed ? 'opacity-20 grayscale brightness-50' : 'opacity-100'}`}>
                                 {!isOriginalOfStaged && (
-                                    <LanguageCard lang={lang} idx={pos} isFocused={isFocused} isStaged={false} isDimmable={isDimmable || stagedLang} isCollected={isRulesMerged && collectedLanguages.includes(lang.id)} onFocus={onCardFocus} onReady={onCardReady} onSelect={onCardSelect} AudioManager={AudioManager} />
+                                    <LanguageCard lang={lang} idx={pos} isFocused={isFocused} isStaged={false} isDimmable={isDimmable || stagedLang} isCollected={isRulesMerged && collectedLanguages.includes(lang?.id)} onFocus={onCardFocus} onReady={onCardReady} onSelect={onCardSelect} AudioManager={AudioManager} />
                                 )}
                             </div>
                             {isDashboardView && (
