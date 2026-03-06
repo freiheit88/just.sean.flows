@@ -400,7 +400,7 @@ const LANGUAGES = [
         welcome: "로드 매너에 오신 것을 환영합니다. 운명의 톱니바퀴가 당신을 기다립니다.",
         loading: "크로노미터 컨설팅 중...",
         ui: {
-            tabGuide: '가이드', tabArchive: '기록 보관소', guideHeader: '1. 세계관 및 흐름', guideStep1: '1-1. 시스템 부팅 및 동기화', guideStep2: '1-2. 다중우주 접속', guideStep3: '1-3. 주파수를 선택하세요.', guideStep3Done: `1-3. 언어카드 선택`, guideComplete: '완료', guideHeader2: '2. 오케스트라 게임', guideStep4: '2-1. 기록 보관소를 확인하세요. 그냥 읽어보기만 해도 클리어 ㅋㅋ', archiveTitle: '기록 보관소', earned: '획득', noRecords: '기록이 없습니다.', exploreMore: '다중우주를 탐험하여 기억을 수집하세요.',
+            tabGuide: '가이드', tabArchive: '기록 보관소', guideHeader: '1. 세계관 및 흐름', guideStep1: '1-1. 시스템 부팅 및 동기화', guideStep2: '1-2. 다중우주 접속', guideStep3: '1-3. 주파수를 선택하세요.', guideComplete: '완료', archiveTitle: '기록 보관소', earned: '획득', noRecords: '기록이 없습니다.', exploreMore: '다중우주를 탐험하여 기억을 수집하세요.',
             authTitle: "신원 인증", authBtn: "영혼의 자격 증명", authDone: "신원 기록 완료",
             galleryTitle: "매너 기록 보관소", gallerySub: "역사적 기록 1899",
             manorTitle: "기계동력 심장부", manorHeirlooms: "선조의 유물", manorEstate: "저택 부지",
@@ -454,9 +454,7 @@ const LANGUAGES = [
                 m_marathon: { title: '마라토너 ⏱️', sub: 'Marathoner', desc: '오랜 시간 머무름. (총 체류: {sec}초)' },
                 m_cautious: { title: '신중한 탐험가 🗺️', sub: 'Cautious Explorer', desc: '꼼꼼한 다중우주 탐색. (체류: {sec}초, 탐색: {uniqueCards}개)' },
                 m_dualPersona: { title: '두 얼굴의 관찰자 🎭', sub: 'The Dual Observer', desc: 'SEAN과 수석 지휘자의 공존을 목격했다.' },
-                keeper_of_rules: { title: '규칙의 수호자 ⚖️', sub: 'Keeper of Rules', desc: '다중우주의 이치를 깨달았습니다.' },
-                polyglot: { title: '다중언어 구사자 🌐', sub: 'Polyglot', desc: '여러 세계의 주파수를 섞어 듣는 자. (언어 3개 수집)' },
-                multiverse_master: { title: '다중우주 마스터 🌌', sub: 'Multiverse Master', desc: '모든 차원의 언어를 한데 모은 궁극의 지휘자. (언어 8개 수집)' }
+                keeper_of_rules: { title: '규칙의 수호자 ⚖️', sub: 'Keeper of Rules', desc: '다중우주의 이치를 깨달았습니다.' }
             },
             minaSystem: "🎻 수석 지휘자", minaAction: ">> 🎼 첫 막: 언어를 선택하세요 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
@@ -469,7 +467,7 @@ const LANGUAGES = [
         welcome: "Welcome to the Lord Manor, guest. The gears of destiny await your touch.",
         loading: "Consulting the Chronometer...",
         ui: {
-            tabGuide: 'GUIDE', tabArchive: 'ARCHIVE', guideHeader: '1. Language & Flow', guideStep1: '1-1. System boot & sync', guideStep2: '1-2. Multiverse Breach', guideStep3: '1-3. Select your frequency.', guideStep3Done: '1-3. Frequency Selected', guideComplete: 'Complete', guideHeader2: '2. Orchestra Game', guideStep4: '2-1. Check the archives. Just reading them clears the level lol', archiveTitle: 'Archive Records', earned: 'EARNED', noRecords: 'No records found.', exploreMore: 'Explore the multiverse to collect memories.',
+            tabGuide: 'GUIDE', tabArchive: 'ARCHIVE', guideHeader: '1. Language & Flow', guideStep1: '1-1. System boot & sync', guideStep2: '1-2. Multiverse Breach', guideStep3: '1-3. Select your frequency.', guideComplete: 'Complete', archiveTitle: 'Archive Records', earned: 'EARNED', noRecords: 'No records found.', exploreMore: 'Explore the multiverse to collect memories.',
             authTitle: "Aether Identity", authBtn: "Verify Soul Imprint", authDone: "Identity Sealed",
             galleryTitle: "MANOR ARCHIVE", gallerySub: "Historical Record 1899",
             manorTitle: "The Clockwork Heart", manorHeirlooms: "Ancestral Gears", manorEstate: "Manor Grounds",
@@ -522,9 +520,7 @@ const LANGUAGES = [
                 m_marathon: { title: 'Marathoner ⏱️', sub: 'Endurance', desc: 'Lingered seemingly forever. ({sec}s)' },
                 m_cautious: { title: 'Cautious Explorer 🗺️', sub: 'Cartographer', desc: 'Took their sweet time mapping the worlds. ({sec}s, {uniqueCards} domains)' },
                 m_dualPersona: { title: 'The Dual Observer 🎭', sub: 'Two Faces', desc: 'Witnessed the coexistence of SEAN & Principal Conductor.' },
-                keeper_of_rules: { title: 'Keeper of Rules ⚖️', sub: 'Awareness', desc: 'Internalized the rules of the multiverse.' },
-                polyglot: { title: 'The Polyglot 🌐', sub: 'Polyglot', desc: 'One who mixes frequencies of many worlds. (Collected 3+ languages)' },
-                multiverse_master: { title: 'Multiverse Master 🌌', sub: 'Omnipotent', desc: 'The ultimate conductor who gathered all dimensions. (Collected 8 languages)' }
+                keeper_of_rules: { title: 'Keeper of Rules ⚖️', sub: 'Awareness', desc: 'Internalized the rules of the multiverse.' }
             },
             minaSystem: "🎻 PRINCIPAL CONDUCTOR", minaAction: ">> 🎼 ACTION REQUIRED: SELECT A MULTIVERSE <<",
             inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
@@ -537,7 +533,7 @@ const LANGUAGES = [
         welcome: "Bienvenido a Lord Manor. Los engranajes del destino esperan tu toque.",
         loading: "Consultando el Cronómetro...",
         ui: {
-            tabGuide: 'GUÍA', tabArchive: 'ARCHIVO', guideHeader: '1. Idioma y Flujo', guideStep1: '1-1. Inicio y sincronización', guideStep2: '1-2. Brecha multiversal', guideStep3: '1-3. Selecciona tu frecuencia.', guideStep3Done: '1-3. Frecuencia Seleccionada', guideComplete: 'Completado', guideHeader2: '2. Juego de Orquesta', guideStep4: '2-1. Revisa los archivos. Solo leerlos supera el nivel jaja', archiveTitle: 'Registros de Archivo', earned: 'OBTENIDOS', noRecords: 'No se encontraron registros.', exploreMore: 'Explora el multiverso para recopilar recuerdos.',
+            tabGuide: 'GUÍA', tabArchive: 'ARCHIVO', guideHeader: '1. Idioma y Flujo', guideStep1: '1-1. Inicio y sincronización', guideStep2: '1-2. Brecha multiversal', guideStep3: '1-3. Selecciona tu frecuencia.', guideComplete: 'Completado', archiveTitle: 'Registros de Archivo', earned: 'OBTENIDOS', noRecords: 'No se encontraron registros.', exploreMore: 'Explora el multiverso para recopilar recuerdos.',
             authTitle: "Identidad Étérea", authBtn: "Verificar Huella del Alma", authDone: "Identidad Sellada",
             galleryTitle: "ARCHIVO DE LA MANSIÓN", gallerySub: "Registro Histórico 1899",
             manorTitle: "El Corazón de Relojería", manorHeirlooms: "Engranajes Ancestrales", manorEstate: "Terrenos de la Mansión",
@@ -590,9 +586,7 @@ const LANGUAGES = [
                 m_marathon: { title: 'Maratonista ⏱️', sub: 'Endurance', desc: 'Una eternidad en el lobby. ({sec}s)' },
                 m_cautious: { title: 'Explorador Cauto 🗺️', sub: 'Cartographer', desc: 'Mapeando. ({sec}s, {uniqueCards} zonas)' },
                 m_dualPersona: { title: 'El Observador Dual 🎭', sub: 'Two Faces', desc: 'Presenció la coexistencia de SEAN y el Director Principal.' },
-                keeper_of_rules: { title: 'Guardián de las Reglas ⚖️', sub: 'Awareness', desc: 'Ha internalizado las reglas del multiverso.' },
-                polyglot: { title: 'El Políglota 🌐', sub: 'Polyglot', desc: 'Alguien que mezcla frecuencias de muchos mundos. (Más de 3 idiomas)' },
-                multiverse_master: { title: 'Maestro del Multiverso 🌌', sub: 'Omnipotent', desc: 'El conductor definitivo que reunió todas las dimensiones. (8 idiomas)' }
+                keeper_of_rules: { title: 'Guardián de las Reglas ⚖️', sub: 'Awareness', desc: 'Ha internalizado las reglas del multiverso.' }
             },
             minaSystem: "🎻 DIRECTOR PRINCIPAL", minaAction: ">> 🎼 ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
@@ -658,9 +652,7 @@ const LANGUAGES = [
                 m_marathon: { title: 'मैराथन ⏱️', sub: 'Endurance', desc: 'लंबे समय तक। ({sec}s)' },
                 m_cautious: { title: 'खोजकर्ता 🗺️', sub: 'Cartographer', desc: 'आराम से खोजा। ({sec}s, {uniqueCards} दुनिया)' },
                 m_dualPersona: { title: 'दोहरा पर्यवेक्षक 🎭', sub: 'Two Faces', desc: 'SEAN और प्रधान संवाहक दोनों को देखा।' },
-                keeper_of_rules: { title: 'नियमों के रक्षक ⚖️', sub: 'Awareness', desc: 'मल्टीवर्स के नियमों को अपनाया।' },
-                polyglot: { title: 'बहुभाषी 🌐', sub: 'Polyglot', desc: 'जो कई दुनिया की आवृत्तियों को मिलाता है। (3+ भाषाएँ एकत्र कीं)' },
-                multiverse_master: { title: 'मल्टीवर्स मास्टर 🌌', sub: 'Omnipotent', desc: 'अंतिम संवाहक जिसने सभी आयामों को इकट्ठा किया। (8 भाषाएँ)' }
+                keeper_of_rules: { title: 'नियमों के रक्षक ⚖️', sub: 'Awareness', desc: 'मल्टीवर्स के नियमों को अपनाया।' }
             },
             minaSystem: "🎻 प्रधान संवाहक", minaAction: ">> 🎼 कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है。",
@@ -673,7 +665,7 @@ const LANGUAGES = [
         welcome: "Willkommen im Lord Manor. Die Zahnräder des Schicksals erwarten Sie.",
         loading: "Konsultiere das Chronometer...",
         ui: {
-            tabGuide: 'LEITFADEN', tabArchive: 'ARCHIV', guideHeader: '1. Sprache & Ablauf', guideStep1: '1-1. Systemstart & Sync', guideStep2: '1-2. Multiversum-Riss', guideStep3: '1-3. Wähle deine Frequenz.', guideStep3Done: '1-3. Frequenz Ausgewählt', guideComplete: 'Abgeschlossen', guideHeader2: '2. Orchester-Spiel', guideStep4: '2-1. Überprüfen Sie das Archiv. Einfach nur das Lesen erledigt das Level lol', archiveTitle: 'Archivaufzeichnungen', earned: 'VERDIENT', noRecords: 'Keine Aufzeichnungen gefunden.', exploreMore: 'Erkunde das Multiversum, um Erinnerungen zu sammeln.',
+            tabGuide: 'LEITFADEN', tabArchive: 'ARCHIV', guideHeader: '1. Sprache & Ablauf', guideStep1: '1-1. Systemstart & Sync', guideStep2: '1-2. Multiversum-Riss', guideStep3: '1-3. Wähle deine Frequenz.', guideComplete: 'Abgeschlossen', archiveTitle: 'Archivaufzeichnungen', earned: 'VERDIENT', noRecords: 'Keine Aufzeichnungen gefunden.', exploreMore: 'Erkunde das Multiversum, um Erinnerungen zu sammeln.',
             authTitle: "Ätherische Identität", authBtn: "Seelenabdruck verifizieren", authDone: "Identität besiegelt",
             galleryTitle: "MANOR ARCHIV", gallerySub: "Historische Aufzeichnung 1899",
             manorTitle: "Das mechanische Herz", manorHeirlooms: "Ahnen-Zahnräder", manorEstate: "Anwesen",
@@ -726,9 +718,7 @@ const LANGUAGES = [
                 m_marathon: { title: 'Marathonläufer ⏱️', sub: 'Endurance', desc: 'Lingered forever. ({sec}s)' },
                 m_cautious: { title: 'Vorsichtiger Entdecker 🗺️', sub: 'Cartographer', desc: 'Took time mapping the worlds. ({sec}s, {uniqueCards} domains)' },
                 m_dualPersona: { title: 'Der Duale Beobachter 🎭', sub: 'Two Faces', desc: 'Zeuge der Koexistenz von SEAN und Chefdirigent.' },
-                keeper_of_rules: { title: 'Hüter der Regeln ⚖️', sub: 'Awareness', desc: 'Hat die Regeln des Multiversums verinnerlicht.' },
-                polyglot: { title: 'Der Polyglott 🌐', sub: 'Polyglot', desc: 'Jemand, der die Frequenzen vieler Welten mischt. (3+ Sprachen gesammelt)' },
-                multiverse_master: { title: 'Multiversum-Meister 🌌', sub: 'Omnipotent', desc: 'Der ultimative Dirigent, der alle Dimensionen gesammelt hat. (8 Sprachen)' }
+                keeper_of_rules: { title: 'Hüter der Regeln ⚖️', sub: 'Awareness', desc: 'Hat die Regeln des Multiversums verinnerlicht.' }
             },
             minaSystem: "🎻 CHEFDIRIGENT", minaAction: ">> 🎼 AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
@@ -741,7 +731,7 @@ const LANGUAGES = [
         welcome: "ロード・マナーへようこそ。運命の歯車があなたを待っています。",
         loading: "クロノメーターを照合中...",
         ui: {
-            tabGuide: 'ガイド', tabArchive: 'アーカイブ', guideHeader: '1. 言語とフロー', guideStep1: '1-1. システム起動と同期', guideStep2: '1-2. マルチバース突破', guideStep3: '1-3. 周波数を選択してください。', guideStep3Done: '1-3. 周波数選択完了', guideComplete: '完了', guideHeader2: '2. オーケストラゲーム', guideStep4: '2-1. アーカイブを確認してください。読むだけでクリアです（笑）', archiveTitle: 'アーカイブ記録', earned: '獲得', noRecords: '記録が見つかりません。', exploreMore: 'マルチバースを探索して記憶を集めましょう。',
+            tabGuide: 'ガイド', tabArchive: 'アーカイブ', guideHeader: '1. 言語とフロー', guideStep1: '1-1. システム起動と同期', guideStep2: '1-2. マルチバース突破', guideStep3: '1-3. 周波数を選択してください。', guideComplete: '完了', archiveTitle: 'アーカイブ記録', earned: '獲得', noRecords: '記録が見つかりません。', exploreMore: 'マルチバースを探索して記憶を集めましょう。',
             authTitle: "エーテル身元確認", authBtn: "魂の刻印を確認", authDone: "身元封印完了",
             galleryTitle: "マナー・アーカイブ", gallerySub: "歴史的記録 1899",
             manorTitle: "時計仕掛けの心臓", manorHeirlooms: "祖先の歯車", manorEstate: "邸宅の敷地",
@@ -794,9 +784,7 @@ const LANGUAGES = [
                 m_marathon: { title: 'マラソンランナー ⏱️', sub: 'Marathoner', desc: '永遠に彷徨った。({sec}秒)' },
                 m_cautious: { title: '慎重な探検家 🗺️', sub: 'Cautious Explorer', desc: '時間をかけてマッピングした。({sec}秒, {uniqueCards}個)' },
                 m_dualPersona: { title: '二つの顔の観察者 🎭', sub: 'Two Faces', desc: 'SEANと首席指揮者の共存を目撃した。' },
-                keeper_of_rules: { title: 'ルールの守護者 ⚖️', sub: 'Awareness', desc: 'マルチバースの原則を理解した。' },
-                polyglot: { title: 'マルチリンガル 🌐', sub: 'Polyglot', desc: '複数の世界の周波数を混ぜ合わせる者。 (3つ以上の言語を収集)' },
-                multiverse_master: { title: 'マルチバースマスター 🌌', sub: 'Omnipotent', desc: 'すべての次元を一つにまとめた究極の指揮者。 (8つの言語を収集)' }
+                keeper_of_rules: { title: 'ルールの守護者 ⚖️', sub: 'Awareness', desc: 'マルチバースの原則を理解した。' }
             },
             minaSystem: "🎻 首席指揮者", minaAction: ">> 🎼 アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
@@ -809,7 +797,7 @@ const LANGUAGES = [
         welcome: "مرحبًا بكم في لورد مانور. تروس القدر في انتظار لمستك.",
         loading: "استشارة الكرونومتر...",
         ui: {
-            tabGuide: 'دليل', tabArchive: 'أرشيف', guideHeader: '1. اللغة والمسار', guideStep1: '1-1. تمهيد النظام والمزامنة', guideStep2: '1-2. اختراق الأكوان المتعددة', guideStep3: '1-3. اختر التردد الخاص بك.', guideStep3Done: '1-3. تم اختيار التردد', guideComplete: 'مكتمل', guideHeader2: '2. لعبة الأوركسترا', guideStep4: '2-1. تحقق من الأرشيف. مجرد قراءتها ينهي المستوى هههه', archiveTitle: 'سجلات الأرشيف', earned: 'مكتسب', noRecords: 'لم يتم العثور على سجلات.', exploreMore: 'استكشف الأكوان المتعددة لجمع الذكريات.',
+            tabGuide: 'دليل', tabArchive: 'أرشيف', guideHeader: '1. اللغة والمسار', guideStep1: '1-1. تمهيد النظام والمزامنة', guideStep2: '1-2. اختراق الأكوان المتعددة', guideStep3: '1-3. اختر التردد الخاص بك.', guideComplete: 'مكتمل', archiveTitle: 'سجلات الأرشيف', earned: 'مكتسب', noRecords: 'لم يتم العثور على سجلات.', exploreMore: 'استكشف الأكوان المتعددة لجمع الذكريات.',
             authTitle: "هوية الأثير", authBtn: "التحقق من بصمة الروح", authDone: "تم ختم الهوية",
             galleryTitle: "أرشيف القصر", gallerySub: "سجل تاريخي 1899",
             manorTitle: "قلب الساعة", manorHeirlooms: "تروس الأجداد", manorEstate: "أراضي القصر",
@@ -862,9 +850,7 @@ const LANGUAGES = [
                 m_marathon: { title: 'ماراثون ⏱️', sub: 'Endurance', desc: 'Lingered forever. ({sec}s)' },
                 m_cautious: { title: 'مستكشف حذر 🗺️', sub: 'Cartographer', desc: 'Mapping worlds. ({sec}s, {uniqueCards} domains)' },
                 m_dualPersona: { title: 'مراقب مزدوج 🎭', sub: 'Two Faces', desc: 'شهد تعايش SEAN والمايسترو.' },
-                keeper_of_rules: { title: 'حارس القواعد ⚖️', sub: 'Awareness', desc: 'أدرك قواعد الأكوان المتعددة.' },
-                polyglot: { title: 'متعدد اللغات 🌐', sub: 'Polyglot', desc: 'من يمزج ترددات عوالم متعددة. (تم جمع 3+ لغات)' },
-                multiverse_master: { title: 'سيد الأكوان المتعددة 🌌', sub: 'Omnipotent', desc: 'المايسترو النهائي الذي جمع كل الأبعاد. (تم جمع 8 لغات)' }
+                keeper_of_rules: { title: 'حارس القواعد ⚖️', sub: 'Awareness', desc: 'أدرك قواعد الأكوان المتعددة.' }
             },
             minaSystem: "🎻 المايسترو الرئيسي", minaAction: ">> 🎼 الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
@@ -877,7 +863,7 @@ const LANGUAGES = [
         welcome: "Witamy w Lord Manor. Tryby przeznaczenia czekają na twój dotyk.",
         loading: "Konsultacja z Chronometrem...",
         ui: {
-            tabGuide: 'PRZEWODNIK', tabArchive: 'ARCHIWUM', guideHeader: '1. Język i Przepływ', guideStep1: '1-1. Rozruch systemu i synchronizacja', guideStep2: '1-2. Wyłom w multiwersum', guideStep3: '1-3. Wybierz swoją częstotliwość.', guideStep3Done: '1-3. Częstotliwość Wybrana', guideComplete: 'Zakończono', guideHeader2: '2. Gra Orkiestrowa', guideStep4: '2-1. Sprawdź archiwa. Samo przeczytanie ich kończy poziom heh', archiveTitle: 'Zapisy Archiwalne', earned: 'ZDOBYTE', noRecords: 'Nie znaleziono zapisów.', exploreMore: 'Eksploruj multiwersum, aby zbierać wspomnienia.',
+            tabGuide: 'PRZEWODNIK', tabArchive: 'ARCHIWUM', guideHeader: '1. Język i Przepływ', guideStep1: '1-1. Rozruch systemu i synchronizacja', guideStep2: '1-2. Wyłom w multiwersum', guideStep3: '1-3. Wybierz swoją częstotliwość.', guideComplete: 'Zakończono', archiveTitle: 'Zapisy Archiwalne', earned: 'ZDOBYTE', noRecords: 'Nie znaleziono zapisów.', exploreMore: 'Eksploruj multiwersum, aby zbierać wspomnienia.',
             authTitle: "Eteryczna Tożsamość", authBtn: "Weryfikuj Duszę", authDone: "Tożsamość Zapieczętowana",
             galleryTitle: "ARCHIWUM DWORU", gallerySub: "Zapis Historyczny 1899",
             manorTitle: "Mechaniczne Serce", manorHeirlooms: "Zębatki Przodków", manorEstate: "Tereny Dworu",
@@ -930,9 +916,7 @@ const LANGUAGES = [
                 m_marathon: { title: 'Maratończyk ⏱️', sub: 'Endurance', desc: 'Został na zawsze. ({sec}s)' },
                 m_cautious: { title: 'Ostrożny Odkrywca 🗺️', sub: 'Cartographer', desc: 'Zmapował wszystkie obszary. ({sec}s, {uniqueCards} domeny)' },
                 m_dualPersona: { title: 'Podwójny Obserwator 🎭', sub: 'Two Faces', desc: 'Był świadkiem współistnienia SEAN i Głównego Dyrygenta.' },
-                keeper_of_rules: { title: 'Strażnik Zasad ⚖️', sub: 'Awareness', desc: 'Zrozumiał zasady multiwersum.' },
-                polyglot: { title: 'Poliglota 🌐', sub: 'Polyglot', desc: 'Ten, który łączy częstotliwości wielu światów. (Zebrano 3+ języki)' },
-                multiverse_master: { title: 'Mistrz Multiwersum 🌌', sub: 'Omnipotent', desc: 'Ostateczny dyrygent, który zebrał wszystkie wymiary. (Zebrano 8 języków)' }
+                keeper_of_rules: { title: 'Strażnik Zasad ⚖️', sub: 'Awareness', desc: 'Zrozumiał zasady multiwersum.' }
             },
             minaSystem: "🎻 GŁÓWNY DYRYGENT", minaAction: ">> 🎼 WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",

@@ -5,7 +5,7 @@ import { LucideCompass, LucideCheck, LucideEye } from 'lucide-react';
 // Assuming AudioManager, MinaDirective, and calculateArchetype are provided via props or imported
 // For isolation, they would ideally be context or imported directly, but we assume they are globally available or passed down where needed
 
-const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, isCollected, onFocus, onReady, onSelect, AudioManager }) => {
+const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady, onSelect, AudioManager }) => {
     const [saturationProgress, setSaturationProgress] = useState(0);
     const [isShakePaused, setIsShakePaused] = useState(false);
     const animInterval = useRef(null);
@@ -33,13 +33,16 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, isCollected, onFo
                 } else if (elapsed >= 4500 && stage < 3) { // 4.5 sec
                     AudioManager?.playSfx('piano-mystic-high', 0.56, true);
                     setTimeout(() => { setIsShakePaused(true); setTimeout(() => setIsShakePaused(false), 400); }, 100);
-                    // Removed requestBackground to keep the original background unchanged
+                    if (onReady) onReady({ ...lang, requestBackground: true });
                     stage = 3;
                 }
 
                 if (elapsed >= duration) { // 5.5 sec total completion
                     clearInterval(animInterval.current);
-                    // Removed music change to maintain the current ambient theme
+                    const currentSrc = AudioManager?.currentTheme?.src || "";
+                    if (currentSrc.split('/').pop() !== `${lang.id}-theme.mp3`) {
+                        AudioManager?.playTheme(lang.id, 0.28, 3000);
+                    }
                     if (onReady) onReady({ ...lang, requestSequenceComplete: true });
                 }
             }, 50);
@@ -110,7 +113,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, isCollected, onFo
                     ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" }
                     : { type: 'spring', damping: 25, stiffness: 120 }
             }}
-            className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isFocused && !isStaged ? 'shadow-[0_0_80px_rgba(197,160,89,0.4)] ring-2 ring-[#C5A059]' : (isCollected ? 'ring-1 ring-[#00E5FF] shadow-[0_0_15px_rgba(0,229,255,0.3)]' : 'cursor-pointer hover:ring-1 hover:ring-white/20')}`}
+            className={`relative w-full h-full rounded-lg overflow-hidden shadow-2xl select-none transition-shadow ${isFocused && !isStaged ? 'shadow-[0_0_80px_rgba(197,160,89,0.4)] ring-2 ring-[#C5A059]' : 'cursor-pointer hover:ring-1 hover:ring-white/20'}`}
             style={{ touchAction: 'none' }}
         >
             <div
@@ -123,7 +126,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, isCollected, onFo
                             : saturationProgress < 63.63 ? 'saturate(0.7) grayscale(30%) brightness(0.7)'
                                 : saturationProgress < 81.81 ? 'saturate(1) grayscale(0%) brightness(1)'
                                     : 'saturate(1.2) grayscale(0%) brightness(1.3) drop-shadow(0 0 10px rgba(197,160,89,0.8))')
-                        : (isStaged ? 'saturate(1) grayscale(0%)' : (isCollected ? 'saturate(0.5) grayscale(50%) brightness(0.7)' : 'saturate(0) grayscale(100%) brightness(0.5)')),
+                        : (isStaged ? 'saturate(1) grayscale(0%)' : 'saturate(0) grayscale(100%) brightness(0.5)'),
                 }}
             />
 
@@ -143,7 +146,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, isCollected, onFo
                 </h3>
                 <div className="w-full flex justify-center items-center px-1 overflow-visible">
                     <motion.span animate={{ y: isFocused || isStaged ? 0 : 10 }} className="text-xs md:text-lg text-[#C5A059] uppercase tracking-[0.1em] md:tracking-[0.2em] font-black block leading-tight text-center">
-                        {isStaged ? lang.ui.fateSealed : (saturationProgress === 100 ? lang.ui.drag : (isFocused ? `${lang.ui.sync} ${Math.round(saturationProgress)}%` : (isCollected ? 'COLLECTED' : lang.ui.tap)))}
+                        {isStaged ? lang.ui.fateSealed : (saturationProgress === 100 ? lang.ui.drag : (isFocused ? `${lang.ui.sync} ${Math.round(saturationProgress)}%` : lang.ui.tap))}
                     </motion.span>
                 </div>
             </div>
@@ -161,10 +164,6 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     const [isRulesMerged, setIsRulesMerged] = useState(false);
     const [isMerging, setIsMerging] = useState(false);
     const [focusPhase, setFocusPhase] = useState(false);
-    const [isDashboardView, setIsDashboardView] = useState(false); // New Phase 1.5 State
-
-    const [collectedLanguages, setCollectedLanguages] = useState([]);
-    const collectionTimerRef = useRef(null);
 
     const introSentences = [
         "Initiating dimensional shift.",
@@ -183,43 +182,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
         return () => clearTimeout(overlayTimer);
     }, [introSentence]);
 
-    const handlePostSavePointCollection = (lang) => {
-        /* [ON HOLD] Multi-Language Collection
-        if (collectedLanguages.includes(lang.id)) return; // Already collected
-        
-        const newCollected = [...collectedLanguages, lang.id];
-        setCollectedLanguages(newCollected);
-        
-        AudioManager?.playSfx('shutter', 0.6);
-        
-        if (collectionTimerRef.current) clearTimeout(collectionTimerRef.current);
-        
-        setMinaText(`[ 💾 SAVE POINT ] ${lang.name} 주파수 수집 완료. (현재 ${newCollected.length}/8)`);
-        
-        // Award badges
-        const newBadges = [];
-        if (newCollected.length === 3) {
-            newBadges.push({ id: 'polyglot', type: 'minor', group: 'collection' });
-        }
-        if (newCollected.length === 8) {
-            newBadges.push({ id: 'multiverse_master', type: 'major', group: 'collection' });
-        }
-        if (newBadges.length > 0 && onEarnBadge) {
-            onEarnBadge(newBadges);
-        }
-        
-        collectionTimerRef.current = setTimeout(() => {
-            setMinaText("[ 💾 SAVE POINT ] 다중우주 동기화 완료.");
-        }, 3000);
-        */
-    };
-
     const onCardFocus = (lang) => {
-        if (isRulesMerged) {
-            // handlePostSavePointCollection(lang);
-            return;
-        }
-
         if (setCardsExplored) {
             setCardsExplored(prev => {
                 const newSet = new Set(prev);
@@ -305,28 +268,20 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     useEffect(() => {
         if (holdProgress >= 100 && stagedLang && !isSealed) {
             setIsSealed(true);
+            setMinaText("[🎙️ SEAN'S COMMENT] You just chose that language vibe! 근데 일단은 영어로 좀 진행할게 ㅠㅠ 나 혼자 지휘하느라 힘들어!");
 
             // Trigger global language select (which now only updates audio out of the box, no redirect)
             if (handleLanguageSelect) {
                 handleLanguageSelect(stagedLang);
             }
 
-            setMinaText("[🎙️ SEAN'S COMMENT] \"You just chose that language vibe! 근데 일단은 영어로 좀 진행할게 ㅠㅠ 나 혼자 지휘하느라 힘들어!\"");
-
             setTimeout(() => {
-                // Phase 1.5: Direct to Dashboard View (Bypass 9-Grid)
-                setIsDashboardView(true);
-                setFocusPhase(false);
-                setIsRulesMerged(true); // Set merged to lock out old logic
-
-                // Record the initial language
-                const initialCollections = stagedLang ? [stagedLang.id] : [];
-                setCollectedLanguages(initialCollections);
-
-                AudioManager?.playSfx('transition', 0.6);
+                setFocusPhase(true);
+                setMinaText("[🎙️ SEAN'S COMMENT] 다중우주의 규칙(Awareness)을 먼저 몸에 새기십시오.");
+                AudioManager?.playSfx('piano-mystic-low', 0.8);
             }, 3000);
 
-            // Do not zero out holdProgress here; cancelHold is updated to latch at 100
+            cancelHold();
         }
     }, [holdProgress, stagedLang, isSealed, AudioManager, handleLanguageSelect]);
 
@@ -341,27 +296,16 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
             setIsMerging(false);
             setFocusPhase(false);
 
-            // Record the initial language
-            const initialCollections = stagedLang ? [stagedLang.id] : [];
-            setCollectedLanguages(initialCollections);
-
-            // Revert back to language grid view but keep sealed state visual cues
-            setIsSealed(false);
-            setStagedLang(null);
-            setFocusedLang(null);
-            setHoldProgress(0); // Reset the progress bar when fully transitioned out
-
             if (onEarnBadge) {
                 onEarnBadge([{ id: 'keeper_of_rules', type: 'minor', group: 'awareness' }]);
             }
-            setMinaText("[ 💾 SAVE POINT ] 다중우주 동기화 완료.");
+            if (stagedLang) setMinaText(stagedLang.ui.directiveDashboard || "Select a sector.");
         }, 1500);
     };
 
     const cancelHold = () => {
         if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
         setHoldProgress(prev => {
-            if (prev >= 100) return 100; // Latch at 100 once completed to prevent visual reset on mouse up
             if (prev > 0 && prev < 100 && stagedLang) {
                 setMinaText(stagedLang.id === 'ko' ? "▶️ 계속 5초간 길게 누르세요." : (stagedLang.ui?.holdMore || "▶️ Keep holding for 5 seconds."));
             } else if (prev === 0 && stagedLang) {
@@ -395,34 +339,16 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
             <div id="language-grid" className={`w-full grid grid-cols-3 grid-rows-3 gap-1 md:gap-4 bg-black/40 backdrop-blur-3xl p-1 md:p-6 border border-white/5 rounded-lg md:rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative z-10 transition-all duration-1000 ${isIntroActive ? 'opacity-40 blur-sm scale-95 pointer-events-none' : 'opacity-100 blur-0 scale-100'}`}>
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_70%)] animate-pulse pointer-events-none" />
 
-                {Array.from({ length: 9 }).map((_, i) => {
-                    const tileIndex = i + 1;
-                    const pos = i > 4 ? i - 1 : i;
-
-                    if (i === 4) {
+                {[0, 1, 2, 3, 'center', 4, 5, 6, 7].map((pos, i) => {
+                    if (pos === 'center') {
                         return (
                             <div key="center-slot" className="relative z-50">
-                                {isDashboardView && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ duration: 1.5, delay: i * 0.1 }}
-                                        className="absolute inset-0 z-0 pointer-events-none rounded-lg overflow-hidden"
-                                    >
-                                        <img src={`/assets/tiles/tile_${tileIndex}.png`} alt={`Grand Opening Tile ${tileIndex}`} className="w-full h-full object-cover grayscale opacity-60" />
-                                    </motion.div>
-                                )}
                                 <AnimatePresence mode="wait">
                                     {stagedLang ? (
                                         <motion.div
                                             key={stagedLang.id}
                                             initial={{ scale: 0, opacity: 0, rotate: -20 }}
                                             animate={{ scale: holdProgress > 0 ? 1 + (holdProgress / 100) * 0.5 : 1, opacity: 1, rotate: 0 }}
-                                            onTouchStart={startHold}
-                                            onTouchEnd={cancelHold}
-                                            onMouseDown={startHold}
-                                            onMouseUp={cancelHold}
-                                            onMouseLeave={cancelHold}
                                             onPointerDown={(e) => { e.target.setPointerCapture(e.pointerId); startHold(); }}
                                             onPointerUp={(e) => { e.target.releasePointerCapture(e.pointerId); cancelHold(); }}
                                             onPointerCancel={cancelHold}
@@ -438,7 +364,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                                                 onReady={() => { }}
                                                 AudioManager={AudioManager}
                                             />
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/60 shadow-[inset_0_0_150px_rgba(0,0,0,1)] pointer-events-none rounded-2xl border border-white/10 backdrop-blur-2xl overflow-hidden transition-all duration-1000 z-[500]">
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/60 shadow-[inset_0_0_150px_rgba(0,0,0,1)] pointer-events-none rounded-2xl border border-white/10 backdrop-blur-2xl overflow-hidden transition-all duration-1000">
                                                 <div className="absolute inset-0 bg-gradient-to-t from-[#C5A059]/0 via-[#C5A059]/10 to-[#C5A059]/0 mix-blend-screen transition-opacity" style={{ opacity: holdProgress / 100 }} />
                                                 <div className="absolute inset-0 flex items-center justify-center opacity-70">
                                                     <motion.div
@@ -513,25 +439,47 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     const isOriginalOfStaged = stagedLang && stagedLang.id === lang?.id;
                     const instaImgIndex = pos < 4 ? pos + 1 : pos;
 
-                    const isDimmed = isSealed; // Cards permanently dim after sealed
+                    const isGrid9 = pos === 7;
+                    const isFocusedGrid = isGrid9;
+                    const isDimmed = focusPhase && !isFocusedGrid;
+                    const isHidden = isRulesMerged && isGrid9;
+
+                    if (isGrid9 && isSealed) {
+                        return (
+                            <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-opacity duration-300`}>
+                                <motion.div
+                                    layoutId={isMerging ? "rulesCard" : undefined}
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{
+                                        opacity: isHidden ? 0 : (isDimmed ? 0.2 : 1),
+                                        scale: 1,
+                                        filter: isDimmed ? 'grayscale(100%) brightness(0.5)' : 'grayscale(0%) brightness(1)',
+                                        zIndex: isMerging ? 100 : 1
+                                    }}
+                                    transition={{ duration: isMerging ? 1.5 : 0.8, ease: isMerging ? "easeInOut" : "easeOut" }}
+                                    onClick={handleRulesMerge}
+                                    className={`w-full h-full relative flex flex-col items-center justify-center text-center p-2 border ${focusPhase ? 'border-[#C5A059] bg-[#C5A059]/10 cursor-pointer shadow-[0_0_15px_rgba(197,160,89,0.3)] hover:bg-[#C5A059]/20' : `bg-white/10 border-white/5`} transition-colors ${isHidden ? 'pointer-events-none' : ''}`}
+                                >
+                                    <motion.div animate={{ rotate: focusPhase ? 360 : 0 }} transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}>
+                                        <LucideEye size={focusPhase ? 24 : 16} className={`mb-1 transition-all ${focusPhase ? 'text-[#C5A059] opacity-100' : `opacity-60 text-white`}`} />
+                                    </motion.div>
+                                    <span className={`font-black uppercase leading-none mb-1 transition-all ${focusPhase ? 'text-[#C5A059] text-[11px]' : `text-[9px] text-white`}`}>AWARENESS</span>
+                                    <span className={`font-serif italic leading-tight uppercase transition-all ${focusPhase ? 'text-[#FDFCF0] opacity-80 text-[8px]' : 'text-[7px] text-white/50'}`}>No Artificial Empathy</span>
+                                </motion.div>
+                            </div>
+                        );
+                    }
 
                     return (
-                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-opacity duration-300 ${isFocused ? 'z-[50]' : ''}`} style={holdProgress > 0 && !isOriginalOfStaged && !isSealed ? { opacity: Math.max(0, 1 - (holdProgress / 100) * 1.5) } : (isOriginalOfStaged ? { opacity: 0 } : {})}>
-                            <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed && isDimmed ? 'opacity-20 grayscale brightness-50' : 'opacity-100'}`}>
+                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''}`} style={{ opacity: isOriginalOfStaged ? 0 : (isSealed ? (isDimmed ? 0.2 : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)), filter: (isSealed && isDimmed) ? 'grayscale(100%) brightness(0.5)' : 'none' }}>
+                            <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed ? 'opacity-0' : 'opacity-100'}`}>
                                 {!isOriginalOfStaged && (
-                                    <LanguageCard lang={lang} idx={pos} isFocused={isFocused} isStaged={false} isDimmable={isDimmable || stagedLang} isCollected={isRulesMerged && collectedLanguages.includes(lang?.id)} onFocus={onCardFocus} onReady={onCardReady} onSelect={onCardSelect} AudioManager={AudioManager} />
+                                    <LanguageCard lang={lang} idx={pos} isFocused={isFocused} isStaged={false} isDimmable={isDimmable || stagedLang} onFocus={onCardFocus} onReady={onCardReady} onSelect={onCardSelect} AudioManager={AudioManager} />
                                 )}
                             </div>
-                            {isDashboardView && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 1.5, delay: i * 0.1 }}
-                                    className="absolute inset-0 pointer-events-none rounded-lg overflow-hidden border border-white/5"
-                                >
-                                    <img src={`/assets/tiles/tile_${tileIndex}.png`} alt={`Grand Opening Tile ${tileIndex}`} className="w-full h-full object-cover" />
-                                </motion.div>
-                            )}
+                            <div className={`absolute inset-0 transition-opacity duration-[2000ms] ${isSealed && !isHidden ? 'opacity-100' : 'opacity-0'} pointer-events-none rounded-lg overflow-hidden`}>
+                                <img src={`/assets/manual_upload/insta/img${instaImgIndex}.png`} alt={`Instagram ${instaImgIndex}`} className="w-full h-full object-cover" />
+                            </div>
                         </div>
                     );
                 })}
@@ -540,20 +488,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
             {MinaDirective && (
                 <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
                     <div className="w-full max-w-5xl px-4 md:px-8 mx-auto flex justify-center">
-                        <MinaDirective
-                            isVisible={true}
-                            activeStep={isDashboardView ? "dashboard_view" : (isSealed ? "sealed" : "language")}
-                            text={minaText}
-                            position="top"
-                            interactionMode={isIntroActive ? 'reading' : 'action'}
-                            sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
-                            actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"}
-                            isSpeaking={isMinaSpeaking}
-                            badges={earnedBadges}
-                            ui={{ ...(stagedLang || focusedLang || LANGUAGES[0])?.ui, flag: (stagedLang || focusedLang)?.flag }}
-                            dynamicMaxHeight={expandedHeight}
-                            forceExpanded={isDashboardView || (isSealed && !isDashboardView)}
-                        />
+                        <MinaDirective isVisible={true} activeStep="language" text={minaText} position="top" interactionMode={isIntroActive ? 'reading' : 'action'} sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"} actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"} isSpeaking={isMinaSpeaking} badges={earnedBadges} ui={focusedLang?.ui || {}} dynamicMaxHeight={expandedHeight} forceExpanded={isSealed} />
                     </div>
                 </div>
             )}
