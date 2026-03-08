@@ -139,12 +139,12 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     transition={{ duration: 3, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
                                     className="font-serif uppercase font-light text-center select-none"
                                     style={{
-                                        fontSize: "clamp(12px, 5.5vw, 44px)", // 5.5vw ensures 15 characters + spacing fit nicely in 100vw
-                                        letterSpacing: "0.15em", // Slightly tighter spacing to prevent rigid overflow
+                                        fontSize: "clamp(12px, 5vw, 40px)", // further reduced to ensure fit
+                                        letterSpacing: "0.1em", // Reduced spacing dramatically for safety on ultra narrow PC
                                         color: "#FDFCF0",
                                         textShadow: "0 0 40px rgba(197, 160, 89, 0.3)",
                                         lineHeight: 1,
-                                        whiteSpace: "nowrap" // prevent odd wrapping
+                                        whiteSpace: "nowrap"
                                     }}
                                 >
                                     <span className="text-[#C5A059]">J</span>UST<span className="mx-2 md:mx-3 text-white/20">.</span>SEAN<span className="mx-2 md:mx-3 text-white/20">.</span>FLOWS
@@ -211,8 +211,8 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         >
                             <h1 className="font-serif uppercase font-light text-center mix-blend-screen w-full px-4"
                                 style={{
-                                    fontSize: "clamp(16px, 6.5vw, 60px)", // 6.5vw allows the epic scale to stay within borders
-                                    letterSpacing: "0.2em",
+                                    fontSize: "clamp(16px, 6vw, 55px)",
+                                    letterSpacing: "0.12em",
                                     color: "#FDFCF0",
                                     textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)",
                                     whiteSpace: "nowrap"
