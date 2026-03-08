@@ -123,78 +123,87 @@ const CinematicOpening = ({ onStart, onComplete }) => {
 
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-30 mix-blend-overlay pointer-events-none" />
 
-                        <div className="relative z-10 flex flex-col items-center w-full">
-                            {/* Elegant Cinematic Text (Redesigned) */}
-                            <div className="relative mb-20 md:mb-24 px-4 md:px-6 z-10 w-full max-w-4xl flex justify-center items-center">
-                                {/* Subtle Background Pulse (Aether Glow) */}
+                        <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-full sm:max-w-[420px] md:max-w-[540px] lg:max-w-[620px] mx-auto md:p-10 md:bg-black/40 md:backdrop-blur-2xl md:border md:border-[#C5A059]/30 md:rounded-[40px] md:shadow-[0_20px_60px_rgba(0,0,0,0.8)] transition-all duration-1000 mt-[10vh] md:mt-0">
+                            {/* Decorative Top Accent */}
+                            <div className="hidden md:block absolute -top-[1px] left-1/2 -translate-x-1/2 w-1/3 h-[2px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent opacity-80" />
+                            <div className="hidden md:block absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-1/4 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+
+                            <div className="w-full flex justify-center items-center mb-12 md:mb-16">
+                                <LucideSparkles className="text-[#C5A059]/60 w-6 h-6 animate-pulse" strokeWidth={1} />
+                            </div>
+
+                            {/* Completely Renewed Cinematic Text */}
+                            <div className="relative z-10 flex flex-col items-center justify-center w-full gap-4 md:gap-6 mb-16 md:mb-20">
+                                {/* Soft Background Pulse Behind Text */}
                                 <motion.div
-                                    animate={{ opacity: [0.3, 0.6, 0.3], filter: ["blur(40px)", "blur(60px)", "blur(40px)"], scale: [0.9, 1.1, 0.9] }}
-                                    transition={{ duration: 8, ease: "easeInOut", repeat: Infinity }}
-                                    className="absolute inset-0 bg-[#C5A059]/10 rounded-[100%] pointer-events-none -z-10 mix-blend-screen"
+                                    animate={{ opacity: [0.1, 0.3, 0.1], filter: ["blur(30px)", "blur(50px)", "blur(30px)"], scale: [0.9, 1.1, 0.9] }}
+                                    transition={{ duration: 6, ease: "easeInOut", repeat: Infinity }}
+                                    className="absolute inset-0 bg-[#C5A059] rounded-full pointer-events-none -z-10 mix-blend-screen"
                                 />
 
                                 <motion.h1
-                                    initial={{ opacity: 0, scale: 0.95, filter: "blur(20px)", y: 20 }}
-                                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
-                                    transition={{ duration: 3, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
-                                    className="font-serif uppercase font-light text-center select-none"
-                                    style={{
-                                        fontSize: "clamp(12px, 6vw, 44px)", // Restored proper fluid scaling
-                                        letterSpacing: "0.15em",
-                                        color: "#FDFCF0",
-                                        textShadow: "0 0 40px rgba(197, 160, 89, 0.3)",
-                                        lineHeight: 1,
-                                        whiteSpace: "nowrap"
-                                    }}
+                                    initial={{ opacity: 0, y: 30, filter: "blur(20px)" }}
+                                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                                    transition={{ duration: 2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+                                    className="flex flex-col items-center gap-1 md:gap-2 select-none"
                                 >
-                                    <span className="text-[#C5A059]">J</span>UST
-                                    <span className="mx-[0.2em] md:mx-[0.3em] text-white/20">.</span>
-                                    SEAN
-                                    <span className="mx-[0.2em] md:mx-[0.3em] text-white/20">.</span>
-                                    FLOWS
+                                    <span className="font-sans font-light tracking-[0.5em] md:tracking-[0.8em] text-white/50 text-[10px] md:text-xs uppercase mb-2">
+                                        The Multiverse Project
+                                    </span>
+
+                                    {/* Stacked "JUST. SEAN." structure for more impact */}
+                                    <span
+                                        className="font-serif uppercase italic text-[#FDFCF0] drop-shadow-[0_0_20px_rgba(197,160,89,0.4)]"
+                                        style={{ fontSize: "clamp(28px, 6vw, 56px)", letterSpacing: "0.15em", lineHeight: 1.1 }}
+                                    >
+                                        <span className="text-[#C5A059]">J</span>UST<span className="text-[#C5A059]/40 mx-2">.</span><span className="text-[#C5A059]">S</span>EAN
+                                    </span>
+
+                                    {/* Dramatic "FLOWS" */}
+                                    <span
+                                        className="font-serif uppercase font-light text-[#FDFCF0] tracking-[0.3em] md:tracking-[0.4em] drop-shadow-[0_0_40px_rgba(197,160,89,0.6)]"
+                                        style={{ fontSize: "clamp(24px, 5vw, 48px)", marginTop: "0.2em" }}
+                                    >
+                                        FLOWS
+                                    </span>
                                 </motion.h1>
 
                                 <motion.div
                                     initial={{ width: 0, opacity: 0 }}
-                                    animate={{ width: "60%", opacity: 0.5 }}
-                                    transition={{ duration: 3, ease: "easeOut", delay: 1.5 }}
-                                    className="absolute -bottom-6 h-[1px] bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent pointer-events-none"
+                                    animate={{ width: "80%", opacity: 0.6 }}
+                                    transition={{ duration: 2, ease: "easeOut", delay: 1 }}
+                                    className="h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent pointer-events-none mt-6"
                                 />
                             </div>
 
+                            {/* Elevated Entry Button */}
                             <motion.button
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 2, duration: 1.5 }}
+                                transition={{ delay: 1.5, duration: 1.5 }}
                                 onClick={handleIgnite}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="group relative transition-all duration-500 cursor-pointer mt-4"
-                                style={{ padding: '3.5rem 5rem' }}
+                                className="group relative transition-all duration-500 cursor-pointer w-[85%] md:w-[70%]"
                             >
-                                {/* Minimalist Glass Container with rounded borders */}
-                                <div className="absolute inset-0 bg-white/5 backdrop-blur-md border border-white/20 shadow-[0_4px_24px_rgba(0,0,0,0.5)] group-hover:bg-white/10 group-hover:border-white/40 transition-all duration-500 rounded-2xl group-hover:rounded-3xl overflow-hidden">
-                                    {/* Soft Blooming Light Inside */}
+                                {/* Button Box - Matches inner theme */}
+                                <div className="absolute inset-0 bg-white/5 backdrop-blur-md border border-white/20 group-hover:bg-[#C5A059]/10 group-hover:border-[#C5A059]/50 transition-all duration-500 rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                                     <motion.div
-                                        animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
+                                        animate={{ opacity: [0.1, 0.4, 0.1], scale: [1, 1.2, 1] }}
                                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                        className="absolute -inset-[100%] bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08)_0%,transparent_50%)] group-hover:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_50%)] transition-colors duration-1000 pointer-events-none"
+                                        className="absolute -inset-[50%] bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.2)_0%,transparent_50%)] pointer-events-none"
                                     />
                                 </div>
 
-                                <div className="relative z-10 flex flex-col items-center gap-2 md:gap-3">
-                                    <span className="text-[9px] md:text-[10px] font-serif italic text-white/50 tracking-[0.4em] uppercase group-hover:text-white/80 transition-colors duration-500">
-                                        The Symphony Awaits
+                                <div className="relative z-10 flex flex-col items-center py-6 md:py-8 gap-2">
+                                    <span className="text-[9px] md:text-[10px] font-sans font-black text-[#C5A059]/70 tracking-[0.5em] md:tracking-[0.6em] uppercase group-hover:text-[#C5A059] transition-colors duration-500">
+                                        Initiate
                                     </span>
-                                    <div className="text-[16px] md:text-[22px] text-white font-serif tracking-[0.3em] group-hover:tracking-[0.4em] transition-all duration-700 text-center drop-shadow-[0_2px_10px_rgba(255,255,255,0.4)] flex items-center justify-center gap-2 md:gap-2.5">
-                                        <LucideSparkles className="text-white/40 group-hover:text-white transition-colors duration-500 w-4 h-4 md:w-5 md:h-5 shrink-0" strokeWidth={1.5} />
+                                    <div className="text-sm md:text-lg text-white font-serif tracking-[0.3em] group-hover:tracking-[0.5em] transition-all duration-700 text-center drop-shadow-lg flex items-center justify-center gap-3">
                                         <span>CLICK TO ENTER</span>
-                                        <LucideSparkles className="text-white/40 group-hover:text-white transition-colors duration-500 w-4 h-4 md:w-5 md:h-5 shrink-0" strokeWidth={1.5} />
                                     </div>
                                 </div>
                             </motion.button>
-
-
                         </div>
 
                     </motion.div>
@@ -213,19 +222,29 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                             transition={{ duration: 6, ease: "easeInOut" }}
                             className="flex flex-col items-center gap-8 md:gap-12 relative z-10 w-full"
                         >
-                            <h1 className="font-serif uppercase font-light text-center mix-blend-screen w-full px-4"
-                                style={{
-                                    fontSize: "clamp(16px, 7vw, 60px)", // Restored epic scale
-                                    letterSpacing: "0.2em",
-                                    color: "#FDFCF0",
-                                    textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)",
-                                    whiteSpace: "nowrap"
-                                }}>
-                                <span className="text-[#C5A059]">J</span>UST
-                                <span className="mx-[0.2em] md:mx-[0.3em] text-[#C5A059]/30">.</span>
-                                SEAN
-                                <span className="mx-[0.2em] md:mx-[0.3em] text-[#C5A059]/30">.</span>
-                                FLOWS
+                            <h1 className="flex flex-col items-center gap-1 md:gap-2 select-none mix-blend-screen w-full px-4">
+                                <span
+                                    className="font-serif uppercase italic text-[#FDFCF0]"
+                                    style={{
+                                        fontSize: "clamp(36px, 8vw, 72px)",
+                                        letterSpacing: "0.15em",
+                                        lineHeight: 1.1,
+                                        textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)"
+                                    }}
+                                >
+                                    <span className="text-[#C5A059]">J</span>UST<span className="text-[#C5A059]/40 mx-2 md:mx-4">.</span><span className="text-[#C5A059]">S</span>EAN
+                                </span>
+
+                                <span
+                                    className="font-serif uppercase font-light text-[#FDFCF0] tracking-[0.3em] md:tracking-[0.4em]"
+                                    style={{
+                                        fontSize: "clamp(32px, 7vw, 64px)",
+                                        marginTop: "0.2em",
+                                        textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)"
+                                    }}
+                                >
+                                    FLOWS
+                                </span>
                             </h1>
 
                             {/* Epic Expanding Energy Line */}

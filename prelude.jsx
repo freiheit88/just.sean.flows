@@ -458,7 +458,8 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 수석 지휘자", minaAction: ">> 🎼 첫 막: 언어를 선택하세요 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
-            tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그", fateSealed: "운명 확정"
+            tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그", fateSealed: "운명 확정",
+            harmonizing: "운명 조율 중", aligned: "운명 정렬됨"
         }
     },
     {
@@ -524,7 +525,8 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 PRINCIPAL CONDUCTOR", minaAction: ">> 🎼 ACTION REQUIRED: SELECT A MULTIVERSE <<",
             inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
-            tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER", fateSealed: "FATE SEALED"
+            tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER", fateSealed: "FATE SEALED",
+            harmonizing: "HARMONIZING", aligned: "ALIGNED"
         }
     },
     {
@@ -590,7 +592,8 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 DIRECTOR PRINCIPAL", minaAction: ">> 🎼 ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
-            tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO", fateSealed: "DESTINO SELLADO"
+            tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO", fateSealed: "DESTINO SELLADO",
+            harmonizing: "ARMONIZANDO", aligned: "ALINEADO"
         }
     },
     {
@@ -656,7 +659,8 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 प्रधान संवाहक", minaAction: ">> 🎼 कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है。",
-            tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें", fateSealed: "भाग्य सील"
+            tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें", fateSealed: "भाग्य सील",
+            harmonizing: "सामंजस्य", aligned: "संरेखित"
         }
     },
     {
@@ -722,7 +726,8 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 CHEFDIRIGENT", minaAction: ">> 🎼 AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
-            tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN", fateSealed: "SCHICKSAL BESIEGELT"
+            tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN", fateSealed: "SCHICKSAL BESIEGELT",
+            harmonizing: "HARMONISIERUNG", aligned: "AUSGERICHTET"
         }
     },
     {
@@ -788,7 +793,8 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 首席指揮者", minaAction: ">> 🎼 アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
-            tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ", fateSealed: "運命確定"
+            tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ", fateSealed: "運命確定",
+            harmonizing: "同期中", aligned: "同期完了"
         }
     },
     {
@@ -854,7 +860,8 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 المايسترو الرئيسي", minaAction: ">> 🎼 الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
-            tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز", fateSealed: "تم ختم القدر"
+            tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز", fateSealed: "تم ختم القدر",
+            harmonizing: "تناغم", aligned: "محاذاة"
         }
     },
     {
@@ -920,7 +927,8 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 GŁÓWNY DYRYGENT", minaAction: ">> 🎼 WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
-            tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA", fateSealed: "LOS ZAPIECZĘTOWANY"
+            tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA", fateSealed: "LOS ZAPIECZĘTOWANY",
+            harmonizing: "HARMONIZACJA", aligned: "WYRÓWNANE"
         }
     }
 ];
@@ -1255,6 +1263,176 @@ const App = () => {
     const [previewId, setPreviewId] = useState(null);
     const [audioCache, setAudioCache] = useState({});
 
+    // --- NEW: Phase 1.5 Path Selection ---
+    const [showPathSelection, setShowPathSelection] = useState(false);
+    const [selectedPath, setSelectedPath] = useState(null);
+
+    // --- NEW: Phase 3 WIP State ---
+    const [isWipReached, setIsWipReached] = useState(false);
+
+    const handleWipReached = () => {
+        if (isWipReached) return;
+        setIsWipReached(true);
+
+        const duckDuration = 2000;
+        const duckTo = 0.2; // 20% of base
+
+        const hasTheme = AudioManager.currentTheme && !AudioManager.currentTheme.paused;
+        const hasMain = AudioManager.mainTheme && !AudioManager.mainTheme.paused;
+
+        if (hasTheme || hasMain) {
+            if (AudioManager.duckInterval) clearInterval(AudioManager.duckInterval);
+            if (AudioManager.restoreInterval) clearInterval(AudioManager.restoreInterval);
+
+            const duckThemeVolume = (AudioManager.baseThemeVolume || 0.15) * duckTo;
+            const duckMainVolume = (AudioManager.baseMainThemeVolume || 0.20) * duckTo;
+
+            let currentThemeVol = hasTheme ? AudioManager.currentTheme.volume : 0;
+            let currentMainVol = hasMain ? AudioManager.mainTheme.volume : 0;
+            let currentStep = 0;
+            const steps = 40;
+
+            AudioManager.duckInterval = setInterval(() => {
+                if (currentStep < steps) {
+                    if (hasTheme && AudioManager.currentTheme) {
+                        currentThemeVol -= (currentThemeVol - duckThemeVolume) / (steps - currentStep);
+                        AudioManager.currentTheme.volume = Math.max(0, Math.min(1, currentThemeVol));
+                    }
+                    if (hasMain && AudioManager.mainTheme) {
+                        currentMainVol -= (currentMainVol - duckMainVolume) / (steps - currentStep);
+                        AudioManager.mainTheme.volume = Math.max(0, Math.min(1, currentMainVol));
+                    }
+                    currentStep++;
+                } else {
+                    clearInterval(AudioManager.duckInterval);
+                }
+            }, duckDuration / steps);
+        }
+
+        // Speak WIP message
+        const ttsText = "훌륭한 선택입니다만, 아쉽게도 해당 차원의 건축이 아직 진행 중입니다. 조금만 더 기다려 주시죠.";
+        speakText(
+            ttsText,
+            selectedLang?.name || '한국어',
+            selectedLang?.voice || 'ko',
+            apiKey,
+            audioCache,
+            setAudioCache,
+            () => {
+                // Restore audio
+                const restoreDuration = 3000;
+                const steps = 60;
+                let currentStep = 0;
+
+                if (hasTheme || hasMain) {
+                    let volTheme = hasTheme ? AudioManager.currentTheme.volume : 0;
+                    let volMain = hasMain ? AudioManager.mainTheme.volume : 0;
+
+                    AudioManager.restoreInterval = setInterval(() => {
+                        if (currentStep < steps) {
+                            if (hasTheme && AudioManager.currentTheme) {
+                                volTheme += ((AudioManager.baseThemeVolume || 0.15) - volTheme) / (steps - currentStep);
+                                AudioManager.currentTheme.volume = Math.max(0, Math.min(1, volTheme));
+                            }
+                            if (hasMain && AudioManager.mainTheme) {
+                                volMain += ((AudioManager.baseMainThemeVolume || 0.20) - volMain) / (steps - currentStep);
+                                AudioManager.mainTheme.volume = Math.max(0, Math.min(1, volMain));
+                            }
+                            currentStep++;
+                        } else {
+                            clearInterval(AudioManager.restoreInterval);
+                        }
+                    }, restoreDuration / steps);
+                }
+            }
+        ).catch(err => console.error("WIP TTS Failed:", err));
+    };
+
+
+
+    // Watch for keeper_of_rules badge (AWARENESS closed)
+    useEffect(() => {
+        if (earnedBadges.some(b => b.id === 'keeper_of_rules') && !selectedPath && !showPathSelection) {
+            setShowPathSelection(true);
+
+            // [Audio Ducking]
+            const duckDuration = 2000;
+            const duckTo = 0.2; // 20% of base
+
+            const hasTheme = AudioManager.currentTheme && !AudioManager.currentTheme.paused;
+            const hasMain = AudioManager.mainTheme && !AudioManager.mainTheme.paused;
+
+            if (hasTheme || hasMain) {
+                if (AudioManager.duckInterval) clearInterval(AudioManager.duckInterval);
+                if (AudioManager.restoreInterval) clearInterval(AudioManager.restoreInterval);
+
+                const duckThemeVolume = (AudioManager.baseThemeVolume || 0.15) * duckTo;
+                const duckMainVolume = (AudioManager.baseMainThemeVolume || 0.20) * duckTo;
+
+                let currentThemeVol = hasTheme ? AudioManager.currentTheme.volume : 0;
+                let currentMainVol = hasMain ? AudioManager.mainTheme.volume : 0;
+                let currentStep = 0;
+                const steps = 40;
+
+                AudioManager.duckInterval = setInterval(() => {
+                    if (currentStep < steps) {
+                        if (hasTheme && AudioManager.currentTheme) {
+                            currentThemeVol -= (currentThemeVol - duckThemeVolume) / (steps - currentStep);
+                            AudioManager.currentTheme.volume = Math.max(0, Math.min(1, currentThemeVol));
+                        }
+                        if (hasMain && AudioManager.mainTheme) {
+                            currentMainVol -= (currentMainVol - duckMainVolume) / (steps - currentStep);
+                            AudioManager.mainTheme.volume = Math.max(0, Math.min(1, currentMainVol));
+                        }
+                        currentStep++;
+                    } else {
+                        clearInterval(AudioManager.duckInterval);
+                    }
+                }, duckDuration / steps);
+            }
+
+            // Speak warning
+            const ttsText = "AWARENESS 규칙은 확인하셨습니까. 이제 당신의 템포를 증명할 시간입니다. 다음 차원을 향한 투표를 진행하시겠습니까, 아니면 저택의 게임에 참여하시겠습니까?";
+            speakText(
+                ttsText,
+                selectedLang?.name || '한국어',
+                selectedLang?.voice || 'ko',
+                apiKey,
+                audioCache,
+                setAudioCache,
+                () => {
+                    // Restore audio after speech completes
+                    const restoreDuration = 3000;
+                    const steps = 60;
+                    let currentStep = 0;
+
+                    if (hasTheme || hasMain) {
+                        let volTheme = hasTheme ? AudioManager.currentTheme.volume : 0;
+                        let volMain = hasMain ? AudioManager.mainTheme.volume : 0;
+
+                        AudioManager.restoreInterval = setInterval(() => {
+                            if (currentStep < steps) {
+                                if (hasTheme && AudioManager.currentTheme) {
+                                    volTheme += ((AudioManager.baseThemeVolume || 0.15) - volTheme) / (steps - currentStep);
+                                    AudioManager.currentTheme.volume = Math.max(0, Math.min(1, volTheme));
+                                }
+                                if (hasMain && AudioManager.mainTheme) {
+                                    volMain += ((AudioManager.baseMainThemeVolume || 0.20) - volMain) / (steps - currentStep);
+                                    AudioManager.mainTheme.volume = Math.max(0, Math.min(1, volMain));
+                                }
+                                currentStep++;
+                            } else {
+                                clearInterval(AudioManager.restoreInterval);
+                            }
+                        }, restoreDuration / steps);
+                    }
+                }
+            ).catch(err => {
+                console.error("TTS Failed:", err);
+            });
+        }
+    }, [earnedBadges, selectedPath, showPathSelection, selectedLang, apiKey, audioCache]);
+
     const [todos, setTodos] = useState({ avatar: false, home: false, voted: false });
     const [showTodo, setShowTodo] = useState(false);
 
@@ -1550,6 +1728,9 @@ const App = () => {
                                         AudioManager={AudioManager}
                                         MinaDirective={MinaDirective}
                                         calculateArchetype={calculateArchetype}
+                                        selectedPath={selectedPath}
+                                        isWipReached={isWipReached}
+                                        onWipReached={handleWipReached}
                                     />
                                 )}
                                 {step === 'confirm' && (
@@ -1594,6 +1775,71 @@ const App = () => {
                                         THEME_CONFIG={THEME_CONFIG}
                                     />
                                 )}
+                                {/* --- NEW: Phase 1.5 Path Selection UI --- */}
+                                <AnimatePresence>
+                                    {showPathSelection && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 1.5, ease: "easeInOut" }}
+                                            className="fixed inset-0 z-[60000] bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center p-4 md:p-8"
+                                            style={{ minHeight: '100dvh' }}
+                                        >
+                                            {/* Ethereal Glow */}
+                                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(197,160,89,0.1)_0%,_transparent_60%)] pointer-events-none" />
+
+                                            <motion.div
+                                                initial={{ y: 20, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                transition={{ delay: 1.0, duration: 1.0 }}
+                                                className="flex flex-col items-center max-w-2xl w-full gap-8 z-10"
+                                            >
+                                                <div className="flex flex-col items-center gap-4 text-center">
+                                                    <span className="text-[#C5A059] font-serif italic text-lg md:text-xl tracking-wide">Select your divergence</span>
+                                                    <h2 className="text-[#FDFCF0] font-serif text-3xl md:text-4xl lg:text-5xl font-black uppercase tracking-[0.2em] drop-shadow-[0_0_20px_rgba(197,160,89,0.4)]">
+                                                        THE CROSSROADS
+                                                    </h2>
+                                                </div>
+
+                                                <div className="flex flex-col sm:flex-row gap-6 w-full mt-6 justify-center">
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05, borderColor: "rgba(197,160,89,0.8)", boxShadow: "0 0 30px rgba(197,160,89,0.2)" }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => {
+                                                            AudioManager.playSfx('click', 0.6);
+                                                            setSelectedPath('vote');
+                                                            setShowPathSelection(false);
+                                                        }}
+                                                        className="flex-1 py-10 px-6 border border-[#C5A059]/30 bg-black/40 backdrop-blur-md rounded-lg flex flex-col items-center gap-4 transition-all group"
+                                                    >
+                                                        <LucideMapPin className="text-[#C5A059] opacity-70 group-hover:opacity-100 transition-opacity" size={32} />
+                                                        <span className="text-[#FDFCF0] font-serif uppercase tracking-[0.3em] font-bold text-sm md:text-md">
+                                                            컨텐츠 투표
+                                                        </span>
+                                                    </motion.button>
+
+                                                    <motion.button
+                                                        whileHover={{ scale: 1.05, borderColor: "rgba(197,160,89,0.8)", boxShadow: "0 0 30px rgba(197,160,89,0.2)" }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                        onClick={() => {
+                                                            AudioManager.playSfx('click', 0.6);
+                                                            setSelectedPath('game');
+                                                            setShowPathSelection(false);
+                                                        }}
+                                                        className="flex-1 py-10 px-6 border border-[#C5A059]/30 bg-black/40 backdrop-blur-md rounded-lg flex flex-col items-center gap-4 transition-all group"
+                                                    >
+                                                        <LucideCompass className="text-[#C5A059] opacity-70 group-hover:opacity-100 transition-opacity" size={32} />
+                                                        <span className="text-[#FDFCF0] font-serif uppercase tracking-[0.3em] font-bold text-sm md:text-md">
+                                                            게임 시작
+                                                        </span>
+                                                    </motion.button>
+                                                </div>
+                                            </motion.div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
                                 {step === 'dashboard' && (
                                     <div className="w-full h-full flex flex-col items-center justify-center absolute inset-0 bg-black/80 backdrop-blur-md">
                                         {viewMode === 'gallery' && (

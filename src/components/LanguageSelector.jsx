@@ -154,7 +154,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
     );
 };
 
-const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking, earnedBadges, onEarnBadge, AudioManager, MinaDirective, calculateArchetype }) => {
+const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking, earnedBadges, onEarnBadge, AudioManager, MinaDirective, calculateArchetype, selectedPath, isWipReached, onWipReached }) => {
     const [focusedLang, setFocusedLang] = useState(null);
     const [stagedLang, setStagedLang] = useState(null);
     const [minaText, setMinaText] = useState("");
@@ -169,6 +169,10 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     const [showInstaGallery, setShowInstaGallery] = useState(false);
     const [instaGalleryIndex, setInstaGalleryIndex] = useState(1);
     const [forceFolded, setForceFolded] = useState(false);
+
+    // [V2] Use Refs for target bounding rects (Phase 2 Drag & Drop)
+    const gridRefs = useRef([]);
+    const [droppedTarget, setDroppedTarget] = useState(null);
 
     const introSentences = [
         "Initiating dimensional shift.",
@@ -295,6 +299,15 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
         }
     }, [holdProgress, stagedLang, isSealed, AudioManager, handleLanguageSelect]);
 
+    // --- Phase 3: WIP State Trigger ---
+    useEffect(() => {
+        if (holdProgress >= 100 && isSealed && droppedTarget && !isWipReached) {
+            cancelHold(); // Reset holdProgress immediately to prevent loops
+            if (onWipReached) onWipReached();
+            setMinaText("System Pause : 해당 차원의 건축이 아직 진행 중입니다. 다음 업데이트를 기다려 주십시오.");
+        }
+    }, [holdProgress, isSealed, droppedTarget, isWipReached, onWipReached]);
+
     const handleRulesMerge = () => {
         if (isMerging || isRulesMerged) return;
         setIsMerging(true);
@@ -353,7 +366,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     };
 
     return (
-        <div className="w-full mx-auto h-full flex flex-col items-center justify-center p-0 md:p-4 overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
+        <div className="w-full mx-auto h-full flex flex-col items-center justify-center p-0 md:p-8 overflow-hidden md:overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
             <div className="fixed inset-0 z-[-1] bg-cover bg-center opacity-40 mix-blend-screen pointer-events-none" style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(6px)" }} />
             <div className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-70' : 'opacity-0'}`} style={activeBackground ? { backgroundImage: `url(${activeBackground})` } : {}} />
             <div className={`fixed inset-0 z-[4900] bg-black/80 backdrop-blur-md transition-opacity duration-1000 pointer-events-none ${isSealed && !showGalleryTiles ? 'opacity-100' : 'opacity-0'}`} />
@@ -370,10 +383,43 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                                         <motion.div
                                             key={stagedLang.id}
                                             initial={{ scale: 0, opacity: 0, rotate: -20 }}
-                                            animate={{ scale: holdProgress > 0 ? 1 + (holdProgress / 100) * 0.5 : 1, opacity: 1, rotate: 0 }}
-                                            onPointerDown={(e) => { e.target.setPointerCapture(e.pointerId); startHold(); }}
-                                            onPointerUp={(e) => { e.target.releasePointerCapture(e.pointerId); cancelHold(); }}
+                                            animate={droppedTarget ? { scale: 0, opacity: 0 } : { scale: holdProgress > 0 ? 1 + (holdProgress / 100) * 0.5 : 1, opacity: 1, rotate: 0 }}
+                                            onPointerDown={(e) => { if (!selectedPath) e.target.setPointerCapture(e.pointerId); startHold(); }}
+                                            onPointerUp={(e) => { if (!selectedPath) e.target.releasePointerCapture(e.pointerId); cancelHold(); }}
                                             onPointerCancel={cancelHold}
+                                            drag={!!selectedPath}
+                                            dragSnapToOrigin={!droppedTarget}
+                                            dragElastic={0.6}
+                                            onDragEnd={(e, info) => {
+                                                if (!selectedPath) return;
+                                                const point = { x: info.point.x, y: info.point.y };
+                                                let isValidDrop = false;
+
+                                                const checkTarget = (index) => {
+                                                    const ref = gridRefs.current[index];
+                                                    if (!ref) return false;
+                                                    const rect = ref.getBoundingClientRect();
+                                                    return (point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom);
+                                                };
+
+                                                if (selectedPath === 'vote') {
+                                                    // 6번 (i=5), 7번 (i=6)
+                                                    if (checkTarget(5) || checkTarget(6)) isValidDrop = true;
+                                                } else if (selectedPath === 'game') {
+                                                    // 1번 (i=0), 2번 (i=1)
+                                                    if (checkTarget(0) || checkTarget(1)) isValidDrop = true;
+                                                }
+
+                                                if (isValidDrop) {
+                                                    AudioManager.playSfx('confirm', 0.8);
+                                                    setDroppedTarget(true);
+                                                    // User prompt mentions "선택된 경로에 따른 드래그 타겟 활성화" but does not define what happens *after* a valid drop!
+                                                    // Temporarily, we just unmount or play confirmed sound. The snapping is cancelled by `dragSnapToOrigin={!droppedTarget}`.
+                                                } else {
+                                                    // Snap to origin automatically handled by framer motion.
+                                                }
+                                            }}
+                                            whileDrag={!!selectedPath ? { scale: 1.1, zIndex: 9000 } : {}}
                                             className="w-full h-full z-[2000] cursor-pointer relative"
                                         >
                                             <div className="absolute -inset-4 bg-[#C5A059]/10 blur-xl pointer-events-none transition-opacity" style={{ opacity: holdProgress / 100 }} />
@@ -386,60 +432,47 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                                                 onReady={() => { }}
                                                 AudioManager={AudioManager}
                                             />
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-black/60 shadow-[inset_0_0_150px_rgba(0,0,0,1)] pointer-events-none rounded-2xl border border-white/10 backdrop-blur-2xl overflow-hidden transition-all duration-1000">
-                                                <div className="absolute inset-0 bg-gradient-to-t from-[#C5A059]/0 via-[#C5A059]/10 to-[#C5A059]/0 mix-blend-screen transition-opacity" style={{ opacity: holdProgress / 100 }} />
-                                                <div className="absolute inset-0 flex items-center justify-center opacity-70">
-                                                    <motion.div
-                                                        className="absolute border border-white/20 rotate-45"
-                                                        animate={{ width: [`${20 + holdProgress}%`, `${100 + holdProgress}%`], height: [`${20 + holdProgress}%`, `${100 + holdProgress}%`], opacity: [0.8, 0] }}
-                                                        transition={{ repeat: Infinity, duration: Math.max(0.6, 2.5 - holdProgress / 40), ease: "easeOut" }}
-                                                    />
-                                                    <motion.div className="absolute border-[0.5px] border-[#C5A059]/40 rotate-45" style={{ width: `${holdProgress * 2.5}%`, height: `${holdProgress * 2.5}%` }} />
-                                                </div>
+                                            <div className="absolute inset-0 z-[800] flex flex-col items-center justify-center w-full h-full pointer-events-none pb-8">
+                                                {/* Expanding center shape and early click handler removed per user feedback */}
+                                                <AnimatePresence>
+                                                    {isRulesMerged && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0, rotate: -90 }}
+                                                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                                            transition={{ type: "spring", stiffness: 100, damping: 12, delay: 0.8 }}
+                                                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] flex items-center justify-center w-20 h-20 bg-black/70 backdrop-blur-lg rounded-full shadow-[0_0_30px_rgba(197,160,89,1),inset_0_0_15px_rgba(197,160,89,0.5)] border border-[#C5A059]/80 pointer-events-none"
+                                                        >
+                                                            <LucideEye size={36} className="text-[#C5A059] drop-shadow-[0_0_12px_rgba(253,252,240,0.8)]" />
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
 
-                                                <div className="relative z-10 flex flex-col items-center justify-center w-full h-full mt-10">
+                                                {/* Trendy Progress Pill Box */}
+                                                {!isRulesMerged && (
                                                     <motion.div
-                                                        className="relative flex items-center justify-center"
-                                                        animate={{ scale: holdProgress >= 100 ? [1, 2.5, 1.5] : 1 + (holdProgress / 100) * 1.2, filter: `drop-shadow(0 0 ${holdProgress}px rgba(197,160,89,0.8))` }}
+                                                        initial={{ y: 10, opacity: 0, scale: 0.9 }}
+                                                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                                                        exit={{ y: 10, opacity: 0, scale: 0.9 }}
+                                                        className="absolute -bottom-8 md:-bottom-10 left-1/2 -translate-x-1/2 min-w-[130%] bg-black/50 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 flex flex-col items-center justify-center gap-2 shadow-[0_20px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(197,160,89,0.15),inset_0_1px_1px_rgba(255,255,255,0.1)] pointer-events-none z-[300]"
                                                     >
-                                                        <div
-                                                            className="absolute bg-gradient-to-tr from-[#C5A059] to-[#FDFCF0] transition-all mix-blend-screen rotate-45"
-                                                            style={{ width: `${Math.max(4, holdProgress * 0.8)}px`, height: `${Math.max(4, holdProgress * 0.8)}px`, boxShadow: `0 0 ${holdProgress * 2}px #FDFCF0`, opacity: 0.6 + (holdProgress / 200) }}
-                                                        />
-                                                        {holdProgress >= 100 ? (
-                                                            <motion.div initial={{ scale: 0.1, opacity: 0 }} animate={{ scale: [1, 5, 2], opacity: [0, 1, 0] }} transition={{ duration: 0.8, ease: "easeOut" }} className="absolute w-full h-full bg-[#FDFCF0] rounded-full blur-2xl mix-blend-screen z-0" />
-                                                        ) : null}
-                                                        {holdProgress >= 100 ? (
-                                                            <LucideCheck className="text-black relative z-10 scale-[2.0]" strokeWidth={1.5} size={32} />
-                                                        ) : (
-                                                            <div className="relative z-10 w-8 h-8 flex items-center justify-center opacity-80">
-                                                                <div className="w-[1px] h-full bg-[#C5A059]" />
-                                                                <div className="absolute w-full h-[1px] bg-[#C5A059] rotate-45" />
-                                                                <div className="absolute w-full h-[1px] bg-[#C5A059] -rotate-45" />
-                                                            </div>
-                                                        )}
-                                                    </motion.div>
-                                                    <AnimatePresence>
-                                                        {isRulesMerged && (
+                                                        <div className="flex items-center gap-3 w-full justify-center">
+                                                            <span className="text-[#FDFCF0] text-[10px] md:text-sm font-serif uppercase tracking-[0.2em] md:tracking-[0.3em] text-center leading-none" style={{ textShadow: "0 0 10px rgba(197,160,89,0.5)" }}>
+                                                                {holdProgress >= 100 ? (stagedLang?.ui?.aligned || "ALIGNED") : (stagedLang?.ui?.harmonizing || "HARMONIZING")}
+                                                            </span>
+                                                            <span className="text-[#C5A059] text-[10px] md:text-sm font-mono font-bold tracking-wider leading-none">
+                                                                {Math.round(holdProgress)}%
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="w-full h-[2px] bg-white/10 rounded-full overflow-hidden flex-shrink-0">
                                                             <motion.div
-                                                                initial={{ opacity: 0, scale: 0, rotate: -90 }}
-                                                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                                                transition={{ type: "spring", stiffness: 100, damping: 12, delay: 0.8 }}
-                                                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] flex items-center justify-center w-20 h-20 bg-black/70 backdrop-blur-lg rounded-full shadow-[0_0_30px_rgba(197,160,89,1),inset_0_0_15px_rgba(197,160,89,0.5)] border border-[#C5A059]/80"
-                                                            >
-                                                                <LucideEye size={36} className="text-[#C5A059] drop-shadow-[0_0_12px_rgba(253,252,240,0.8)]" />
-                                                            </motion.div>
-                                                        )}
-                                                    </AnimatePresence>
-                                                    <div className="mt-16 flex flex-col items-center gap-3">
-                                                        <span className="text-[#FDFCF0] text-xl md:text-3xl font-serif uppercase tracking-[0.3em] text-center leading-tight mix-blend-screen" style={{ textShadow: `0 0 ${holdProgress / 4}px #C5A059`, opacity: 0.5 + (holdProgress / 200) }}>
-                                                            {holdProgress >= 100 ? "ALIGNED" : "HARMONIZING"}
-                                                        </span>
-                                                        <span className="text-[#C5A059]/80 text-[10px] md:text-xs font-sans font-light tracking-[0.4em]">
-                                                            [ {(holdProgress / 100).toFixed(2)} ]
-                                                        </span>
-                                                    </div>
-                                                </div>
+                                                                className="h-full bg-gradient-to-r from-[#C5A059]/30 via-[#C5A059] to-[#FDFCF0] rounded-full shadow-[0_0_10px_rgba(197,160,89,1)]"
+                                                                style={{ width: `${holdProgress}%` }}
+                                                                transition={{ ease: "linear", duration: 0.1 }}
+                                                            />
+                                                        </div>
+                                                    </motion.div>
+                                                )}
                                             </div>
                                         </motion.div>
                                     ) : (
@@ -472,7 +505,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
 
                     if (isGrid9 && isFocusTarget) {
                         return (
-                            <div key={`slot-${i}`} className="relative aspect-[4/5] w-full z-[8000]">
+                            <div key={`slot-${i}`} ref={(el) => gridRefs.current[i] = el} className="relative aspect-[4/5] w-full z-[8000]">
                                 {/* Background Image for Grid 9 */}
                                 <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
                                     <img src={`/assets/manual_upload/insta/tile_9.png`} alt="Grid 9 BG" className="w-full h-full object-cover" />
@@ -509,7 +542,8 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     return (
                         <div
                             key={`slot-${i}`}
-                            className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''} ${applyDimming || (isSealed && isDimmed && !showGalleryTiles) ? 'pointer-events-none' : ''}`}
+                            ref={(el) => gridRefs.current[i] = el}
+                            className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''} ${applyDimming || (isSealed && isDimmed && !showGalleryTiles) ? 'pointer-events-none' : ''} ${(selectedPath === 'vote' && (i === 5 || i === 6)) || (selectedPath === 'game' && (i === 0 || i === 1)) ? 'ring-2 ring-[#C5A059] shadow-[0_0_30px_rgba(197,160,89,0.4)] z-[6000]' : ''}`}
                             style={{
                                 opacity: isOriginalOfStaged ? (showGalleryTiles ? 1 : 0) : (isSealed ? (isDimmed ? (showGalleryTiles ? 1 : 0.2) : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)),
                                 filter: applyDimming ? 'grayscale(100%) brightness(0.3)' : ((isSealed && isDimmed && !showGalleryTiles) ? 'grayscale(100%) brightness(0.5)' : 'none')
@@ -540,7 +574,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
             {MinaDirective && (
                 <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
                     <div className="w-full max-w-5xl px-4 md:px-8 mx-auto flex justify-center">
-                        <MinaDirective isVisible={true} activeStep="language" text={minaText} position="top" interactionMode={isIntroActive ? 'reading' : 'action'} sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"} actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"} isSpeaking={isMinaSpeaking} badges={earnedBadges} ui={focusedLang?.ui || {}} dynamicMaxHeight={expandedHeight} forceExpanded={isSealed && !forceFolded} forceFolded={forceFolded} onToggleResize={() => setForceFolded(!forceFolded)} />
+                        <MinaDirective isVisible={true} activeStep="language" text={minaText} position="top" interactionMode={isIntroActive ? 'reading' : 'action'} sysName={minaText.includes("나의 씰") ? "나의 씰 (My Seal)" : (focusedLang?.ui?.minaSystem || "SEAN'S COMMENT")} actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"} isSpeaking={isMinaSpeaking} badges={earnedBadges} ui={focusedLang?.ui || {}} dynamicMaxHeight={expandedHeight} forceExpanded={isSealed && !forceFolded} forceFolded={forceFolded} onToggleResize={() => setForceFolded(!forceFolded)} />
                     </div>
                 </div>
             )}

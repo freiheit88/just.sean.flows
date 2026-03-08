@@ -54,8 +54,8 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
 
     // Draggable container logic
     const containerClasses = position === 'fixed'
-        ? "pointer-events-auto fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-[95%] max-w-[500px]"
-        : "pointer-events-auto mx-auto relative z-[5000] mt-4 flex justify-center w-full max-w-[500px]";
+        ? "pointer-events-auto fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-[95%] max-w-[540px]"
+        : "pointer-events-auto mx-auto relative z-[5000] mt-4 flex justify-center w-full max-w-[540px]";
 
     return (
         <AnimatePresence mode="wait">
@@ -105,7 +105,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                             }}
                             title={!disableToggle ? (isFolded ? "Click to Expand" : "Click to Collapse") : ""}
                         >
-                            <span className={`flex items-center gap-2 text-[16px] md:text-[19px] font-serif tracking-[0.2em] font-bold uppercase transition-colors duration-700 drop-shadow-md`} style={{ color: themeColor }}>
+                            <span className={`flex items-center gap-2 text-[16px] md:text-[19px] font-serif tracking-[0.2em] font-bold uppercase transition-colors duration-700 drop-shadow-md whitespace-nowrap`} style={{ color: themeColor }}>
                                 {/* Dual Persona Icons: Fixed Inactive brightness/glow */}
                                 <div className="flex items-center gap-1.5 mr-1 text-[17px] md:text-[20px]">
                                     <span className={`transition-all duration-700 ${!isConductor ? 'opacity-100 scale-110 drop-shadow-[0_0_8px_rgba(197,160,89,0.9)]' : 'opacity-30 grayscale-[0.8] brightness-[0.4] drop-shadow-[0_0_5px_rgba(255,255,255,0.2)] scale-90'}`} title="SEAN'S COMMENT Mode">
@@ -116,29 +116,46 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                     </span>
                                 </div>
                                 {sysName.replace('🎻', '').replace('🎙️', '').trim()}
-                                {!disableToggle && (
-                                    <div className="ml-2 text-white/50 hover:text-white/90 transition-colors bg-white/5 p-1.5 rounded-md border border-white/10" onClick={(e) => {
-                                        if (onToggleResize) { e.stopPropagation(); onToggleResize(); }
-                                    }}>
-                                        {isFolded ? <LucideMaximize2 size={14} strokeWidth={2} /> : <LucideMinimize2 size={14} strokeWidth={2} />}
-                                    </div>
-                                )}
                             </span>
 
                             {/* Decorative Elegant Divider Line: Thicker, Sharper, Dynamic Color */}
                             <div className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 w-2/3 h-[2px] opacity-90`} style={{ background: `linear-gradient(90deg, transparent 0%, ${themeColor} 50%, transparent 100%)` }} />
 
-                            {/* Absolute Right Badges (if any, kept for info but moved controls) */}
-                            {!disableToggle && badges.length > 0 && (
-                                <div className="absolute top-1/2 -translate-y-1/2 right-4 md:right-6 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 hidden sm:flex">
-                                    <LucideAward size={14} style={{ color: themeColor }} />
-                                    <span className="text-xs font-serif text-white">{badges.length}</span>
+                            {/* Absolute Right Controls (Badges + Intuitive Toggle) */}
+                            {!disableToggle && (
+                                <div className="absolute top-1/2 -translate-y-1/2 right-3 md:right-5 flex items-center gap-1.5 md:gap-2">
+                                    {/* Badges Box */}
+                                    {badges.length > 0 && (
+                                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 border border-[#C5A059]/30 shadow-[0_0_10px_rgba(197,160,89,0.15)]">
+                                            <LucideAward size={12} style={{ color: themeColor }} />
+                                            <span className="text-[10px] md:text-xs font-serif text-[#FDFCF0]">{badges.length}</span>
+                                        </div>
+                                    )}
+
+                                    {/* Explicit Expand/Collapse Pill */}
+                                    <div
+                                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all cursor-pointer shadow-inner"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setIsFolded(!isFolded);
+                                            if (onToggleResize) onToggleResize();
+                                        }}
+                                    >
+                                        <span className={`text-[9px] md:text-[10px] font-sans font-bold tracking-widest uppercase transition-colors ${isFolded ? 'text-white/80' : 'text-white/50'}`}>
+                                            {isFolded ? 'Expand' : 'Close'}
+                                        </span>
+                                        {isFolded ? (
+                                            <LucideChevronDown size={14} className="text-[#C5A059]" strokeWidth={2.5} />
+                                        ) : (
+                                            <LucideChevronUp size={14} className="text-white/50" strokeWidth={2.5} />
+                                        )}
+                                    </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Message: Typewriter Effect (50% visual weight) */}
-                        <div className="flex-1 flex items-center justify-center w-full px-8 py-4">
+                        <div className="flex-1 flex items-center justify-start w-full px-8 py-4">
                             <motion.div
                                 animate={!isConductor ? {
                                     y: [0, -2, 0],
@@ -148,7 +165,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                     textShadow: "0px 2px 10px rgba(255,255,255,0.3)"
                                 }}
                                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                                className="text-[15px] sm:text-base md:text-lg font-serif text-white/95 tracking-wide leading-relaxed break-keep whitespace-pre-wrap text-center cursor-default"
+                                className="text-[15px] sm:text-base md:text-lg font-serif text-white/95 tracking-wide leading-relaxed break-keep whitespace-pre-wrap text-left w-full cursor-default"
                             >
                                 <TypewriterText text={text} speed={30} />
                             </motion.div>
@@ -191,7 +208,12 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                 </div>
 
                                 {/* Inner Content Body */}
-                                <div className="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar px-6 md:px-8 pt-4 md:pt-4 pb-8 h-full min-h-[150px]" style={{ touchAction: 'pan-y' }}>
+                                <div
+                                    className="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar px-6 md:px-8 pt-4 md:pt-4 pb-8 h-full min-h-[150px]"
+                                    style={{ touchAction: 'pan-y', overscrollBehavior: 'contain' }}
+                                    onWheel={(e) => e.stopPropagation()}
+                                    onTouchMove={(e) => e.stopPropagation()}
+                                >
                                     <AnimatePresence mode="wait">
                                         {activeTab === 'directive' ? (
                                             <motion.div
@@ -202,10 +224,49 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                 className="flex flex-col h-full items-start gap-5"
                                             >
 
-                                                <div className="flex flex-col gap-3 w-full">
+                                                {/* Phase 2: Make yourself (Appears at TOP after Phase 1 is Sealed) */}
+                                                {(forceExpanded || text === "앵커 확정 성공!") && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: 0.2, duration: 0.8 }}
+                                                        className="flex flex-col gap-3 w-full mb-4"
+                                                    >
+                                                        {/* Section 2 Header */}
+                                                        <div className="px-3 pb-1 border-b border-[#C5A059]/30 mb-1">
+                                                            <span className="text-xs font-serif tracking-widest uppercase" style={{ color: themeColor }}>
+                                                                {ui.guideHeader2 || "2. Make yourself"}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Active Task (Phase 2) */}
+                                                        <motion.div
+                                                            animate={{
+                                                                borderColor: [`rgba(${themeColorRgb}, 0.2)`, `rgba(${themeColorRgb}, 0.8)`, `rgba(${themeColorRgb}, 0.2)`],
+                                                                boxShadow: ['0 0 10px rgba(0,0,0,0)', `0 0 20px rgba(${themeColorRgb}, 0.2)`, '0 0 10px rgba(0,0,0,0)']
+                                                            }}
+                                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                                            className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 border-dashed bg-black/40`}
+                                                        >
+                                                            <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
+                                                            <div className="flex flex-col gap-1 w-full relative">
+                                                                <div className="flex justify-between items-center w-full">
+                                                                    <span className="text-sm font-serif tracking-wide font-bold" style={{ color: themeColor }}>
+                                                                        {ui.guideStep4 || "2-1. Verify your existence."}
+                                                                    </span>
+                                                                </div>
+                                                                <span className={`text-sm font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
+                                                                    {ui.guideStep4Desc || "Please explore the gallery."}
+                                                                </span>
+                                                            </div>
+                                                        </motion.div>
+                                                    </motion.div>
+                                                )}
+
+                                                <div className={`flex flex-col gap-3 w-full transition-opacity duration-1000 ${(forceExpanded || text === "앵커 확정 성공!") ? 'opacity-50' : 'opacity-100'}`}>
                                                     {/* Section Header */}
                                                     <div className="px-3 pb-1 border-b border-white/10 mb-1">
-                                                        <span className="text-xs font-serif tracking-widest uppercase" style={{ color: themeColor }}>
+                                                        <span className="text-xs font-serif tracking-widest uppercase text-white/60">
                                                             {ui.guideHeader || "1. Language & Flow"}
                                                         </span>
                                                     </div>
@@ -279,42 +340,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                         </div>
                                                     </motion.div>
 
-                                                    {/* Phase 2: Make yourself (Appears after Phase 1 is Sealed) */}
-                                                    {(forceExpanded || text === "앵커 확정 성공!") && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: 20 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            transition={{ delay: 0.5, duration: 0.8 }}
-                                                            className="flex flex-col gap-3 w-full mt-6"
-                                                        >
-                                                            {/* Section 2 Header */}
-                                                            <div className="px-3 pb-1 border-b border-white/10 mb-1">
-                                                                <span className="text-xs font-serif tracking-widest uppercase" style={{ color: themeColor }}>
-                                                                    {ui.guideHeader2 || "2. Make yourself"}
-                                                                </span>
-                                                            </div>
-
-                                                            {/* Active Task (Phase 2) */}
-                                                            <motion.div
-                                                                animate={{
-                                                                    borderColor: [`rgba(${themeColorRgb}, 0.2)`, `rgba(${themeColorRgb}, 0.8)`, `rgba(${themeColorRgb}, 0.2)`],
-                                                                    boxShadow: ['0 0 10px rgba(0,0,0,0)', `0 0 20px rgba(${themeColorRgb}, 0.2)`, '0 0 10px rgba(0,0,0,0)']
-                                                                }}
-                                                                transition={{ duration: 1.5, repeat: Infinity }}
-                                                                className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 border-dashed bg-black/40`}
-                                                            >
-                                                                <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
-                                                                <div className="flex flex-col gap-1 w-full">
-                                                                    <span className="text-sm font-serif tracking-wide font-bold" style={{ color: themeColor }}>
-                                                                        {ui.guideStep4 || "2-1. Verify your existence."}
-                                                                    </span>
-                                                                    <span className={`text-sm font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
-                                                                        {ui.guideStep4Desc || "Please explore the gallery."}
-                                                                    </span>
-                                                                </div>
-                                                            </motion.div>
-                                                        </motion.div>
-                                                    )}
+                                                    <div className="w-full h-8 shrink-0 pointer-events-none" />
                                                 </div>
                                             </motion.div>
                                         ) : (
