@@ -1270,46 +1270,8 @@ const App = () => {
     const [isSpiritSensing, setIsSpiritSensing] = useState(false);
     const [whisper, setWhisper] = useState("");
 
-    // [V9 UPDATE: Layered Audio & BGM]
-    const bgmRef = useRef(null);
-    const [bgmVol, setBgmVol] = useState(0.2);
-
-    useEffect(() => {
-        // [V8 UPDATE: Ambient whispers cycle]
-        const whisperInterval = setInterval(async () => {
-            if (apiKey && step !== 'language') {
-                try {
-                    const res = await callGemini({
-                        contents: [{ parts: [{ text: "Generate 1 cryptic steampunk word or very short phrase (max 2 words) about souls, gears, or time. Uppercase only." }] }]
-                    }, apiKey);
-                    setWhisper(res?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "");
-                } catch (e) { /* silent */ }
-            }
-        }, 15000);
-        return () => clearInterval(whisperInterval);
-    }, [step]);
-
-    useEffect(() => {
-        // Initialize BGM
-        bgmRef.current = new Audio('/assets/sounds/manor-ambience.mp3'); // Use local ambience
-        bgmRef.current.loop = true;
-        bgmRef.current.volume = bgmVol;
-
-        // Background TTS preloading to minimize network latency when user gets to Coming Soon
-        AudioManager.preloadTTS();
-
-        return () => bgmRef.current.pause();
-    }, []);
-
-    useEffect(() => {
-        if (bgmRef.current) bgmRef.current.volume = bgmVol;
-    }, [bgmVol]);
-
-    // Accumulate sound layers as user progresses
-    useEffect(() => {
-        if (step === 'dashboard') setBgmVol(0.4);
-        if (todos.voted) setBgmVol(0.6);
-    }, [step, todos]);
+    // Legacy bgmRef and bgmVol (manor-ambience) removed to allow the newly selected 
+    // multiversal language theme song to correctly persist continuously through Phase 2 & Dashboard.
 
     const playSfx = (type) => {
         const currentTheme = THEME_CONFIG[selectedLang?.id] || THEME_CONFIG.en;
