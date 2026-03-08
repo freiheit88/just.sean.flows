@@ -165,6 +165,9 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     const [isMerging, setIsMerging] = useState(false);
     const [focusPhase, setFocusPhase] = useState(false);
     const [showGalleryTiles, setShowGalleryTiles] = useState(false);
+    const [isGrid9Shattered, setIsGrid9Shattered] = useState(false);
+    const [showInstaGallery, setShowInstaGallery] = useState(false);
+    const [instaGalleryIndex, setInstaGalleryIndex] = useState(1);
     const [forceFolded, setForceFolded] = useState(false);
 
     const introSentences = [
@@ -283,7 +286,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                 setForceFolded(true); // SEAN'S COMMENT 원래 크기로 축소 (최소화)
 
                 setFocusPhase(true);
-                setMinaText("[🎙️ SEAN'S COMMENT]\n다중우주의 규칙(Awareness)을 먼저 몸에 새기십시오.");
+                setMinaText("[🎙️ SEAN'S COMMENT]\nPlease engrave the rules of the Multiverse (Awareness) into your body first.");
                 AudioManager?.playSfx('piano-mystic-low', 0.8);
                 AudioManager?.playSfx('shutter', 0.6);
             }, 10000);
@@ -470,15 +473,28 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     if (isGrid9 && isFocusTarget) {
                         return (
                             <div key={`slot-${i}`} className="relative aspect-[4/5] w-full z-[8000]">
+                                {/* Background Image for Grid 9 */}
+                                <div className="absolute inset-0 rounded-lg overflow-hidden pointer-events-none">
+                                    <img src={`/assets/manual_upload/insta/tile_9.png`} alt="Grid 9 BG" className="w-full h-full object-cover" />
+                                </div>
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={isMerging
-                                        ? { x: "-105%", y: "-105%", scale: 0.3, opacity: 0, rotate: -45 }
-                                        : { opacity: 1, scale: 1, filter: 'drop-shadow(0 0 15px rgba(197,160,89,0.8))' }
+                                    animate={isGrid9Shattered
+                                        ? { opacity: 0, scale: 1.1, filter: 'blur(10px)' }
+                                        : { opacity: 1, scale: 1, boxShadow: '0 0 20px 2px rgba(197,160,89,0.5)' }
                                     }
-                                    transition={{ duration: isMerging ? 1.0 : 0.8, ease: "easeInOut" }}
-                                    onClick={handleRulesMerge}
-                                    className="w-full h-full relative flex flex-col items-center justify-center text-center p-2 border border-[#C5A059] bg-[#C5A059]/10 cursor-pointer hover:bg-[#C5A059]/30 transition-colors backdrop-blur-sm"
+                                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                                    onClick={() => {
+                                        if (isGrid9Shattered) return;
+                                        setIsGrid9Shattered(true);
+                                        AudioManager?.playSfx('transition', 0.7);
+                                        setTimeout(() => {
+                                            setShowInstaGallery(true);
+                                            // Pre-load audio for the actual merge later
+                                            // handleRulesMerge();
+                                        }, 800);
+                                    }}
+                                    className="w-full h-full relative flex flex-col items-center justify-center text-center p-2 border-2 border-[#C5A059] bg-[#1A1612]/70 cursor-pointer hover:bg-[#1A1612]/40 transition-colors backdrop-blur-md rounded-lg"
                                 >
                                     <motion.div animate={{ rotate: 360 }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}>
                                         <LucideEye size={36} className="mb-2 text-[#C5A059] drop-shadow-[0_0_8px_rgba(197,160,89,1)]" />
@@ -505,7 +521,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
 
                             {/* New Gallery Tiles after 10s */}
                             {showGalleryTiles && (
-                                <div className={`absolute inset-0 transition-opacity duration-[2000ms] opacity-100 pointer-events-none rounded-lg overflow-hidden`}>
+                                <div className={`absolute inset-0 transition-opacity duration-[2000ms] opacity-100 pointer-events-none rounded-lg overflow-hidden ${isOriginalOfStaged ? 'ring-2 ring-[#00E5FF] shadow-[0_0_20px_rgba(0,229,255,0.6)]' : ''}`}>
                                     <img src={`/assets/manual_upload/insta/tile_${i + 1}.png`} alt={`Tile ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                                 </div>
                             )}
@@ -521,6 +537,72 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     </div>
                 </div>
             )}
+
+            {/* INSTA IMAGES FULLSCREEN MODAL */}
+            <AnimatePresence>
+                {showInstaGallery && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                        className="fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center overflow-hidden"
+                    >
+                        {/* Close/Proceed Button */}
+                        <button
+                            onClick={() => {
+                                setShowInstaGallery(false);
+                                handleRulesMerge();
+                            }}
+                            className="absolute top-6 right-6 z-50 p-2 bg-black/50 hover:bg-black/80 rounded-full backdrop-blur-md border border-white/20 text-white/70 hover:text-white transition-all shadow-xl"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+
+                        {/* Image Viewer Action Area */}
+                        <div
+                            className="w-full h-full relative flex items-center justify-center cursor-pointer select-none"
+                            onClick={() => {
+                                AudioManager?.playSfx('click', 0.5);
+                                if (instaGalleryIndex < 3) {
+                                    setInstaGalleryIndex(prev => prev + 1);
+                                } else {
+                                    setShowInstaGallery(false);
+                                    handleRulesMerge();
+                                }
+                            }}
+                        >
+                            <AnimatePresence mode="wait">
+                                <motion.img
+                                    key={`insta-img-${instaGalleryIndex}`}
+                                    initial={{ opacity: 0, x: 50 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -50 }}
+                                    transition={{ duration: 0.4 }}
+                                    src={`/assets/manual_upload/insta/tile_9_add/${instaGalleryIndex}.png`}
+                                    alt={`Awareness Slide ${instaGalleryIndex}`}
+                                    className="w-full h-auto max-h-screen object-contain drop-shadow-[0_0_50px_rgba(197,160,89,0.15)]"
+                                />
+                            </AnimatePresence>
+
+                            {/* Pagination Dots */}
+                            <div className="absolute bottom-8 flex gap-3 z-10">
+                                {[1, 2, 3].map(num => (
+                                    <div
+                                        key={num}
+                                        className={`w-2 h-2 rounded-full transition-all duration-300 ${instaGalleryIndex === num ? 'bg-[#C5A059] scale-125' : 'bg-white/20'}`}
+                                    />
+                                ))}
+                            </div>
+
+                            {/* Visual Hint */}
+                            <div className="absolute top-8 text-white/50 text-[10px] uppercase tracking-[0.3em] font-black animate-pulse bg-black/40 px-4 py-1 rounded-full backdrop-blur-md border border-white/10">
+                                TAP TO ADVANCE
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
