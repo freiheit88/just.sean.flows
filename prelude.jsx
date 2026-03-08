@@ -232,7 +232,6 @@ const AudioManager = {
     restoreInterval: null,
     baseThemeVolume: 0.15,
     baseMainThemeVolume: 0.20,
-    currentMina: null,
     currentSignature: null,
     playMina: (langId, step, volume = 1.0) => {
         const audioKey = `${langId}-${step}`;
@@ -458,7 +457,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 수석 지휘자", minaAction: ">> 🎼 첫 막: 언어를 선택하세요 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
-            tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그", fateSealed: "운명 확정",
+            tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그",
             harmonizing: "운명 조율 중", aligned: "운명 정렬됨"
         }
     },
@@ -525,7 +524,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 PRINCIPAL CONDUCTOR", minaAction: ">> 🎼 ACTION REQUIRED: SELECT A MULTIVERSE <<",
             inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
-            tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER", fateSealed: "FATE SEALED",
+            tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER",
             harmonizing: "HARMONIZING", aligned: "ALIGNED"
         }
     },
@@ -592,7 +591,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 DIRECTOR PRINCIPAL", minaAction: ">> 🎼 ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
-            tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO", fateSealed: "DESTINO SELLADO",
+            tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO",
             harmonizing: "ARMONIZANDO", aligned: "ALINEADO"
         }
     },
@@ -659,7 +658,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 प्रधान संवाहक", minaAction: ">> 🎼 कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है。",
-            tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें", fateSealed: "भाग्य सील",
+            tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें",
             harmonizing: "सामंजस्य", aligned: "संरेखित"
         }
     },
@@ -726,7 +725,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 CHEFDIRIGENT", minaAction: ">> 🎼 AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
-            tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN", fateSealed: "SCHICKSAL BESIEGELT",
+            tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN",
             harmonizing: "HARMONISIERUNG", aligned: "AUSGERICHTET"
         }
     },
@@ -793,7 +792,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 首席指揮者", minaAction: ">> 🎼 アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
-            tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ", fateSealed: "運命確定",
+            tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ",
             harmonizing: "同期中", aligned: "同期完了"
         }
     },
@@ -860,7 +859,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 المايسترو الرئيسي", minaAction: ">> 🎼 الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
-            tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز", fateSealed: "تم ختم القدر",
+            tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز",
             harmonizing: "تناغم", aligned: "محاذاة"
         }
     },
@@ -927,7 +926,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 GŁÓWNY DYRYGENT", minaAction: ">> 🎼 WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
-            tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA", fateSealed: "LOS ZAPIECZĘTOWANY",
+            tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA",
             harmonizing: "HARMONIZACJA", aligned: "WYRÓWNANE"
         }
     }
