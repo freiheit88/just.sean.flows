@@ -139,15 +139,19 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     transition={{ duration: 3, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
                                     className="font-serif uppercase font-light text-center select-none"
                                     style={{
-                                        fontSize: "clamp(12px, 5vw, 40px)", // further reduced to ensure fit
-                                        letterSpacing: "0.1em", // Reduced spacing dramatically for safety on ultra narrow PC
+                                        fontSize: "clamp(12px, 6vw, 44px)", // Restored proper fluid scaling
+                                        letterSpacing: "0.15em",
                                         color: "#FDFCF0",
                                         textShadow: "0 0 40px rgba(197, 160, 89, 0.3)",
                                         lineHeight: 1,
                                         whiteSpace: "nowrap"
                                     }}
                                 >
-                                    <span className="text-[#C5A059]">J</span>UST<span className="mx-2 md:mx-3 text-white/20">.</span>SEAN<span className="mx-2 md:mx-3 text-white/20">.</span>FLOWS
+                                    <span className="text-[#C5A059]">J</span>UST
+                                    <span className="mx-[0.2em] md:mx-[0.3em] text-white/20">.</span>
+                                    SEAN
+                                    <span className="mx-[0.2em] md:mx-[0.3em] text-white/20">.</span>
+                                    FLOWS
                                 </motion.h1>
 
                                 <motion.div
@@ -211,13 +215,17 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         >
                             <h1 className="font-serif uppercase font-light text-center mix-blend-screen w-full px-4"
                                 style={{
-                                    fontSize: "clamp(16px, 6vw, 55px)",
-                                    letterSpacing: "0.12em",
+                                    fontSize: "clamp(16px, 7vw, 60px)", // Restored epic scale
+                                    letterSpacing: "0.2em",
                                     color: "#FDFCF0",
                                     textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)",
                                     whiteSpace: "nowrap"
                                 }}>
-                                <span className="text-[#C5A059]">J</span>UST<span className="mx-2 md:mx-4 text-[#C5A059]/30">.</span>SEAN<span className="mx-2 md:mx-4 text-[#C5A059]/30">.</span>FLOWS
+                                <span className="text-[#C5A059]">J</span>UST
+                                <span className="mx-[0.2em] md:mx-[0.3em] text-[#C5A059]/30">.</span>
+                                SEAN
+                                <span className="mx-[0.2em] md:mx-[0.3em] text-[#C5A059]/30">.</span>
+                                FLOWS
                             </h1>
 
                             {/* Epic Expanding Energy Line */}
