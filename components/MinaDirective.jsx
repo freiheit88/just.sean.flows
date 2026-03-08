@@ -25,9 +25,9 @@ const TypewriterText = ({ text, speed = 30 }) => {
     return <span>{displayedText}</span>;
 };
 
-const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh', forceExpanded = false }) => {
+const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh', forceExpanded = false, forceFolded = false }) => {
     const [isFoldedState, setIsFoldedState] = useState(true);
-    const isFolded = forceExpanded ? false : isFoldedState;
+    const isFolded = forceFolded ? true : (forceExpanded ? false : isFoldedState);
     const setIsFolded = setIsFoldedState;
 
     const [activeTab, setActiveTab] = useState('directive'); // 'directive' | 'badges'
@@ -248,13 +248,17 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                         transition={{ duration: 1.5, repeat: Infinity }}
                                                         className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 border-dashed bg-black/40`}
                                                     >
-                                                        <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
+                                                        {forceExpanded || text === "앵커 확정 성공!" ? (
+                                                            <CheckCircle2 className={`w-4 h-4 mt-0.5 shrink-0`} style={{ color: themeColor }} strokeWidth={1.5} />
+                                                        ) : (
+                                                            <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
+                                                        )}
                                                         <div className="flex flex-col gap-1 w-full">
                                                             <span className="text-sm font-serif tracking-wide font-bold" style={{ color: themeColor }}>
-                                                                {ui.guideStep3 || "1-3. Select your frequency."}
+                                                                {forceExpanded || text === "앵커 확정 성공!" ? "1-3. 주파수를 선택하세요. (완료)" : (ui.guideStep3 || "1-3. Select your frequency.")}
                                                             </span>
                                                             <span className={`text-sm font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
-                                                                {text}
+                                                                {forceExpanded || text === "앵커 확정 성공!" ? "앵커 확정 성공!" : text}
                                                             </span>
                                                         </div>
                                                     </motion.div>

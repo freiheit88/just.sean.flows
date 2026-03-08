@@ -164,6 +164,8 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     const [isRulesMerged, setIsRulesMerged] = useState(false);
     const [isMerging, setIsMerging] = useState(false);
     const [focusPhase, setFocusPhase] = useState(false);
+    const [showGalleryTiles, setShowGalleryTiles] = useState(false);
+    const [forceFolded, setForceFolded] = useState(false);
 
     const introSentences = [
         "Initiating dimensional shift.",
@@ -268,18 +270,26 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     useEffect(() => {
         if (holdProgress >= 100 && stagedLang && !isSealed) {
             setIsSealed(true);
-            setMinaText("[🎙️ SEAN'S COMMENT] You just chose that language vibe! 근데 일단은 영어로 좀 진행할게 ㅠㅠ 나 혼자 지휘하느라 힘들어!");
+            setMinaText("앵커 확정 성공!");
 
             // Trigger global language select (which now only updates audio out of the box, no redirect)
             if (handleLanguageSelect) {
                 handleLanguageSelect(stagedLang);
             }
 
+            /* [USER REQUEST]: Disable Phase 3 (Awareness) transition temporarily
             setTimeout(() => {
                 setFocusPhase(true);
                 setMinaText("[🎙️ SEAN'S COMMENT] 다중우주의 규칙(Awareness)을 먼저 몸에 새기십시오.");
                 AudioManager?.playSfx('piano-mystic-low', 0.8);
             }, 3000);
+            */
+
+            setTimeout(() => {
+                setShowGalleryTiles(true);
+                setForceFolded(true); // Minimize Mina window to show grids cleanly
+                AudioManager?.playSfx('shutter', 0.6); // Transition sound
+            }, 10000); // 10 seconds
 
             cancelHold();
         }
@@ -306,6 +316,8 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     const cancelHold = () => {
         if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
         setHoldProgress(prev => {
+            if (isSealed) return 0; // IF ALREADY SEALED, DO NOT OVERRIDE TEXT
+
             if (prev > 0 && prev < 100 && stagedLang) {
                 setMinaText(stagedLang.id === 'ko' ? "▶️ 계속 5초간 길게 누르세요." : (stagedLang.ui?.holdMore || "▶️ Keep holding for 5 seconds."));
             } else if (prev === 0 && stagedLang) {
@@ -321,7 +333,10 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
         AudioManager?.playSfx('piano-mystic-high', 1.0, true);
         AudioManager?.playSfx('transition', 0.7, true);
 
-        setMinaText(lang.ui.directiveConfirm);
+        // Keep '앵커 확정 성공!' and prevent override
+        if (!isSealed) {
+            setMinaText(lang.ui.directiveConfirm);
+        }
         AudioManager?.playMina(lang.id, 'confirm');
     };
 
@@ -334,7 +349,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
         <div className="w-full mx-auto h-full flex flex-col items-center justify-center p-0 md:p-4 overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
             <div className="fixed inset-0 z-[-1] bg-cover bg-center opacity-40 mix-blend-screen pointer-events-none" style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(6px)" }} />
             <div className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-70' : 'opacity-0'}`} style={activeBackground ? { backgroundImage: `url(${activeBackground})` } : {}} />
-            <div className={`fixed inset-0 z-[4900] bg-black/80 backdrop-blur-md transition-opacity duration-1000 pointer-events-none ${isSealed ? 'opacity-100' : 'opacity-0'}`} />
+            <div className={`fixed inset-0 z-[4900] bg-black/80 backdrop-blur-md transition-opacity duration-1000 pointer-events-none ${isSealed && !showGalleryTiles ? 'opacity-100' : 'opacity-0'}`} />
 
             <div id="language-grid" className={`w-full grid grid-cols-3 grid-rows-3 gap-1 md:gap-4 bg-black/40 backdrop-blur-3xl p-1 md:p-6 border border-white/5 rounded-lg md:rounded-3xl shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative z-10 transition-all duration-1000 ${isIntroActive ? 'opacity-40 blur-sm scale-95 pointer-events-none' : 'opacity-100 blur-0 scale-100'}`}>
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_70%)] animate-pulse pointer-events-none" />
@@ -441,9 +456,10 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
 
                     const isGrid9 = pos === 7;
                     const isFocusedGrid = isGrid9;
-                    const isDimmed = focusPhase && !isFocusedGrid;
-                    const isHidden = isRulesMerged && isGrid9;
+                    const isDimmed = isSealed;
+                    const isHidden = false;
 
+                    /* [USER REQUEST]: Disable Phase 3 Awareness Card Rendering
                     if (isGrid9 && isSealed) {
                         return (
                             <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-opacity duration-300`}>
@@ -469,17 +485,27 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                             </div>
                         );
                     }
+                    */
 
                     return (
-                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''}`} style={{ opacity: isOriginalOfStaged ? 0 : (isSealed ? (isDimmed ? 0.2 : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)), filter: (isSealed && isDimmed) ? 'grayscale(100%) brightness(0.5)' : 'none' }}>
-                            <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed ? 'opacity-0' : 'opacity-100'}`}>
+                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''}`} style={{ opacity: isOriginalOfStaged ? 0 : (isSealed ? (isDimmed ? (showGalleryTiles ? 1 : 0.2) : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)), filter: (isSealed && isDimmed && !showGalleryTiles) ? 'grayscale(100%) brightness(0.5)' : 'none' }}>
+                            <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed && !showGalleryTiles ? 'opacity-0' : (showGalleryTiles && !isOriginalOfStaged ? 'opacity-0' : 'opacity-100')}`}>
                                 {!isOriginalOfStaged && (
                                     <LanguageCard lang={lang} idx={pos} isFocused={isFocused} isStaged={false} isDimmable={isDimmable || stagedLang} onFocus={onCardFocus} onReady={onCardReady} onSelect={onCardSelect} AudioManager={AudioManager} />
                                 )}
                             </div>
-                            <div className={`absolute inset-0 transition-opacity duration-[2000ms] ${isSealed && !isHidden ? 'opacity-100' : 'opacity-0'} pointer-events-none rounded-lg overflow-hidden`}>
+
+                            {/* Original Insta Images during hold */}
+                            <div className={`absolute inset-0 transition-opacity duration-[2000ms] ${isSealed && !isHidden && !showGalleryTiles ? 'opacity-100' : 'opacity-0'} pointer-events-none rounded-lg overflow-hidden`}>
                                 <img src={`/assets/manual_upload/insta/img${instaImgIndex}.png`} alt={`Instagram ${instaImgIndex}`} className="w-full h-full object-cover" />
                             </div>
+
+                            {/* New Gallery Tiles after 10s */}
+                            {showGalleryTiles && (
+                                <div className={`absolute inset-0 transition-opacity duration-[2000ms] opacity-100 pointer-events-none rounded-lg overflow-hidden`}>
+                                    <img src={`/assets/GRAND OPENING COMING SOON_tiles/tile_${i + 1}.png`} alt={`Tile ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                                </div>
+                            )}
                         </div>
                     );
                 })}
@@ -488,7 +514,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
             {MinaDirective && (
                 <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
                     <div className="w-full max-w-5xl px-4 md:px-8 mx-auto flex justify-center">
-                        <MinaDirective isVisible={true} activeStep="language" text={minaText} position="top" interactionMode={isIntroActive ? 'reading' : 'action'} sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"} actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"} isSpeaking={isMinaSpeaking} badges={earnedBadges} ui={focusedLang?.ui || {}} dynamicMaxHeight={expandedHeight} forceExpanded={isSealed} />
+                        <MinaDirective isVisible={true} activeStep="language" text={minaText} position="top" interactionMode={isIntroActive ? 'reading' : 'action'} sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"} actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"} isSpeaking={isMinaSpeaking} badges={earnedBadges} ui={focusedLang?.ui || {}} dynamicMaxHeight={expandedHeight} forceExpanded={isSealed && !forceFolded} forceFolded={forceFolded} />
                     </div>
                 </div>
             )}
