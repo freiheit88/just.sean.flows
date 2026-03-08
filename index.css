@@ -79,6 +79,25 @@
         scrollbar-width: none;
     }
 
+    /* V9: Custom scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(197, 160, 89, 0.4);
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(197, 160, 89, 0.8);
+    }
+
     /* V9: IT-Tech Scanline Effect */
     .scanline {
         position: relative;

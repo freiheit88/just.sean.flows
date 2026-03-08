@@ -191,7 +191,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                 </div>
 
                                 {/* Inner Content Body */}
-                                <div className="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar px-6 md:px-8 pt-4 md:pt-4 pb-8 h-full min-h-[150px]">
+                                <div className="flex-1 overflow-y-auto overflow-x-hidden relative custom-scrollbar px-6 md:px-8 pt-4 md:pt-4 pb-8 h-full min-h-[150px]" style={{ touchAction: 'pan-y' }}>
                                     <AnimatePresence mode="wait">
                                         {activeTab === 'directive' ? (
                                             <motion.div
