@@ -139,8 +139,8 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     transition={{ duration: 3, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
                                     className="font-serif uppercase font-light text-center select-none"
                                     style={{
-                                        fontSize: "clamp(20px, 8vw, 48px)", // Adjusted max and scaling factor for wide screens
-                                        letterSpacing: "0.2em", // slightly adjusted to fit tight PC bounds
+                                        fontSize: "clamp(12px, 5.5vw, 44px)", // 5.5vw ensures 15 characters + spacing fit nicely in 100vw
+                                        letterSpacing: "0.15em", // Slightly tighter spacing to prevent rigid overflow
                                         color: "#FDFCF0",
                                         textShadow: "0 0 40px rgba(197, 160, 89, 0.3)",
                                         lineHeight: 1,
@@ -211,8 +211,8 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         >
                             <h1 className="font-serif uppercase font-light text-center mix-blend-screen w-full px-4"
                                 style={{
-                                    fontSize: "clamp(28px, 9vw, 68px)", // Reduced max to prevent overflow
-                                    letterSpacing: "0.25em",
+                                    fontSize: "clamp(16px, 6.5vw, 60px)", // 6.5vw allows the epic scale to stay within borders
+                                    letterSpacing: "0.2em",
                                     color: "#FDFCF0",
                                     textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)",
                                     whiteSpace: "nowrap"
