@@ -503,7 +503,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                             {/* New Gallery Tiles after 10s */}
                             {showGalleryTiles && (
                                 <div className={`absolute inset-0 transition-opacity duration-[2000ms] opacity-100 pointer-events-none rounded-lg overflow-hidden`}>
-                                    <img src={`/assets/GRAND OPENING COMING SOON_tiles/tile_${i + 1}.png`} alt={`Tile ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+                                    <img src={`/assets/manual_upload/insta/tile_${i + 1}.png`} alt={`Tile ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
                                 </div>
                             )}
                         </div>
@@ -514,7 +514,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
             {MinaDirective && (
                 <div className={`fixed top-4 md:top-8 inset-x-0 pointer-events-none z-[5000] flex justify-center`}>
                     <div className="w-full max-w-5xl px-4 md:px-8 mx-auto flex justify-center">
-                        <MinaDirective isVisible={true} activeStep="language" text={minaText} position="top" interactionMode={isIntroActive ? 'reading' : 'action'} sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"} actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"} isSpeaking={isMinaSpeaking} badges={earnedBadges} ui={focusedLang?.ui || {}} dynamicMaxHeight={expandedHeight} forceExpanded={isSealed && !forceFolded} forceFolded={forceFolded} />
+                        <MinaDirective isVisible={true} activeStep="language" text={minaText} position="top" interactionMode={isIntroActive ? 'reading' : 'action'} sysName={focusedLang?.ui?.minaSystem || "SEAN'S COMMENT"} actionReq={focusedLang?.ui?.minaAction || ">> ACTION REQUIRED: SELECT A MULTIVERSE <<"} isSpeaking={isMinaSpeaking} badges={earnedBadges} ui={focusedLang?.ui || {}} dynamicMaxHeight={expandedHeight} forceExpanded={isSealed && !forceFolded} forceFolded={forceFolded} onToggleResize={() => setForceFolded(!forceFolded)} />
                     </div>
                 </div>
             )}

@@ -25,7 +25,7 @@ const TypewriterText = ({ text, speed = 30 }) => {
     return <span>{displayedText}</span>;
 };
 
-const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh', forceExpanded = false, forceFolded = false }) => {
+const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh', forceExpanded = false, forceFolded = false, onToggleResize }) => {
     const [isFoldedState, setIsFoldedState] = useState(true);
     const isFolded = forceFolded ? true : (forceExpanded ? false : isFoldedState);
     const setIsFolded = setIsFoldedState;
@@ -97,7 +97,12 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                         {/* Title Bar: Guide Concept (50% visual weight) - CLICKABLE TOGGLE */}
                         <div
                             className={`flex-1 w-full bg-black/40 border-b border-white/10 flex items-center justify-center relative shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-sm z-10 px-6 py-4 ${disableToggle ? '' : 'cursor-pointer hover:bg-black/50 transition-colors'}`}
-                            onClick={() => !disableToggle && setIsFolded(!isFolded)}
+                            onClick={() => {
+                                if (!disableToggle) {
+                                    setIsFolded(!isFolded);
+                                    if (onToggleResize) onToggleResize();
+                                }
+                            }}
                             title={!disableToggle ? (isFolded ? "Click to Expand" : "Click to Collapse") : ""}
                         >
                             <span className={`flex items-center gap-2 text-[16px] md:text-[19px] font-serif tracking-[0.2em] font-bold uppercase transition-colors duration-700 drop-shadow-md`} style={{ color: themeColor }}>
@@ -112,7 +117,9 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                 </div>
                                 {sysName.replace('🎻', '').replace('🎙️', '').trim()}
                                 {!disableToggle && (
-                                    <div className="ml-2 text-white/50 hover:text-white/90 transition-colors bg-white/5 p-1.5 rounded-md border border-white/10">
+                                    <div className="ml-2 text-white/50 hover:text-white/90 transition-colors bg-white/5 p-1.5 rounded-md border border-white/10" onClick={(e) => {
+                                        if (onToggleResize) { e.stopPropagation(); onToggleResize(); }
+                                    }}>
                                         {isFolded ? <LucideMaximize2 size={14} strokeWidth={2} /> : <LucideMinimize2 size={14} strokeWidth={2} />}
                                     </div>
                                 )}
