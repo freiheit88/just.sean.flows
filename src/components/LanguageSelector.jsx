@@ -507,7 +507,14 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     }
 
                     return (
-                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''}`} style={{ opacity: isOriginalOfStaged ? (showGalleryTiles ? 1 : 0) : (isSealed ? (isDimmed ? (showGalleryTiles ? 1 : 0.2) : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)), filter: applyDimming ? 'grayscale(100%) brightness(0.3)' : ((isSealed && isDimmed && !showGalleryTiles) ? 'grayscale(100%) brightness(0.5)' : 'none') }}>
+                        <div
+                            key={`slot-${i}`}
+                            className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''} ${applyDimming || (isSealed && isDimmed && !showGalleryTiles) ? 'pointer-events-none' : ''}`}
+                            style={{
+                                opacity: isOriginalOfStaged ? (showGalleryTiles ? 1 : 0) : (isSealed ? (isDimmed ? (showGalleryTiles ? 1 : 0.2) : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)),
+                                filter: applyDimming ? 'grayscale(100%) brightness(0.3)' : ((isSealed && isDimmed && !showGalleryTiles) ? 'grayscale(100%) brightness(0.5)' : 'none')
+                            }}
+                        >
                             <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed && !showGalleryTiles ? 'opacity-0' : (showGalleryTiles && !isOriginalOfStaged ? 'opacity-0' : 'opacity-100')}`}>
                                 {!isOriginalOfStaged && (
                                     <LanguageCard lang={lang} idx={pos} isFocused={isFocused} isStaged={false} isDimmable={isDimmable || stagedLang} onFocus={onCardFocus} onReady={onCardReady} onSelect={onCardSelect} AudioManager={AudioManager} />
