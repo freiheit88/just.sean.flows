@@ -277,19 +277,16 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                 handleLanguageSelect(stagedLang);
             }
 
-            /* [USER REQUEST]: Disable Phase 3 (Awareness) transition temporarily
-            setTimeout(() => {
-                setFocusPhase(true);
-                setMinaText("[🎙️ SEAN'S COMMENT] 다중우주의 규칙(Awareness)을 먼저 몸에 새기십시오.");
-                AudioManager?.playSfx('piano-mystic-low', 0.8);
-            }, 3000);
-            */
-
+            // Phase 2: AWARENESS 포커싱 시퀀스 발동
             setTimeout(() => {
                 setShowGalleryTiles(true);
-                setForceFolded(true); // Minimize Mina window to show grids cleanly
-                AudioManager?.playSfx('shutter', 0.6); // Transition sound
-            }, 10000); // 10 seconds
+                setForceFolded(true); // SEAN'S COMMENT 원래 크기로 축소 (최소화)
+
+                setFocusPhase(true);
+                setMinaText("[🎙️ SEAN'S COMMENT]\n다중우주의 규칙(Awareness)을 먼저 몸에 새기십시오.");
+                AudioManager?.playSfx('piano-mystic-low', 0.8);
+                AudioManager?.playSfx('shutter', 0.6);
+            }, 10000);
 
             cancelHold();
         }
@@ -298,8 +295,9 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     const handleRulesMerge = () => {
         if (isMerging || isRulesMerged) return;
         setIsMerging(true);
-        AudioManager?.playSfx('shutter', 0.8);
-        AudioManager?.playSfx('transition', 0.6);
+
+        AudioManager?.playSfx('piano-mystic-high', 1.0, true);
+        AudioManager?.playSfx('transition', 0.7, true);
 
         setTimeout(() => {
             setIsRulesMerged(true);
@@ -307,9 +305,15 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
             setFocusPhase(false);
 
             if (onEarnBadge) {
-                onEarnBadge([{ id: 'keeper_of_rules', type: 'minor', group: 'awareness' }]);
+                onEarnBadge([{
+                    id: 'keeper_of_rules',
+                    type: 'passive',
+                    title: '규칙의 수호자',
+                    group: 'awareness'
+                }]);
             }
-            if (stagedLang) setMinaText(stagedLang.ui.directiveDashboard || "Select a sector.");
+
+            if (stagedLang) setMinaText("규칙이 동기화되었습니다. 이제 탐색을 자유롭게 진행하세요.");
         }, 1500);
     };
 
@@ -415,11 +419,12 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                                                     <AnimatePresence>
                                                         {isRulesMerged && (
                                                             <motion.div
-                                                                initial={{ opacity: 0, scale: 0, rotate: -45 }}
+                                                                initial={{ opacity: 0, scale: 0, rotate: -90 }}
                                                                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                                                className="absolute top-4 right-4 z-50 flex items-center justify-center w-8 h-8 bg-[#C5A059] rounded-full shadow-[0_0_15px_rgba(197,160,89,1)] border border-[#FDFCF0]"
+                                                                transition={{ type: "spring", stiffness: 100, damping: 12, delay: 0.8 }}
+                                                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] flex items-center justify-center w-20 h-20 bg-black/70 backdrop-blur-lg rounded-full shadow-[0_0_30px_rgba(197,160,89,1),inset_0_0_15px_rgba(197,160,89,0.5)] border border-[#C5A059]/80"
                                                             >
-                                                                <LucideEye size={16} className="text-black" />
+                                                                <LucideEye size={36} className="text-[#C5A059] drop-shadow-[0_0_12px_rgba(253,252,240,0.8)]" />
                                                             </motion.div>
                                                         )}
                                                     </AnimatePresence>
@@ -459,36 +464,34 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     const isDimmed = isSealed;
                     const isHidden = false;
 
-                    /* [USER REQUEST]: Disable Phase 3 Awareness Card Rendering
-                    if (isGrid9 && isSealed) {
+                    const isFocusTarget = focusPhase && !isRulesMerged;
+                    const applyDimming = isFocusTarget && !isGrid9;
+
+                    if (isGrid9 && isFocusTarget) {
                         return (
-                            <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-opacity duration-300`}>
+                            <div key={`slot-${i}`} className="relative aspect-[4/5] w-full z-[8000]">
                                 <motion.div
-                                    layoutId={isMerging ? "rulesCard" : undefined}
                                     initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{
-                                        opacity: isHidden ? 0 : (isDimmed ? 0.2 : 1),
-                                        scale: 1,
-                                        filter: isDimmed ? 'grayscale(100%) brightness(0.5)' : 'grayscale(0%) brightness(1)',
-                                        zIndex: isMerging ? 100 : 1
-                                    }}
-                                    transition={{ duration: isMerging ? 1.5 : 0.8, ease: isMerging ? "easeInOut" : "easeOut" }}
+                                    animate={isMerging
+                                        ? { x: "-105%", y: "-105%", scale: 0.3, opacity: 0, rotate: -45 }
+                                        : { opacity: 1, scale: 1, filter: 'drop-shadow(0 0 15px rgba(197,160,89,0.8))' }
+                                    }
+                                    transition={{ duration: isMerging ? 1.0 : 0.8, ease: "easeInOut" }}
                                     onClick={handleRulesMerge}
-                                    className={`w-full h-full relative flex flex-col items-center justify-center text-center p-2 border ${focusPhase ? 'border-[#C5A059] bg-[#C5A059]/10 cursor-pointer shadow-[0_0_15px_rgba(197,160,89,0.3)] hover:bg-[#C5A059]/20' : `bg-white/10 border-white/5`} transition-colors ${isHidden ? 'pointer-events-none' : ''}`}
+                                    className="w-full h-full relative flex flex-col items-center justify-center text-center p-2 border border-[#C5A059] bg-[#C5A059]/10 cursor-pointer hover:bg-[#C5A059]/30 transition-colors backdrop-blur-sm"
                                 >
-                                    <motion.div animate={{ rotate: focusPhase ? 360 : 0 }} transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}>
-                                        <LucideEye size={focusPhase ? 24 : 16} className={`mb-1 transition-all ${focusPhase ? 'text-[#C5A059] opacity-100' : `opacity-60 text-white`}`} />
+                                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}>
+                                        <LucideEye size={36} className="mb-2 text-[#C5A059] drop-shadow-[0_0_8px_rgba(197,160,89,1)]" />
                                     </motion.div>
-                                    <span className={`font-black uppercase leading-none mb-1 transition-all ${focusPhase ? 'text-[#C5A059] text-[11px]' : `text-[9px] text-white`}`}>AWARENESS</span>
-                                    <span className={`font-serif italic leading-tight uppercase transition-all ${focusPhase ? 'text-[#FDFCF0] opacity-80 text-[8px]' : 'text-[7px] text-white/50'}`}>No Artificial Empathy</span>
+                                    <span className="font-black uppercase leading-none mb-1 text-[#C5A059] text-[12px] tracking-widest drop-shadow-md">AWARENESS</span>
+                                    <span className="font-serif italic leading-tight uppercase text-[#FDFCF0] opacity-90 text-[8px]">No Artificial Empathy</span>
                                 </motion.div>
                             </div>
                         );
                     }
-                    */
 
                     return (
-                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''}`} style={{ opacity: isOriginalOfStaged ? (showGalleryTiles ? 1 : 0) : (isSealed ? (isDimmed ? (showGalleryTiles ? 1 : 0.2) : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)), filter: (isSealed && isDimmed && !showGalleryTiles) ? 'grayscale(100%) brightness(0.5)' : 'none' }}>
+                        <div key={`slot-${i}`} className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''}`} style={{ opacity: isOriginalOfStaged ? (showGalleryTiles ? 1 : 0) : (isSealed ? (isDimmed ? (showGalleryTiles ? 1 : 0.2) : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)), filter: applyDimming ? 'grayscale(100%) brightness(0.3)' : ((isSealed && isDimmed && !showGalleryTiles) ? 'grayscale(100%) brightness(0.5)' : 'none') }}>
                             <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed && !showGalleryTiles ? 'opacity-0' : (showGalleryTiles && !isOriginalOfStaged ? 'opacity-0' : 'opacity-100')}`}>
                                 {!isOriginalOfStaged && (
                                     <LanguageCard lang={lang} idx={pos} isFocused={isFocused} isStaged={false} isDimmable={isDimmable || stagedLang} onFocus={onCardFocus} onReady={onCardReady} onSelect={onCardSelect} AudioManager={AudioManager} />
