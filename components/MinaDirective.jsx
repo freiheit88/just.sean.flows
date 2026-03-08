@@ -248,27 +248,73 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
 
                                                     {/* Active Task */}
                                                     <motion.div
-                                                        animate={{
+                                                        animate={!forceExpanded && text !== "앵커 확정 성공!" ? {
                                                             borderColor: [`rgba(${themeColorRgb}, 0.2)`, `rgba(${themeColorRgb}, 0.8)`, `rgba(${themeColorRgb}, 0.2)`],
                                                             boxShadow: ['0 0 10px rgba(0,0,0,0)', `0 0 20px rgba(${themeColorRgb}, 0.2)`, '0 0 10px rgba(0,0,0,0)']
-                                                        }}
+                                                        } : {}}
                                                         transition={{ duration: 1.5, repeat: Infinity }}
-                                                        className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 border-dashed bg-black/40`}
+                                                        className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 ${forceExpanded || text === "앵커 확정 성공!" ? 'border-white/10 bg-transparent' : 'border-dashed bg-black/40'}`}
                                                     >
                                                         {forceExpanded || text === "앵커 확정 성공!" ? (
-                                                            <CheckCircle2 className={`w-4 h-4 mt-0.5 shrink-0`} style={{ color: themeColor }} strokeWidth={1.5} />
+                                                            <CheckCircle2 className={`w-4 h-4 mt-0.5 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : ''}`} style={!showStrikethrough ? { color: themeColor } : {}} strokeWidth={1.5} />
                                                         ) : (
                                                             <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
                                                         )}
-                                                        <div className="flex flex-col gap-1 w-full">
-                                                            <span className="text-sm font-serif tracking-wide font-bold" style={{ color: themeColor }}>
-                                                                {forceExpanded || text === "앵커 확정 성공!" ? "1-3. 주파수를 선택하세요. (완료)" : (ui.guideStep3 || "1-3. Select your frequency.")}
-                                                            </span>
-                                                            <span className={`text-sm font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
-                                                                {forceExpanded || text === "앵커 확정 성공!" ? "앵커 확정 성공!" : text}
-                                                            </span>
+                                                        <div className="flex flex-col gap-1 w-full relative">
+                                                            <div className="flex justify-between items-center w-full">
+                                                                <span className={`text-sm font-serif tracking-wide ${forceExpanded || text === "앵커 확정 성공!" ? 'italic text-white/40 line-through' : 'font-bold'}`} style={!(forceExpanded || text === "앵커 확정 성공!") ? { color: themeColor } : {}}>
+                                                                    {ui.guideStep3 || "1-3. Select your frequency."}
+                                                                </span>
+                                                                {(forceExpanded || text === "앵커 확정 성공!") && (
+                                                                    <span className="text-[9px] font-sans font-black tracking-widest uppercase border px-1.5 py-0.5 rounded-sm h-fit" style={{ color: `rgba(${themeColorRgb}, 0.6)`, borderColor: `rgba(${themeColorRgb}, 0.3)` }}>
+                                                                        {ui.guideComplete || "Complete"}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            {!(forceExpanded || text === "앵커 확정 성공!") && (
+                                                                <span className={`text-sm font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
+                                                                    {text}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </motion.div>
+
+                                                    {/* Phase 2: Make yourself (Appears after Phase 1 is Sealed) */}
+                                                    {(forceExpanded || text === "앵커 확정 성공!") && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, y: 20 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            transition={{ delay: 0.5, duration: 0.8 }}
+                                                            className="flex flex-col gap-3 w-full mt-6"
+                                                        >
+                                                            {/* Section 2 Header */}
+                                                            <div className="px-3 pb-1 border-b border-white/10 mb-1">
+                                                                <span className="text-xs font-serif tracking-widest uppercase" style={{ color: themeColor }}>
+                                                                    {ui.guideHeader2 || "2. Make yourself"}
+                                                                </span>
+                                                            </div>
+
+                                                            {/* Active Task (Phase 2) */}
+                                                            <motion.div
+                                                                animate={{
+                                                                    borderColor: [`rgba(${themeColorRgb}, 0.2)`, `rgba(${themeColorRgb}, 0.8)`, `rgba(${themeColorRgb}, 0.2)`],
+                                                                    boxShadow: ['0 0 10px rgba(0,0,0,0)', `0 0 20px rgba(${themeColorRgb}, 0.2)`, '0 0 10px rgba(0,0,0,0)']
+                                                                }}
+                                                                transition={{ duration: 1.5, repeat: Infinity }}
+                                                                className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 border-dashed bg-black/40`}
+                                                            >
+                                                                <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
+                                                                <div className="flex flex-col gap-1 w-full">
+                                                                    <span className="text-sm font-serif tracking-wide font-bold" style={{ color: themeColor }}>
+                                                                        {ui.guideStep4 || "2-1. Verify your existence."}
+                                                                    </span>
+                                                                    <span className={`text-sm font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
+                                                                        {ui.guideStep4Desc || "Please explore the gallery."}
+                                                                    </span>
+                                                                </div>
+                                                            </motion.div>
+                                                        </motion.div>
+                                                    )}
                                                 </div>
                                             </motion.div>
                                         ) : (
