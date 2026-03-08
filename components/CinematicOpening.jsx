@@ -124,46 +124,37 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-30 mix-blend-overlay pointer-events-none" />
 
                         <div className="relative z-10 flex flex-col items-center w-full">
-                            {/* Cannes-Style Elegant Trademark Text */}
-                            <div className="relative mb-20 md:mb-24 px-4 md:px-6 z-10 w-full max-w-4xl">
-                                <motion.h1
-                                    initial={{ y: 50, opacity: 0, filter: "blur(20px)" }}
-                                    animate={{
-                                        y: 0,
-                                        opacity: 1,
-                                        backgroundPosition: ["200% center", "-200% center"]
-                                    }}
-                                    transition={{
-                                        y: { duration: 2, ease: "easeOut", delay: 0.8 },
-                                        opacity: { duration: 2, ease: "easeOut", delay: 0.8 },
-                                        backgroundPosition: { duration: 8, ease: "linear", repeat: Infinity, delay: 2.8 }
-                                    }}
-                                    className="text-white font-serif uppercase tracking-[0.2em] sm:tracking-[0.3em] font-light text-center select-none leading-[1.1] relative z-10 animate-[water-ripple_6s_ease-in-out_infinite]"
-                                    style={{
-                                        fontSize: "clamp(20px, 5vw, 64px)", // Cannes style size - elegant, not screaming
-                                        background: "linear-gradient(to right, #e6ce8a 0%, #fdf5c9 20%, #ffffff 50%, #fdf5c9 80%, #e6ce8a 100%)",
-                                        backgroundSize: "200% auto",
-                                        WebkitBackgroundClip: "text",
-                                        WebkitTextFillColor: "transparent",
-                                    }}
-                                >
-                                    JUST.SEAN.FLOWS
-                                </motion.h1>
-                                {/* Trademark Floating Sparkle (Lens Flare illusion) */}
+                            {/* Elegant Cinematic Text (Redesigned) */}
+                            <div className="relative mb-20 md:mb-24 px-4 md:px-6 z-10 w-full max-w-4xl flex justify-center items-center">
+                                {/* Subtle Background Pulse (Aether Glow) */}
                                 <motion.div
-                                    initial={{ opacity: 0, left: "10%" }}
-                                    animate={{
-                                        opacity: [0, 1, 1, 0],
-                                        left: ["10%", "50%", "90%", "90%"],
-                                        scale: [0.5, 1.5, 0.5, 0.5],
-                                        rotate: [0, 90, 180, 180]
+                                    animate={{ opacity: [0.3, 0.6, 0.3], filter: ["blur(40px)", "blur(60px)", "blur(40px)"], scale: [0.9, 1.1, 0.9] }}
+                                    transition={{ duration: 8, ease: "easeInOut", repeat: Infinity }}
+                                    className="absolute inset-0 bg-[#C5A059]/10 rounded-[100%] pointer-events-none -z-10 mix-blend-screen"
+                                />
+
+                                <motion.h1
+                                    initial={{ opacity: 0, scale: 0.95, filter: "blur(20px)", y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }}
+                                    transition={{ duration: 3, ease: [0.22, 1, 0.36, 1], delay: 0.5 }}
+                                    className="font-serif uppercase font-light text-center select-none"
+                                    style={{
+                                        fontSize: "clamp(24px, 5vw, 56px)",
+                                        letterSpacing: "0.25em",
+                                        color: "#FDFCF0",
+                                        textShadow: "0 0 40px rgba(197, 160, 89, 0.3)",
+                                        lineHeight: 1
                                     }}
-                                    transition={{ duration: 8, ease: "easeInOut", repeat: Infinity, delay: 2.8 }}
-                                    className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none"
                                 >
-                                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-full shadow-[0_0_20px_4px_rgba(255,255,255,0.9)] filter blur-[0.5px]" />
-                                    <LucideSparkles className="absolute inset-0 text-white w-4 h-4 md:w-6 md:h-6 -translate-x-1/2 -translate-y-1/2 opacity-90 transition-opacity" strokeWidth={1} />
-                                </motion.div>
+                                    <span className="text-[#C5A059]">J</span>UST<span className="mx-2 md:mx-3 text-white/20">.</span>SEAN<span className="mx-2 md:mx-3 text-white/20">.</span>FLOWS
+                                </motion.h1>
+
+                                <motion.div
+                                    initial={{ width: 0, opacity: 0 }}
+                                    animate={{ width: "60%", opacity: 0.5 }}
+                                    transition={{ duration: 3, ease: "easeOut", delay: 1.5 }}
+                                    className="absolute -bottom-6 h-[1px] bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent pointer-events-none"
+                                />
                             </div>
 
                             <motion.button
@@ -209,56 +200,39 @@ const CinematicOpening = ({ onStart, onComplete }) => {
             {/* Igniting Phase: Golden Cinematic Reveal */}
             {phase === 'ignite' && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[10001] px-4">
-                    <div className="relative">
-                        {/* Elegant Letter Reveal */}
+                    <div className="relative flex flex-col items-center justify-center w-full">
+                        {/* Elite 'Ignite' Reveal */}
                         <motion.div
-                            initial="hidden"
-                            animate="visible"
-                            variants={{
-                                visible: { transition: { staggerChildren: 0.1 } }
-                            }}
-                            className="flex flex-nowrap justify-center gap-[0.05em] overflow-visible w-full px-8 md:px-12"
+                            initial={{ opacity: 0, scale: 0.9, filter: "blur(20px)" }}
+                            animate={{ opacity: [0, 1, 1, 0], scale: 1.05, filter: ["blur(20px)", "blur(0px)", "blur(0px)", "blur(20px)"] }}
+                            transition={{ duration: 6, ease: "easeInOut" }}
+                            className="flex flex-col items-center gap-8 md:gap-12 relative z-10 w-full"
                         >
-                            {"JUST.SEAN.FLOWS".split("").map((char, i) => (
-                                <motion.span
-                                    key={i}
-                                    variants={{
-                                        hidden: {
-                                            opacity: 0,
-                                            y: 10,
-                                            filter: "blur(10px) drop-shadow(0 0 0px rgba(223, 193, 109, 0)) drop-shadow(0 0 0px rgba(197, 160, 89, 0))"
-                                        },
-                                        visible: {
-                                            opacity: 1,
-                                            y: 0,
-                                            filter: "blur(0px) drop-shadow(0px 0px 15px rgba(223, 193, 109, 0.6)) drop-shadow(0 0 40px rgba(197, 160, 89, 0.8))",
-                                            transition: { duration: 0.8, ease: "easeOut" }
-                                        }
-                                    }}
-                                    className="font-serif uppercase tracking-widest md:tracking-[0.2em] font-light mix-blend-screen leading-none"
-                                    style={{
-                                        fontSize: "clamp(20px, 5vw, 64px)",
-                                        lineHeight: 1,
-                                        background: "linear-gradient(to bottom, #ffffff 0%, #dfc16d 100%)",
-                                        WebkitBackgroundClip: "text",
-                                        WebkitTextFillColor: "transparent"
-                                    }}
-                                >
-                                    {char === " " ? "\u00A0" : char}
-                                </motion.span>
-                            ))}
+                            <h1 className="font-serif uppercase font-light text-center mix-blend-screen w-full px-4"
+                                style={{
+                                    fontSize: "clamp(32px, 7vw, 76px)",
+                                    letterSpacing: "0.3em",
+                                    color: "#FDFCF0",
+                                    textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)",
+                                }}>
+                                <span className="text-[#C5A059]">J</span>UST<span className="mx-2 md:mx-4 text-[#C5A059]/30">.</span>SEAN<span className="mx-2 md:mx-4 text-[#C5A059]/30">.</span>FLOWS
+                            </h1>
+
+                            {/* Epic Expanding Energy Line */}
+                            <motion.div
+                                initial={{ width: "0%", opacity: 0 }}
+                                animate={{ width: ["0%", "80%", "100%"], opacity: [0, 1, 0] }}
+                                transition={{ duration: 5, ease: "easeInOut", delay: 0.5 }}
+                                className="h-[2px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent max-w-3xl absolute -bottom-10"
+                            />
                         </motion.div>
 
-                        {/* Subtle Toned-down Golden Glow Overlay (Replacing the harsh light sweep) */}
+                        {/* Deep Core Bloom (Replacing harsh sweep) */}
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: [0, 0.2, 0], scale: 1.1 }}
-                            transition={{
-                                duration: 4,
-                                ease: "easeInOut",
-                                delay: 0.2
-                            }}
-                            className="absolute inset-0 bg-[radial-gradient(circle_at_center,_#C5A059_0%,_transparent_60%)] mix-blend-screen pointer-events-none z-0"
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: [0, 0.3, 0], scale: 1.5 }}
+                            transition={{ duration: 6, ease: "easeInOut" }}
+                            className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(197,160,89,0.5)_0%,_transparent_50%)] mix-blend-screen pointer-events-none -z-10"
                         />
                     </div>
                 </div>
