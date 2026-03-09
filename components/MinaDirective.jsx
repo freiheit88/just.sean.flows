@@ -96,7 +96,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                     <div className="flex flex-col min-h-[150px] md:min-h-[170px] relative z-10 transition-colors shrink-0">
                         {/* Title Bar: Guide Concept (50% visual weight) - CLICKABLE TOGGLE */}
                         <div
-                            className={`flex-1 w-full bg-black/40 border-b border-white/10 flex items-center justify-center relative shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-sm z-10 px-6 py-4 ${disableToggle ? '' : 'cursor-pointer hover:bg-black/50 transition-colors'}`}
+                            className={`flex-1 w-full bg-black/40 border-b border-white/10 flex items-center justify-between relative shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-sm z-10 px-6 py-4 ${disableToggle ? '' : 'cursor-pointer hover:bg-black/50 transition-colors'}`}
                             onClick={() => {
                                 if (!disableToggle) {
                                     setIsFolded(!isFolded);
@@ -105,7 +105,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                             }}
                             title={!disableToggle ? (isFolded ? "Click to Expand" : "Click to Collapse") : ""}
                         >
-                            <span className={`flex items-center gap-2 text-[16px] md:text-[19px] font-serif tracking-[0.2em] font-bold uppercase transition-colors duration-700 drop-shadow-md whitespace-nowrap`} style={{ color: themeColor }}>
+                            <span className={`flex items-center justify-start gap-2 text-[16px] md:text-[19px] font-serif tracking-[0.2em] font-bold uppercase transition-colors duration-700 drop-shadow-md whitespace-nowrap`} style={{ color: themeColor }}>
                                 {/* Dual Persona Icons: Fixed Inactive brightness/glow */}
                                 <div className="flex items-center gap-1.5 mr-1 text-[17px] md:text-[20px]">
                                     <span className={`transition-all duration-700 ${!isConductor ? 'opacity-100 scale-110 drop-shadow-[0_0_8px_rgba(197,160,89,0.9)]' : 'opacity-30 grayscale-[0.8] brightness-[0.4] drop-shadow-[0_0_5px_rgba(255,255,255,0.2)] scale-90'}`} title="SEAN'S COMMENT Mode">
@@ -115,7 +115,9 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                         🎻
                                     </span>
                                 </div>
-                                {sysName.replace('🎻', '').replace('🎙️', '').trim()}
+                                <div className="text-left">
+                                    {sysName.replace('🎻', '').replace('🎙️', '').trim()}
+                                </div>
                             </span>
 
                             {/* Decorative Elegant Divider Line: Thicker, Sharper, Dynamic Color */}
@@ -155,7 +157,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                         </div>
 
                         {/* Message: Typewriter Effect (50% visual weight) */}
-                        <div className="flex-1 flex items-center justify-start w-full px-8 py-4">
+                        <div className="flex-1 flex items-center justify-center w-full px-8 py-4">
                             <motion.div
                                 animate={!isConductor ? {
                                     y: [0, -2, 0],
@@ -165,7 +167,7 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                     textShadow: "0px 2px 10px rgba(255,255,255,0.3)"
                                 }}
                                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                                className="text-[15px] sm:text-base md:text-lg font-serif text-white/95 tracking-wide leading-relaxed break-keep whitespace-pre-wrap text-left w-full cursor-default"
+                                className="text-[15px] sm:text-base md:text-lg font-serif text-white/95 tracking-wide leading-relaxed break-keep whitespace-pre-wrap text-center w-full cursor-default"
                             >
                                 <TypewriterText text={text} speed={30} />
                             </motion.div>

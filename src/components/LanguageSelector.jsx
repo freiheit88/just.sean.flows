@@ -154,7 +154,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
     );
 };
 
-const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking, earnedBadges, onEarnBadge, AudioManager, MinaDirective, calculateArchetype, selectedPath, isWipReached, onWipReached }) => {
+const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking, earnedBadges, onEarnBadge, AudioManager, MinaDirective, calculateArchetype, selectedPath, isWipReached, onWipReached, phase, onAwarenessComplete, onSealComplete }) => {
     const [focusedLang, setFocusedLang] = useState(null);
     const [stagedLang, setStagedLang] = useState(null);
     const [minaText, setMinaText] = useState("");
@@ -174,14 +174,19 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     const gridRefs = useRef([]);
     const [droppedTarget, setDroppedTarget] = useState(null);
 
-    const introSentences = [
-        "Initiating dimensional shift.",
-        "Anchor your consciousness.",
-        "Await multiverse synchronization.",
-        "Select your frequency.",
-        "Choose your anchor point."
-    ];
-    const [introSentence] = useState(() => introSentences[Math.floor(Math.random() * introSentences.length)]);
+    const [introSentence] = useState(() => {
+        if (phase === 'AWARENESS') {
+            return "Please read AWARENESS first to fully enjoy the experience.";
+        }
+        const introSentences = [
+            "Initiating dimensional shift.",
+            "Anchor your consciousness.",
+            "Await multiverse synchronization.",
+            "Select your frequency.",
+            "Choose your anchor point."
+        ];
+        return introSentences[Math.floor(Math.random() * introSentences.length)];
+    });
 
     useEffect(() => {
         setMinaText(introSentence);
@@ -284,16 +289,22 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                 handleLanguageSelect(stagedLang);
             }
 
-            // Phase 2: AWARENESS 포커싱 시퀀스 발동
-            setTimeout(() => {
-                setShowGalleryTiles(true);
-                setForceFolded(true); // SEAN'S COMMENT 원래 크기로 축소 (최소화)
+            if (phase === 'LANGUAGE_QUEST') {
+                setTimeout(() => {
+                    onSealComplete?.();
+                }, 1000); // Slight delay for UX
+            } else {
+                // Phase 2: AWARENESS 포커싱 시퀀스 발동
+                setTimeout(() => {
+                    setShowGalleryTiles(true);
+                    setForceFolded(true); // SEAN'S COMMENT 원래 크기로 축소 (최소화)
 
-                setFocusPhase(true);
-                setMinaText("[🎙️ SEAN'S COMMENT]\nPlease engrave the rules of the Multiverse (Awareness) into your body first.");
-                AudioManager?.playSfx('piano-mystic-low', 0.8);
-                AudioManager?.playSfx('shutter', 0.6);
-            }, 10000);
+                    setFocusPhase(true);
+                    setMinaText("[🎙️ SEAN'S COMMENT]\nPlease engrave the rules of the Multiverse (Awareness) into your body first.");
+                    AudioManager?.playSfx('piano-mystic-low', 0.8);
+                    AudioManager?.playSfx('shutter', 0.6);
+                }, 10000);
+            }
 
             cancelHold();
         }
@@ -432,7 +443,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                                                 onReady={() => { }}
                                                 AudioManager={AudioManager}
                                             />
-                                            <div className="absolute inset-0 z-[800] flex flex-col items-center justify-center w-full h-full pointer-events-none pb-8">
+                                            <div className="absolute inset-0 z-[800] flex flex-col items-center justify-center w-full h-full pointer-events-none">
                                                 {/* Expanding center shape and early click handler removed per user feedback */}
                                                 <AnimatePresence>
                                                     {isRulesMerged && (
@@ -446,14 +457,16 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
+                                            </div>
 
-                                                {/* Trendy Progress Pill Box */}
+                                            <div className="absolute inset-x-0 -bottom-8 md:-bottom-10 z-[800] flex flex-col items-center justify-end w-full pointer-events-none px-4">
+                                                {/* Trendy Progress Pill Box perfectly centered at the bottom */}
                                                 {!isRulesMerged && (
                                                     <motion.div
                                                         initial={{ y: 10, opacity: 0, scale: 0.9 }}
                                                         animate={{ y: 0, opacity: 1, scale: 1 }}
                                                         exit={{ y: 10, opacity: 0, scale: 0.9 }}
-                                                        className="absolute -bottom-8 md:-bottom-10 left-1/2 -translate-x-1/2 min-w-[130%] bg-black/50 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 flex flex-col items-center justify-center gap-2 shadow-[0_20px_40px_rgba(0,0,0,0.5),0_0_20px_rgba(197,160,89,0.15),inset_0_1px_1px_rgba(255,255,255,0.1)] pointer-events-none z-[300]"
+                                                        className="w-[120%] max-w-[200px] mx-auto bg-black/70 backdrop-blur-xl border border-[#C5A059]/30 rounded-full px-5 py-2.5 flex flex-col items-center justify-center gap-2 shadow-[0_20px_40px_rgba(0,0,0,0.8),0_0_20px_rgba(197,160,89,0.3),inset_0_1px_1px_rgba(255,255,255,0.1)] pointer-events-none z-[300]"
                                                     >
                                                         <div className="flex items-center gap-3 w-full justify-center">
                                                             <span className="text-[#FDFCF0] text-[10px] md:text-sm font-serif uppercase tracking-[0.2em] md:tracking-[0.3em] text-center leading-none" style={{ textShadow: "0 0 10px rgba(197,160,89,0.5)" }}>
@@ -500,10 +513,17 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     const isDimmed = isSealed;
                     const isHidden = false;
 
+                    let phaseInvisible = false;
+                    if (phase === 'AWARENESS') {
+                        if (pos !== 'center' && !isGrid9) {
+                            phaseInvisible = true;
+                        }
+                    }
+
                     const isFocusTarget = focusPhase && !isRulesMerged;
                     const applyDimming = isFocusTarget && !isGrid9;
 
-                    if (isGrid9 && isFocusTarget) {
+                    if (isGrid9 && (isFocusTarget || phase === 'AWARENESS')) {
                         return (
                             <div key={`slot-${i}`} ref={(el) => gridRefs.current[i] = el} className="relative aspect-[4/5] w-full z-[8000]">
                                 {/* Background Image for Grid 9 */}
@@ -543,10 +563,10 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                         <div
                             key={`slot-${i}`}
                             ref={(el) => gridRefs.current[i] = el}
-                            className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''} ${applyDimming || (isSealed && isDimmed && !showGalleryTiles) ? 'pointer-events-none' : ''} ${(selectedPath === 'vote' && (i === 5 || i === 6)) || (selectedPath === 'game' && (i === 0 || i === 1)) ? 'ring-2 ring-[#C5A059] shadow-[0_0_30px_rgba(197,160,89,0.4)] z-[6000]' : ''}`}
+                            className={`relative aspect-[4/5] w-full transition-all duration-300 ${isFocused ? 'z-[50]' : ''} ${(applyDimming || (isSealed && isDimmed && !showGalleryTiles) || phaseInvisible) && pos !== 'center' ? 'pointer-events-none' : ''} ${(selectedPath === 'vote' && (i === 5 || i === 6)) || (selectedPath === 'game' && (i === 0 || i === 1)) ? 'ring-2 ring-[#C5A059] shadow-[0_0_30px_rgba(197,160,89,0.4)] z-[6000]' : ''}`}
                             style={{
-                                opacity: isOriginalOfStaged ? (showGalleryTiles ? 1 : 0) : (isSealed ? (isDimmed ? (showGalleryTiles ? 1 : 0.2) : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5)),
-                                filter: applyDimming ? 'grayscale(100%) brightness(0.3)' : ((isSealed && isDimmed && !showGalleryTiles) ? 'grayscale(100%) brightness(0.5)' : 'none')
+                                opacity: phaseInvisible ? 0.05 : (isOriginalOfStaged ? (showGalleryTiles ? 1 : 0) : (isSealed ? (isDimmed ? (showGalleryTiles ? 1 : 0.2) : 1) : Math.max(0, 1 - (holdProgress / 100) * 1.5))),
+                                filter: applyDimming ? 'grayscale(100%) brightness(0.3)' : ((isSealed && isDimmed && !showGalleryTiles) ? 'grayscale(100%) brightness(0.5)' : (phaseInvisible ? 'grayscale(100%) brightness(0.2)' : 'none'))
                             }}
                         >
                             <div className={`absolute inset-0 transition-opacity duration-1000 ${isSealed && !showGalleryTiles ? 'opacity-0' : (showGalleryTiles && !isOriginalOfStaged ? 'opacity-0' : 'opacity-100')}`}>
@@ -593,7 +613,11 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                         <button
                             onClick={() => {
                                 setShowInstaGallery(false);
-                                handleRulesMerge();
+                                if (phase === 'AWARENESS') {
+                                    onAwarenessComplete?.();
+                                } else {
+                                    handleRulesMerge();
+                                }
                             }}
                             className="absolute top-6 right-6 z-50 p-2 bg-black/50 hover:bg-black/80 rounded-full backdrop-blur-md border border-white/20 text-white/70 hover:text-white transition-all shadow-xl"
                         >
@@ -609,7 +633,11 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                                     setInstaGalleryIndex(prev => prev + 1);
                                 } else {
                                     setShowInstaGallery(false);
-                                    handleRulesMerge();
+                                    if (phase === 'AWARENESS') {
+                                        onAwarenessComplete?.();
+                                    } else {
+                                        handleRulesMerge();
+                                    }
                                 }
                             }}
                         >

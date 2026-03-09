@@ -16,7 +16,7 @@ const GlassCard = ({ children, className = "", onClick, delay = 0 }) => (
     </motion.div>
 );
 
-const IntroEngraveView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter, playSfx, THEME_CONFIG }) => (
+const IntroEngraveView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter, playSfx, THEME_CONFIG, handleAnalogSoul }) => (
     <div className="space-y-4 max-w-md mx-auto overflow-y-auto no-scrollbar max-h-[85vh] px-4 py-4">
         <GlassCard className="text-center italic text-sm border-l-4 border-l-white/50 py-4 mb-6">
             <span className="opacity-80">"{selectedLang.welcome}"</span>
@@ -52,6 +52,17 @@ const IntroEngraveView = ({ selectedLang, userName, setUserName, generateTextCha
                 <span className="px-4 text-white/40 bg-[#0A0A0B]">OR</span>
             </div>
         </div>
+
+        <motion.button
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            onClick={() => {
+                playSfx?.('click');
+                handleAnalogSoul?.();
+            }}
+            className="w-full py-4 bg-neutral-800 text-white font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-[10px] hover:bg-neutral-700 transition-all flex items-center justify-center shadow-2xl active:scale-95 border border-red-500/50 mb-4"
+        >
+            <span className="text-red-400">기계의 개입 거부하기 (순수 아날로그 모드)</span>
+        </motion.button>
 
         <label className="block w-full cursor-pointer group">
             <div className="p-6 border border-dashed border-white/20 bg-white/5 hover:bg-white/10 rounded-sm flex flex-col items-center transition-all shadow-inner backdrop-blur-sm">

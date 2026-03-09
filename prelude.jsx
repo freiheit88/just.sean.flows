@@ -1219,8 +1219,7 @@ const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
 };
 
 const App = () => {
-    const [isOpeningFinished, setIsOpeningFinished] = useState(false);
-    const [step, setStep] = useState('language');
+    const [currentPhase, setCurrentPhase] = useState('AWARENESS');
     const [selectedLang, setSelectedLang] = useState(LANGUAGES[1]); // V20: English (GB)
 
     const [isMinaSpeaking, setIsMinaSpeaking] = useState(false);
@@ -1251,12 +1250,6 @@ const App = () => {
     // Track clicks for archetype calculation
     const [cardsExplored, setCardsExplored] = useState(new Set());
 
-    // V20: Immediate voice guidance on load (ENSURE EN-GB)
-    useEffect(() => {
-        if (step === 'language' && !isOpeningFinished) {
-            // Wait for opening to start
-        }
-    }, [step]);
     const [votedId, setVotedId] = useState(null);
     const [viewMode, setViewMode] = useState('gallery');
     const [previewId, setPreviewId] = useState(null);
@@ -1351,9 +1344,7 @@ const App = () => {
 
     // Watch for keeper_of_rules badge (AWARENESS closed)
     useEffect(() => {
-        if (earnedBadges.some(b => b.id === 'keeper_of_rules') && !selectedPath && !showPathSelection) {
-            setShowPathSelection(true);
-
+        if (currentPhase === 'CROSSROADS' && !selectedPath) {
             // [Audio Ducking]
             const duckDuration = 2000;
             const duckTo = 0.2; // 20% of base
@@ -1430,7 +1421,7 @@ const App = () => {
                 console.error("TTS Failed:", err);
             });
         }
-    }, [earnedBadges, selectedPath, showPathSelection, selectedLang, apiKey, audioCache]);
+    }, [currentPhase, selectedPath, selectedLang, apiKey, audioCache]);
 
     const [todos, setTodos] = useState({ avatar: false, home: false, voted: false });
     const [showTodo, setShowTodo] = useState(false);
@@ -1531,13 +1522,13 @@ const App = () => {
             setUserAvatar({ image: null, textName: userName, lore, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
             AudioManager.playMina(selectedLang.id, 'avatar');
-            setStep('dashboard');
+            setCurrentPhase('LANGUAGE_QUEST');
         } catch (err) {
             console.error(err);
             setUserAvatar({ image: null, textName: userName, lore: `The enigmatic ${userName}.`, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
             AudioManager.playMina(selectedLang.id, 'avatar');
-            setStep('dashboard');
+            setCurrentPhase('LANGUAGE_QUEST');
         } finally {
             setIsAvatarGenerating(false);
         }
@@ -1589,14 +1580,14 @@ const App = () => {
             setUserAvatar({ image: generatedUrl, lore: generatedLore, isTextAvatar: false });
             setTodos(p => ({ ...p, avatar: true }));
             AudioManager.playMina(selectedLang.id, 'avatar');
-            setStep('dashboard');
+            setCurrentPhase('LANGUAGE_QUEST');
         } catch (err) {
             console.error("Generation Error or Timeout:", err);
             // Fallback: Use Text Avatar if image generation hangs/fails
             setUserAvatar({ image: null, textName: "Architect", lore: generatedLore, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
             AudioManager.playMina(selectedLang.id, 'avatar');
-            setStep('dashboard');
+            setCurrentPhase('LANGUAGE_QUEST');
         } finally {
             setIsAvatarGenerating(false);
         }
@@ -1621,7 +1612,7 @@ const App = () => {
         setIsSpiritSensing(true);
         playSfx('click');
         try {
-            const prompt = `You are the House Spirit of the Lord Manor. Give a very short, cryptic, steampunk-style hint about what the guest should do next. Current step: ${step}, View: ${viewMode}. Output in ${selectedLang.name}. Max 15 words.`;
+            const prompt = `You are the House Spirit of the Lord Manor. Give a very short, cryptic, steampunk-style hint about what the guest should do next. Current step: ${currentPhase}, View: ${viewMode}. Output in ${selectedLang.name}. Max 15 words.`;
             const result = await callGemini({ contents: [{ parts: [{ text: prompt }] }] });
             setSpiritHint(result.candidates?.[0]?.content?.parts?.[0]?.text || "...");
             setTimeout(() => setSpiritHint(""), 5000);
@@ -1644,11 +1635,10 @@ const App = () => {
     // [V19] Effect to handle TTS for later steps
     // V20: Fix default language logic & first voice trigger
     useEffect(() => {
-        if (isOpeningFinished && step === 'language') {
+        if (currentPhase === 'AWARENESS') {
             // [V22] - Removed duplicate English playMina trigger
-            // AudioManager.playMina('en', 'language');
         }
-    }, [isOpeningFinished]);
+    }, [currentPhase]);
 
     return (
         <div
@@ -1681,20 +1671,20 @@ const App = () => {
             </div>
 
             <AnimatePresence>
-                {!isOpeningFinished && (
+                {currentPhase === 'GATEWAY' && (
                     <div className="relative z-[10000]">
                         <CinematicOpening
                             onStart={() => AudioManager.playMainTheme(0.70, 4000)}
                             onComplete={() => {
                                 AudioManager.fadeMainTheme(0.42, 3000);
-                                setIsOpeningFinished(true);
+                                setCurrentPhase('IDENTITY');
                             }}
                         />
                     </div>
                 )}
             </AnimatePresence>
 
-            {isOpeningFinished && (
+            {currentPhase !== 'GATEWAY' && (
                 <>
                     {/* API Status Banner */}
                     {!apiKey && (
@@ -1714,8 +1704,11 @@ const App = () => {
                         <SimpleErrorBoundary>
                             {/* REMOVED: AnimatePresence mode="wait" to fix layout blanking crashes */}
                             <div className="flex flex-col items-center w-full h-full flex-1 relative">
-                                {step === 'language' && (
+                                {(currentPhase === 'AWARENESS' || currentPhase === 'LANGUAGE_QUEST' || currentPhase === 'CROSSROADS') && (
                                     <LanguageSelector
+                                        phase={currentPhase === 'AWARENESS' ? 'AWARENESS' : 'LANGUAGE_QUEST'}
+                                        onAwarenessComplete={() => setCurrentPhase('GATEWAY')}
+                                        onSealComplete={() => setCurrentPhase('CROSSROADS')}
                                         LANGUAGES={LANGUAGES}
                                         handleLanguageSelect={handleLanguageSelect}
                                         setSpiritHint={setSpiritHint}
@@ -1732,35 +1725,7 @@ const App = () => {
                                         onWipReached={handleWipReached}
                                     />
                                 )}
-                                {step === 'confirm' && (
-                                    <ConfirmView selectedLang={selectedLang} confirmLanguage={confirmLanguage} theme={currentTheme} />
-                                )}
-                                {/* {step === 'multiverse_grid' && (
-                                    <MultiverseGrid
-                                        selectedLang={selectedLang}
-                                        currentTheme={currentTheme}
-                                        setStep={setStep}
-                                        setViewMode={setViewMode}
-                                    />
-                                )} */}
-                                {/* ComingSoonView is preserved but functionally bypassed per Phase 1 */}
-                                {/* {step === 'coming_soon' && (
-                                    <ComingSoonView
-                                        selectedLang={selectedLang}
-                                        currentTheme={currentTheme}
-                                        setViewMode={setViewMode}
-                                        setStep={setStep}
-                                        metrics={{
-                                            totalClicks,
-                                            uniqueCards: cardsExplored.size,
-                                            timeSpentMs: Date.now() - appStartTime
-                                        }}
-                                        onEarnBadge={handleEarnBadge}
-                                        earnedBadges={earnedBadges}
-                                    />
-                                )} */}
-                                {/* More steps would follow, refactored to use currentTheme classes */}
-                                {step === 'intro' && (
+                                {currentPhase === 'IDENTITY' && (
                                     <IntroEngraveView
                                         selectedLang={selectedLang}
                                         userName={userName}
@@ -1772,11 +1737,16 @@ const App = () => {
                                         generateCharacter={generateCharacter}
                                         playSfx={playSfx}
                                         THEME_CONFIG={THEME_CONFIG}
+                                        handleAnalogSoul={() => {
+                                            setUserAvatar({ image: null, textName: "순수한 인간 (Analog Soul)", lore: "기계의 해석을 거부하고, 오직 자신의 의지만으로 이 다중우주에 발을 들인 낭만주의자.", isTextAvatar: true });
+                                            setTodos(p => ({ ...p, avatar: true }));
+                                            setCurrentPhase('LANGUAGE_QUEST');
+                                        }}
                                     />
                                 )}
                                 {/* --- NEW: Phase 1.5 Path Selection UI --- */}
                                 <AnimatePresence>
-                                    {showPathSelection && (
+                                    {currentPhase === 'CROSSROADS' && (
                                         <motion.div
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
@@ -1808,7 +1778,7 @@ const App = () => {
                                                         onClick={() => {
                                                             AudioManager.playSfx('click', 0.6);
                                                             setSelectedPath('vote');
-                                                            setShowPathSelection(false);
+                                                            setCurrentPhase('DASHBOARD');
                                                         }}
                                                         className="flex-1 py-10 px-6 border border-[#C5A059]/30 bg-black/40 backdrop-blur-md rounded-lg flex flex-col items-center gap-4 transition-all group"
                                                     >
@@ -1824,7 +1794,7 @@ const App = () => {
                                                         onClick={() => {
                                                             AudioManager.playSfx('click', 0.6);
                                                             setSelectedPath('game');
-                                                            setShowPathSelection(false);
+                                                            setCurrentPhase('DASHBOARD');
                                                         }}
                                                         className="flex-1 py-10 px-6 border border-[#C5A059]/30 bg-black/40 backdrop-blur-md rounded-lg flex flex-col items-center gap-4 transition-all group"
                                                     >
@@ -1839,7 +1809,7 @@ const App = () => {
                                     )}
                                 </AnimatePresence>
 
-                                {step === 'dashboard' && (
+                                {currentPhase === 'DASHBOARD' && (
                                     <div className="w-full h-full flex flex-col items-center justify-center absolute inset-0 bg-black/80 backdrop-blur-md">
                                         {viewMode === 'gallery' && (
                                             <GalleryView
@@ -1879,28 +1849,28 @@ const App = () => {
                                                 isAuthenticated={isAuthenticated}
                                                 setIsAuthenticated={setIsAuthenticated}
                                                 oracleMessage={oracleMessage}
-                                                setStep={setStep}
+                                                setStep={(s) => setCurrentPhase(s.toUpperCase())}
                                                 setTodos={setTodos}
                                                 playSfx={playSfx}
                                             />
                                         )}
                                     </div>
                                 )}
-                                {step === 'trailer' && (
-                                    <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={setStep} playSfx={playSfx} />
+                                {currentPhase === 'TRAILER' && (
+                                    <TrailerView selectedLang={selectedLang} resetStates={resetStates} setStep={(s) => setCurrentPhase(s.toUpperCase())} playSfx={playSfx} />
                                 )}
                             </div>
                         </SimpleErrorBoundary>
                     </main>
 
                     {/* [V25] Mina's Directive global guidance (Post-Language selection) */}
-                    {step !== 'language' && (
+                    {currentPhase !== 'AWARENESS' && (
                         <MinaDirective
                             isVisible={true}
-                            activeStep={step}
+                            activeStep={currentPhase === 'GATEWAY' ? 'language' : currentPhase === 'IDENTITY' ? 'intro' : 'dashboard'}
                             text={
-                                step === 'confirm' ? selectedLang?.ui?.directiveConfirm :
-                                    !todos.avatar ? selectedLang?.ui?.directiveAuth :
+                                currentPhase === 'IDENTITY' ? selectedLang?.ui?.directiveAuth :
+                                    currentPhase === 'LANGUAGE_QUEST' ? selectedLang?.ui?.directiveConfirm :
                                         !todos.home ? selectedLang?.ui?.directiveAvatar :
                                             selectedLang?.ui?.directiveDashboard
                             }
