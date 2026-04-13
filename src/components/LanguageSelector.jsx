@@ -830,7 +830,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
     }
 
     return (
-        <div className="w-full mx-auto h-full flex flex-col items-center justify-center p-0 md:p-8 overflow-hidden md:overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
+        <div className="w-full mx-auto h-full flex flex-col items-center justify-start pt-2 md:pt-8 px-0 md:px-8 overflow-hidden md:overflow-visible relative" style={{ touchAction: 'none', overscrollBehavior: 'none' }}>
             {phase === 'AWARENESS' && (
                 <div className="absolute inset-0 z-0 grid grid-cols-3 grid-rows-3 gap-1 opacity-20 pointer-events-none transition-opacity duration-[3000ms] blur-[2px]">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (

@@ -1755,8 +1755,8 @@ const App = () => {
 
                     <AetherWhispers text={whisper} theme={currentTheme} />
 
-                    {/* Main Content Area: V9 Focus-Fixed Layout */}
-                    <main className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden px-4">
+                    {/* Main Content Area: V9 Focus-Fixed Layout - Now pulled to the top */}
+                    <main className="relative z-10 w-full h-[100dvh] flex flex-col items-center justify-start overflow-hidden px-4 pt-[100px] md:pt-[130px]">
 
                         <SimpleErrorBoundary>
                             {/* REMOVED: AnimatePresence mode="wait" to fix layout blanking crashes */}
