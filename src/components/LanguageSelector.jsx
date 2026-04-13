@@ -579,7 +579,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
         };
 
         return (
-            <div className="w-full h-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black">
+            <div className="w-full h-full flex flex-col items-center justify-start pt-10 md:pt-20 p-4 relative overflow-hidden bg-black">
                 {/* Clean, dark ambient background */}
                 <motion.div 
                     className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_60%)]"
@@ -663,7 +663,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
         const buff = getLangBuff(selectedLang?.id);
 
         return (
-            <div className="w-full h-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black">
+            <div className="w-full h-full flex flex-col items-center justify-start pt-10 md:pt-20 p-4 relative overflow-hidden bg-black">
                 {/* Fixed Background Image using active language's image */}
                 {selectedLang?.image && (
                     <div className="absolute inset-0 z-0 bg-cover bg-center opacity-30 mix-blend-screen pointer-events-none transition-opacity duration-1000" style={{ backgroundImage: `url(${selectedLang.image})`, filter: "blur(8px) grayscale(50%)" }} />
@@ -781,7 +781,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
         const archetypeBadge = earnedBadges?.find(b => b.type === 'archetype') || earnedBadges?.[0] || { title: 'Unknown' };
 
         return (
-            <div className="w-full h-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black cursor-pointer" onClick={() => onAwarenessComplete?.()}>
+            <div className="w-full h-full flex flex-col items-center justify-start pt-10 md:pt-24 p-4 relative overflow-hidden bg-black cursor-pointer" onClick={() => onAwarenessComplete?.()}>
                 <div className="absolute inset-0 z-0 bg-cover bg-center opacity-40 mix-blend-screen pointer-events-none transition-opacity duration-[3000ms]" style={{ backgroundImage: `url(/public/backgrounds/${selectedLang?.id || 'en'}_bg.webp), url(/assets/backgrounds/${selectedLang?.id || 'en'}_bg.webp)`, filter: "blur(6px)" }} />
 
                 <motion.div
