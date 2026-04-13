@@ -13,7 +13,7 @@ const IntroEngraveView = ({ selectedLang, userName, setUserName, generateTextCha
         return () => clearTimeout(timer);
     }, []);
     return (
-        <div className="flex flex-col w-full h-full justify-start items-center px-4 relative z-20 overflow-y-auto no-scrollbar pb-2 pt-2 md:pt-4">
+        <div className="flex flex-col w-full h-full justify-start items-center px-4 relative z-20 overflow-y-auto no-scrollbar pb-2 pt-[100px] md:pt-[130px]">
             {/* Removed SEAN'S COMMENT Directive Container */}
 
             <div className="w-full max-w-4xl flex flex-col gap-3 md:gap-4 shrink-0 transition-all duration-500">

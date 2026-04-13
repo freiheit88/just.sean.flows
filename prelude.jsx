@@ -1755,8 +1755,8 @@ const App = () => {
 
                     <AetherWhispers text={whisper} theme={currentTheme} />
 
-                    {/* Main Content Area: V9 Focus-Fixed Layout - Now pulled to the top */}
-                    <main className="relative z-10 w-full h-[100dvh] flex flex-col items-center justify-start overflow-hidden px-4 pt-[100px] md:pt-[130px]">
+                    {/* Main Content Area: V9 Focus-Fixed Layout */}
+                    <main className="relative z-10 w-full h-[100dvh] flex flex-col items-center justify-start overflow-hidden px-4">
 
                         <SimpleErrorBoundary>
                             {/* REMOVED: AnimatePresence mode="wait" to fix layout blanking crashes */}
@@ -1946,7 +1946,7 @@ const App = () => {
                     </main>
 
                     {/* [V25] Mina's Directive global guidance (Post-Language selection) */}
-                    {currentPhase !== 'AWARENESS' && (
+                    {['IDENTITY', 'ENGRAVING', 'CROSSROADS', 'DASHBOARD'].includes(currentPhase) && (
                         <MinaDirective
                             isVisible={true}
                             activeStep={currentPhase === 'GATEWAY' ? 'language' : currentPhase === 'IDENTITY' ? 'intro' : 'dashboard'}
