@@ -1,8 +1,9 @@
-﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CinematicOpening from './components/CinematicOpening';
 import LanguageSelector from './src/components/LanguageSelector';
 import IntroEngraveView from './src/components/IntroEngraveView';
+import EngravingSequence from './src/components/EngravingSequence';
 
 import {
     LucideCheckCircle, LucideGlobe, LucideInstagram,
@@ -457,7 +458,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 수석 지휘자", minaAction: ">> 🎼 첫 막: 언어를 선택하세요 <<",
             inviting: "멀티버스로 진입 중...", awaiting: "저택이 당신의 영혼을 기다립니다.",
-            tap: "탭하여 선택", sync: "동기화 중", drag: "가운데로 드래그",
+            tap: "클릭하세요!", sync: "동기화 중", drag: "가운데로 드래그",
             harmonizing: "운명 조율 중", aligned: "운명 정렬됨"
         }
     },
@@ -524,7 +525,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 PRINCIPAL CONDUCTOR", minaAction: ">> 🎼 ACTION REQUIRED: SELECT A MULTIVERSE <<",
             inviting: "INVITING THE MULTIVERSE...", awaiting: "THE MANOR AWAITS YOUR SOUL'S VOYAGE.",
-            tap: "TAP TO SELECT", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER",
+            tap: "CLICK THIS!", sync: "SYNCHRONIZING", drag: "DRAG TO CENTER",
             harmonizing: "HARMONIZING", aligned: "ALIGNED"
         }
     },
@@ -591,7 +592,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 DIRECTOR PRINCIPAL", minaAction: ">> 🎼 ACCIÓN REQUERIDA: SELECCIONA UN MULTIVERSO <<",
             inviting: "INVITANDO AL MULTIVERSO...", awaiting: "LA MANSIÓN ESPERA EL VIAJE DE TU ALMA.",
-            tap: "TOCA PARA SELECCIONAR", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO",
+            tap: "¡HAZ CLIC!", sync: "SINCRONIZANDO", drag: "ARRASTRA AL CENTRO",
             harmonizing: "ARMONIZANDO", aligned: "ALINEADO"
         }
     },
@@ -658,7 +659,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 प्रधान संवाहक", minaAction: ">> 🎼 कार्रवाई आवश्यक: एक मल्टीवर्स चुनें <<",
             inviting: "मल्टीवर्स को आमंत्रित किया जा रहा है...", awaiting: "मैनर आपकी आत्मा की यात्रा की प्रतीक्षा कर रहा है。",
-            tap: "चुनने के लिए टैप करें", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें",
+            tap: "क्लिक करें!", sync: "सिंक्रनाइज़ कर रहा है", drag: "केंद्र में खींचें",
             harmonizing: "सामंजस्य", aligned: "संरेखित"
         }
     },
@@ -725,7 +726,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 CHEFDIRIGENT", minaAction: ">> 🎼 AKTION ERFORDERLICH: WÄHLEN SIE EIN MULTIVERSUM <<",
             inviting: "LADE DAS MULTIVERSUM EIN...", awaiting: "DAS ANWESEN ERWARTET DIE REISE IHRER SEELE.",
-            tap: "ZUM AUSWÄHLEN TIPPEN", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN",
+            tap: "KLICK HIER!", sync: "SYNCHRONISIERE", drag: "ZUR MITTE ZIEHEN",
             harmonizing: "HARMONISIERUNG", aligned: "AUSGERICHTET"
         }
     },
@@ -792,7 +793,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 首席指揮者", minaAction: ">> 🎼 アクション要求：マルチバースを選択してください <<",
             inviting: "マルチバースを招待中...", awaiting: "館があなたの魂の旅立ちを待っています。",
-            tap: "タップして選択", sync: "同期中", drag: "中央へドラッグ",
+            tap: "クリック！", sync: "同期中", drag: "中央へドラッグ",
             harmonizing: "同期中", aligned: "同期完了"
         }
     },
@@ -859,7 +860,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 المايسترو الرئيسي", minaAction: ">> 🎼 الإجراء المطلوب: حدد كونًا متعددًا <<",
             inviting: "دعوة الأكوان المتعددة...", awaiting: "القصر ينتظر رحلة روحك.",
-            tap: "اضغط للاختيار", sync: "مزامنة", drag: "اسحب للمركز",
+            tap: "انقر هنا!", sync: "مزامنة", drag: "اسحب للمركز",
             harmonizing: "تناغم", aligned: "محاذاة"
         }
     },
@@ -926,7 +927,7 @@ const LANGUAGES = [
             },
             minaSystem: "🎻 GŁÓWNY DYRYGENT", minaAction: ">> 🎼 WYMAGANE DZIAŁANIE: WYBIERZ MULTIWERSUM <<",
             inviting: "ZAPRASZANIE MULTIWERSUM...", awaiting: "DWÓR CZEKA NA PODRÓŻ TWOJEJ DUSZY.",
-            tap: "DOTKNIJ ABY WYBRAĆ", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA",
+            tap: "KLIKNIJ TO!", sync: "SYNCHRONIZACJA", drag: "PRZECIĄGNIJ DO ŚRODKA",
             harmonizing: "HARMONIZACJA", aligned: "WYRÓWNANE"
         }
     }
@@ -1154,7 +1155,7 @@ const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metr
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1.2 }}
                     onClick={() => {
-                        AudioManager.playSfx('click', 0.6);
+                        AudioManager.playSfx('piano-mystic-high', 0.6);
                         setStep('language');
                     }}
                     className="px-8 py-3 opacity-60 hover:opacity-100 active:scale-95 transition-all text-[10px] uppercase font-black tracking-widest text-[#00E5FF] hover:text-white"
@@ -1219,8 +1220,9 @@ const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
 };
 
 const App = () => {
-    const [currentPhase, setCurrentPhase] = useState('AWARENESS');
-    const [selectedLang, setSelectedLang] = useState(LANGUAGES[1]); // V20: English (GB)
+    // === INITIAL STATE ===
+    const [currentPhase, setCurrentPhase] = useState('VOLUME_CHECK');
+    const [selectedLang, setSelectedLang] = useState(null);
 
     const [isMinaSpeaking, setIsMinaSpeaking] = useState(false);
 
@@ -1484,7 +1486,7 @@ const App = () => {
     const handleLanguageSelect = useCallback((lang) => {
         setSelectedLang(lang);
         // We no longer route away; Phase 1/2 keeps us on LanguageSelector screen
-        AudioManager.playSfx('click');
+        AudioManager.playSfx('piano-mystic-high');
 
         // Main BGM stops completely
         if (AudioManager.mainTheme) {
@@ -1500,7 +1502,7 @@ const App = () => {
 
     const confirmLanguage = useCallback(() => {
         // Obsolete: We bypass ConfirmView now.
-    }, [selectedLang.id]);
+    }, [selectedLang?.id]);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -1522,51 +1524,93 @@ const App = () => {
             setUserAvatar({ image: null, textName: userName, lore, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
             AudioManager.playMina(selectedLang.id, 'avatar');
-            setCurrentPhase('LANGUAGE_QUEST');
+            setCurrentPhase('CROSSROADS');
         } catch (err) {
             console.error(err);
             setUserAvatar({ image: null, textName: userName, lore: `The enigmatic ${userName}.`, isTextAvatar: true });
             setTodos(p => ({ ...p, avatar: true }));
             AudioManager.playMina(selectedLang.id, 'avatar');
-            setCurrentPhase('LANGUAGE_QUEST');
+            setCurrentPhase('CROSSROADS');
         } finally {
             setIsAvatarGenerating(false);
         }
     };
 
-    const generateCharacter = async () => {
-        if (!uploadedImage) return;
+    const generateCharacter = async (aiUserName) => {
+        if (!uploadedImage && !aiUserName) return;
         setIsAvatarGenerating(true);
 
-        // [V7 UPDATE: Restored atmospheric fallback lore and Imagen race logic from user source]
         let generatedLore = "A mysterious soul whose visage the machine could not fully comprehend.";
 
         try {
-            const loreResult = await callGemini({
-                contents: [{
+            let apiContents = [];
+            if (uploadedImage) {
+                apiContents = [{
                     role: "user",
                     parts: [
-                        { text: `Analyze this image and create a 19th-century steampunk persona. Output in ${selectedLang.name} language. Max 50 words.` },
+                        { text: `You are an expert image captioner for an AI image generator. Deeply analyze the uploaded image and describe EXACTLY what is in it (Subject, object, colors, composition, lighting, facial features if human, landscape details if scenery). Whether it is a portrait, landscape, or anything else, describe it so well that another AI could perfectly recreate it. Then, briefly add a 1-sentence poetic magical lore about it. Ensure the output is purely visual English description. Max 80 words.` },
                         { inlineData: { mimeType: "image/png", data: uploadedImage } }
                     ]
-                }]
-            }, apiKey);
+                }];
+            } else {
+                apiContents = [{
+                    role: "user",
+                    parts: [{ text: `Create a short 19th-century steampunk persona for someone named "${aiUserName}". Output in English. Max 50 words.` }]
+                }];
+            }
+
+            const loreResult = await callGemini({ contents: apiContents }, apiKey);
             if (loreResult?.candidates?.[0]?.content?.parts?.[0]?.text) {
                 generatedLore = loreResult.candidates[0].content.parts[0].text;
             }
             setAvatarLore(generatedLore);
 
+            let imagenPrompt = "";
+            if (uploadedImage) {
+                const envMapPhoto = {
+                    'ko': { focus: "a glowing portable CRT TV monitor naturally displaying a specific image on its screen", bg: "a vast, vibrant nighttime cyberpunk street in Seoul" },
+                    'en': { focus: "a beautiful vintage poster prominently featuring a specific image", bg: "a wet brick wall on a wide foggy Victorian street in London" },
+                    'ja': { focus: "a faded wooden framed canvas gracefully depicting a specific image", bg: "a stone lantern in a wide, bustling traditional Japanese temple street in Kyoto at dusk" },
+                    'de': { focus: "a heavy brass clockwork frame strictly displaying a specific image", bg: "a grand view of a dense medieval German Black Forest castle" },
+                    'es': { focus: "a majestic oil-painted canvas hanging widely, perfectly depicting a specific image", bg: "an ornate Spanish golden Renaissance archway in a wide historic Madrid plaza" },
+                    'hi': { focus: "a beautifully hand-painted wooden mandala containing a specific image", bg: "a massive, vibrant Indian Diwali festival gathering with warm lighting" },
+                    'ar': { focus: "an ornate bronze mirror showing a magical glowing reflection of a specific image", bg: "a bustling, wide Arab street market at night" },
+                    'pl': { focus: "a deeply detailed, hand-painted floral ceramic plate featuring a specific image", bg: "a wide, lively daytime traditional Polish festival crowd" }
+                };
+                const env = envMapPhoto[selectedLang?.id] || { focus: "a brass picture frame holding an image", bg: "a wide classic steampunk workshop" };
+
+                imagenPrompt = `A breathtaking, hyper-realistic wide-angle environment photograph of ${env.bg}. In the clear foreground of this beautiful scene, there is ${env.focus}. You MUST accurately draw the following detailed image inside the focal object: "${generatedLore}". Both the foreground object containing the image and the vast background environment must be in sharp focus, fully capturing the rich cultural atmosphere. The integration must look completely natural. Do not blur the background.`;
+            } else {
+                const envMap = {
+                    'ko': { focus: "a bright red cyberpunk LED neon sign attached to a building", bg: "a vast, vibrant nighttime street in Seoul" },
+                    'en': { focus: "a weathered Victorian brass street sign", bg: "a foggy, atmospheric wide avenue in London at dusk" },
+                    'ja': { focus: "a traditional Japanese wooden shrine tablet (Ema) or glowing red lantern", bg: "a wide, bustling traditional temple street in Kyoto" },
+                    'de': { focus: "a heavy medieval rustic wooden tavern signboard", bg: "a sweeping view of the dense German Black Forest and medieval castle" },
+                    'es': { focus: "an elegant stone monument engraving", bg: "a beautiful, sunny, wide historic plaza with grand Madrid architecture" },
+                    'hi': { focus: "a beautiful arrangement of bright colourful rangoli sand on the ground", bg: "a massive, vibrant Indian Diwali festival crowd" },
+                    'ar': { focus: "a highly ornate glowing neon-like golden lantern sign", bg: "a bustling, wide Arab street market at night" },
+                    'pl': { focus: "a large hanging fabric festival banner", bg: "a wide, lively daytime traditional Polish festival in Krakow square" }
+                };
+                const env = envMap[selectedLang?.id] || { focus: "a classic steampunk brass nameplate", bg: "a wide steampunk Victorian workshop" };
+
+                imagenPrompt = `A breathtaking, hyper-realistic wide-angle photograph of ${env.bg}. In the clear foreground of this beautiful scene, there is ${env.focus} prominently and flawlessly displaying the exact text "${aiUserName}". The text "${aiUserName}" must be perfectly legible, correctly spelled, and naturally integrated into the environment. Both the text object and the vast background environment must be in sharp focus, showing the rich cultural atmosphere. Do not blur the background.`;
+            }
+
             // 20 Seconds Timeout Promise
             const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), 20000));
 
-            const imageFetchPromise = fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${apiKey}`, {
+            const imageFetchPromise = fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    instances: { prompt: `Vintage oil painting style, steampunk character portrait based on description: ${generatedLore}. Sepia tones, victorian clothing, brass goggles, etching texture.` },
+                    instances: [{ prompt: imagenPrompt }],
                     parameters: { sampleCount: 1 }
                 }),
-            }).then(res => res.json());
+            }).then(async res => {
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message);
+                return data;
+            });
 
             // Race between Image API and 20s Timeout
             const imageData = await Promise.race([imageFetchPromise, timeoutPromise]);
@@ -1577,17 +1621,22 @@ const App = () => {
 
             const generatedUrl = `data:image/png;base64,${imageData.predictions[0].bytesBase64Encoded}`;
 
-            setUserAvatar({ image: generatedUrl, lore: generatedLore, isTextAvatar: false });
+            setUserAvatar({ image: generatedUrl, textName: aiUserName || "Architect", lore: generatedLore, isTextAvatar: false, isUploadedPhoto: !!uploadedImage });
             setTodos(p => ({ ...p, avatar: true }));
             AudioManager.playMina(selectedLang.id, 'avatar');
-            setCurrentPhase('LANGUAGE_QUEST');
+            setCurrentPhase('ENGRAVING');
         } catch (err) {
             console.error("Generation Error or Timeout:", err);
-            // Fallback: Use Text Avatar if image generation hangs/fails
-            setUserAvatar({ image: null, textName: "Architect", lore: generatedLore, isTextAvatar: true });
+            
+            // DIAGNOSTICS: TEMPORARILY ALERT THE USER TO SEE VITE'S ERROR
+            alert("나노바나나 에러 발생!: " + err.message);
+
+            // Fallback: Use uploaded photo with CSS filter if available, otherwise text
+            const fallbackImage = uploadedImage ? `data:image/png;base64,${uploadedImage}` : null;
+            setUserAvatar({ image: fallbackImage, textName: aiUserName || "Architect", lore: generatedLore, isTextAvatar: !fallbackImage, isUploadedPhoto: !!fallbackImage });
             setTodos(p => ({ ...p, avatar: true }));
             AudioManager.playMina(selectedLang.id, 'avatar');
-            setCurrentPhase('LANGUAGE_QUEST');
+            setCurrentPhase('ENGRAVING');
         } finally {
             setIsAvatarGenerating(false);
         }
@@ -1610,7 +1659,7 @@ const App = () => {
     const useSpiritSense = async () => {
         if (!apiKey || isSpiritSensing) return;
         setIsSpiritSensing(true);
-        playSfx('click');
+        playSfx('piano-mystic-high');
         try {
             const prompt = `You are the House Spirit of the Lord Manor. Give a very short, cryptic, steampunk-style hint about what the guest should do next. Current step: ${currentPhase}, View: ${viewMode}. Output in ${selectedLang.name}. Max 15 words.`;
             const result = await callGemini({ contents: [{ parts: [{ text: prompt }] }] });
@@ -1677,7 +1726,15 @@ const App = () => {
                             onStart={() => AudioManager.playMainTheme(0.70, 4000)}
                             onComplete={() => {
                                 AudioManager.fadeMainTheme(0.42, 3000);
-                                setCurrentPhase('IDENTITY');
+                                if (!earnedBadges.includes('keeper_of_rules')) {
+                                    handleEarnBadge([{
+                                        id: 'keeper_of_rules',
+                                        type: 'passive',
+                                        title: '규칙의 수호자',
+                                        group: 'awareness'
+                                    }]);
+                                }
+                                setCurrentPhase('IDENTITY'); // Skip AWARENESS completely
                             }}
                         />
                     </div>
@@ -1704,11 +1761,23 @@ const App = () => {
                         <SimpleErrorBoundary>
                             {/* REMOVED: AnimatePresence mode="wait" to fix layout blanking crashes */}
                             <div className="flex flex-col items-center w-full h-full flex-1 relative">
-                                {(currentPhase === 'AWARENESS' || currentPhase === 'LANGUAGE_QUEST' || currentPhase === 'CROSSROADS') && (
+                                {(currentPhase === 'VOLUME_CHECK' || currentPhase === 'AWARENESS' || currentPhase === 'LANGUAGE_QUEST' || currentPhase === 'CASSETTE_INSERT') && (
                                     <LanguageSelector
-                                        phase={currentPhase === 'AWARENESS' ? 'AWARENESS' : 'LANGUAGE_QUEST'}
-                                        onAwarenessComplete={() => setCurrentPhase('GATEWAY')}
-                                        onSealComplete={() => setCurrentPhase('CROSSROADS')}
+                                        phase={currentPhase}
+                                        onVolumeCheckComplete={() => setCurrentPhase('LANGUAGE_QUEST')}
+                                        onCassetteComplete={() => setCurrentPhase('GATEWAY')}
+                                        onAwarenessComplete={() => {
+                                            if (!earnedBadges.includes('keeper_of_rules')) {
+                                                handleEarnBadge([{
+                                                    id: 'keeper_of_rules',
+                                                    type: 'passive',
+                                                    title: '규칙의 수호자',
+                                                    group: 'awareness'
+                                                }]);
+                                            }
+                                            setCurrentPhase('IDENTITY');
+                                        }}
+                                        onSealComplete={() => setCurrentPhase('CASSETTE_INSERT')}
                                         LANGUAGES={LANGUAGES}
                                         handleLanguageSelect={handleLanguageSelect}
                                         setSpiritHint={setSpiritHint}
@@ -1723,6 +1792,7 @@ const App = () => {
                                         selectedPath={selectedPath}
                                         isWipReached={isWipReached}
                                         onWipReached={handleWipReached}
+                                        selectedLang={selectedLang}
                                     />
                                 )}
                                 {currentPhase === 'IDENTITY' && (
@@ -1737,10 +1807,22 @@ const App = () => {
                                         generateCharacter={generateCharacter}
                                         playSfx={playSfx}
                                         THEME_CONFIG={THEME_CONFIG}
-                                        handleAnalogSoul={() => {
-                                            setUserAvatar({ image: null, textName: "순수한 인간 (Analog Soul)", lore: "기계의 해석을 거부하고, 오직 자신의 의지만으로 이 다중우주에 발을 들인 낭만주의자.", isTextAvatar: true });
+                                        handleAnalogSoul={(name) => {
+                                            const finalName = name?.trim() ? name : "Pure Human (Analog Soul)";
+                                            setUserAvatar({ image: null, textName: finalName, lore: "Refused machine interpretation, firmly anchoring into the multiverse through sheer will.", isTextAvatar: true });
                                             setTodos(p => ({ ...p, avatar: true }));
-                                            setCurrentPhase('LANGUAGE_QUEST');
+                                            setCurrentPhase('ENGRAVING');
+                                        }}
+                                    />
+                                )}
+                                {currentPhase === 'ENGRAVING' && (
+                                    <EngravingSequence
+                                        selectedLang={selectedLang}
+                                        avatarText={userAvatar?.textName}
+                                        avatarImage={userAvatar?.image}
+                                        isUploadedPhoto={userAvatar?.isUploadedPhoto}
+                                        onComplete={() => {
+                                            setCurrentPhase('CROSSROADS');
                                         }}
                                     />
                                 )}
@@ -1776,7 +1858,7 @@ const App = () => {
                                                         whileHover={{ scale: 1.05, borderColor: "rgba(197,160,89,0.8)", boxShadow: "0 0 30px rgba(197,160,89,0.2)" }}
                                                         whileTap={{ scale: 0.95 }}
                                                         onClick={() => {
-                                                            AudioManager.playSfx('click', 0.6);
+                                                            AudioManager.playSfx('piano-mystic-high', 0.6);
                                                             setSelectedPath('vote');
                                                             setCurrentPhase('DASHBOARD');
                                                         }}
@@ -1784,7 +1866,7 @@ const App = () => {
                                                     >
                                                         <LucideMapPin className="text-[#C5A059] opacity-70 group-hover:opacity-100 transition-opacity" size={32} />
                                                         <span className="text-[#FDFCF0] font-serif uppercase tracking-[0.3em] font-bold text-sm md:text-md">
-                                                            컨텐츠 투표
+                                                            CONTENT VOTE
                                                         </span>
                                                     </motion.button>
 
@@ -1792,7 +1874,7 @@ const App = () => {
                                                         whileHover={{ scale: 1.05, borderColor: "rgba(197,160,89,0.8)", boxShadow: "0 0 30px rgba(197,160,89,0.2)" }}
                                                         whileTap={{ scale: 0.95 }}
                                                         onClick={() => {
-                                                            AudioManager.playSfx('click', 0.6);
+                                                            AudioManager.playSfx('piano-mystic-high', 0.6);
                                                             setSelectedPath('game');
                                                             setCurrentPhase('DASHBOARD');
                                                         }}
@@ -1800,7 +1882,7 @@ const App = () => {
                                                     >
                                                         <LucideCompass className="text-[#C5A059] opacity-70 group-hover:opacity-100 transition-opacity" size={32} />
                                                         <span className="text-[#FDFCF0] font-serif uppercase tracking-[0.3em] font-bold text-sm md:text-md">
-                                                            게임 시작
+                                                            START GAME
                                                         </span>
                                                     </motion.button>
                                                 </div>

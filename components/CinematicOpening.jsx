@@ -5,8 +5,8 @@ import SmokeAssistant from './SmokeAssistant';
 import MinaDirective from './MinaDirective';
 
 const CinematicOpening = ({ onStart, onComplete }) => {
-    const [phase, setPhase] = useState('locked'); // locked, idle, ignite, flash, finish
-    const [isInteracted, setIsInteracted] = useState(false);
+    const [phase, setPhase] = useState('idle'); // locked, idle, ignite, flash, finish
+    const [isInteracted, setIsInteracted] = useState(true);
 
     const audioRef = useRef(null);
 
@@ -31,7 +31,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
 
         // Sequence timing: portal trigger
         setTimeout(() => {
-            portalAudio.play().catch(e => console.log("Portal sound deferred", e));
+            // portalAudio.play().catch(e => console.log("Portal sound deferred", e));
 
             if (audioRef.current) {
                 const fadeOutInterval = setInterval(() => {
@@ -64,7 +64,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={handleUnlock}
-                        className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group pb-[15vh]"
+                        className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group p-4"
                     >
                         {/* Centered, Contained Intro Poster Background as requested */}
                         <div className="absolute inset-0 overflow-hidden pointer-events-none bg-black flex items-center justify-center">
@@ -103,7 +103,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }}
                         transition={{ duration: 1, ease: "easeOut" }}
-                        className="flex flex-col items-center justify-center w-full h-full relative pb-[15vh]"
+                        className="flex flex-col items-center justify-center w-full h-full relative p-4"
                     >
                         {/* Centered, Contained Intro Poster Background as requested */}
                         <div className="absolute inset-0 overflow-hidden pointer-events-none bg-black flex items-center justify-center">
@@ -123,7 +123,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
 
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-30 mix-blend-overlay pointer-events-none" />
 
-                        <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-full sm:max-w-[420px] md:max-w-[540px] lg:max-w-[620px] mx-auto md:p-10 md:bg-black/40 md:backdrop-blur-2xl md:border md:border-[#C5A059]/30 md:rounded-[40px] md:shadow-[0_20px_60px_rgba(0,0,0,0.8)] transition-all duration-1000 mt-[10vh] md:mt-0">
+                        <div className="relative z-10 flex flex-col items-center justify-center w-full min-h-fit max-w-full sm:max-w-[420px] md:max-w-[540px] lg:max-w-[620px] mx-auto md:p-10 md:bg-black/40 md:backdrop-blur-2xl md:border md:border-[#C5A059]/30 md:rounded-[40px] md:shadow-[0_20px_60px_rgba(0,0,0,0.8)] transition-all duration-1000 mt-[5vh] md:mt-0">
                             {/* Decorative Top Accent */}
                             <div className="hidden md:block absolute -top-[1px] left-1/2 -translate-x-1/2 w-1/3 h-[2px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent opacity-80" />
                             <div className="hidden md:block absolute -bottom-[1px] left-1/2 -translate-x-1/2 w-1/4 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
@@ -133,7 +133,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                             </div>
 
                             {/* Completely Renewed Cinematic Text */}
-                            <div className="relative z-10 flex flex-col items-center justify-center w-full gap-4 md:gap-6 mb-16 md:mb-20">
+                            <div className="relative z-10 flex flex-col items-center justify-center w-full gap-4 md:gap-6 mb-6 md:mb-10">
                                 {/* Soft Background Pulse Behind Text */}
                                 <motion.div
                                     animate={{ opacity: [0.1, 0.3, 0.1], filter: ["blur(30px)", "blur(50px)", "blur(30px)"], scale: [0.9, 1.1, 0.9] }}
@@ -151,20 +151,26 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                         The Multiverse Project
                                     </span>
 
-                                    {/* Stacked "JUST. SEAN." structure for more impact */}
+                                    {/* Stacked "J. S. F." structure for vertical impact */}
                                     <span
                                         className="font-serif uppercase italic text-[#FDFCF0] drop-shadow-[0_0_20px_rgba(197,160,89,0.4)]"
                                         style={{ fontSize: "clamp(28px, 6vw, 56px)", letterSpacing: "0.15em", lineHeight: 1.1 }}
                                     >
-                                        <span className="text-[#C5A059]">J</span>UST<span className="text-[#C5A059]/40 mx-2">.</span><span className="text-[#C5A059]">S</span>EAN
+                                        <span className="text-[#C5A059]">J</span>UST<span className="text-[#C5A059]/40 ml-2">.</span>
                                     </span>
 
-                                    {/* Dramatic "FLOWS" */}
                                     <span
-                                        className="font-serif uppercase font-light text-[#FDFCF0] tracking-[0.3em] md:tracking-[0.4em] drop-shadow-[0_0_40px_rgba(197,160,89,0.6)]"
-                                        style={{ fontSize: "clamp(24px, 5vw, 48px)", marginTop: "0.2em" }}
+                                        className="font-serif uppercase italic text-[#FDFCF0] drop-shadow-[0_0_20px_rgba(197,160,89,0.4)]"
+                                        style={{ fontSize: "clamp(28px, 6vw, 56px)", letterSpacing: "0.15em", lineHeight: 1.1 }}
                                     >
-                                        FLOWS
+                                        <span className="text-[#C5A059]">S</span>EAN<span className="text-[#C5A059]/40 ml-2">.</span>
+                                    </span>
+
+                                    <span
+                                        className="font-serif uppercase italic text-[#FDFCF0] drop-shadow-[0_0_40px_rgba(197,160,89,0.6)]"
+                                        style={{ fontSize: "clamp(28px, 6vw, 56px)", letterSpacing: "0.15em", marginTop: "0.2em", lineHeight: 1.1 }}
+                                    >
+                                        <span className="text-[#C5A059]">F</span>LOWS
                                     </span>
                                 </motion.h1>
 
@@ -172,7 +178,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                     initial={{ width: 0, opacity: 0 }}
                                     animate={{ width: "80%", opacity: 0.6 }}
                                     transition={{ duration: 2, ease: "easeOut", delay: 1 }}
-                                    className="h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent pointer-events-none mt-6"
+                                    className="h-[1px] bg-gradient-to-r from-transparent via-[#C5A059] to-transparent pointer-events-none mt-4 md:mt-6"
                                 />
                             </div>
 
@@ -232,18 +238,32 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                                         textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)"
                                     }}
                                 >
-                                    <span className="text-[#C5A059]">J</span>UST<span className="text-[#C5A059]/40 mx-2 md:mx-4">.</span><span className="text-[#C5A059]">S</span>EAN
+                                    <span className="text-[#C5A059]">J</span>UST<span className="text-[#C5A059]/40 ml-2">.</span>
                                 </span>
 
                                 <span
-                                    className="font-serif uppercase font-light text-[#FDFCF0] tracking-[0.3em] md:tracking-[0.4em]"
+                                    className="font-serif uppercase italic text-[#FDFCF0]"
                                     style={{
-                                        fontSize: "clamp(32px, 7vw, 64px)",
-                                        marginTop: "0.2em",
+                                        fontSize: "clamp(36px, 8vw, 72px)",
+                                        letterSpacing: "0.15em",
+                                        lineHeight: 1.1,
                                         textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)"
                                     }}
                                 >
-                                    FLOWS
+                                    <span className="text-[#C5A059]">S</span>EAN<span className="text-[#C5A059]/40 ml-2">.</span>
+                                </span>
+
+                                <span
+                                    className="font-serif uppercase italic text-[#FDFCF0]"
+                                    style={{
+                                        fontSize: "clamp(36px, 8vw, 72px)",
+                                        letterSpacing: "0.15em",
+                                        marginTop: "0.2em",
+                                        lineHeight: 1.1,
+                                        textShadow: "0 0 60px rgba(197, 160, 89, 0.8), 0 0 100px rgba(255, 255, 255, 0.4)"
+                                    }}
+                                >
+                                    <span className="text-[#C5A059]">F</span>LOWS
                                 </span>
                             </h1>
 
@@ -277,7 +297,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.8 }}
-                    className="absolute inset-0 bg-white z-[10002]"
+                    className="absolute inset-0 bg-black z-[10002]"
                 />
             )}
         </div>

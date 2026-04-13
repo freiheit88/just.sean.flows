@@ -25,8 +25,8 @@ const TypewriterText = ({ text, speed = 30 }) => {
     return <span>{displayedText}</span>;
 };
 
-const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh', forceExpanded = false, forceFolded = false, onToggleResize }) => {
-    const [isFoldedState, setIsFoldedState] = useState(true);
+const MinaDirective = ({ text = "[ 멍 때리는중 ]", variant = "default", isVisible, activeStep, position = 'fixed', interactionMode = 'action', sysName = "SEAN'S COMMENT", actionReq = "ACTION REQUIRED", isSpeaking = false, badges = [], disableToggle = false, ui = {}, dynamicMaxHeight = '75vh', forceExpanded = false, forceFolded = false, onToggleResize }) => {
+    const [isFoldedState, setIsFoldedState] = useState(false);
     const isFolded = forceFolded ? true : (forceExpanded ? false : isFoldedState);
     const setIsFolded = setIsFoldedState;
 
@@ -52,6 +52,26 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
 
     if (!isVisible || !text) return null;
 
+    if (variant === 'mini') {
+        return (
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="w-full h-full flex flex-col items-center justify-center pointer-events-none mx-auto z-[6000]"
+            >
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="text-[60px] md:text-[80px] drop-shadow-[0_0_20px_rgba(197,160,89,0.8)] animate-bounce-slow text-[#C5A059]"
+                >
+                    ❓
+                </motion.div>
+            </motion.div>
+        );
+    }
+
     // Draggable container logic
     const containerClasses = position === 'fixed'
         ? "pointer-events-auto fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-[95%] max-w-[540px]"
@@ -71,8 +91,8 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
             >
                 <motion.div
                     layout
-                    className={`flex flex-col w-full overflow-hidden relative backdrop-blur-xl bg-white/5 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-500
-                            ${isFolded ? 'rounded-3xl cursor-pointer hover:bg-white/10' : 'rounded-[2rem]'}`}
+                    className={`flex flex-col w-full overflow-hidden relative backdrop-blur-xl bg-black/60 border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all duration-500
+                            ${isFolded ? 'rounded-2xl cursor-pointer hover:bg-black/80' : 'rounded-2xl'}`}
                     style={{
                         height: isFolded ? 'auto' : dynamicMaxHeight, // Force exact stretch to grid bottom even if empty
                         maxHeight: isFolded ? 'none' : dynamicMaxHeight // Dynamic layout lock matching exactly to grid's bottom
@@ -93,10 +113,10 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                     </div>
 
                     {/* ALWAYS VISIBLE HEADER (MINIMIZED STATE UI) */}
-                    <div className="flex flex-col min-h-[150px] md:min-h-[170px] relative z-10 transition-colors shrink-0">
+                    <div className={`flex flex-col ${!isFolded ? 'min-h-[100px] md:min-h-[120px]' : ''} relative z-10 transition-colors shrink-0`}>
                         {/* Title Bar: Guide Concept (50% visual weight) - CLICKABLE TOGGLE */}
                         <div
-                            className={`flex-1 w-full bg-black/40 border-b border-white/10 flex items-center justify-between relative shadow-[0_4px_20px_rgba(0,0,0,0.3)] backdrop-blur-sm z-10 px-6 py-4 ${disableToggle ? '' : 'cursor-pointer hover:bg-black/50 transition-colors'}`}
+                            className={`flex w-full items-center justify-between relative z-10 px-4 py-3 ${disableToggle ? '' : 'cursor-pointer hover:bg-white/5 transition-colors'}`}
                             onClick={() => {
                                 if (!disableToggle) {
                                     setIsFolded(!isFolded);
@@ -105,17 +125,17 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                             }}
                             title={!disableToggle ? (isFolded ? "Click to Expand" : "Click to Collapse") : ""}
                         >
-                            <span className={`flex items-center justify-start gap-2 text-[16px] md:text-[19px] font-serif tracking-[0.2em] font-bold uppercase transition-colors duration-700 drop-shadow-md whitespace-nowrap`} style={{ color: themeColor }}>
+                            <span className={`flex-1 flex items-center justify-start gap-2 text-[12px] sm:text-[14px] md:text-[15px] font-sans tracking-[0.1em] md:tracking-[0.15em] font-bold uppercase transition-colors duration-700 drop-shadow-md pr-2`} style={{ color: themeColor }}>
                                 {/* Dual Persona Icons: Fixed Inactive brightness/glow */}
-                                <div className="flex items-center gap-1.5 mr-1 text-[17px] md:text-[20px]">
-                                    <span className={`transition-all duration-700 ${!isConductor ? 'opacity-100 scale-110 drop-shadow-[0_0_8px_rgba(197,160,89,0.9)]' : 'opacity-30 grayscale-[0.8] brightness-[0.4] drop-shadow-[0_0_5px_rgba(255,255,255,0.2)] scale-90'}`} title="SEAN'S COMMENT Mode">
+                                <div className="flex items-center gap-1 shrink-0">
+                                    <span className={`transition-all duration-700 ${!isConductor ? 'opacity-100 drop-shadow-[0_0_8px_rgba(197,160,89,0.9)]' : 'opacity-30 grayscale-[0.8] brightness-[0.4]'} text-[14px] md:text-[16px]`} title="SEAN'S COMMENT Mode">
                                         🎙️
                                     </span>
-                                    <span className={`transition-all duration-700 ${isConductor ? 'opacity-100 scale-110 drop-shadow-[0_0_8px_rgba(0,229,255,0.9)]' : 'opacity-30 grayscale-[0.8] brightness-[0.4] drop-shadow-[0_0_5px_rgba(255,255,255,0.2)] scale-90'}`} title="Principal Conductor Mode">
+                                    <span className={`transition-all duration-700 ${isConductor ? 'opacity-100 drop-shadow-[0_0_8px_rgba(0,229,255,0.9)]' : 'opacity-30 grayscale-[0.8] brightness-[0.4]'} text-[14px] md:text-[16px]`} title="Principal Conductor Mode">
                                         🎻
                                     </span>
                                 </div>
-                                <div className="text-left">
+                                <div className="text-left whitespace-nowrap overflow-hidden text-ellipsis">
                                     {sysName.replace('🎻', '').replace('🎙️', '').trim()}
                                 </div>
                             </span>
@@ -123,9 +143,9 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                             {/* Decorative Elegant Divider Line: Thicker, Sharper, Dynamic Color */}
                             <div className={`absolute -bottom-[2px] left-1/2 -translate-x-1/2 w-2/3 h-[2px] opacity-90`} style={{ background: `linear-gradient(90deg, transparent 0%, ${themeColor} 50%, transparent 100%)` }} />
 
-                            {/* Absolute Right Controls (Badges + Intuitive Toggle) */}
+                            {/* Right Controls (Badges + Intuitive Toggle) - Flex child, no longer absolute to prevent overlap */}
                             {!disableToggle && (
-                                <div className="absolute top-1/2 -translate-y-1/2 right-3 md:right-5 flex items-center gap-1.5 md:gap-2">
+                                <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
                                     {/* Badges Box */}
                                     {badges.length > 0 && (
                                         <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-black/60 border border-[#C5A059]/30 shadow-[0_0_10px_rgba(197,160,89,0.15)]">
@@ -136,14 +156,14 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
 
                                     {/* Explicit Expand/Collapse Pill */}
                                     <div
-                                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all cursor-pointer shadow-inner"
+                                        className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-md transition-all cursor-pointer shadow-inner"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setIsFolded(!isFolded);
                                             if (onToggleResize) onToggleResize();
                                         }}
                                     >
-                                        <span className={`text-[9px] md:text-[10px] font-sans font-bold tracking-widest uppercase transition-colors ${isFolded ? 'text-white/80' : 'text-white/50'}`}>
+                                        <span className={`text-[8px] md:text-[9px] font-sans font-black tracking-widest uppercase transition-colors ${isFolded ? 'text-white/80' : 'text-white/50'}`}>
                                             {isFolded ? 'Expand' : 'Close'}
                                         </span>
                                         {isFolded ? (
@@ -157,17 +177,17 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                         </div>
 
                         {/* Message: Typewriter Effect (50% visual weight) */}
-                        <div className="flex-1 flex items-center justify-center w-full px-8 py-4">
+                        <div className="flex-1 flex items-center justify-center w-full px-5 pb-5">
                             <motion.div
                                 animate={!isConductor ? {
-                                    y: [0, -2, 0],
-                                    scale: [1, 1.04, 1], // Trendy Flinch/Pulse effect specifically for action prompts
-                                    textShadow: ["0px 2px 10px rgba(255,255,255,0.3)", `0px 0px 15px rgba(${themeColorRgb}, 0.8)`, "0px 2px 10px rgba(255,255,255,0.3)"]
+                                    y: [0, -1, 0],
+                                    scale: [1, 1.01, 1],
+                                    textShadow: ["0px 1px 5px rgba(255,255,255,0.2)", `0px 0px 10px rgba(${themeColorRgb}, 0.5)`, "0px 1px 5px rgba(255,255,255,0.2)"]
                                 } : {
-                                    textShadow: "0px 2px 10px rgba(255,255,255,0.3)"
+                                    textShadow: "0px 1px 5px rgba(255,255,255,0.2)"
                                 }}
-                                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-                                className="text-[15px] sm:text-base md:text-lg font-serif text-white/95 tracking-wide leading-relaxed break-keep whitespace-pre-wrap text-center w-full cursor-default"
+                                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                                className="text-[12px] sm:text-[13px] md:text-[14px] font-serif text-white/90 tracking-wide leading-relaxed whitespace-pre-wrap text-center w-full cursor-default"
                             >
                                 <TypewriterText text={text} speed={30} />
                             </motion.div>
@@ -269,78 +289,98 @@ const MinaDirective = ({ text = "[ 멍 때리는중 ]", isVisible, activeStep, p
                                                     {/* Section Header */}
                                                     <div className="px-3 pb-1 border-b border-white/10 mb-1">
                                                         <span className="text-xs font-serif tracking-widest uppercase text-white/60">
-                                                            {ui.guideHeader || "1. Language & Flow"}
+                                                            {ui.guideHeader || "1. Onboarding"}
                                                         </span>
                                                     </div>
 
-                                                    {/* Completed Task 1 */}
-                                                    <div className="flex items-center justify-between w-full px-3">
-                                                        <div className="flex items-center gap-3">
-                                                            <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : ''}`} style={!showStrikethrough ? { color: themeColor } : {}} strokeWidth={1.5} />
-                                                            <span className={`text-sm font-serif tracking-wide italic transition-all duration-1000 ${showStrikethrough ? 'text-white/40 line-through' : 'text-white/90'}`}>
-                                                                {ui.guideStep1 || "1-1. System boot & sync"}
-                                                            </span>
-                                                        </div>
-                                                        <motion.span
-                                                            initial={{ opacity: 0, scale: 0.8 }}
-                                                            animate={{ opacity: showStrikethrough ? 1 : 0, scale: showStrikethrough ? 1 : 0.8 }}
-                                                            className="text-[9px] font-sans font-black tracking-widest uppercase border px-1.5 py-0.5 rounded-sm h-fit"
-                                                            style={{ color: `rgba(${themeColorRgb}, 0.6)`, borderColor: `rgba(${themeColorRgb}, 0.3)` }}
-                                                        >
-                                                            {ui.guideComplete || "Complete"}
-                                                        </motion.span>
-                                                    </div>
+                                                    {[
+                                                        {
+                                                            id: 1,
+                                                            title: ui.guideStep1 || "1-1. AWARENESS 먼저 숙지하기!!",
+                                                            desc: "중앙의 AWARENESS 아이콘을 클릭하여 필수 사항을 확인해주세요.",
+                                                            isComplete: activeStep === 'identity' || activeStep === 'language' || text === "앵커 확정 성공!",
+                                                            isActive: activeStep === 'awareness' || (!['identity', 'language'].includes(activeStep) && text !== "앵커 확정 성공!")
+                                                        },
+                                                        {
+                                                            id: 2,
+                                                            title: ui.guideStep2 || "1-2. 아이덴티티 증명하기",
+                                                            desc: "거부하거나 받아들이거나. 당신의 방식을 선택하세요.",
+                                                            isComplete: activeStep === 'language' || text === "앵커 확정 성공!",
+                                                            isActive: activeStep === 'identity'
+                                                        },
+                                                        {
+                                                            id: 3,
+                                                            title: ui.guideStep3 || "1-3. 연결할 언어 선택하기",
+                                                            desc: "원하는 주파수의 언어를 선택하세요.",
+                                                            isComplete: text === "앵커 확정 성공!",
+                                                            isActive: activeStep === 'language' && text !== "앵커 확정 성공!"
+                                                        }
+                                                    ].map((step, idx) => {
+                                                        const isPending = !step.isComplete && !step.isActive;
 
-                                                    {/* Completed Task 2 */}
-                                                    <div className="flex items-center justify-between w-full px-3">
-                                                        <div className="flex items-center gap-3">
-                                                            <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : ''}`} style={!showStrikethrough ? { color: themeColor } : {}} strokeWidth={1.5} />
-                                                            <span className={`text-sm font-serif tracking-wide italic transition-all duration-1000 ${showStrikethrough ? 'text-white/40 line-through' : 'text-white/90'}`}>
-                                                                {ui.guideStep2 || "1-2. Multiverse Breach"}
-                                                            </span>
-                                                        </div>
-                                                        <motion.span
-                                                            initial={{ opacity: 0, scale: 0.8 }}
-                                                            animate={{ opacity: showStrikethrough ? 1 : 0, scale: showStrikethrough ? 1 : 0.8 }}
-                                                            className="text-[9px] font-sans font-black tracking-widest uppercase border px-1.5 py-0.5 rounded-sm h-fit"
-                                                            style={{ color: `rgba(${themeColorRgb}, 0.6)`, borderColor: `rgba(${themeColorRgb}, 0.3)` }}
-                                                        >
-                                                            {ui.guideComplete || "Complete"}
-                                                        </motion.span>
-                                                    </div>
-
-                                                    {/* Active Task */}
-                                                    <motion.div
-                                                        animate={!forceExpanded && text !== "앵커 확정 성공!" ? {
-                                                            borderColor: [`rgba(${themeColorRgb}, 0.2)`, `rgba(${themeColorRgb}, 0.8)`, `rgba(${themeColorRgb}, 0.2)`],
-                                                            boxShadow: ['0 0 10px rgba(0,0,0,0)', `0 0 20px rgba(${themeColorRgb}, 0.2)`, '0 0 10px rgba(0,0,0,0)']
-                                                        } : {}}
-                                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                                        className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 ${forceExpanded || text === "앵커 확정 성공!" ? 'border-white/10 bg-transparent' : 'border-dashed bg-black/40'}`}
-                                                    >
-                                                        {forceExpanded || text === "앵커 확정 성공!" ? (
-                                                            <CheckCircle2 className={`w-4 h-4 mt-0.5 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : ''}`} style={!showStrikethrough ? { color: themeColor } : {}} strokeWidth={1.5} />
-                                                        ) : (
-                                                            <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
-                                                        )}
-                                                        <div className="flex flex-col gap-1 w-full relative">
-                                                            <div className="flex justify-between items-center w-full">
-                                                                <span className={`text-sm font-serif tracking-wide ${forceExpanded || text === "앵커 확정 성공!" ? 'italic text-white/40 line-through' : 'font-bold'}`} style={!(forceExpanded || text === "앵커 확정 성공!") ? { color: themeColor } : {}}>
-                                                                    {ui.guideStep3 || "1-3. Select your frequency."}
-                                                                </span>
-                                                                {(forceExpanded || text === "앵커 확정 성공!") && (
-                                                                    <span className="text-[9px] font-sans font-black tracking-widest uppercase border px-1.5 py-0.5 rounded-sm h-fit" style={{ color: `rgba(${themeColorRgb}, 0.6)`, borderColor: `rgba(${themeColorRgb}, 0.3)` }}>
+                                                        if (step.isComplete) {
+                                                            return (
+                                                                <div key={step.id} className="flex items-center justify-between w-full px-3 mt-1">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <CheckCircle2 className={`w-4 h-4 shrink-0 transition-colors duration-1000 ${showStrikethrough ? 'text-white/30' : ''}`} style={!showStrikethrough ? { color: themeColor } : {}} strokeWidth={1.5} />
+                                                                        <span className={`text-sm font-serif tracking-wide italic transition-all duration-1000 ${showStrikethrough ? 'text-white/40 line-through' : 'text-white/90'}`}>
+                                                                            {step.title}
+                                                                        </span>
+                                                                    </div>
+                                                                    <motion.span
+                                                                        initial={{ opacity: 0, scale: 0.8 }}
+                                                                        animate={{ opacity: showStrikethrough ? 1 : 0, scale: showStrikethrough ? 1 : 0.8 }}
+                                                                        className="text-[9px] font-sans font-black tracking-widest uppercase border px-1.5 py-0.5 rounded-sm h-fit"
+                                                                        style={{ color: `rgba(${themeColorRgb}, 0.6)`, borderColor: `rgba(${themeColorRgb}, 0.3)` }}
+                                                                    >
                                                                         {ui.guideComplete || "Complete"}
+                                                                    </motion.span>
+                                                                </div>
+                                                            );
+                                                        }
+
+                                                        if (step.isActive) {
+                                                            return (
+                                                                <motion.div
+                                                                    key={step.id}
+                                                                    animate={{
+                                                                        borderColor: [`rgba(${themeColorRgb}, 0.2)`, `rgba(${themeColorRgb}, 0.8)`, `rgba(${themeColorRgb}, 0.2)`],
+                                                                        boxShadow: ['0 0 10px rgba(0,0,0,0)', `0 0 20px rgba(${themeColorRgb}, 0.2)`, '0 0 10px rgba(0,0,0,0)']
+                                                                    }}
+                                                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                                                    className={`flex items-start gap-3 w-full px-4 py-4 rounded-xl relative mt-2 border-2 border-dashed bg-black/40`}
+                                                                >
+                                                                    <Circle className="w-4 h-4 mt-0.5 shrink-0 animate-pulse glow" style={{ color: themeColor }} strokeWidth={2} />
+                                                                    <div className="flex flex-col gap-1 w-full relative">
+                                                                        <div className="flex justify-between items-center w-full">
+                                                                            <span className={`text-sm font-serif tracking-wide font-bold`} style={{ color: themeColor }}>
+                                                                                {step.title}
+                                                                            </span>
+                                                                        </div>
+                                                                        <span className={`text-[13px] font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
+                                                                            {step.desc}
+                                                                        </span>
+                                                                    </div>
+                                                                </motion.div>
+                                                            );
+                                                        }
+
+                                                        if (isPending) {
+                                                            return (
+                                                                <div key={step.id} className={`flex items-center justify-between w-full px-4 py-3 border border-white/5 bg-black/20 rounded-lg opacity-50 ${idx > 0 ? 'mt-1' : ''}`}>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <Circle className="w-4 h-4 shrink-0 text-white/30" strokeWidth={1.5} />
+                                                                        <span className="text-sm font-serif tracking-wide text-white/60">
+                                                                            {step.title}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="text-[9px] font-sans font-black tracking-widest uppercase border border-white/10 text-white/30 px-1.5 py-0.5 rounded-sm h-fit">
+                                                                        Pending
                                                                     </span>
-                                                                )}
-                                                            </div>
-                                                            {!(forceExpanded || text === "앵커 확정 성공!") && (
-                                                                <span className={`text-sm font-serif tracking-wide leading-snug text-white/80 mt-1 block whitespace-pre-wrap break-keep`}>
-                                                                    {text}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </motion.div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                    })}
 
                                                     <div className="w-full h-8 shrink-0 pointer-events-none" />
                                                 </div>

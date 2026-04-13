@@ -1,4 +1,4 @@
-export const callGemini = async (payload, apiKey, endpoint = "generateContent", model = "gemini-1.5-flash-latest") => {
+export const callGemini = async (payload, apiKey, endpoint = "generateContent", model = "gemini-2.5-flash") => {
     if (!apiKey) {
         console.error("Gemini API Key is missing. Cannot call the AI service.");
         throw new Error("Missing API Key");
