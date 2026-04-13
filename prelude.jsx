@@ -1508,7 +1508,10 @@ const App = () => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => setUploadedImage(reader.result.split(',')[1]);
+            reader.onloadend = () => setUploadedImage({
+                base64: reader.result.split(',')[1],
+                mimeType: file.type || "image/jpeg"
+            });
             reader.readAsDataURL(file);
         }
     };
@@ -1549,7 +1552,7 @@ const App = () => {
                     role: "user",
                     parts: [
                         { text: `You are an expert image captioner for an AI image generator. Deeply analyze the uploaded image and describe EXACTLY what is in it (Subject, object, colors, composition, lighting, facial features if human, landscape details if scenery). Whether it is a portrait, landscape, or anything else, describe it so well that another AI could perfectly recreate it. Then, briefly add a 1-sentence poetic magical lore about it. Ensure the output is purely visual English description. Max 80 words.` },
-                        { inlineData: { mimeType: "image/png", data: uploadedImage } }
+                        { inlineData: { mimeType: uploadedImage.mimeType, data: uploadedImage.base64 } }
                     ]
                 }];
             } else {
