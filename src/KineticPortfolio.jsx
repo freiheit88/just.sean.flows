@@ -83,65 +83,66 @@ const DEFAULT_ENDING = {
     quote: 'Holding a cold martini, captivated by solo violin at midnight.'
 };
 
-// ASTRONOMICAL VECTOR STAR COMPONENTS (Diffraction Spikes, Photospheres, Lens Flares)
+// SOFT AMBIENT ASTRONOMICAL VECTOR STARS (Softer, Distant, Non-Glaring)
 function AstronomicalSpikeStar({ color, size }) {
     return (
-        <svg viewBox="0 0 60 60" width={size * 2.6} height={size * 2.6} className="overflow-visible pointer-events-none drop-shadow-[0_0_12px_rgba(255,255,255,0.6)]">
-            {/* Outer Halo Glow */}
-            <circle cx="30" cy="30" r="18" fill={color} opacity="0.3" filter="blur(4px)" />
-            {/* Diffraction Cross Spikes */}
-            <path d="M 30,2 L 32.5,27.5 L 58,30 L 32.5,32.5 L 30,58 L 27.5,32.5 L 2,30 L 27.5,27.5 Z" fill={color} opacity="0.9" />
-            {/* Secondary Rays */}
-            <path d="M 30,12 L 31.5,28.5 L 48,30 L 31.5,31.5 L 30,48 L 28.5,31.5 L 12,30 L 28.5,28.5 Z" fill="#FFFFFF" opacity="0.75" />
-            {/* Bright Center Photosphere */}
-            <circle cx="30" cy="30" r="3" fill="#FFFFFF" />
+        <svg viewBox="0 0 60 60" width={size * 2.0} height={size * 2.0} className="overflow-visible pointer-events-none opacity-85">
+            <circle cx="30" cy="30" r="16" fill={color} opacity="0.25" filter="blur(3px)" />
+            <path d="M 30,4 L 32,28 L 56,30 L 32,32 L 30,56 L 28,32 L 4,30 L 28,28 Z" fill={color} opacity="0.65" />
+            <circle cx="30" cy="30" r="2" fill="#FFFFFF" opacity="0.7" />
         </svg>
     );
 }
 
 function AstronomicalOrbStar({ color, size }) {
     return (
-        <svg viewBox="0 0 40 40" width={size * 2.0} height={size * 2.0} className="overflow-visible pointer-events-none">
-            <circle cx="20" cy="20" r="14" fill={color} opacity="0.35" filter="blur(3px)" />
-            <circle cx="20" cy="20" r="7" fill={color} opacity="0.85" />
-            <circle cx="20" cy="20" r="2.5" fill="#FFFFFF" />
+        <svg viewBox="0 0 40 40" width={size * 1.6} height={size * 1.6} className="overflow-visible pointer-events-none opacity-80">
+            <circle cx="20" cy="20" r="14" fill={color} opacity="0.2" filter="blur(3px)" />
+            <circle cx="20" cy="20" r="5" fill={color} opacity="0.55" />
+            <circle cx="20" cy="20" r="1.8" fill="#FFFFFF" opacity="0.6" />
         </svg>
     );
 }
 
 function AstronomicalFlareStar({ color, size }) {
     return (
-        <svg viewBox="0 0 80 40" width={size * 3.2} height={size * 1.6} className="overflow-visible pointer-events-none">
-            <path d="M 0,20 Q 40,16 80,20 Q 40,24 0,20 Z" fill={color} opacity="0.85" filter="blur(1px)" />
-            <path d="M 40,5 Q 38,20 40,35 Q 42,20 40,5 Z" fill={color} opacity="0.65" />
-            <circle cx="40" cy="20" r="2.5" fill="#FFFFFF" />
+        <svg viewBox="0 0 80 40" width={size * 2.4} height={size * 1.2} className="overflow-visible pointer-events-none opacity-85">
+            <path d="M 0,20 Q 40,17 80,20 Q 40,23 0,20 Z" fill={color} opacity="0.55" filter="blur(1px)" />
+            <path d="M 40,6 Q 38.5,20 40,34 Q 41.5,20 40,6 Z" fill={color} opacity="0.4" />
+            <circle cx="40" cy="20" r="1.8" fill="#FFFFFF" opacity="0.65" />
         </svg>
     );
 }
 
-// MULTI-COLOR & ASTRONOMICAL SHAPE STAR DATABASE WITH PARALLAX MASS & DEPTH
-const STARS_DATABASE = Array.from({ length: 32 }).map((_, i) => {
-    const size = 5 + (i * 7) % 12; // 5px to 16px
-    const isLarge = size > 10;
-    const isMedium = size >= 7 && size <= 10;
+// DYNAMIC LIVING STARFIELD DATABASE WITH MAGNETIC GRAVITATIONAL DRAG
+const STARS_DATABASE = Array.from({ length: 36 }).map((_, i) => {
+    const size = 3 + (i * 7) % 9; // 3px to 11px (More distant feeling!)
+    const isLarge = size > 8;
+    const isMedium = size >= 5 && size <= 8;
 
     const colors = ['#E7FF00', '#00F0FF', '#FF0055', '#FFFFFF', '#C5A059'];
     const color = colors[i % colors.length];
 
-    const type = i % 3; // 0: Spike, 1: Orb, 2: Flare
+    const type = i % 3;
 
-    const zDepth = isLarge ? -95 : isMedium ? 15 : 95;
-    const tiltMult = isLarge ? 0.35 : isMedium ? 0.85 : 1.55;
+    const zDepth = isLarge ? -120 : isMedium ? 10 : 90;
+    const tiltMult = isLarge ? 0.25 : isMedium ? 0.75 : 1.5;
+
+    const rawLeftPercent = (i * 11 + 4) % 92;
+    const distFromCenter = (rawLeftPercent - 50);
+    // Nearby stars bend inward toward LET'S GO !'s ascending magnetic trajectory!
+    const pullFactor = Math.abs(distFromCenter) < 32 ? (distFromCenter * -0.22) : 0;
 
     return {
         id: i,
         size,
         color,
         type,
-        left: `${(i * 11 + 4) % 92}vw`,
-        delay: (i * 0.22) % 2.8,
-        duration: isLarge ? 5.4 : isMedium ? 3.8 : 2.5, // Heavy stars move slowly, small light stars get dragged smoothly!
-        opacityMax: 0.45 + (i % 5) * 0.12,
+        left: `${rawLeftPercent}vw`,
+        pullX: `${pullFactor}vw`,
+        delay: (i * 0.28) % 3.2,
+        duration: isLarge ? 7.5 : isMedium ? 4.4 : 2.2, // Diverse speeds (2.2s to 7.5s)!
+        opacityMax: 0.20 + (i % 6) * 0.08, // Soft ambient opacity (0.20 to 0.60)!
         zDepth,
         tiltMult,
         isLarge
@@ -306,7 +307,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & ASTRONOMICAL VECTOR STARFIELD
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & LIVING MAGNETIC STARFIELD
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -904,7 +905,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: ASTRONOMICAL VECTOR STARFIELD WITH ZERO EMOJI TEXT */}
+            {/* 2. INITIAL UNLOCK SPLASH: LIVING MAGNETIC STARFIELD WITH ORGANIC GRAVITATIONAL ATTRACTION */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -914,20 +915,20 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         onClick={(e) => forceUnlockAudio(e)}
                         onTouchStart={(e) => forceUnlockAudio(e)}
-                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/80 backdrop-blur-2xl cursor-pointer overflow-hidden"
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/85 backdrop-blur-2xl cursor-pointer overflow-hidden"
                         style={{
                             perspective: '800px',
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* PURE VECTOR ASTRONOMICAL STARFIELD LAYER */}
+                        {/* DYNAMIC LIVING STARFIELD LAYER WITH DIVERSE SPEEDS & MAGNETIC ATTRACTION */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
                             {STARS_DATABASE.map((s) => {
                                 const starTiltX = tilt.x * 24 * s.tiltMult;
                                 const starTiltY = tilt.y * 24 * s.tiltMult;
 
-                                const startY = s.isLarge ? '80vh' : '100vh';
-                                const endY = s.isLarge ? '10vh' : '-20vh';
+                                const startY = s.isLarge ? '85vh' : '105vh';
+                                const endY = s.isLarge ? '12vh' : '-25vh';
 
                                 return (
                                     <motion.div
@@ -940,8 +941,9 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                         }}
                                         animate={{
                                             y: [startY, endY],
+                                            x: ['0vw', s.pullX], // Dynamic magnetic inward attraction toward LET'S GO !
                                             opacity: [0, s.opacityMax, 0],
-                                            scale: [0.3, 1.4, 0.2]
+                                            scale: [0.3, 1.1, 0.2]
                                         }}
                                         transition={{
                                             duration: s.duration,
