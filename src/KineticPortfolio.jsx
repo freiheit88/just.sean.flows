@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Footprints
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
@@ -39,12 +39,12 @@ const DEFAULT_ENDING = {
 };
 
 export default function App() {
-    const [currentStep, setCurrentStep] = useState('flipbook'); // 'flipbook', 'mixer_ending', 'ticket'
+    const [currentStep, setCurrentStep] = useState('flipbook');
     const [userNickname, setUserNickname] = useState("SEAN");
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // High Precision Cursor Position & Velocity Tracking
+    // High Precision Cursor Tracking
     const [cursorPos, setCursorPos] = useState({ 
         x: 0.5, 
         y: 0.5, 
@@ -211,7 +211,7 @@ export default function App() {
                 ))}
             </div>
 
-            {/* 3. Ultra-Chic Single Editorial Brand Header */}
+            {/* 3. Editorial Brand Header */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-5 flex items-center justify-between pointer-events-none">
                 <div className="pointer-events-auto flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-pulse"></span>
@@ -259,7 +259,7 @@ export default function App() {
                 )}
             </main>
 
-            {/* Frankfurt Sound Atelier & Corporation Intel Modal */}
+            {/* Frankfurt Sound Atelier Modal */}
             <AnimatePresence>
                 {showAtelierModal && (
                     <FrankfurtAtelierModal onClose={() => setShowAtelierModal(false)} />
@@ -270,19 +270,23 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH GUARANTEED MOBILE AUDIO UNLOCK & SEPARATE PC/MOBILE KINETICS
+// 1. FLIPBOOK ENGINE WITH DEV KINETICS HUD & RESPONSIVE POWER CALIBRATION
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
+    // Live Dev Kinetics Power Meter (0 ~ 100)
+    const [livePower, setLivePower] = useState(0);
+    const [audioTier, setAudioTier] = useState(1);
+    const [lastVelocityStr, setLastVelocityStr] = useState("0.0");
+
     // Initial Preloader State
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
     const [simulatedVolume, setSimulatedVolume] = useState(12);
     const [isLocked30Glitter, setIsLocked30Glitter] = useState(false);
     const [showSwipeCue, setShowSwipeCue] = useState(true);
-    const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
 
     const audioCtxRef = useRef(null);
     const bassRef = useRef(null);
@@ -300,11 +304,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const progressRef = useRef(0);
     const isAudioStarted = useRef(false);
 
-    // True Combo Energy Reservoir (0 ~ 100)
+    // Live Scroll Power Reservoir
     const currentEnergy = useRef(0);
     const lastEnergyPumpTime = useRef(Date.now());
 
-    // 100% Guaranteed Synchronous Mobile Audio Unlocker
+    // Guaranteed Mobile Audio Unlocker
     const forceUnlockMobileAudio = () => {
         if (isAudioStarted.current) return;
 
@@ -325,7 +329,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (r.current) {
                 r.current.muted = false;
                 r.current.playsInline = true;
-                // Bass (index 0) starts with 0.50 volume immediately, others 0
                 if (idx === 0) {
                     r.current.volume = 0.50;
                 } else {
@@ -340,7 +343,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 if (p !== undefined) {
                     p.then(() => {
                         isAudioStarted.current = true;
-                        setIsAudioUnlocked(true);
                     }).catch(() => {});
                 }
             }
@@ -366,45 +368,58 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
-    // Dynamic Volume Engine with Fast Decay
+    // RESPONSIVE POWER DECAY ENGINE & DEV HUD SYNC (Every 50ms)
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
             const timeSincePump = now - lastEnergyPumpTime.current;
 
-            // Fast decay: drops 3.5 energy every 50ms when idle
-            if (timeSincePump > 100) {
-                currentEnergy.current = Math.max(0, currentEnergy.current - 3.5);
+            // Gentle responsive decay: drops 2.0 energy every 50ms (40 energy/sec) when idle
+            if (timeSincePump > 140) {
+                currentEnergy.current = Math.max(0, currentEnergy.current - 2.0);
             }
 
-            const energy = currentEnergy.current;
+            const energy = Math.round(currentEnergy.current);
+            setLivePower(energy);
 
+            // Responsive Calibration:
+            // Level 1: Idle (0 ~ 15) -> Bass 50%
+            // Level 2: Active Pace (16 ~ 45) -> Bass 75%, Guitar 70%
+            // Level 3: Rush (46 ~ 75) -> All instruments 85%
+            // Level 4: Overdrive (76 ~ 100) -> Full Band + Lead Vocal 95%
+            let tier = 1;
             let targetBass = 0.50;
             let targetGuitar = 0.0;
             let targetOtherInst = 0.0;
             let targetVocal = 0.0;
 
-            if (energy >= 85) {
+            if (energy >= 76) {
+                tier = 4;
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
-            } else if (energy >= 50) {
+            } else if (energy >= 46) {
+                tier = 3;
                 targetBass = 0.90;
                 targetGuitar = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
-            } else if (energy >= 18) {
+            } else if (energy >= 16) {
+                tier = 2;
                 targetBass = 0.75;
                 targetGuitar = 0.70;
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
             } else {
+                tier = 1;
                 targetBass = 0.50;
                 targetGuitar = 0.0;
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
             }
+
+            setAudioTier(tier);
 
             if (bassRef.current) bassRef.current.volume = targetBass;
             if (guitarRef.current) guitarRef.current.volume = targetGuitar;
@@ -444,10 +459,10 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Audible Crisp Footstep Synthesizer (Stereo Panned Footsteps)
+    // Audible Crisp Footsteps
     const playAudibleFootstep = () => {
         const now = Date.now();
-        if (now - lastStepTime.current < 240) return;
+        if (now - lastStepTime.current < 220) return;
         lastStepTime.current = now;
 
         try {
@@ -461,7 +476,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const isLeft = isLeftFoot.current;
             isLeftFoot.current = !isLeft;
 
-            // Crisp cobblestone step sound (Dual-tone crunch + sub punch)
             const osc = ctx.createOscillator();
             const oscGain = ctx.createGain();
             osc.type = 'sine';
@@ -515,7 +529,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // Gentle Autopilot timeline
+    // Autopilot timeline
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress((prev) => {
@@ -529,22 +543,22 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // SEPARATE PC vs MOBILE KINETICS ENGINE
+    // RESPONSIVE SCROLL HANDLERS & DEV VELOCITY TRACKER
     useEffect(() => {
-        // 1. PC Mouse Wheel Handler (Calibrated for mouse wheel notches)
         const handleWheel = (e) => {
             e.preventDefault();
             setShowSwipeCue(false);
             forceUnlockMobileAudio();
 
             const rawDelta = Math.abs(e.deltaY);
-            // PC: Moderate wheel spinning gives ~10-15 energy. Fast roll reaches 85+.
-            const energyAdd = Math.min(rawDelta * 0.12, 16);
+            setLastVelocityStr((rawDelta).toFixed(0) + " delta");
+
+            // Responsive Wheel Power: ~25-35 energy per fast spin
+            const energyAdd = Math.min(rawDelta * 0.28, 38);
             currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
             lastEnergyPumpTime.current = Date.now();
 
-            // Progress: 1 wheel tick advances ~1.8% to 3.0%
-            const clampedDelta = Math.min(rawDelta * 0.0035, 1.8);
+            const clampedDelta = Math.min(rawDelta * 0.004, 2.2);
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
@@ -556,7 +570,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             setTimeout(() => setIsHeadBobbing(false), 160);
         };
 
-        // 2. Mobile Touch Handlers (Physical Velocity & Logarithmic Damping)
         const handleTouchStart = (e) => {
             forceUnlockMobileAudio();
             if (e.touches && e.touches[0]) {
@@ -575,19 +588,16 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const now = Date.now();
             const timeDiff = Math.max(16, now - touchStartTime.current);
 
-            // Upward swipe
             if (deltaY > 0) {
-                const velocity = deltaY / timeDiff; // px per ms (typically 0.3 ~ 3.0)
+                const velocity = deltaY / timeDiff; // px per ms
+                setLastVelocityStr(velocity.toFixed(2) + " px/ms");
 
-                // Mobile Energy Combo: Only fast flicks (> 0.5 px/ms) pump energy significantly
-                if (velocity > 0.4) {
-                    const energyAdd = Math.min(velocity * 14, 20);
-                    currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
-                    lastEnergyPumpTime.current = now;
-                }
+                // Responsive Touch Power: A normal swipe adds ~25-35 energy easily!
+                const energyAdd = Math.min(velocity * 28 + deltaY * 0.12, 45);
+                currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
+                lastEnergyPumpTime.current = now;
 
-                // Mobile Progress: Logarithmic Damping (Max 4% progress per swipe stroke)
-                const strokeProgress = Math.min(Math.log1p(deltaY * 0.08) * 0.9, 3.8);
+                const strokeProgress = Math.min(deltaY * 0.022, 4.0);
                 setProgress((prev) => {
                     const next = Math.min(100, prev + strokeProgress);
                     progressRef.current = next;
@@ -684,7 +694,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     );
                 })}
 
-                {/* 2. DIRECT IN-PICTURE BUILDING CLICK ZONE (Frames 2 & 3 - Zero Text Boxes) */}
+                {/* 2. DIRECT IN-PICTURE BUILDING CLICK ZONE */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && !isInitialBuffering && (
                         <motion.div
@@ -710,20 +720,51 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     )}
                 </AnimatePresence>
 
-                {/* Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
+                {/* 3. Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-20 pb-8 px-4 sm:px-12 text-center z-20">
-                    <div className="h-6 flex items-center justify-center">
-                        {/* Audio Tap Unlock Status Badge if on mobile */}
-                        {!isAudioUnlocked && (
-                            <motion.div 
-                                animate={{ opacity: [0.5, 1, 0.5] }}
-                                transition={{ repeat: Infinity, duration: 1.5 }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase"
-                            >
-                                <Volume2 className="w-3 h-3" />
-                                <span>TAP SCREEN TO ACTIVATE SOUND</span>
-                            </motion.div>
-                        )}
+                    {/* LIVE DEV KINETICS POWER GAUGE HUD */}
+                    <div className="flex flex-col items-center gap-1.5">
+                        <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-white/20 shadow-2xl font-mono text-[11px] font-bold">
+                            <div className="flex items-center gap-1.5">
+                                <Zap className={`w-3.5 h-3.5 ${livePower >= 76 ? 'text-[#FF0055] animate-bounce' : livePower >= 46 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`} />
+                                <span className="text-white/60">POWER:</span>
+                                <span className={`text-sm ${livePower >= 76 ? 'text-[#FF0055]' : livePower >= 46 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`}>
+                                    {livePower}%
+                                </span>
+                            </div>
+
+                            <span className="w-1 h-3 bg-white/20" />
+
+                            <div className="flex items-center gap-1 text-[10px]">
+                                <span className="text-white/50">TIER:</span>
+                                <span className="text-white">
+                                    {audioTier === 4 && '⚡ LV.4 VOCAL'}
+                                    {audioTier === 3 && '🔥 LV.3 TUTTI'}
+                                    {audioTier === 2 && '🎸 LV.2 GUITAR'}
+                                    {audioTier === 1 && '🌙 LV.1 BASS'}
+                                </span>
+                            </div>
+
+                            <span className="w-1 h-3 bg-white/20 hidden sm:inline-block" />
+
+                            <span className="text-[9px] text-white/40 font-mono hidden sm:inline-block">
+                                SPD: {lastVelocityStr}
+                            </span>
+                        </div>
+
+                        {/* Visual Live Power Bar */}
+                        <div className="w-36 sm:w-56 h-1.5 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/15">
+                            <div 
+                                className={`h-full rounded-full transition-all duration-75 ${
+                                    livePower >= 76 
+                                        ? 'bg-[#FF0055] shadow-[0_0_10px_#FF0055]' 
+                                        : livePower >= 46 
+                                        ? 'bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]' 
+                                        : 'bg-[#00F0FF]'
+                                }`}
+                                style={{ width: `${livePower}%` }}
+                            />
+                        </div>
                     </div>
 
                     {/* True 3D Letter-by-Letter Assembled Kinetic Typography */}
