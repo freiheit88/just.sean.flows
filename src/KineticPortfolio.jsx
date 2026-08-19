@@ -252,25 +252,24 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. ULTRA-MINIMALIST FLOATING 3D HEADER (NO @ PREFIX & NO PILL BOX!) */}
+            {/* 2. DRAMATIC KINETIC NEON GLITCH HEADER (NO BOX TILT!) */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 py-6 flex items-center justify-center pointer-events-none">
-                <motion.div 
-                    style={{
-                        transform: `perspective(600px) rotateX(${tilt.y * -35}deg) rotateY(${tilt.x * 35}deg) translateZ(40px)`,
-                        transformStyle: 'preserve-3d'
-                    }}
-                    className="pointer-events-auto flex items-center justify-center gap-3 py-1 transition-transform duration-100 ease-out"
-                >
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_18px_#E7FF00] animate-pulse"></span>
-                    <span 
-                        className="font-mono font-black text-base sm:text-xl tracking-[0.38em] text-[#E7FF00] uppercase"
+                <div className="pointer-events-auto flex items-center justify-center gap-3 py-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_20px_#E7FF00] animate-pulse"></span>
+                    <h1 
+                        className="font-mono font-black text-lg sm:text-2xl tracking-[0.38em] uppercase text-white relative select-none"
                         style={{
-                            textShadow: '0 2px 0 #C5A059, 0 4px 0 #000000, 0 6px 22px rgba(231,255,0,0.9)'
+                            textShadow: `
+                                2.5px 2.5px 0px #FF0055,
+                                -2.5px -2.5px 0px #00F0FF,
+                                0 0 25px rgba(231,255,0,0.85),
+                                0 0 50px rgba(231,255,0,0.5)
+                            `
                         }}
                     >
                         JUST.SEAN.FLOWS
-                    </span>
-                </motion.div>
+                    </h1>
+                </div>
             </header>
 
             <main className="relative z-10 w-full h-full flex items-center justify-center">
@@ -318,7 +317,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// PRE-LOADED SPLASH STATE WITH FOOTSTEP RATE-LIMIT (MAX 260MS) & SMOOTH SCROLL PACING
+// PRE-LOADED SPLASH STATE WITH FOOTSTEP OFF-SWITCH AFTER LEVEL 1 (TIER 2+)
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -478,10 +477,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         } catch (e) {}
     };
 
-    // STRICT FOOTSTEP RATE-LIMIT SAFEGUARD (MIN 260MS BETWEEN STEPS TO PREVENT DOUBLE-FIRE OVERLAPS)
+    // STRICT FOOTSTEP RATE-LIMIT & LEVEL 1 ONLY OFF-SWITCH SAFEGUARD
     const MIN_FOOTSTEP_INTERVAL_MS = 260;
 
     const triggerCleanFootstep = (speedVelocity = 1) => {
+        // FOOTSTEP OFF-SWITCH: ONLY PLAY DURING INITIAL ENTRY / GUITAR-ONLY TIER 1 (OFF BEFORE LEVEL UP / TIER 2+)
+        if (currentPower.current >= 20 || audioTier > 1) return;
+
         const now = Date.now();
         const dynamicInterval = Math.max(MIN_FOOTSTEP_INTERVAL_MS, 750 - Math.min(speedVelocity * 80, 480));
         
@@ -1230,7 +1232,7 @@ function FrankfurtAtelierModal({ onClose }) {
                         </p>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+                    <div className="p-4 rounded-2xl bg-[#00F0FF]/[0.03] border border-[#00F0FF]/20">
                         <span className="text-[#00F0FF] font-bold block mb-1">HEADQUARTERS</span>
                         <p className="text-white/80 text-[11px]">
                             Frankfurt am Main, Hessen, Germany
