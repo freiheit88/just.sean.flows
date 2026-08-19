@@ -308,7 +308,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH 100% WINE × TREBLE LOGO NO. 65 SOUND ATELIER FRAMES
+// 1. FLIPBOOK ENGINE WITH HUMAN WALKING CADENCE FOOTSTEP THROTTLING (340ms)
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -426,6 +426,20 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             osc.stop(ctx.currentTime + 0.09);
             noise.stop(ctx.currentTime + 0.09);
         } catch (e) {}
+    };
+
+    // HUMAN WALKING CADENCE FOOTSTEP TRIGGER (Enforces min 340ms between steps)
+    const triggerRhythmicFootstep = (speedVelocity = 1) => {
+        const now = Date.now();
+        // Dynamic walking cadence: minimum 320ms interval during fast scroll, 360ms during steady walk
+        const minCadenceInterval = Math.max(300, 360 - Math.min(speedVelocity * 30, 60));
+        
+        if (now - lastStepTime.current >= minCadenceInterval) {
+            lastStepTime.current = now;
+            playSingleFootstep();
+            setIsHeadBobbing(true);
+            setTimeout(() => setIsHeadBobbing(false), 160);
+        }
     };
 
     // PLAY 3-SECOND REALISTIC WALKING FOOTSTEP AMBIENCE SEQUENCE
@@ -660,7 +674,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // PROGRESSIVE TIER DIFFICULTY SCROLL ENGINE
+    // PROGRESSIVE TIER DIFFICULTY SCROLL ENGINE WITH CADENCE THROTTLING
     useEffect(() => {
         const handleWheel = (e) => {
             const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
@@ -690,9 +704,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            playSingleFootstep();
-            setIsHeadBobbing(true);
-            setTimeout(() => setIsHeadBobbing(false), 160);
+            // Trigger footstep with human walking cadence throttling (min 340ms interval)
+            triggerRhythmicFootstep(rawDelta * 0.01);
         };
 
         const handleTouchStart = (e) => {
@@ -742,9 +755,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                playSingleFootstep();
-                setIsHeadBobbing(true);
-                setTimeout(() => setIsHeadBobbing(false), 160);
+                // Trigger footstep with human walking cadence throttling (min 340ms interval)
+                triggerRhythmicFootstep(velocity);
             }
 
             touchStartY.current = currentY;
@@ -1402,7 +1414,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
                             <span className="font-mono text-[7px] text-white/40">CLICK TO UNLOCK UNLISTED VIDEO</span>
                         </div>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-white/40 group-hover:text-[#E7FF00]" />
+                    <ExternalLink className="w-3.5 h-3.5 text-[#E7FF00] group-hover:text-[#E7FF00]" />
                 </a>
 
                 <div className="font-mono text-[8px] text-white/40">
