@@ -19,57 +19,57 @@ const STEM_SRCS = {
     vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
-// 7 Photorealistic Bauhaus Optics Atelier Frames with Witty Conversational Copy & Building Text Alignment
+// 7 Urban Rustic Pick Logo Atelier Frames with Witty Conversational Copy & 1:1 Text-Picture Alignment
 const FRAMES = [
     { 
         id: 0, 
-        src: "/assets/optics_style_01_curved_piano_1787171855898.jpg", 
+        src: "/assets/urban_rustic_01_courtyard_1787172615555.jpg", 
         titleTop: "JUST SEAN FLOWS", 
         titleMain: "노래 들으면서 갈래?", 
-        sub: "밤거리 걸으며 함께 듣는 프라이빗 음향 스케치",
-        buildingSign: null
+        sub: "골목 가로수 길 걸으며 함께 듣는 프라이빗 음향 스케치",
+        buildingSign: "@JUST.SEAN.FLOWS // BURGUNDY PICK EMBLEM"
     },
     { 
         id: 1, 
-        src: "/assets/optics_style_10_signature_sean_1787172064020.jpg", 
+        src: "/assets/urban_rustic_02_stone_alley_1787172632085.jpg", 
         titleTop: "GUILD ATELIER IN FORMATION", 
         titleMain: "나 법인 냈는데, 보고 갈래?", 
-        sub: "독일 프랑크푸르트 1인 하이브리드 사운드 프로덕션 본부",
-        buildingSign: "@JUST.SEAN.FLOWS // SOUND ATELIER",
+        sub: "유럽 라벤더 & 석조 아치 속 1인 하이브리드 사운드 랩",
+        buildingSign: "@JUST.SEAN.FLOWS // GLASS EMBLEM",
         hasBuildingTarget: true
     },
     { 
         id: 2, 
-        src: "/assets/optics_style_02_streamline_duplex_1787171876437.jpg", 
+        src: "/assets/urban_rustic_05_curved_bakery_1787172686912.jpg", 
         titleTop: "MIDNIGHT 02:00 AM", 
         titleMain: "새벽 2시, 여기만 안 자네.", 
-        sub: "바우하우스 곡면 통유리 속 24시간 불이 켜진 사운드 랩",
-        buildingSign: "ATELIER SONIQUE · 24HRS"
+        sub: "붉은 벽돌 모퉁이 & 버건디 피크 네온 조명 사운드 랩",
+        buildingSign: "@JUST.SEAN.FLOWS // BURGUNDY NEON PICK"
     },
     { 
         id: 3, 
-        src: "/assets/optics_style_06_alley_rotunda_1787171966885.jpg", 
-        titleTop: "SECRET ALLEY ROTUNDA", 
+        src: "/assets/urban_rustic_03_canal_signboard_1787172648703.jpg", 
+        titleTop: "CANAL SIDE ROTUNDA", 
         titleMain: "살짝 들여다볼까?", 
-        sub: "골목 모퉁이 네온 사인 & 어쿠스틱 기타 진열대",
-        buildingSign: "@JUST.SEAN.FLOWS // SOUNDLAB",
+        sub: "운하 물가 옆 보라색 등나무 & 단조 아이언 피크 간판",
+        buildingSign: "@JUST.SEAN.FLOWS // WROUGHT IRON PICK",
         hasBuildingTarget: true
     },
     { 
         id: 4, 
-        src: "/assets/optics_style_03_brick_panoramic_1787171899123.jpg", 
+        src: "/assets/urban_rustic_04_passageway_1787172669011.jpg", 
         titleTop: "BEHIND THE CURTAIN", 
         titleMain: "여기 내 비밀 아지트야.", 
-        sub: "진공관 앰프 & 릴테이프 아날로그 사운드스케이프",
-        buildingSign: "@JUST.SEAN.FLOWS // ATELIER"
+        sub: "자작나무 화분 & 황동 피크 현판이 맞이하는 석조 아지트",
+        buildingSign: "@JUST.SEAN.FLOWS // BRASS PICK PLAQUE"
     },
     { 
         id: 5, 
-        src: "/assets/optics_style_08_cantilever_balcony_1787172016436.jpg", 
+        src: "/assets/urban_rustic_07_yellow_brick_1787172741769.jpg", 
         titleTop: "ACOUSTIC SANCTUARY", 
         titleMain: "거의 다 왔다.", 
-        sub: "2층 통유리 발코니 너머 울리는 그랜드 피아노 & 더블베이스",
-        buildingSign: "SOUND ATELIER"
+        sub: "올리브 나무 화분 & 옐로우 브릭 속 어쿠스틱 앰프 스튜디오",
+        buildingSign: "@JUST.SEAN.FLOWS // SOUND STUDIO PLAQUE"
     },
     { 
         id: 6, 
@@ -315,7 +315,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH 5-SEC EXTENDED PACING & 1:1 TEXT-PICTURE LOCKING
+// 1. FLIPBOOK ENGINE WITH URBAN RUSTIC FRAMES, BURGUNDY PICK LOGO & WITTY COPY
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -606,12 +606,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // 5-SECOND EXTENDED WALKING PACING TIMELINE (Relaxed & Comfortable)
+    // 5-SECOND EXTENDED WALKING PACING TIMELINE
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) return 100;
-                // Slowed down progress increment for +5s relaxed walk
                 const next = Math.min(100, prev + 0.05);
                 progressRef.current = next;
                 return next;
@@ -749,7 +748,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             onTouchStart={() => forceUnlockAudio()}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none"
         >
-            {/* 6 Synchronized Multi-Stem Audio Elements with Encoded URIs */}
+            {/* 6 Synchronized Multi-Stem Audio Elements */}
             <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
             <audio ref={guitarRef} src={STEM_SRCS.guitar} loop playsInline preload="auto" />
             <audio ref={drumsRef} src={STEM_SRCS.drums} loop playsInline preload="auto" />
@@ -884,17 +883,19 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                     {/* True 3D Letter-by-Letter Assembled Kinetic Typography & Building Sign Overlay */}
                     <div className="max-w-4xl mx-auto my-auto px-2 flex flex-col items-center">
-                        {/* 1:1 Locked Building Signage Badge Overlay */}
+                        {/* 1:1 Locked Burgundy Wine Guitar Pick Logo Badge Overlay */}
                         {currentFrame.buildingSign && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.8, y: 15 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 transition={{ duration: 0.4 }}
-                                className="mb-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/90 border border-[#E7FF00]/80 shadow-[0_0_25px_rgba(231,255,0,0.4)] backdrop-blur-xl"
+                                className="mb-4 inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-black/90 border border-[#800020] shadow-[0_0_30px_rgba(128,0,32,0.6)] backdrop-blur-xl"
                             >
-                                <span className="w-2 h-2 rounded-full bg-[#E7FF00] animate-ping" />
-                                <span className="font-mono text-[10px] sm:text-xs font-black text-[#E7FF00] tracking-widest uppercase">
-                                    SIGN: {currentFrame.buildingSign}
+                                <div className="w-3.5 h-4 bg-[#800020] border border-[#FF0055] clip-path-pick rounded-xs flex items-center justify-center shadow-sm">
+                                    <span className="w-1 h-1 rounded-full bg-white animate-ping" />
+                                </div>
+                                <span className="font-mono text-[10px] sm:text-xs font-black text-[#FF4D79] tracking-widest uppercase">
+                                    BURGUNDY PICK LOGO: {currentFrame.buildingSign}
                                 </span>
                             </motion.div>
                         )}
@@ -1184,7 +1185,7 @@ function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, 
                 ].map((s) => (
                     <div key={s.id} className="p-4 sm:p-5 rounded-2xl border border-white/15 bg-white/[0.02] flex flex-col justify-between">
                         <div className="flex justify-between items-center font-mono text-xs mb-2">
-                            <span className="font-bold text-white text-[11px]">{s.label}</span>
+                            <span className="font-bold text-[#E7FF00] font-bold text-[11px]">{s.label}</span>
                             <span style={{ color: s.color }} className="font-bold">{stems[s.id]}%</span>
                         </div>
                         <input
