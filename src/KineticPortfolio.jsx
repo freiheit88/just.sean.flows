@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, ChevronUp
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
@@ -115,7 +115,6 @@ export default function App() {
         >
             {/* 1. Precision Musical Custom Cursor (Desktop Musical Note + Waveform Frequency Ring) */}
             <div className="hidden md:block pointer-events-none fixed inset-0 z-50">
-                {/* Center Sharp Musical Eighth Note */}
                 <motion.div
                     animate={{
                         x: cursorPos.rawX - 6,
@@ -129,7 +128,6 @@ export default function App() {
                     <Music className="w-3.5 h-3.5 fill-current" />
                 </motion.div>
 
-                {/* Outer Soundwave / Vinyl Groove Frequency Ring */}
                 <motion.div
                     animate={{
                         x: cursorPos.rawX - (cursorPos.isOverTitle ? 25 : 18),
@@ -222,7 +220,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH LETTER-BY-LETTER ASSEMBLED 3D TYPOGRAPHY & 1.5s BREATHING GLITTER
+// 1. FLIPBOOK ENGINE WITH ZERO-TEXT VISUAL UPWARD ENERGY & SOFT SHIMMER 30% LOCK
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -234,7 +232,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
     const [simulatedVolume, setSimulatedVolume] = useState(12);
     const [isLocked30Glitter, setIsLocked30Glitter] = useState(false);
-    const [showSwipeGuide, setShowSwipeGuide] = useState(true);
+    const [showSwipeCue, setShowSwipeCue] = useState(true);
 
     const audioCtxRef = useRef(null);
     const bgmRef = useRef(null);
@@ -295,16 +293,19 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
+    // 1. Initial Sequence: Soft Hunting -> Lock 30% & Soft Breathing Shimmer -> Smooth Dissolve
     useEffect(() => {
         const t1 = setTimeout(() => setSimulatedVolume(36), 300);
         const t2 = setTimeout(() => setSimulatedVolume(16), 650);
         const t3 = setTimeout(() => setSimulatedVolume(42), 1000);
         
+        // At 1.3s, snap to 30% and begin 1.5s soft breathing pulse
         const t4 = setTimeout(() => {
             setSimulatedVolume(30);
             setIsLocked30Glitter(true);
         }, 1300);
 
+        // At 2.8s (1.5s soft breathing completed), dissolve blur and play audio
         const t5 = setTimeout(() => {
             setIsInitialBuffering(false);
             attemptPlayAudio();
@@ -321,7 +322,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     }, []);
 
     useEffect(() => {
-        const timer = setTimeout(() => setShowSwipeGuide(false), 6000);
+        const timer = setTimeout(() => setShowSwipeCue(false), 6500);
         return () => clearTimeout(timer);
     }, []);
 
@@ -415,7 +416,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
-            setShowSwipeGuide(false);
+            setShowSwipeCue(false);
             if (!isBgmStarted.current) attemptPlayAudio();
 
             scrollCount.current += 1;
@@ -447,7 +448,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
         const handleTouchMove = (e) => {
             if (!e.touches || !e.touches[0]) return;
-            setShowSwipeGuide(false);
+            setShowSwipeCue(false);
             if (!isBgmStarted.current) attemptPlayAudio();
 
             scrollCount.current += 1;
@@ -655,7 +656,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* 2. LAYER ABOVE BLUR: ONLY PHONE VOLUME HUD WITH 1.5s BREATHING GLITTER LOCK */}
+            {/* 2. LAYER ABOVE BLUR: 30% SOFTENED SUBTLE BREATHING SHIMMER (30% Reduced Intensity) */}
             <AnimatePresence>
                 {isInitialBuffering && (
                     <motion.div
@@ -669,61 +670,55 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                             animate={{ 
                                 x: 0, 
                                 opacity: 1,
-                                scale: isLocked30Glitter ? [1.0, 1.08, 1.0] : 1.0
+                                scale: isLocked30Glitter ? [1.0, 1.04, 1.0] : 1.0
                             }}
                             exit={{ x: 40, opacity: 0 }}
-                            transition={isLocked30Glitter ? { repeat: Infinity, duration: 1.5, ease: "easeInOut" } : { duration: 0.4 }}
-                            className={`p-3.5 rounded-3xl bg-black/90 backdrop-blur-2xl border transition-all duration-300 shadow-2xl flex flex-col items-center gap-3 ${
+                            transition={isLocked30Glitter ? { repeat: Infinity, duration: 1.6, ease: "easeInOut" } : { duration: 0.4 }}
+                            className={`p-3.5 rounded-3xl bg-black/90 backdrop-blur-2xl border transition-all duration-500 shadow-2xl flex flex-col items-center gap-3 ${
                                 isLocked30Glitter 
-                                    ? 'border-[#E7FF00] shadow-[0_0_40px_rgba(231,255,0,0.7)]' 
+                                    ? 'border-[#E7FF00]/70 shadow-[0_0_22px_rgba(231,255,0,0.35)]' 
                                     : 'border-white/20'
                             }`}
                         >
-                            <Volume2 className={`w-4 h-4 ${isLocked30Glitter ? 'text-[#E7FF00]' : 'text-white/70'}`} />
+                            <Volume2 className={`w-4 h-4 transition-colors ${isLocked30Glitter ? 'text-[#E7FF00]' : 'text-white/70'}`} />
                             <div className="w-2 h-28 bg-white/20 rounded-full overflow-hidden flex flex-col justify-end p-0.5">
                                 <motion.div
                                     className="w-full bg-[#E7FF00] rounded-full transition-all duration-200"
                                     style={{ height: `${simulatedVolume}%` }}
                                 />
                             </div>
-                            <span className={`font-mono text-[10px] font-black tracking-wider transition-all duration-300 ${
-                                isLocked30Glitter 
-                                    ? 'text-[#E7FF00] drop-shadow-[0_0_12px_#E7FF00]' 
-                                    : 'text-white'
-                            }`}>
+                            <motion.span 
+                                animate={isLocked30Glitter ? { opacity: [0.8, 1, 0.8], scale: [0.98, 1.04, 0.98] } : {}}
+                                transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+                                className={`font-mono text-[10px] font-bold tracking-wider transition-all duration-300 ${
+                                    isLocked30Glitter 
+                                        ? 'text-[#E7FF00] drop-shadow-[0_0_8px_rgba(231,255,0,0.5)]' 
+                                        : 'text-white'
+                                }`}
+                            >
                                 {simulatedVolume}%
-                            </span>
+                            </motion.span>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* 3. BIG-TECH STYLE 'SWIPE UP' CINEMATIC GESTURE PROMPT */}
+            {/* 3. ZERO-TEXT VISUAL UPWARD ENERGY CUE (Pure Light Pearl & Fluid Rising Track) */}
             <AnimatePresence>
-                {showSwipeGuide && !isInitialBuffering && (
+                {showSwipeCue && !isInitialBuffering && (
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -30, transition: { duration: 0.6 } }}
-                        className="fixed inset-x-0 bottom-24 pointer-events-none z-30 flex flex-col items-center justify-center gap-2"
+                        exit={{ opacity: 0, y: -20, transition: { duration: 0.6 } }}
+                        className="fixed inset-x-0 bottom-24 pointer-events-none z-30 flex flex-col items-center justify-center"
                     >
-                        <div className="px-5 py-2.5 rounded-full bg-black/85 backdrop-blur-2xl border border-[#E7FF00]/50 shadow-[0_0_30px_rgba(231,255,0,0.4)] flex items-center gap-3">
-                            <div className="w-4 h-7 rounded-full border border-[#E7FF00]/60 p-0.5 flex flex-col items-center justify-end overflow-hidden">
-                                <motion.div
-                                    animate={{ y: [0, -14, 0], opacity: [0.2, 1, 0.2] }}
-                                    transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
-                                >
-                                    <ChevronUp className="w-3 h-3 text-[#E7FF00]" />
-                                </motion.div>
-                            </div>
-                            <div className="flex flex-col text-left">
-                                <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-widest uppercase">
-                                    SWIPE UP
-                                </span>
-                                <span className="font-mono text-[8px] text-white/60 tracking-wider">
-                                    SCROLL TO ADVANCE
-                                </span>
-                            </div>
+                        {/* Minimalist Glass Energy Capsule with Smooth Rising Light Pearl */}
+                        <div className="w-7 h-14 rounded-full border border-white/20 bg-black/60 backdrop-blur-xl p-1 flex flex-col items-center justify-end overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.6)]">
+                            <motion.div
+                                animate={{ y: [0, -32, 0], opacity: [0.2, 1, 0], scale: [0.8, 1.1, 0.6] }}
+                                transition={{ repeat: Infinity, duration: 1.8, ease: [0.45, 0, 0.55, 1] }}
+                                className="w-3.5 h-3.5 rounded-full bg-gradient-to-t from-[#E7FF00]/40 to-[#E7FF00] shadow-[0_0_12px_#E7FF00]"
+                            />
                         </div>
                     </motion.div>
                 )}
