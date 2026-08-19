@@ -36,6 +36,9 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
+    // Subtle Cursor Position Tracking for Magnetic Typography
+    const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: 0, rawY: 0, isHovered: false });
+
     const [stems, setStems] = useState({
         violin: 85,
         electric: 60,
@@ -80,10 +83,35 @@ export default function App() {
         setCurrentStep('ticket');
     };
 
+    const handlePointerMove = (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true });
+    };
+
+    const handleTouchMove = (e) => {
+        if (e.touches && e.touches[0]) {
+            const x = e.touches[0].clientX / window.innerWidth;
+            const y = e.touches[0].clientY / window.innerHeight;
+            setCursorPos({ x, y, rawX: e.touches[0].clientX, rawY: e.touches[0].clientY, isHovered: true });
+        }
+    };
+
     return (
-        <div className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden">
-            {/* Interactive Particle Trail Layer */}
-            <NeonParticleTrail />
+        <div 
+            onPointerMove={handlePointerMove}
+            onTouchMove={handleTouchMove}
+            className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden"
+        >
+            {/* Subtle Ethereal Ambient Glow Layer */}
+            <div 
+                className="fixed inset-0 pointer-events-none z-10 transition-opacity duration-700"
+                style={{
+                    background: cursorPos.isHovered 
+                        ? `radial-gradient(600px circle at ${cursorPos.rawX}px ${cursorPos.rawY}px, rgba(231, 255, 0, 0.05), rgba(0, 240, 255, 0.02), transparent 70%)`
+                        : 'none'
+                }}
+            />
 
             {/* Ultra-Clean Floating Dynamic Island Header */}
             <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-3 flex items-center justify-between pointer-events-none">
@@ -107,6 +135,7 @@ export default function App() {
             <main>
                 {currentStep === 'flipbook' && (
                     <FlipbookWalkingEngine 
+                        cursorPos={cursorPos}
                         onEnterMixer={() => setCurrentStep('mixer_ending')} 
                         onOpenAtelier={() => setShowAtelierModal(true)}
                     />
@@ -143,113 +172,18 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. NEON FLUID PARTICLE TRAIL (Touch & Scroll Gesture Trail)
+// 1. FLIPBOOK ENGINE WITH PERFECT MR-VOCAL HARD SYNC & AMBIENT SWIPE BEAM
 // ==============================================================================
-function NeonParticleTrail() {
-    const canvasRef = useRef(null);
-    const pointsRef = useRef([]);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-
-        const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-        resize();
-        window.addEventListener('resize', resize);
-
-        const addPoint = (x, y) => {
-            pointsRef.current.push({
-                x, y,
-                age: 0,
-                maxAge: 32,
-                size: Math.random() * 4 + 2,
-                color: Math.random() > 0.3 ? '#E7FF00' : '#00F0FF'
-            });
-        };
-
-        const handlePointerMove = (e) => {
-            addPoint(e.clientX, e.clientY);
-        };
-
-        const handleTouchMove = (e) => {
-            if (e.touches && e.touches[0]) {
-                addPoint(e.touches[0].clientX, e.touches[0].clientY);
-            }
-        };
-
-        window.addEventListener('pointermove', handlePointerMove);
-        window.addEventListener('touchmove', handleTouchMove);
-
-        let animId;
-        const render = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const points = pointsRef.current;
-
-            for (let i = 0; i < points.length; i++) {
-                const p = points[i];
-                p.age += 1;
-                const alpha = Math.max(0, 1 - p.age / p.maxAge);
-                
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = alpha * 0.7;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = p.color;
-                ctx.fill();
-
-                if (i > 0 && points[i - 1]) {
-                    const prev = points[i - 1];
-                    ctx.beginPath();
-                    ctx.moveTo(prev.x, prev.y);
-                    ctx.lineTo(p.x, p.y);
-                    ctx.strokeStyle = p.color;
-                    ctx.lineWidth = 2.5 * alpha;
-                    ctx.stroke();
-                }
-            }
-
-            pointsRef.current = points.filter(p => p.age < p.maxAge);
-            ctx.globalAlpha = 1;
-            ctx.shadowBlur = 0;
-            animId = requestAnimationFrame(render);
-        };
-        render();
-
-        return () => {
-            window.removeEventListener('resize', resize);
-            window.removeEventListener('pointermove', handlePointerMove);
-            window.removeEventListener('touchmove', handleTouchMove);
-            cancelAnimationFrame(animId);
-        };
-    }, []);
-
-    return (
-        <canvas
-            ref={canvasRef}
-            className="fixed inset-0 pointer-events-none z-30"
-        />
-    );
-}
-
-// ==============================================================================
-// 2. FLIPBOOK ENGINE WITH PHONE VOLUME HUD PRELOADER & BULLETPROOF AUDIO
-// ==============================================================================
-function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
+function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     const [vocalVolumePercent, setVocalVolumePercent] = useState(0);
-    const [showGestureTutorial, setShowGestureTutorial] = useState(true);
 
     // 2-Second Phone-Style Floating Volume HUD Preloader State
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
     const [simulatedVolume, setSimulatedVolume] = useState(15);
-    const [isAudioLive, setIsAudioLive] = useState(false);
+    const [showVisualBeam, setShowVisualBeam] = useState(true);
 
     const audioCtxRef = useRef(null);
     const bgmRef = useRef(null);
@@ -263,9 +197,9 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
     const isBgmStarted = useRef(false);
     const lastHardScrollTime = useRef(0);
 
-    // Multi-Tier Bulletproof Audio Playback Engine
+    // Perfect Sample-Accurate Dual Audio Playback (MR + Silent Vocals from 0.00s)
     const attemptPlayAudio = () => {
-        if (!bgmRef.current) return;
+        if (!bgmRef.current || !vocalRef.current) return;
 
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -276,40 +210,54 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
 
         const bgm = bgmRef.current;
-        bgm.volume = 0.65;
+        const vocal = vocalRef.current;
 
-        const playPromise = bgm.play();
-        if (playPromise !== undefined) {
-            playPromise
-                .then(() => {
-                    isBgmStarted.current = true;
-                    setIsAudioLive(true);
-                    if (vocalRef.current) {
-                        vocalRef.current.volume = 0;
-                        vocalRef.current.currentTime = bgm.currentTime;
-                        vocalRef.current.play().catch(() => {});
-                    }
-                })
-                .catch(() => {
-                    // Autoplay blocked by browser until user gesture
-                });
+        bgm.volume = 0.65;
+        vocal.volume = 0; // Starts playing silently in 100% exact timestamp sync!
+
+        // Ensure both tracks start at the exact same second
+        if (Math.abs(bgm.currentTime - vocal.currentTime) > 0.05) {
+            vocal.currentTime = bgm.currentTime;
+        }
+
+        const p1 = bgm.play();
+        const p2 = vocal.play();
+
+        if (p1 !== undefined) {
+            p1.then(() => {
+                isBgmStarted.current = true;
+            }).catch(() => {});
+        }
+        if (p2 !== undefined) {
+            p2.catch(() => {});
         }
     };
 
-    // 1. Initial 2.0s Chic Volume HUD Animation & Preload sequence
+    // Continuous Sync Lock: Enforce 0 drift between MR and Vocal track
     useEffect(() => {
-        // Stepwise volume increase [15% -> 30% -> 50% -> 65%]
+        const syncInterval = setInterval(() => {
+            if (bgmRef.current && vocalRef.current && isBgmStarted.current) {
+                const diff = Math.abs(bgmRef.current.currentTime - vocalRef.current.currentTime);
+                if (diff > 0.04) {
+                    vocalRef.current.currentTime = bgmRef.current.currentTime;
+                }
+            }
+        }, 250);
+
+        return () => clearInterval(syncInterval);
+    }, []);
+
+    // 1. Initial 2.0s Phone Volume HUD sequence
+    useEffect(() => {
         const t1 = setTimeout(() => setSimulatedVolume(30), 400);
         const t2 = setTimeout(() => setSimulatedVolume(50), 900);
         const t3 = setTimeout(() => setSimulatedVolume(65), 1400);
 
-        // At 2.0s, dissolve backdrop and trigger audio
         const t4 = setTimeout(() => {
             setIsInitialBuffering(false);
             attemptPlayAudio();
         }, 2000);
 
-        // Verification check: At 3.2s & 4.0s, ensure audio is live
         const t5 = setTimeout(() => {
             if (!isBgmStarted.current) attemptPlayAudio();
         }, 3200);
@@ -324,15 +272,13 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // 5-Second Chic Minimalist Gesture Tutorial
+    // Fade visual beam after 6 seconds
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowGestureTutorial(false);
-        }, 5000);
+        const timer = setTimeout(() => setShowVisualBeam(false), 6000);
         return () => clearTimeout(timer);
     }, []);
 
-    // Vocal Volume Decay Loop
+    // Vocal Volume Ramp & Decay Loop (Instant sync, smooth fade)
     useEffect(() => {
         const decayInterval = setInterval(() => {
             const timeSinceHardScroll = Date.now() - lastHardScrollTime.current;
@@ -349,7 +295,7 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                     setVocalVolumePercent(0);
                 }
             }
-        }, 60);
+        }, 50);
 
         return () => clearInterval(decayInterval);
     }, []);
@@ -421,11 +367,11 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // Active Scroll & Touch Handlers (Immediately unlocks audio on first gesture)
+    // Active Scroll & Touch Handlers
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
-            setShowGestureTutorial(false);
+            setShowVisualBeam(false);
             if (!isBgmStarted.current) attemptPlayAudio();
 
             scrollCount.current += 1;
@@ -457,7 +403,7 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
 
         const handleTouchMove = (e) => {
             if (!e.touches || !e.touches[0]) return;
-            setShowGestureTutorial(false);
+            setShowVisualBeam(false);
             if (!isBgmStarted.current) attemptPlayAudio();
 
             scrollCount.current += 1;
@@ -497,7 +443,11 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
     }, [progress]);
 
     const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
-    const isAtelierOptionVisible = activeFrameIdx === 2 || activeFrameIdx === 3; // Frames 3 & 4
+    const isAtelierOptionVisible = activeFrameIdx === 2 || activeFrameIdx === 3;
+
+    // Magnetic Parallax Tilt calculations for central title
+    const tiltX = (cursorPos.x - 0.5) * -18; // Degrees
+    const tiltY = (cursorPos.y - 0.5) * 14;
 
     return (
         <div 
@@ -544,7 +494,6 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                         exit={{ opacity: 0, transition: { duration: 0.6 } }}
                         className="absolute inset-0 pointer-events-none z-40 flex items-center justify-end pr-4 sm:pr-8"
                     >
-                        {/* Realistic Floating Vertical Phone Volume Slider */}
                         <motion.div
                             initial={{ x: 30, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
@@ -566,32 +515,32 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                 )}
             </AnimatePresence>
 
-            {/* 3. 5-Second Chic Minimalist Gesture Tutorial Overlay */}
+            {/* 3. Pure Visual Ambient Light-Sweep (No Text - Intuitive Upward Energy Wave) */}
             <AnimatePresence>
-                {showGestureTutorial && !isInitialBuffering && (
+                {showVisualBeam && !isInitialBuffering && (
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20, transition: { duration: 0.5 } }}
-                        className="absolute inset-x-0 bottom-24 pointer-events-none z-30 flex flex-col items-center justify-center gap-2"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, transition: { duration: 0.8 } }}
+                        className="absolute inset-x-0 bottom-0 h-44 pointer-events-none z-25 flex flex-col items-center justify-end overflow-hidden"
                     >
-                        <div className="px-5 py-2 rounded-full bg-black/80 backdrop-blur-xl border border-[#E7FF00]/40 flex items-center gap-3 shadow-[0_0_30px_rgba(231,255,0,0.3)]">
-                            <div className="w-4 h-7 rounded-full border-2 border-[#E7FF00] p-1 flex justify-center">
-                                <motion.div 
-                                    animate={{ y: [0, -6, 0] }}
-                                    transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
-                                    className="w-1.5 h-1.5 rounded-full bg-[#E7FF00]"
-                                />
-                            </div>
-                            <span className="font-mono text-[10px] sm:text-xs font-bold text-[#E7FF00] tracking-widest uppercase">
-                                SWIPE UP TO EXPLORE
-                            </span>
-                        </div>
+                        {/* Ethereal Upward Light Beam Pulse */}
+                        <motion.div
+                            animate={{ y: [40, -120], opacity: [0, 0.8, 0], scaleY: [0.6, 1.4, 0.4] }}
+                            transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
+                            className="w-32 sm:w-48 h-32 bg-gradient-to-t from-transparent via-[#E7FF00]/25 to-transparent blur-xl rounded-full"
+                        />
+                        {/* Minimalist Floating Neon Accent Wave */}
+                        <motion.div
+                            animate={{ y: [0, -16, 0], opacity: [0.4, 0.9, 0.4] }}
+                            transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+                            className="w-8 h-1 bg-gradient-to-r from-transparent via-[#E7FF00] to-transparent rounded-full mb-8 shadow-[0_0_15px_#E7FF00]"
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* 4. Floating Spatial HUD */}
+            {/* 4. Floating Spatial HUD & 3D Magnetic Interactive Typography */}
             <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-8 px-4 sm:px-12 text-center z-20">
                 {/* Top Pill & Live Lead Vocal Pulse Tag */}
                 <div className="flex flex-col items-center gap-2 mx-auto">
@@ -617,17 +566,30 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                     )}
                 </div>
 
-                {/* 3D Kinetic Stagger Headline */}
+                {/* 3D Magnetic Interactive Typography (Reacts to Cursor / Touch) */}
                 <div className="max-w-3xl mx-auto my-auto px-2">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={`title-${activeFrameIdx}`}
-                            initial={{ opacity: 0, y: 15, rotateX: 20 }}
-                            animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                            exit={{ opacity: 0, y: -15, rotateX: -20 }}
-                            transition={{ duration: 0.4 }}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ 
+                                opacity: 1, 
+                                y: 0,
+                                rotateY: tiltX,
+                                rotateX: tiltY,
+                            }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.35, ease: 'easeOut' }}
+                            style={{ transformPerspective: 1000 }}
                         >
-                            <h1 className="font-sans text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white uppercase leading-none drop-shadow-2xl">
+                            <h1 
+                                className="font-sans text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white uppercase leading-none drop-shadow-2xl transition-all duration-200"
+                                style={{
+                                    textShadow: cursorPos.isHovered 
+                                        ? `${tiltX * 1.5}px ${tiltY * 1.5}px 30px rgba(231,255,0,0.25)` 
+                                        : '0 0 20px rgba(0,0,0,0.8)'
+                                }}
+                            >
                                 {activeFrameIdx === 6 ? (
                                     <>
                                         THE DOORS <span className="text-[#E7FF00] italic font-light">OPEN</span>
@@ -663,7 +625,7 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                         )}
                     </AnimatePresence>
 
-                    {progress >= 88 ? (
+                    {progress >= 88 && (
                         <button
                             onClick={onEnterMixer}
                             className="w-full max-w-xs py-4 rounded-full bg-[#E7FF00] text-black font-mono text-xs font-black tracking-[0.25em] uppercase hover:scale-105 transition-all shadow-[0_0_50px_rgba(231,255,0,0.6)] flex items-center justify-center gap-2 animate-pulse"
@@ -671,13 +633,6 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                             <span>ENTER STEM MIXER</span>
                             <ArrowRight className="w-4 h-4" />
                         </button>
-                    ) : (
-                        <div className="flex flex-col items-center gap-1 font-mono text-[11px] text-white/60 tracking-wider">
-                            <span className="animate-bounce">
-                                [ 비트에 맞춰 힘차게 스와이프하면 보컬이 울려 퍼집니다 ]
-                            </span>
-                            <ChevronDown className="w-4 h-4 text-[#E7FF00]" />
-                        </div>
                     )}
 
                     {/* Progress Track */}
@@ -694,7 +649,7 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
 }
 
 // ==============================================================================
-// 3. FRANKFURT SOUND ATELIER & GUILD INTEL MODAL (360 Real-World Corporate Intel)
+// 2. FRANKFURT SOUND ATELIER & GUILD INTEL MODAL (360 Real-World Corporate Intel)
 // ==============================================================================
 function FrankfurtAtelierModal({ onClose }) {
     return (
@@ -778,7 +733,7 @@ function FrankfurtAtelierModal({ onClose }) {
 }
 
 // ==============================================================================
-// 4. STEM MIXER & MULTI-ENDING CONSOLE
+// 3. STEM MIXER & MULTI-ENDING CONSOLE
 // ==============================================================================
 function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, onGenerateTicket }) {
     return (
@@ -849,7 +804,7 @@ function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, 
 }
 
 // ==============================================================================
-// 5. INSTAGRAM STORY 9:16 VIP TICKET MODAL & CANVAS GENERATOR
+// 4. INSTAGRAM STORY 9:16 VIP TICKET MODAL & CANVAS GENERATOR
 // ==============================================================================
 function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
     const canvasRef = useRef(null);
