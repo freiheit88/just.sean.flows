@@ -16,7 +16,7 @@ const STEM_SRCS = {
     drums: "/assets/manual_upload/A%20Twelve-minute%20Alibi/1%20Drums.mp3",
     perc: "/assets/manual_upload/A%20Twelve-minute%20Alibi/4%20Percussion.mp3",
     synth: "/assets/manual_upload/A%20Twelve-minute%20Alibi/5%20Synth.mp3",
-    vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
+    vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0 Lead Vocals.mp3",
 };
 
 // Fixed Hero Main Picture: 07. Stained Glass Transom Atelier
@@ -37,15 +37,16 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // High Precision Cursor Tracking with 16-Node Ribbon Trail Physics
+    // High Precision Cursor Tracking with rAF Butter-Smooth Physics
     const [cursorPos, setCursorPos] = useState({ 
-        x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false, isOverTitle: false, isOverBuilding: false, cursorMode: 'default', speed: 0
+        x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false, isOverTitle: false, isOverBuilding: false, speed: 0
     });
-    const [trailNodes, setTrailNodes] = useState(
-        Array.from({ length: 16 }, () => ({ x: -100, y: -100 }))
-    );
-    const [touchRipples, setTouchRipples] = useState([]);
-    const lastMousePos = useRef({ x: 0, y: 0, time: Date.now() });
+    
+    // Trail physics node positions stored in Ref to prevent 120Hz React state thrashing
+    const trailNodesRef = useRef(Array.from({ length: 14 }, () => ({ x: -100, y: -100 })));
+    const trailElsRef = useRef([]);
+    const rafIdRef = useRef(null);
+    const mousePosRef = useRef({ x: -100, y: -100, lastTime: Date.now() });
 
     const [stems, setStems] = useState({
         violin: 85, electric: 60, bass: 75, orchestra: 90
@@ -88,105 +89,83 @@ export default function App() {
         setCurrentStep('ticket');
     };
 
-    const handlePointerMove = (e) => {
-        const now = Date.now();
-        const dt = Math.max(1, now - lastMousePos.current.time);
-        const dx = e.clientX - lastMousePos.current.x;
-        const dy = e.clientY - lastMousePos.current.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const speed = Math.min(dist / dt, 2.5);
+    // Ultra 60fps/120fps rAF Physics Loop for Cursor Ribbon (Zero Lag)
+    useEffect(() => {
+        const updateTrail = () => {
+            const nodes = trailNodesRef.current;
+            const targetX = mousePosRef.current.x;
+            const targetY = mousePosRef.current.y;
 
-        lastMousePos.current = { x: e.clientX, y: e.clientY, time: now };
+            nodes[0] = { x: targetX, y: targetY };
+
+            for (let i = 1; i < nodes.length; i++) {
+                const prev = nodes[i - 1];
+                const curr = nodes[i];
+                const ease = 0.50 - i * 0.025;
+                curr.x += (prev.x - curr.x) * ease;
+                curr.y += (prev.y - curr.y) * ease;
+            }
+
+            // Direct DOM style update for buttery smooth 120fps ribbon tail
+            trailElsRef.current.forEach((el, i) => {
+                if (el) {
+                    const node = nodes[i];
+                    const size = Math.max(3, 22 - i * 1.3);
+                    el.style.transform = `translate3d(${node.x - size / 2}px, ${node.y - size / 2}px, 0)`;
+                }
+            });
+
+            rafIdRef.current = requestAnimationFrame(updateTrail);
+        };
+
+        rafIdRef.current = requestAnimationFrame(updateTrail);
+        return () => {
+            if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+        };
+    }, []);
+
+    const handlePointerMove = (e) => {
+        mousePosRef.current.x = e.clientX;
+        mousePosRef.current.y = e.clientY;
 
         const x = e.clientX / window.innerWidth;
         const y = e.clientY / window.innerHeight;
         const isOverTitle = Math.abs(x - 0.5) < 0.28 && Math.abs(y - 0.5) < 0.22;
-        const isOverBuilding = Math.abs(x - 0.7) < 0.15 && Math.abs(y - 0.5) < 0.15;
-        
-        let cursorMode = 'default';
-        if (isOverTitle) cursorMode = 'explore';
-        if (isOverBuilding) cursorMode = 'building';
+        const isOverBuilding = Math.abs(x - 0.5) < 0.22 && Math.abs(y - 0.5) < 0.22;
 
-        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true, isOverTitle, isOverBuilding, cursorMode, speed });
-
-        // Update 16-node spring ribbon trail
-        setTrailNodes((prev) => {
-            const next = [{ x: e.clientX, y: e.clientY }];
-            for (let i = 1; i < prev.length; i++) {
-                const prevNode = next[i - 1];
-                const currNode = prev[i];
-                const ease = 0.45 - i * 0.02;
-                next.push({
-                    x: currNode.x + (prevNode.x - currNode.x) * ease,
-                    y: currNode.y + (prevNode.y - currNode.y) * ease
-                });
-            }
-            return next;
-        });
-    };
-
-    const handleTouchMove = (e) => {
-        if (e.touches && e.touches[0]) {
-            const tx = e.touches[0].clientX;
-            const ty = e.touches[0].clientY;
-            const x = tx / window.innerWidth;
-            const y = ty / window.innerHeight;
-            const isOverTitle = Math.abs(x - 0.5) < 0.3 && Math.abs(y - 0.5) < 0.25;
-            setCursorPos({ x, y, rawX: tx, rawY: ty, isHovered: true, isOverTitle, isOverBuilding: false, cursorMode: isOverTitle ? 'explore' : 'default', speed: 0 });
-
-            setTouchRipples((prev) => [
-                ...prev.slice(-3),
-                { id: Date.now() + Math.random(), x: tx, y: ty }
-            ]);
-        }
+        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true, isOverTitle, isOverBuilding, speed: 0 });
     };
 
     return (
         <div 
             onPointerMove={handlePointerMove}
-            onTouchMove={handleTouchMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0 flex items-center justify-center"
         >
-            {/* 1. RESTORED LONG LIQUID RIBBON TAIL CUSTOM CURSOR */}
+            {/* 1. BUTTER-SMOOTH 120FPS DIRECT DOM RIBBON TAIL CURSOR */}
             <div className="hidden md:block pointer-events-none fixed inset-0 z-50 overflow-hidden">
-                {/* 16 Spring Trail Nodes */}
-                {trailNodes.map((node, i) => {
-                    const size = Math.max(3, 24 - i * 1.3);
-                    const opacity = Math.max(0.08, 0.95 - i * 0.055);
+                {trailNodesRef.current.map((_, i) => {
+                    const size = Math.max(3, 22 - i * 1.3);
+                    const opacity = Math.max(0.08, 0.92 - i * 0.06);
                     const color = i % 2 === 0 ? '#E7FF00' : '#00F0FF';
                     return (
-                        <motion.div
+                        <div
                             key={i}
+                            ref={(el) => (trailElsRef.current[i] = el)}
                             style={{
-                                left: node.x - size / 2,
-                                top: node.y - size / 2,
                                 width: size,
                                 height: size,
                                 backgroundColor: color,
                                 opacity: cursorPos.isHovered ? opacity : 0,
-                                boxShadow: i === 0 ? '0 0 20px #E7FF00, 0 0 35px #00F0FF' : 'none'
+                                boxShadow: i === 0 ? '0 0 20px #E7FF00, 0 0 35px #00F0FF' : 'none',
+                                willChange: 'transform'
                             }}
-                            className="fixed rounded-full pointer-events-none transition-all duration-75 mix-blend-screen"
+                            className="fixed top-0 left-0 rounded-full pointer-events-none transition-opacity duration-150 mix-blend-screen"
                         />
                     );
                 })}
             </div>
 
-            {/* 2. Mobile Touch Pulse */}
-            <div className="md:hidden pointer-events-none fixed inset-0 z-40 overflow-hidden">
-                {touchRipples.map((r) => (
-                    <motion.div
-                        key={r.id}
-                        initial={{ opacity: 0.8, scale: 0.3 }}
-                        animate={{ opacity: 0, scale: 1.5 }}
-                        transition={{ duration: 0.4, ease: 'easeOut' }}
-                        style={{ left: r.x - 14, top: r.y - 14 }}
-                        className="absolute w-7 h-7 rounded-full border border-white/80 shadow-[0_0_15px_rgba(255,255,255,0.6)]"
-                    />
-                ))}
-            </div>
-
-            {/* 3. Editorial Brand Header */}
+            {/* 2. Editorial Brand Header */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-5 flex items-center justify-between pointer-events-none">
                 <div className="pointer-events-auto flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-pulse"></span>
@@ -249,7 +228,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. ZERO-BOX KINETIC SOUNDWAVE SHOCKWAVE UNLOCKER ENGINE (AWWARDS / APPLE STYLE)
+// 1. CENTERED PERFECT 9:16 MOBILE STAGE ON PC FOR UNIFIED PIXEL-PERFECT ALIGNMENT
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -696,8 +675,14 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         <div 
             onClick={(e) => forceUnlockAudio(e)}
             onTouchStart={(e) => forceUnlockAudio(e)}
-            className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none"
+            className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none flex items-center justify-center"
         >
+            {/* Ambient Background Blur for Desktop */}
+            <div 
+                className="hidden md:block absolute inset-0 bg-cover bg-center filter blur-3xl opacity-30 scale-110 pointer-events-none"
+                style={{ backgroundImage: `url(${MAIN_HERO_IMAGE})` }}
+            />
+
             {/* 6 Synchronized Multi-Stem Audio Elements */}
             <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
             <audio ref={guitarRef} src={STEM_SRCS.guitar} loop playsInline preload="auto" />
@@ -724,9 +709,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 )}
             </AnimatePresence>
 
-            {/* 1. FIXED SINGLE HERO MAIN PICTURE (STAINED GLASS TRANSOM) */}
+            {/* 1. CENTERED PERFECT 9:16 STAGE FRAME FOR UNIFIED PC & MOBILE PIXEL-PERFECT ALIGNMENT */}
             <div 
-                className="relative w-full h-full transition-all duration-700"
+                className="relative w-full h-full md:w-[430px] md:h-[90vh] md:max-h-[920px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.15)] overflow-hidden transition-all duration-700 bg-black"
                 style={{
                     filter: isInitialBuffering ? 'blur(22px) brightness(35%) saturate(50%)' : 'none'
                 }}
@@ -756,7 +741,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         }}
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
-                        className="pointer-events-auto relative w-[220px] sm:w-[320px] h-[340px] sm:h-[460px] ml-[-40px] sm:ml-[-80px] mt-[40px] sm:mt-[60px] rounded-2xl cursor-pointer group outline-none"
+                        className="pointer-events-auto relative w-[200px] h-[360px] ml-[-20px] mt-[50px] rounded-2xl cursor-pointer group outline-none"
                     >
                         <div className="absolute inset-0 rounded-2xl border-2 border-[#E7FF00]/40 group-hover:border-[#E7FF00] transition-all duration-300 shadow-[0_0_30px_rgba(231,255,0,0.25)] group-hover:shadow-[0_0_50px_rgba(231,255,0,0.7)]" />
                         <div className="absolute inset-0 rounded-2xl bg-[#E7FF00]/[0.03] group-hover:bg-[#E7FF00]/[0.08] transition-colors duration-300" />
@@ -764,50 +749,50 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
 
                 {/* 3. EXACT PHYSICAL SIGN MATCHING OVERLAY BADGE */}
-                <div className="absolute right-[8%] sm:right-[15%] top-[46%] sm:top-[48%] z-30 pointer-events-none">
+                <div className="absolute right-[6%] top-[48%] z-30 pointer-events-none">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8, x: 20 }}
                         animate={{ opacity: 1, scale: 1, x: 0 }}
                         transition={{ duration: 0.6 }}
-                        className="relative px-4 py-2 rounded-xl bg-black/90 border border-[#C5A059] shadow-[0_0_25px_rgba(197,160,89,0.5)] backdrop-blur-xl flex flex-col items-center text-center"
+                        className="relative px-3.5 py-2 rounded-xl bg-black/90 border border-[#C5A059] shadow-[0_0_25px_rgba(197,160,89,0.5)] backdrop-blur-xl flex flex-col items-center text-center"
                     >
-                        <span className="font-mono text-[9px] text-[#C5A059] font-black tracking-[0.25em] uppercase block">
+                        <span className="font-mono text-[8px] text-[#C5A059] font-black tracking-[0.2em] uppercase block">
                             @just.sean.flows
                         </span>
-                        <span className="font-sans text-xs sm:text-sm font-black text-white tracking-widest uppercase mt-0.5">
+                        <span className="font-sans text-[11px] font-black text-white tracking-widest uppercase mt-0.5">
                             J.S.F ATELIER SONORE
                         </span>
-                        <span className="font-mono text-[8px] text-[#E7FF00] tracking-wider mt-0.5">
+                        <span className="font-mono text-[7.5px] text-[#E7FF00] tracking-wider mt-0.5">
                             FRANKFURT AM MAIN
                         </span>
                     </motion.div>
                 </div>
 
                 {/* 4. Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
-                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-20 pb-8 px-4 sm:px-12 text-center z-20">
+                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
                     {/* LIVE DEV KINETICS ACCUMULATIVE POWER GAUGE HUD WITH 80.12% TREMBLING */}
-                    <div className="flex flex-col items-center gap-1.5">
+                    <div className="flex flex-col items-center gap-1.5 pt-4">
                         <button
                             onClick={(e) => forceUnlockAudio(e)}
-                            className={`pointer-events-auto inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl font-mono text-[11px] font-bold transition-all ${
+                            className={`pointer-events-auto inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl font-mono text-[10px] font-bold transition-all ${
                                 isTremblingAt8012 
                                     ? 'border-[#FF0055] text-[#FF0055] animate-bounce shadow-[0_0_25px_#FF0055]' 
                                     : 'border-white/20 hover:border-[#E7FF00]'
                             }`}
                         >
                             <div className="flex items-center gap-1.5">
-                                <Zap className={`w-3.5 h-3.5 ${isTremblingAt8012 ? 'text-[#FF0055] animate-ping' : livePower >= 80 ? 'text-[#FF0055] animate-bounce' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`} />
+                                <Zap className={`w-3 h-3 ${isTremblingAt8012 ? 'text-[#FF0055] animate-ping' : livePower >= 80 ? 'text-[#FF0055] animate-bounce' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`} />
                                 <span className="text-white/60">POWER:</span>
-                                <span className={`text-sm font-black ${isTremblingAt8012 ? 'text-[#FF0055] animate-pulse' : livePower >= 80 ? 'text-[#FF0055]' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`}>
+                                <span className={`text-xs font-black ${isTremblingAt8012 ? 'text-[#FF0055] animate-pulse' : livePower >= 80 ? 'text-[#FF0055]' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`}>
                                     {powerDisplayStr}
                                 </span>
                             </div>
 
                             <span className="w-1 h-3 bg-white/20" />
 
-                            <div className="flex items-center gap-1 text-[10px]">
+                            <div className="flex items-center gap-1 text-[9px]">
                                 <span className="text-white/50">TIER:</span>
-                                <span className="text-white">
+                                <span className="text-white font-bold">
                                     {audioTier === 4 && '⚡ LV.4 VOCAL'}
                                     {audioTier === 3 && '🔥 LV.3 TUTTI'}
                                     {audioTier === 2 && '🎸 LV.2 GUITAR'}
@@ -815,9 +800,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                 </span>
                             </div>
 
-                            <span className="w-1 h-3 bg-white/20 hidden sm:inline-block" />
+                            <span className="w-1 h-3 bg-white/20" />
 
-                            <span className="text-[9px] text-white/40 font-mono hidden sm:inline-block">
+                            <span className="text-[8px] text-white/40 font-mono">
                                 FLOOR: {unlockedLevelFloor.current}%
                             </span>
                         </button>
@@ -826,7 +811,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         <motion.div 
                             animate={isTremblingAt8012 ? { x: [-3, 3, -3, 3, 0] } : {}}
                             transition={isTremblingAt8012 ? { repeat: Infinity, duration: 0.1 } : {}}
-                            className="w-36 sm:w-56 h-1.5 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/15"
+                            className="w-44 h-1.5 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/15"
                         >
                             <div 
                                 className={`h-full rounded-full transition-all duration-75 ${
@@ -844,19 +829,19 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     </div>
 
                     {/* True 3D Letter-by-Letter Assembled Typography Over Stained Glass Atelier */}
-                    <div className="max-w-4xl mx-auto my-auto px-2 flex flex-col items-center">
+                    <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
                         {/* Brand Mark Emblem Overlay Badge */}
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8, y: 15 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             transition={{ duration: 0.4 }}
-                            className="mb-4 inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-black/90 border border-[#C5A059] shadow-[0_0_30px_rgba(197,160,89,0.5)] backdrop-blur-xl"
+                            className="mb-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/90 border border-[#C5A059] shadow-[0_0_25px_rgba(197,160,89,0.5)] backdrop-blur-xl"
                         >
-                            <div className="w-3.5 h-4 bg-[#800020] border border-[#E7FF00] clip-path-pick rounded-xs flex items-center justify-center shadow-sm">
+                            <div className="w-3 h-3.5 bg-[#800020] border border-[#E7FF00] clip-path-pick rounded-xs flex items-center justify-center shadow-sm">
                                 <span className="w-1 h-1 rounded-full bg-white animate-ping" />
                             </div>
-                            <span className="font-mono text-[10px] sm:text-xs font-black text-[#E7FF00] tracking-widest uppercase">
-                                BRAND MARK NO. 65 // STAINED GLASS TRANSOM ATELIER
+                            <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-widest uppercase">
+                                BRAND MARK NO. 65 // STAINED GLASS
                             </span>
                         </motion.div>
 
@@ -870,12 +855,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                             style={{ transformPerspective: 1200, transformStyle: 'preserve-3d' }}
                             className="flex flex-col items-center text-center"
                         >
-                            <h2 className="font-sans text-2xl sm:text-4xl md:text-5xl font-light tracking-tight text-[#E7FF00] uppercase leading-none mb-3">
+                            <h2 className="font-sans text-xl sm:text-2xl font-light tracking-tight text-[#E7FF00] uppercase leading-none mb-2">
                                 JUST SEAN FLOWS
                             </h2>
 
                             <h1 
-                                className="font-sans text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white uppercase leading-tight max-w-3xl"
+                                className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs"
                                 style={{
                                     textShadow: cursorPos.isHovered 
                                         ? `${tiltX * 1.8}px ${tiltY * 1.8}px 35px rgba(231,255,0,0.4)` 
@@ -885,37 +870,37 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                 WANT A QUICK LOOK?
                             </h1>
 
-                            <p className="mt-4 font-mono text-[11px] sm:text-xs tracking-[0.25em] uppercase text-white/90 max-w-xl bg-black/60 px-4 py-1.5 rounded-full border border-white/10 backdrop-blur-sm">
-                                @just.sean.flows · Private Sound Guild Atelier
+                            <p className="mt-3 font-mono text-[10px] tracking-[0.2em] uppercase text-white/90 max-w-xs bg-black/60 px-3 py-1 rounded-full border border-white/10 backdrop-blur-sm">
+                                @just.sean.flows · Sound Guild Atelier
                             </p>
                         </motion.div>
                     </div>
 
                     {/* Bottom Progress Track & Dynamic Sound Pulse Visualizer */}
-                    <div className="pointer-events-auto flex flex-col items-center gap-3">
-                        {/* Minimalist Ambient Soundwave Visualizer Bar (Zero-Text) */}
-                        <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/80 border border-white/15 backdrop-blur-xl">
+                    <div className="pointer-events-auto flex flex-col items-center gap-2.5">
+                        {/* Minimalist Ambient Soundwave Visualizer Bar */}
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/80 border border-white/15 backdrop-blur-xl">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-pulse" />
-                            <div className="flex items-center gap-1 h-3">
+                            <div className="flex items-center gap-1 h-2.5">
                                 <span className="w-0.5 h-full bg-[#E7FF00] animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <span className="w-0.5 h-2 bg-[#E7FF00] animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <span className="w-0.5 h-3 bg-[#00F0FF] animate-bounce" style={{ animationDelay: '300ms' }} />
-                                <span className="w-0.5 h-1.5 bg-[#00F0FF] animate-bounce" style={{ animationDelay: '450ms' }} />
-                                <span className="w-0.5 h-2.5 bg-[#E7FF00] animate-bounce" style={{ animationDelay: '600ms' }} />
+                                <span className="w-0.5 h-1.5 bg-[#E7FF00] animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <span className="w-0.5 h-2.5 bg-[#00F0FF] animate-bounce" style={{ animationDelay: '300ms' }} />
+                                <span className="w-0.5 h-1 bg-[#00F0FF] animate-bounce" style={{ animationDelay: '450ms' }} />
+                                <span className="w-0.5 h-2 bg-[#E7FF00] animate-bounce" style={{ animationDelay: '600ms' }} />
                             </div>
                         </div>
 
                         {progress >= 88 && (
                             <button
                                 onClick={onEnterMixer}
-                                className="w-full max-w-xs py-4 rounded-full bg-[#E7FF00] text-black font-mono text-xs font-black tracking-[0.25em] uppercase hover:scale-105 transition-all shadow-[0_0_50px_rgba(231,255,0,0.6)] flex items-center justify-center gap-2 animate-pulse"
+                                className="w-full max-w-xs py-3 rounded-full bg-[#E7FF00] text-black font-mono text-[11px] font-black tracking-[0.2em] uppercase hover:scale-105 transition-all shadow-[0_0_50px_rgba(231,255,0,0.6)] flex items-center justify-center gap-2 animate-pulse"
                             >
                                 <span>ENTER STEM MIXER</span>
-                                <ArrowRight className="w-4 h-4" />
+                                <ArrowRight className="w-3.5 h-3.5" />
                             </button>
                         )}
 
-                        <div className="w-48 sm:w-80 h-1 bg-white/20 rounded-full overflow-hidden">
+                        <div className="w-40 sm:w-60 h-1 bg-white/20 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-[#E7FF00] transition-all duration-75"
                                 style={{ width: `${progress}%` }}
@@ -1037,7 +1022,7 @@ function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, 
                     <Sliders className="w-3.5 h-3.5" />
                     <span>CURATOR STEM MIXER</span>
                 </div>
-                <h2 className="font-sans text-3xl sm:text-5xl font-black text-white uppercase">
+                <h2 className="font-sans text-3xl sm:text-5xl font-black text-[#FFFFFF] uppercase">
                     CRAFT YOUR HARMONY
                 </h2>
                 <p className="font-mono text-xs text-white/60 mt-2 max-w-md mx-auto">
