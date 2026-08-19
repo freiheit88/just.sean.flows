@@ -101,7 +101,7 @@ const ATELIER_100_WORDS = [
 
     "🔑", "🗝️", "🔒", "⚜", "§", "¶", "⚜ GUILD", "🔑 ROOM 65", "🗝️ SECRET VAULT", "🔒 PRIVATE DOOR",
     "⚜ EMBLEM", "§ 02:00 AM", "¶ LESSON 65", "🔑 KEY TO HAVEN", "🗝️ CONCERT HALL", "🔒 PASSKEY",
-    "⚜ ATELIER", "§ SERENADE", "¶ NOCTURNE", "@just.sean.flows"
+    "⚜ ATELIER", "§ SERENADE", "¶ NOCTURNE", "just.sean.flows"
 ];
 
 // GENERATE 100 DIVERSE SHAPE CATEGORIES WITH 3X AMPLIFIED 3D Z-DEPTH
@@ -252,7 +252,7 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. ULTRA-MINIMALIST FLOATING 3D HEADER (NO TACKY PILL BOX CONTAINER!) */}
+            {/* 2. ULTRA-MINIMALIST FLOATING 3D HEADER (NO @ PREFIX & NO PILL BOX!) */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 py-6 flex items-center justify-center pointer-events-none">
                 <motion.div 
                     style={{
@@ -268,7 +268,7 @@ export default function App() {
                             textShadow: '0 2px 0 #C5A059, 0 4px 0 #000000, 0 6px 22px rgba(231,255,0,0.9)'
                         }}
                     >
-                        @just.sean.flows
+                        JUST.SEAN.FLOWS
                     </span>
                 </motion.div>
             </header>
@@ -704,7 +704,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         const interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) return 100;
-                const next = Math.min(100, prev + 0.08); // Smooth & comfortable baseline pacing!
+                const next = Math.min(100, prev + 0.08);
                 progressRef.current = next;
                 return next;
             });
@@ -921,7 +921,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         </button>
                     </div>
 
-                    {/* True 3D Assembled Typography with Signature just.sean.flows Text Effect (NO SUB-TEXT PILL!) */}
+                    {/* True 3D Assembled Typography (NO DUPLICATE BOTTOM PILL!) */}
                     <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -946,14 +946,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 >
                                     {currentFrame.titleMain}
                                 </h1>
-
-                                {/* SIGNATURE SOUND just.sean.flows TEXT EFFECT */}
-                                <div className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-black/80 border border-[#E7FF00]/40 shadow-[0_0_25px_rgba(231,255,0,0.35)] backdrop-blur-md">
-                                    <span className="w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_10px_#E7FF00] animate-pulse" />
-                                    <span className="font-mono text-xs font-black tracking-[0.35em] text-[#E7FF00] uppercase drop-shadow-[0_0_12px_#E7FF00]">
-                                        just.sean.flows
-                                    </span>
-                                </div>
                             </motion.div>
                         </AnimatePresence>
                     </div>
@@ -1421,7 +1413,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
 
         ctx.fillStyle = safeEnding.accent || '#E7FF00';
         ctx.font = '900 36px monospace';
-        ctx.fillText('@just.sean.flows', W / 2, 1720);
+        ctx.fillText('JUST.SEAN.FLOWS', W / 2, 1720);
 
         ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
         ctx.font = '400 22px monospace';
@@ -1459,7 +1451,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
             <div className="w-full rounded-3xl border border-white/20 bg-black/90 p-5 shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden mb-6">
                 <div className="flex justify-between items-center font-mono text-[9px] text-[#E7FF00] mb-3 pb-2 border-b border-white/10">
                     <span>VIP PASS · 2026</span>
-                    <span>@just.sean.flows</span>
+                    <span>JUST.SEAN.FLOWS</span>
                 </div>
 
                 <div className="text-left mb-4">
@@ -1491,7 +1483,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
                 </a>
 
                 <div className="font-mono text-[8px] text-white/40">
-                    FRANKFURT AM MAIN · @just.sean.flows
+                    FRANKFURT AM MAIN · JUST.SEAN.FLOWS
                 </div>
             </div>
 
