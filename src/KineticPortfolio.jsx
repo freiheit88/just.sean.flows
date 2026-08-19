@@ -279,21 +279,21 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. CLEANED MINIMALIST FLIPBOOK ENGINE WITH STRICT 450ms FOOTSTEP LOCK & NUMBER-ONLY POWER
+// 1. FLIPBOOK ENGINE WITH FLOATING GHOST OUTLINE (L E T ' S   G O) INITIAL BLUR SPLASH
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
+    // Initial Audio Unlock & Blur Overlay State
+    const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
+
     // Live Dev Kinetics Power Meter State (Raw Number Only, No % Sign!)
     const [livePowerStr, setLivePowerStr] = useState("0");
     const [isTremblingAt8012, setIsTremblingAt8012] = useState(false);
 
     const [audioTier, setAudioTier] = useState(1);
-
-    // Initial Preloader State
-    const [isInitialBuffering, setIsInitialBuffering] = useState(true);
 
     const audioCtxRef = useRef(null);
     const bassRef = useRef(null);
@@ -378,10 +378,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // STRICT 450MS HARD LOCKOUT BETWEEN FOOTSTEPS (PERFECT ELIMINATION OF MACHINE-GUN SOUND ON MOBILE TOUCH)
+    // STRICT 450MS HARD LOCKOUT BETWEEN FOOTSTEPS
     const triggerRhythmicFootstep = () => {
         const now = Date.now();
-        // Hard lockout: Minimum 450ms between footsteps no matter how fast mobile touch scrolls!
         if (now - lastStepTime.current >= 450) {
             lastStepTime.current = now;
             playSingleFootstep();
@@ -390,8 +389,22 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         }
     };
 
+    // PLAY 3-SECOND WALKING FOOTSTEP AMBIENCE SEQUENCE
+    const trigger3SecFootstepSequence = () => {
+        playSingleFootstep();
+        setTimeout(() => playSingleFootstep(), 500);
+        setTimeout(() => playSingleFootstep(), 1150);
+        setTimeout(() => playSingleFootstep(), 1750);
+        setTimeout(() => playSingleFootstep(), 2400);
+    };
+
     // GUARANTEED SOUND ENGINE UNLOCKER
     const forceUnlockAudio = () => {
+        if (!isAudioUnlocked) {
+            setIsAudioUnlocked(true);
+            trigger3SecFootstepSequence();
+        }
+
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) {
@@ -454,7 +467,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // DECAY ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12 TREMBLING EASTER EGG (NUMBER ONLY)
+    // DECAY ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12 TREMBLING EASTER EGG
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
@@ -551,31 +564,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(volumeEngineInterval);
     }, []);
 
-    // Initial Buffering Sequence
-    useEffect(() => {
-        const t5 = setTimeout(() => {
-            setIsInitialBuffering(false);
-            forceUnlockAudio();
-        }, 1000);
-
-        const handleGlobalUnlock = () => forceUnlockAudio();
-
-        window.addEventListener('click', handleGlobalUnlock);
-        window.addEventListener('pointerdown', handleGlobalUnlock);
-        window.addEventListener('touchstart', handleGlobalUnlock);
-        window.addEventListener('wheel', handleGlobalUnlock);
-        window.addEventListener('keydown', handleGlobalUnlock);
-
-        return () => {
-            clearTimeout(t5);
-            window.removeEventListener('click', handleGlobalUnlock);
-            window.removeEventListener('pointerdown', handleGlobalUnlock);
-            window.removeEventListener('touchstart', handleGlobalUnlock);
-            window.removeEventListener('wheel', handleGlobalUnlock);
-            window.removeEventListener('keydown', handleGlobalUnlock);
-        };
-    }, []);
-
     // 5-SECOND EXTENDED WALKING PACING TIMELINE
     useEffect(() => {
         const interval = setInterval(() => {
@@ -618,7 +606,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            // Strict 450ms locked footstep call
             triggerRhythmicFootstep();
         };
 
@@ -668,7 +655,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                // Strict 450ms locked footstep call for touch move
                 triggerRhythmicFootstep();
             }
 
@@ -708,7 +694,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         <div 
             onClick={() => forceUnlockAudio()}
             onTouchStart={() => forceUnlockAudio()}
-            className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none flex items-center justify-center"
+            className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none flex items-center justify-center cursor-pointer"
         >
             {/* Ambient Background Blur for Desktop */}
             <div 
@@ -728,7 +714,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <div 
                 className="relative w-full h-full md:w-[430px] md:h-[90vh] md:max-h-[920px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.15)] overflow-hidden transition-all duration-700 bg-black"
                 style={{
-                    filter: isInitialBuffering ? 'blur(22px) brightness(35%) saturate(50%)' : 'none'
+                    filter: !isAudioUnlocked ? 'blur(20px) brightness(40%)' : 'none'
                 }}
             >
                 {FRAMES.map((f, idx) => (
@@ -754,7 +740,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                 {/* 2. DIRECT CLICKABLE ATELIER DOOR ZONE (FRAME 1 & 3) */}
                 <AnimatePresence>
-                    {isAtelierOptionVisible && !isInitialBuffering && (
+                    {isAtelierOptionVisible && isAudioUnlocked && (
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -849,6 +835,45 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     </div>
                 </div>
             </div>
+
+            {/* 2. INITIAL UNLOCK SPLASH: FLOATING GHOST OUTLINE (L E T ' S   G O) + MINIMAL VOLUME ICON */}
+            <AnimatePresence>
+                {!isAudioUnlocked && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, scale: 1.05 }}
+                        transition={{ duration: 0.5, ease: 'easeOut' }}
+                        className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-black/60 backdrop-blur-xl"
+                    >
+                        <motion.div
+                            animate={{ y: [-5, 5, -5] }}
+                            transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+                            className="flex flex-col items-center text-center cursor-pointer px-6"
+                        >
+                            {/* FLOATING GHOST OUTLINE TEXT: L E T ' S   G O */}
+                            <h1 
+                                className="font-mono text-xl sm:text-3xl font-black uppercase tracking-[0.6em] sm:tracking-[0.8em] transition-all duration-300 hover:scale-105"
+                                style={{
+                                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.45)',
+                                    color: 'transparent',
+                                    textShadow: '0 0 25px rgba(255,255,255,0.2)'
+                                }}
+                            >
+                                L E T ' S   G O
+                            </h1>
+
+                            {/* SUBTLE TRANSPARENT GHOST BORDER BADGE */}
+                            <div className="mt-6 inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md hover:border-[#E7FF00]/40 transition-colors">
+                                <Volume2 className="w-3.5 h-3.5 text-white/50 animate-pulse" />
+                                <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.3em] uppercase text-white/40 font-bold">
+                                    TAP ANYWHERE TO UNLOCK SOUND
+                                </span>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* 4. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
             <div className="fixed inset-x-0 bottom-0 h-48 pointer-events-none z-30 overflow-hidden">
