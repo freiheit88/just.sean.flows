@@ -204,7 +204,7 @@ export default function App() {
         <div 
             onPointerMove={handlePointerMove}
             onTouchMove={handleTouchMove}
-            className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0"
+            className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0 flex items-center justify-center"
         >
             {/* 1. RESTORED LONG LIQUID RIBBON TAIL CUSTOM CURSOR */}
             <div className="hidden md:block pointer-events-none fixed inset-0 z-50 overflow-hidden">
@@ -264,7 +264,7 @@ export default function App() {
                 </div>
             </header>
 
-            <main className="relative z-10 w-full h-full">
+            <main className="relative z-10 w-full h-full flex items-center justify-center">
                 {currentStep === 'flipbook' && (
                     <FlipbookWalkingEngine 
                         cursorPos={cursorPos}
@@ -308,7 +308,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH HUMAN WALKING CADENCE FOOTSTEP THROTTLING (340ms)
+// 1. FLIPBOOK ENGINE WITH SINGLE-INSTANCE AUDIO LIFECYCLE & UN-MUDDED FOOTSTEP SYNTH
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -358,7 +358,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
 
-    // AUDIBLE CRISP SINGLE FOOTSTEP
+    // AUDIBLE CRISP LEATHER SHOE IMPACT (No Sub-Bass Interference with 2 Bass.mp3)
     const playSingleFootstep = () => {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -371,23 +371,22 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const isLeft = isLeftFoot.current;
             isLeftFoot.current = !isLeft;
 
-            const mainGain = ctx.createGain();
-            mainGain.gain.setValueAtTime(0.26, ctx.currentTime);
-
+            // Crisp shoe sole impact (160Hz -> 70Hz, clear without sub-bass rumble)
             const osc = ctx.createOscillator();
             const oscGain = ctx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(isLeft ? 90 : 100, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(32, ctx.currentTime + 0.08);
+            osc.frequency.setValueAtTime(isLeft ? 160 : 185, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.05);
 
-            oscGain.gain.setValueAtTime(0.28, ctx.currentTime);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+            oscGain.gain.setValueAtTime(0.12, ctx.currentTime);
+            oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
-            const bufferSize = Math.floor(ctx.sampleRate * 0.06);
+            // Cobblestone friction noise
+            const bufferSize = Math.floor(ctx.sampleRate * 0.05);
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) {
-                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.012));
+                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.01));
             }
 
             const noise = ctx.createBufferSource();
@@ -395,18 +394,15 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             const noiseFilter = ctx.createBiquadFilter();
             noiseFilter.type = 'bandpass';
-            noiseFilter.frequency.value = isLeft ? 1250 : 1480;
-            noiseFilter.Q.value = 1.8;
+            noiseFilter.frequency.value = isLeft ? 1350 : 1550;
+            noiseFilter.Q.value = 2.2;
 
             const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.30, ctx.currentTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+            noiseGain.gain.setValueAtTime(0.18, ctx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
-            const delayNode = ctx.createDelay();
-            delayNode.delayTime.value = 0.16;
-
-            const feedbackGain = ctx.createGain();
-            feedbackGain.gain.value = 0.28;
+            const mainGain = ctx.createGain();
+            mainGain.gain.value = 0.85;
 
             osc.connect(oscGain);
             noise.connect(noiseFilter);
@@ -414,24 +410,17 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             oscGain.connect(mainGain);
             noiseGain.connect(mainGain);
-
-            mainGain.connect(delayNode);
-            delayNode.connect(feedbackGain);
-            feedbackGain.connect(delayNode);
-
             mainGain.connect(ctx.destination);
-            delayNode.connect(ctx.destination);
 
             osc.start(); noise.start();
-            osc.stop(ctx.currentTime + 0.09);
-            noise.stop(ctx.currentTime + 0.09);
+            osc.stop(ctx.currentTime + 0.06);
+            noise.stop(ctx.currentTime + 0.06);
         } catch (e) {}
     };
 
     // HUMAN WALKING CADENCE FOOTSTEP TRIGGER (Enforces min 340ms between steps)
     const triggerRhythmicFootstep = (speedVelocity = 1) => {
         const now = Date.now();
-        // Dynamic walking cadence: minimum 320ms interval during fast scroll, 360ms during steady walk
         const minCadenceInterval = Math.max(300, 360 - Math.min(speedVelocity * 30, 60));
         
         if (now - lastStepTime.current >= minCadenceInterval) {
@@ -451,7 +440,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         setTimeout(() => playSingleFootstep(), 2400);
     };
 
-    // GUARANTEED SOUND ENGINE UNLOCKER
+    // GUARANTEED SOUND ENGINE UNLOCKER WITH SINGLE INSTANCE SAFETY
     const forceUnlockAudio = (isExplicitTap = false) => {
         if (isExplicitTap) {
             setShow10sSplashOverlay(false);
@@ -527,6 +516,19 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             }
         });
     };
+
+    // CLEAN UNMOUNT AUDIO LIFECYCLE CLEANUP
+    useEffect(() => {
+        return () => {
+            [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
+                if (r.current) {
+                    try {
+                        r.current.pause();
+                    } catch (e) {}
+                }
+            });
+        };
+    }, []);
 
     // DECAY ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12% 1S TREMBLING EASTER EGG
     useEffect(() => {
@@ -704,7 +706,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            // Trigger footstep with human walking cadence throttling (min 340ms interval)
             triggerRhythmicFootstep(rawDelta * 0.01);
         };
 
@@ -755,7 +756,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                // Trigger footstep with human walking cadence throttling (min 340ms interval)
                 triggerRhythmicFootstep(velocity);
             }
 
