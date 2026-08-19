@@ -29,33 +29,23 @@
 
     html,
     body {
-        @apply w-screen h-screen overflow-hidden bg-black;
+        width: 100%;
+        min-height: 100%;
         margin: 0;
         padding: 0;
         -webkit-font-smoothing: antialiased;
-        /* V9: Force mobile viewport stability */
-        touch-action: manipulation;
-        overscroll-behavior: none;
-        /* Desktop wrapper styling */
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-image: radial-gradient(circle at center, #1A1612 0%, #000 100%);
+        background-color: #07080b;
+        color: #FDFCF0;
+        overflow-x: hidden;
     }
 
     #root {
-        position: relative;
         width: 100%;
-        max-width: 430px;
-        /* Modern mobile width constraint */
-        height: 100dvh;
-        max-height: 100dvh;
-        margin: 0 auto;
-        overflow: hidden;
-        /* Secret to restricting 'fixed' children to this wrapper */
-        contain: layout paint;
-        background-color: #1A1612;
-        box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 100px rgba(0, 0, 0, 0.5);
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        background-color: #07080b;
     }
 
     h1,
@@ -138,17 +128,7 @@
     }
 }
 
-/* Global styles */
-body {
-    /* margin: 0; */
-    /* Removed as part of html, body rule */
-    /* padding: 0; */
-    /* Removed as part of html, body rule */
-    overflow-x: hidden;
-    /* This is now covered by overflow-hidden in html, body */
-    background-color: #1A1612;
-    /* This is now covered by bg-[#1A1612] in html, body */
-}
+/* Custom scrollbars */
 
 /* Custom scrollbars for non-utility elements if any */
 ::-webkit-scrollbar {

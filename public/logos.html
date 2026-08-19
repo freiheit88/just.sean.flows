@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>just.sean.flows - 72 Masterworks Logo Museum</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Montserrat:wght@200;300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-dark: #08090d;
+            --card-bg: rgba(15, 18, 26, 0.75);
+            --gold-primary: #C5A059;
+            --gold-light: #FDFCF0;
+            --border-gold: rgba(197, 160, 89, 0.25);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--gold-light);
+            font-family: 'Cormorant Garamond', serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(197, 160, 89, 0.1) 0%, transparent 60%),
+                radial-gradient(circle at 80% 40%, rgba(197, 160, 89, 0.04) 0%, transparent 40%);
+        }
+
+        .cursor-light {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(197, 160, 89, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            transform: translate(-50%, -50%);
+        }
+
+        header {
+            position: relative;
+            z-index: 10;
+            padding: 80px 20px 40px;
+            text-align: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .badge-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border: 1px solid var(--border-gold);
+            background: rgba(197, 160, 89, 0.08);
+            border-radius: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--gold-primary);
+            margin-bottom: 24px;
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.15);
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold-light);
+            text-shadow: 0 0 30px rgba(197, 160, 89, 0.4);
+            margin-bottom: 16px;
+            line-height: 1.1;
+        }
+
+        h1 span {
+            color: var(--gold-primary);
+            font-style: italic;
+        }
+
+        .subtitle {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.22em;
+            color: rgba(253, 252, 240, 0.6);
+            text-transform: uppercase;
+            max-width: 750px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+
+        .filter-nav {
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 12px 20px;
+            background: rgba(8, 9, 13, 0.92);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(197, 160, 89, 0.25);
+            border-radius: 50px;
+            max-width: 95%;
+            margin: 0 auto 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            color: rgba(253, 252, 240, 0.6);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 9px 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            color: var(--gold-light);
+            background: rgba(197, 160, 89, 0.15);
+        }
+
+        .filter-btn.active {
+            color: #08090d;
+            background: var(--gold-primary);
+            box-shadow: 0 0 20px rgba(197, 160, 89, 0.6);
+        }
+
+        .museum-gallery {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 32px;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 24px 100px;
+        }
+
+        .museum-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-gold);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+            cursor: pointer;
+        }
+
+        .museum-card:hover {
+            border-color: var(--gold-primary);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(197, 160, 89, 0.25);
+            transform: translateY(-8px);
+        }
+
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            background: #000;
+        }
+
+        .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .museum-card:hover .image-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: rgba(8, 9, 13, 0.85);
+            border: 1px solid var(--border-gold);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            color: var(--gold-primary);
+        }
+
+        .card-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: linear-gradient(180deg, rgba(15, 18, 26, 0.4) 0%, rgba(8, 9, 13, 0.95) 100%);
+        }
+
+        .card-category {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 8px;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold-primary);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--gold-light);
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: rgba(253, 252, 240, 0.65);
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(5, 6, 9, 0.92);
+            backdrop-filter: blur(25px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-container {
+            background: rgba(15, 18, 26, 0.95);
+            border: 1px solid var(--gold-primary);
+            border-radius: 28px;
+            max-width: 960px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.95);
+            position: relative;
+        }
+
+        @media (max-width: 800px) {
+            .modal-container { grid-template-columns: 1fr; }
+        }
+
+        .modal-image img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+        }
+
+        .modal-info {
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border-gold);
+            color: var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px 20px;
+            border-top: 1px solid rgba(197, 160, 89, 0.15);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 9px;
+            letter-spacing: 0.35em;
+            color: rgba(253, 252, 240, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cursor-light" id="cursorLight"></div>
+
+    <header>
+        <div class="badge-tag">
+            <i data-lucide="sparkles" style="width:12px;"></i>
+            <span>REFINED COLLECTION — 72 LOGO MASTERWORKS</span>
+        </div>
+        <h1>JUST<span>.</span>SEAN<span>.</span>FLOWS</h1>
+        <p class="subtitle">ULTRA-MINIMAL BRAND LOGO COLLECTION — 40 CLASSICS + 20 INDIE/BEAUTY + 12 BRAND MARKS</p>
+    </header>
+
+    <nav class="filter-nav">
+        <button class="filter-btn active" onclick="filterGallery('all')">ALL WORKS (72)</button>
+        <button class="filter-btn" onclick="filterGallery('haute')">🏛️ HAUTE COUTURE (10)</button>
+        <button class="filter-btn" onclick="filterGallery('sound')">🎵 ESSENTIAL SOUND (10)</button>
+        <button class="filter-btn" onclick="filterGallery('korean')">🇰🇷 KOREAN HERITAGE (10)</button>
+        <button class="filter-btn" onclick="filterGallery('classical')">🎻 CLASSICAL (10)</button>
+        <button class="filter-btn" onclick="filterGallery('indie')">🎸 INDIE · BEAUTY (20)</button>
+        <button class="filter-btn" onclick="filterGallery('brand')">⚡ BRAND MARKS (12)</button>
+    </nav>
+
+    <main class="museum-gallery" id="galleryGrid"></main>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="modal-image">
+                <img id="modalImg" src="" alt="Selected Artwork">
+            </div>
+            <div class="modal-info">
+                <span class="modal-tag" id="modalTag" style="color:var(--gold-primary); font-family:'Montserrat'; font-size:10px; letter-spacing:0.25em;">EXHIBIT NO. 01</span>
+                <h2 class="modal-title" id="modalTitle" style="font-size:1.8rem; font-weight:300;">Artwork Title</h2>
+                <p class="modal-text" id="modalDesc" style="font-size:0.95rem; color:rgba(253,252,240,0.8); line-height:1.6; font-style:italic;">Detailed artwork lore and design description.</p>
+                <div class="use-case-box" id="modalUseCase" style="background:rgba(197,160,89,0.1); border-left:2px solid var(--gold-primary); padding:12px 16px; border-radius:0 10px 10px 0; font-family:'Montserrat'; font-size:10px;">
+                    <strong>RECOMMENDED USE CASE:</strong> Official Instagram Profile & Luxury Packaging.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        JUST SEAN FLOWS © 2026. ALL RIGHTS RESERVED. REFINED MINIMALIST MASTERWORKS EXHIBITION.
+    </footer>
+
+    <script>
+        const logoData = [
+            // I. Minimal Haute Couture & Monograms (01 - 10)
+            { id: "01", category: "haute", title: "YSL Minimal Monogram", desc: "생로랑 스타일의 극도로 심플하고 세련된 JSF 샴페인 골드 인터로킹 이니셜.", useCase: "인스타그램 오피셜 프로필 이미지 & 명함 금박 양각", img: "/assets/logos/logo_clean_01_ysl_monogram_1786398697349.jpg" },
+            { id: "02", category: "haute", title: "Celine Gold Dot Serif", desc: "셀린느 하우스 감성의 정갈한 JUST.SEAN.FLOWS 골드 도트 세리프 서체.", useCase: "법인 공식 도인, 계약서 & 서명 마크", img: "/assets/logos/logo_clean_02_celine_serif_1786398708890.jpg" },
+            { id: "03", category: "haute", title: "Gentle Monster One-Line", desc: "단 하나의 끊김 없는 정교한 금빛 선으로 완성된 젠틀몬스터 스타일 라인 아트.", useCase: "인스타그램 하이라이트 & 미니멀 굿즈 라벨", img: "/assets/logos/logo_clean_03_gentle_monster_line_1786398719536.jpg" },
+            { id: "04", category: "haute", title: "Balenciaga Minimal Monolith", desc: "발렌시아가 런웨이 감성의 3D 미니멀 챔퍼링 골드 지오메트리 아이콘.", useCase: "금속 배지 & 앱 스플래시 로고", img: "/assets/logos/logo_clean_04_balenciaga_monolith_1786398730432.jpg" },
+            { id: "05", category: "haute", title: "Trajan Corporate Line", desc: "로마 트라얀 세리프 타밀 서체와 얇은 골드 수평선의 깔끔한 조화.", useCase: "사옥 현판 & 오피셜 서류 커버", img: "/assets/logos/logo_clean_05_trajan_inscription_1786398741607.jpg" },
+            { id: "06", category: "haute", title: "Symmetrical Dual Arch", desc: "두 개의 슬림한 골드 아치가 상하 대칭으로 절제되게 감싸는 미니멀 모노그램.", useCase: "VIP 멤버십 카드 & 로고 보증서", img: "/assets/logos/logo_clean_06_dual_arch_1786398751801.jpg" },
+            { id: "07", category: "haute", title: "Platinum Horizon Line", desc: "단조롭고 단정한 수평선 위로 무한히 뻗어 나가는 플래티넘 골드 미니멀 로고.", useCase: "공식 홈페이지 최하단 푸터 & 소셜 배너", img: "/assets/logos/logo_clean_07_horizon_line_1786398761063.jpg" },
+            { id: "08", category: "haute", title: "Geometric Crown Initials", desc: "JSF 이니셜 상단에 미니멀 기하학 골드 3점이 형성하는 로열 왕관.", useCase: "인스타그램 하이패션 프로필", img: "/assets/logos/logo_clean_08_crown_initials_1786398770021.jpg" },
+            { id: "09", category: "haute", title: "Cartier Fine Circle Ring", desc: "카르티에 세공 스타일의 파인 골드 서클 링과 미니멀 모노그램.", useCase: "럭셔리 악세서리 각인 & 링 엠블럼", img: "/assets/logos/logo_clean_09_circle_monogram_1786398778830.jpg" },
+            { id: "10", category: "haute", title: "Architectural Gold Box", desc: "현대 건축의 절제된 림 라이트와 슬림한 골드 박스 액자 속 서체.", useCase: "쇼룸 조형물 & 갤러리 로고", img: "/assets/logos/logo_clean_10_square_block_1786398787914.jpg" },
+
+            // II. Essential Sound & Waveform Geometry (11 - 20)
+            { id: "11", category: "sound", title: "Clean Sine Wave Monogram", desc: "단 하나의 명확한 골드 사인파(Sine Wave) 선이 SF 형상으로 흘러가는 엠블럼.", useCase: "사운드 브랜딩 오프닝 & 릴스 모션", img: "/assets/logos/logo_clean_11_sine_wave_1786398798443.jpg" },
+            { id: "12", category: "sound", title: "Essential Tuning Fork", desc: "음향 조율 포크(Tuning Fork)를 정갈한 샴페인 골드 선으로 표현한 마크.", useCase: "시그니처 사운드 튜닝 엠블럼", img: "/assets/logos/logo_clean_12_tuning_fork_1786398809568.jpg" },
+            { id: "13", category: "sound", title: "Minimal Equalizer Bars", desc: "높낮이가 다른 3개의 절제된 골드 기둥이 JSF 형태를 띠는 이퀄라이저 비트.", useCase: "기술 스펙 명세서 & 앱 아이콘", img: "/assets/logos/logo_clean_13_equalizer_bars_1786398819679.jpg" },
+            { id: "14", category: "sound", title: "Spatial Audio Orbit Ring", desc: "3D 공간 음향(Spatial Audio)의 위성 궤도를 얇은 단일 링으로 표현.", useCase: "프로필 아바타 링 & 사운드 아이콘", img: "/assets/logos/logo_clean_14_orbit_ring_1786398829656.jpg" },
+            { id: "15", category: "sound", title: "Concentric Sound Pulse", desc: "중앙 JSF 모노그램으로부터 잔잔하게 퍼져나가는 3개의 미크론 골드 링.", useCase: "앰비언트 음악 릴스 타이틀", img: "/assets/logos/logo_clean_15_pulse_dot_1786398840655.jpg" },
+            { id: "16", category: "sound", title: "Hexagonal Sound Aperture", desc: "조리개(Aperture)와 음향 공명 아치 6각 조형이 만난 정교한 지오메트리.", useCase: "비디오/미디어 크리에이티브 시그니처", img: "/assets/logos/logo_clean_16_sound_aperture_1786398853284.jpg" },
+            { id: "17", category: "sound", title: "Cannes Palme Single Arc", desc: "칸 영화제 황금종려상 선에서 영감을 얻은 단 하나의 은은한 포용 곡선.", useCase: "시네마틱 영상 타이틀 오프닝", img: "/assets/logos/logo_clean_17_cannes_curve_1786398865182.jpg" },
+            { id: "18", category: "sound", title: "Resonance Diamond Frame", desc: "슬림한 다이아몬드 프레임을 수평 사운드 파동 선이 관통하는 지오메트리.", useCase: "스페셜 패키지 로고", img: "/assets/logos/logo_clean_18_resonance_diamond_1786398875311.jpg" },
+            { id: "19", category: "sound", title: "Minimal Watch Audio Dial", desc: "하이엔드 시계 다이얼의 12개 미세 노치와 중앙 심볼의 단정한 조화.", useCase: "디지털 워치 페이스 & 인스타 배너", img: "/assets/logos/logo_clean_19_audio_dial_1786398887684.jpg" },
+            { id: "20", category: "sound", title: "Harmonic Sound Arch Crest", desc: "공명관 아치가 세리프 모노그램을 단정하게 포위하는 헤리티지 파동.", useCase: "공식 법인 오피셜 푸터", img: "/assets/logos/logo_clean_20_harmonic_crest_1786398899094.jpg" },
+
+            // III. Modern Korean Heritage (21 - 30)
+            { id: "21", category: "korean", title: "Joseon Royal Gold Stamp", desc: "조선 왕실 어인의 정방형 낙관 기하학을 정갈한 슬림 골드로 재해석한 인장.", useCase: "인스타그램 프로필 & 법인 낙관", img: "/assets/logos/logo_clean_21_kr_seal_square_1786398911531.jpg" },
+            { id: "22", category: "korean", title: "Calligraphy Single Gold Stroke", desc: "전통 붓글씨의 획 하나를 절제된 골드 리퀴드로 표현한 시그니처 라인.", useCase: "아티스틱 크리에이티브 시그니처", img: "/assets/logos/logo_clean_22_ink_stroke_1786398925836.jpg" },
+            { id: "23", category: "korean", title: "Hanok Eaves Horizon Line", desc: "한옥 처마의 우아한 오름 선을 하나의 가로 선으로 단순화한 미니멀 디자인.", useCase: "공간/건축 브랜드 타이틀", img: "/assets/logos/logo_clean_23_hanok_eaves_1786398936685.jpg" },
+            { id: "24", category: "korean", title: "Minimal Taegeuk Arc Balance", desc: "태극의 상하 음양 대칭 곡선을 미니멀한 두 개의 골드 아치로 승화.", useCase: "공식 심볼 아이콘 & 미니멀 굿즈", img: "/assets/logos/logo_clean_24_taegeuk_waves_1786398948765.jpg" },
+            { id: "25", category: "korean", title: "Minimal Gold Lattice Grid", desc: "조선 궁궐 문살과 단청의 절제된 기하학 살(Lattice) 프레임.", useCase: "엠보싱 인쇄 & VIP 보증 카드", img: "/assets/logos/logo_clean_25_dancheong_line_1786398972359.jpg" },
+            { id: "26", category: "korean", title: "Gayageum Parallel Silk Strings", desc: "가야금 12현의 명주실 선 두 개가 나란히 흐르는 단정한 울림 마크.", useCase: "음악 릴스 오프닝 & 포스터", img: "/assets/logos/logo_clean_26_gayageum_string_1786398983676.jpg" },
+            { id: "27", category: "korean", title: "Silla Crown Filigree Leaf", desc: "신라 금관의 단 하나의 영롱한 나뭇잎 금박 실루엣 엠블럼.", useCase: "VIP 멤버십 로고", img: "/assets/logos/logo_clean_27_joseon_crown_leaf_1786398994333.jpg" },
+            { id: "28", category: "korean", title: "Norigae Square Knot Line", desc: "전통 노리개 매듭의 정방형 직선 세공을 미니멀하게 단순화한 지오메트리.", useCase: "패션 굿즈 라벨 & 하이라이트", img: "/assets/logos/logo_clean_28_norigae_knot_1786399005023.jpg" },
+            { id: "29", category: "korean", title: "Celadon Vase Contour Line", desc: "고려청자 매병의 완벽한 수평 볼륨 선을 하나의 연속된 골드 테두리로 표현.", useCase: "용기 라벨 & 럭셔리 패키지", img: "/assets/logos/logo_clean_29_celadon_contour_1786399013843.jpg" },
+            { id: "30", category: "korean", title: "Hangul Minimal Serif Fusion", desc: "한글 자음의 건축학적 구조미와 생로랑 스타일 세리프 서체의 깔끔한 융합.", useCase: "법인 오피셜 서류 & 현판", img: "/assets/logos/logo_kr_seal_crest_1786389849742.jpg" },
+
+            // IV. Classical & Opera Silhouette (31 - 40)
+            { id: "31", category: "classical", title: "Chopin Piano Harp String Line", desc: "쇼팽 녹턴 야상곡의 서정적인 피아노 현 곡선과 초승달의 우아한 지오메트리.", useCase: "클래식 앨범 아트워크 & 릴스", img: "/assets/logos/logo_romantic_chopin_nocturne_1786391164885.jpg" },
+            { id: "32", category: "classical", title: "Liszt Virtuoso Keyboard Arc", desc: "프란츠 리스트의 초절기교 피아노 건반 수직 선을 단순화한 비르투오소 마크.", useCase: "화려한 메인 퍼포먼스 로고", img: "/assets/logos/logo_romantic_liszt_brio_1786391176310.jpg" },
+            { id: "33", category: "classical", title: "Tchaikovsky Swan Scroll Line", desc: "차이콥스키 백조의 호수와 바이올린 머리 스크롤의 단정한 곡선 융합.", useCase: "발레/실내악 메인 시그니처", img: "/assets/logos/logo_romantic_tchaikovsky_swan_1786391189023.jpg" },
+            { id: "34", category: "classical", title: "Stradivarius Violin F-Hole", desc: "명기 스트라디바리우스 바이올린 울림구(F-Hole)의 치명적이고 유려한 곡선.", useCase: "현악기 세공 각인 & 서명 로고", img: "/assets/logos/logo_romantic_violin_fhole_1786391270569.jpg" },
+            { id: "35", category: "classical", title: "Rachmaninoff Piano Frame", desc: "라흐마니노프 피아노 협주곡 2번의 묵직하고 깊은 피아노 프레임 라인.", useCase: "버건디 벨벳 명함 커버", img: "/assets/logos/logo_romantic_rachmaninoff_concerto_1786391220016.jpg" },
+            { id: "36", category: "classical", title: "Paris Opera Lyre Silhouette", desc: "파리 오페라 하우스의 전통적인 왕실 하프(Lyre) 실루엣 엠블럼.", useCase: "오페라 기획전 VIP 마크", img: "/assets/logos/logo_romantic_opera_velvet_crest_1786391233013.jpg" },
+            { id: "37", category: "classical", title: "Conductor Baton Arc Line", desc: "지휘자의 황금 지휘봉이 궤적을 그리며 만드는 깔끔한 오케스트라 아크.", useCase: "공연 예술 기획사 오피셜 로고", img: "/assets/logos/logo_romantic_orchestra_baton_1786391258853.jpg" },
+            { id: "38", category: "classical", title: "19th-Century Sheet Rosette", desc: "19세기 클래식 악보 표지에 음각으로 새기던 유려한 골드 로제타 인장.", useCase: "양각 오너먼트 스탬프", img: "/assets/logos/logo_romantic_sheet_rosette_1786391245682.jpg" },
+            { id: "39", category: "classical", title: "French Horn Tubing Geometry", desc: "프렌치 호른 관의 정교한 동심원 관을 단정한 3D 황금 튜브로 단순화.", useCase: "오케스트라 엠블럼", img: "/assets/logos/logo_romantic_french_horn_circle_1786391325768.jpg" },
+            { id: "40", category: "classical", title: "Stylized Treble Clef Monogram", desc: "높은음자리표(Treble Clef)가 단정한 JSF 모노그램으로 전환되는 미니멀 오트쿠튀르.", useCase: "인스타그램 오피셜 메인 아바타", img: "/assets/logos/logo_romantic_treble_clef_gold_1786391366064.jpg" },
+
+            // V. Indie · Beauty · Music (41 - 60)
+            { id: "41", category: "indie", title: "Vinyl Femme", desc: "바이닐 레코드 홈 안에 아르누보 여인의 측면 실루엣이 스며든다. 거친 스크린 프린트의 아날로그 감성.", useCase: "한정판 바이닐 앨범 재킷 & 인스타 프로필", img: "/assets/logos/logo_indie_41_vinyl_femme_1787072827413.jpg" },
+            { id: "42", category: "indie", title: "String Femme Portrait", desc: "기타 현이 직접 그려내는 여인의 프로파일 — 흐트러진 머결과 선명한 옆얼굴이 한 줄 선으로 완성된다.", useCase: "인디 밴드 공식 포스터 & 투어 머천다이즈", img: "/assets/logos/logo_indie_42_string_femme_1787072837062.jpg" },
+            { id: "43", category: "indie", title: "Lips & Staff", desc: "오선보가 입술을 관통하며 음표들이 흘러나온다. 골드 & 챠콜의 2색만으로 완성된 재즈 클럽 포스터 감성.", useCase: "음악 플랫폼 썸네일 & 싱글 커버", img: "/assets/logos/logo_indie_43_lips_notes_1787072847638.jpg" },
+            { id: "44", category: "indie", title: "The Velvet Curves", desc: "일렉트릭 기타 바디가 여성의 실루엣 곡선으로 이어진다. 인디 록 스크린 프린트의 볼드한 아이코닉 마크.", useCase: "밴드 공식 로고 & 투어 티셔츠", img: "/assets/logos/logo_indie_44_serpent_guitar_1787072867739.jpg" },
+            { id: "45", category: "indie", title: "Smoke Waveform", desc: "여인의 측면 실루엣 위로 피어오르는 연기가 오디오 파형으로 변한다. 60년대 재즈 클럽의 필름 누아르 감성.", useCase: "EP 커버 & 무드 플레이리스트 썸네일", img: "/assets/logos/logo_indie_45_cigarette_smoke_wave_1787072876508.jpg" },
+            { id: "46", category: "indie", title: "Flower Headphones", desc: "꽃잎으로 만든 헤드폰 이어컵 — 위에서 내려다본 여인의 머리에 음악과 자연이 피어오른다.", useCase: "음악 앱 아이콘 & 소셜 프로필", img: "/assets/logos/logo_indie_46_flower_headphones_1787072884867.jpg" },
+            { id: "47", category: "indie", title: "Eye Treble", desc: "아이리스(홍채) 자리에 높은음자리표가 자리한 단 하나의 눈. 아르누보와 인디 밴드 미학의 완벽한 교차점.", useCase: "공식 시그니처 아이콘 & 머천다이즈 각인", img: "/assets/logos/logo_indie_47_eye_treble_1787072907338.jpg" },
+            { id: "48", category: "indie", title: "Cassette Cameo — JSF The Romantics", desc: "두 개의 릴 자리에 앉은 클래식 카메오 여인 초상화. 80년대 로-파이 카세트의 향수와 인디 낭만주의.", useCase: "레트로 LP 재발매 & 한정판 카세트 패키지", img: "/assets/logos/logo_indie_48_cassette_portrait_1787072915737.jpg" },
+            { id: "49", category: "indie", title: "Moon Siren", desc: "초승달의 오목한 여백이 흘러내리는 긴 머리를 가진 세이렌의 옆얼굴 실루엣을 담는다. 단일 화이트 라인아트.", useCase: "EP 타이틀 로고 & 공식 문신 디자인 레퍼런스", img: "/assets/logos/logo_indie_49_moon_siren_1787072925367.jpg" },
+            { id: "50", category: "indie", title: "Piano Hands", desc: "피아노 건반 위의 보석 달린 여인의 손 — 버드아이 뷰로 내려다본 가장 섬세하고 감성적인 순간.", useCase: "클래식/인디 크로스오버 앨범 아트 & 포스터", img: "/assets/logos/logo_indie_50_piano_hands_1787072948690.jpg" },
+            { id: "51", category: "indie", title: "Block Face — Arctic Type", desc: "아틱 몽키스 'AM' 감성의 볼드 블록 타이포그래피 JSF — 글자 안에 여인의 얼굴이 새겨진다. 강렬하고 선명하다.", useCase: "밴드 오피셜 로고 & 대형 공연 무대 배너", img: "/assets/logos/logo_indie_51_arctic_block_type_1787072956242.jpg" },
+            { id: "52", category: "indie", title: "Rose Waveform", desc: "장미 꽃잎이 오디오 파형으로 피어오른다. 타투 아트와 인디 음악의 낭만적이고 야성적인 결합.", useCase: "싱글 커버 & 한정판 굿즈 각인", img: "/assets/logos/logo_indie_52_rose_waveform_1787072964759.jpg" },
+            { id: "53", category: "indie", title: "Butterfly Violin", desc: "나비 날개 한 쌍이 바이올린 몸체가 된다. 자연학자 표본 라벨 감성의 정밀하고 섬세한 라인아트.", useCase: "실내악 공연 포스터 & VIP 초대장 인장", img: "/assets/logos/logo_indie_53_butterfly_violin_1787072988027.jpg" },
+            { id: "54", category: "indie", title: "Neon Femme — JSF Bar Sign", desc: "다이브 바의 핑크 네온 튜브가 여인의 실루엣과 JSF를 새긴다. The 1975 / Cigarettes After Sex 분위기.", useCase: "공연장 네온 사인 & 소셜 배너", img: "/assets/logos/logo_indie_54_neon_femme_bar_1787072995897.jpg" },
+            { id: "55", category: "indie", title: "Ink Splash Face", desc: "여인의 얼굴이 잉크 폭발과 사운드 파형으로 해체된다. 인디고와 크림의 표현주의적 드라마.", useCase: "한정판 바이닐 & 프리미엄 밴드 티셔츠", img: "/assets/logos/logo_indie_55_ink_splash_face_1787073004929.jpg" },
+            { id: "56", category: "indie", title: "Dancer Treble Clef", desc: "발레 댄서의 몸이 높은음자리표를 형성한다 — 음악과 춤이 하나의 선으로 통합된 순수한 실루엣 아이콘.", useCase: "공연 예술 공식 엠블럼 & 플래그십 로고", img: "/assets/logos/logo_indie_56_dancer_staff_1787073028778.jpg" },
+            { id: "57", category: "indie", title: "Double Exposure Concert", desc: "여인의 얼굴과 콘서트 군중이 이중 노출로 겹쳐진다. 버건디 & 블랙의 프리미엄 한정판 시네마틱 로고.", useCase: "투어 한정판 포스터 & 프리미엄 바이닐 아트", img: "/assets/logos/logo_indie_57_double_exposure_face_1787073036122.jpg" },
+            { id: "58", category: "indie", title: "Hair Flow — Music to JSF", desc: "여인의 옆모습에서 머리카락이 음표로, 음표가 다시 JSF 글자로 흘러나오는 연속된 황금 선 하나.", useCase: "오피셜 시그니처 로고 & 고급 명함", img: "/assets/logos/logo_indie_58_serpentine_hair_1787073044469.jpg" },
+            { id: "59", category: "indie", title: "Mic Stand Femme", desc: "빈티지 리본 마이크 스탠드의 상단이 흘러내리는 머리의 여인 얼굴로 전환된다. 재즈 클럽의 시대를 초월한 아이콘.", useCase: "보컬/재즈 아티스트 공식 로고 & 스테이지 배너", img: "/assets/logos/logo_indie_59_microphone_crown_1787073281397.jpg" },
+            { id: "60", category: "indie", title: "Constellation Face", desc: "별자리 선으로만 그려낸 여인의 얼굴 — 눈, 코, 입이 모두 별의 클러스터다. 우주적이고 신비로운 최후의 로고.", useCase: "앨범 아트워크 & 천문학적 감성의 한정판 굿즈", img: "/assets/logos/logo_indie_60_constellation_face_1787073289947.jpg" },
+
+            // VI. Brand Marks — Party · Beauty · Music (61 - 72)
+            { id: "61", category: "brand", title: "Martini Lips", desc: "마티니 잔의 림이 여인의 입술 형태다. 단 두 개의 요소가 하나의 마크로 합쳐진 절대 최소의 네거티브 스페이스 로고.", useCase: "프리미엄 바 & 이벤트 공식 마크", img: "/assets/logos/logo_brand_61_martini_femme_1787073382006.jpg" },
+            { id: "62", category: "brand", title: "Disco Gold — just.sean.flows", desc: "디스코볼을 정상에서 내려다본 완벽한 황금 지오메트리. 파티 에너지를 순수한 기하학으로 압축한 브랜드 마크.", useCase: "클럽 나이트 & 이벤트 오피셜 심볼", img: "/assets/logos/logo_brand_62_disco_ball_minimal_1787073391058.jpg" },
+            { id: "63", category: "brand", title: "Crown Note — JSF", desc: "3포인트 왕관의 중앙 꼭짓점이 에잇스노트로 교체된다. 왕관과 음표가 하나의 솔리드 심볼로 합쳐진 레코드 레이블 마크.", useCase: "레코드 레이블 오피셜 로고 & 머천다이즈", img: "/assets/logos/logo_brand_63_crown_note_1787073397607.jpg" },
+            { id: "64", category: "brand", title: "J~F Wave Monogram", desc: "J와 F를 잇는 크로스바가 사인파(Sine Wave)로 대체된 모노그램. 음악이 글자 자체에 내장된 워드마크 로고.", useCase: "공식 앱 아이콘 & 브랜드 패턴", img: "/assets/logos/logo_brand_64_wave_monogram_1787073425826.jpg" },
+            { id: "65", category: "brand", title: "Wine × Treble — J·S·F", desc: "와인잔 스템이 연속된 선으로 높은음자리표 하단 루프로 전환된다. 술과 클래식 음악이 하나의 획으로 이어지는 마크.", useCase: "와인바 & 클래식 음악 이벤트 공식 로고", img: "/assets/logos/logo_brand_65_wine_clef_1787073435892.jpg" },
+            { id: "66", category: "brand", title: "Vinyl Smiley", desc: "바이닐 레코드 센터 라벨 위의 초미니멀 스마일 페이스. 두 개의 점과 하나의 곡선이 만드는 가장 단순하고 쿨한 인디 마크.", useCase: "인디 레이블 스탬프 & 소셜 아이콘", img: "/assets/logos/logo_brand_66_face_vinyl_simple_1787073446096.jpg" },
+            { id: "67", category: "brand", title: "Pick Face — J.S.F", desc: "기타 픽 솔리드 화이트 쉐입 안에 여인의 옆얼굴이 네거티브 스페이스로 새겨진다. 인디 레코드 레이블의 아이코닉 심볼.", useCase: "밴드 공식 픽 & 머천다이즈 각인", img: "/assets/logos/logo_brand_67_guitar_pick_face_1787073476680.jpg" },
+            { id: "68", category: "brand", title: "Champagne Trinity", desc: "팬 형태로 펼쳐진 3개의 샴페인 플루트. 파티 에너지를 순수 기하학 라인 아트로 포착한 프리미엄 골드 이벤트 마크.", useCase: "나이트 이벤트 & VIP 리셉션 공식 심볼", img: "/assets/logos/logo_brand_68_party_champagne_stack_1787073485320.jpg" },
+            { id: "69", category: "brand", title: "Violin-S — Just·Sean·Flows", desc: "바이올린 에프홀(F-hole)이 대칭으로 조합되어 황금빛 'S' 레터폼이 된다. 클래식 음악이 타이포그래피 자체가 된 마스터피스.", useCase: "고급 법인 명함 & 공식 기관 마크", img: "/assets/logos/logo_brand_69_violin_s_letterform_1787073494208.jpg" },
+            { id: "70", category: "brand", title: "Note Face — JSF", desc: "검정 직사각형 안 화이트 에잇스노트의 헤드 부분이 여인의 옆얼굴 실루엣이다. 음표와 미녀가 단 하나의 형태로 합쳐진 네거티브 스페이스 브랜드 마크.", useCase: "레코드 레이블 오피셜 마크 & 배지", img: "/assets/logos/logo_brand_70_negative_space_woman_note_1787073521716.jpg" },
+            { id: "71", category: "brand", title: "JUST SEAN FL⊙WS", desc: "FLO(바이닐)WS — O 자리에 바이닐 레코드가 들어간 타이포그래픽 워드마크. S는 웨이브 형태. 읽는 것만으로도 브랜드가 보이는 커스텀 레터링.", useCase: "공식 웹 헤더 & 거대 광고 배너", img: "/assets/logos/logo_brand_71_wordmark_flow_1787073531374.jpg" },
+            { id: "72", category: "brand", title: "Circle Badge — Cocktail Note", desc: "원형 배지 테두리에 JUST·SEAN·FLOWS 텍스트, 중앙에 음표 올리브가 꽂힌 칵테일 잔 아이콘. 프리미엄 스피릿 브랜드 & 클럽 나이트 원스탑 스탬프.", useCase: "VIP 클럽 나이트 공식 스탬프 & 브랜드 배지", img: "/assets/logos/logo_brand_72_circle_badge_party_1787073539961.jpg" },
+        ];
+
+        function renderGallery(filter = 'all') {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            const filteredData = filter === 'all' ? logoData : logoData.filter(item => item.category === filter);
+
+            filteredData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'museum-card';
+                card.onclick = () => openModal(item);
+
+                card.innerHTML = `
+                    <div class="image-wrapper">
+                        <span class="card-badge">NO. ${item.id}</span>
+                        <img src="${item.img}" alt="${item.title}" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-category">CATEGORY / ${item.category.toUpperCase()}</span>
+                        <h3 class="card-title">${item.title}</h3>
+                        <p class="card-desc">"${item.desc}"</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function filterGallery(category) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            renderGallery(category);
+        }
+
+        function openModal(item) {
+            document.getElementById('modalImg').src = item.img;
+            document.getElementById('modalTag').innerText = `EXHIBIT NO. ${item.id} / ${item.category.toUpperCase()}`;
+            document.getElementById('modalTitle').innerText = item.title;
+            document.getElementById('modalDesc').innerText = `"${item.desc}"`;
+            document.getElementById('modalUseCase').innerHTML = `<strong>RECOMMENDED USE CASE:</strong> ${item.useCase}`;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const light = document.getElementById('cursorLight');
+            if (light) {
+                light.style.left = `${e.clientX}px`;
+                light.style.top = `${e.clientY}px`;
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            renderGallery('all');
+        });
+    </script>
+</body>
+</html>

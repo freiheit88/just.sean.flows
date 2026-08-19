@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>just.sean.flows - Scrollytelling 3D Interactive Cinema</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Montserrat:wght@200;300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-dark: #08090d;
+            --gold-primary: #C5A059;
+            --gold-light: #FDFCF0;
+            --border-gold: rgba(197, 160, 89, 0.3);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--gold-light);
+            font-family: 'Cormorant Garamond', serif;
+            overflow-x: hidden;
+            selection-background: #C5A059;
+        }
+
+        /* Top Fixed Navigation HUD */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 30px;
+            background: rgba(8, 9, 13, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-gold);
+        }
+
+        .brand-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.3em;
+            color: var(--gold-primary);
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--gold-light);
+            text-decoration: none;
+            padding: 6px 16px;
+            border: 1px solid var(--border-gold);
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--gold-primary);
+            color: #000;
+        }
+
+        /* Top Progress Bar */
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: var(--gold-primary);
+            width: 0%;
+            transition: width 0.1s ease-out;
+            box-shadow: 0 0 10px var(--gold-primary);
+        }
+
+        /* Scroll Sections */
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px;
+            position: relative;
+            text-align: center;
+        }
+
+        /* ACT I: AWAKENING */
+        .act-1 {
+            background: radial-gradient(circle at 50% 40%, rgba(197, 160, 89, 0.15) 0%, transparent 70%);
+        }
+
+        .act-tag {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10px;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--gold-primary);
+            padding: 6px 18px;
+            border: 1px solid var(--border-gold);
+            border-radius: 30px;
+            background: rgba(197, 160, 89, 0.08);
+            margin-bottom: 24px;
+        }
+
+        h1.hero-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 300;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            line-height: 1.1;
+            text-shadow: 0 0 40px rgba(197, 160, 89, 0.4);
+            margin-bottom: 20px;
+        }
+
+        h1.hero-title span {
+            color: var(--gold-primary);
+            font-style: italic;
+        }
+
+        /* ACT II: GATEKEEPER */
+        .gate-card {
+            background: rgba(15, 18, 26, 0.85);
+            border: 1px solid var(--border-gold);
+            border-radius: 32px;
+            padding: 50px 30px;
+            max-width: 700px;
+            width: 100%;
+            backdrop-filter: blur(25px);
+            box-shadow: 0 30px 90px rgba(0,0,0,0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gate-bg {
+            position: absolute;
+            inset: 0;
+            background: url('/assets/club_gate_1st_person.jpg') center/cover;
+            opacity: 0.2;
+            mix-blend-mode: luminosity;
+        }
+
+        .input-box {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(0,0,0,0.7);
+            border: 1px solid var(--border-gold);
+            border-radius: 50px;
+            padding: 14px 24px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            color: var(--gold-light);
+            text-align: center;
+            outline: none;
+            margin-top: 20px;
+        }
+
+        .enter-btn {
+            width: 100%;
+            max-width: 400px;
+            background: var(--gold-primary);
+            color: #000;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            padding: 14px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 25px rgba(197, 160, 89, 0.4);
+        }
+
+        .enter-btn:hover {
+            background: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* ACT III: 40 LOGO EXHIBITION GRID */
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1300px;
+            width: 100%;
+            margin-top: 40px;
+        }
+
+        .logo-card {
+            background: rgba(15, 18, 26, 0.75);
+            border: 1px solid var(--border-gold);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.4s ease, border-color 0.4s ease;
+        }
+
+        .logo-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--gold-primary);
+            box-shadow: 0 20px 40px rgba(197, 160, 89, 0.2);
+        }
+
+        .logo-card img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+        }
+
+        /* ACT IV & V: AUDIO & CORPORATE */
+        .cta-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        footer {
+            padding: 40px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 9px;
+            letter-spacing: 0.4em;
+            color: rgba(253, 252, 240, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Fixed Header HUD -->
+    <header>
+        <div class="brand-logo">JUST.SEAN.FLOWS</div>
+        <div class="nav-links">
+            <a href="/logos.html" class="nav-btn">🏛️ 40 LOGO MUSEUM</a>
+            <a href="/mixer.html" class="nav-btn">🎵 5-STEM MIXER</a>
+        </div>
+        <div class="progress-bar" id="progressBar"></div>
+    </header>
+
+    <!-- ACT I: THE SIGNATURE AWAKENING -->
+    <section class="act-1">
+        <div class="act-tag">
+            <i data-lucide="sparkles" style="width:12px; display:inline-block; vertical-align:middle;"></i>
+            <span>ACT I — SCROLL CINEMA</span>
+        </div>
+        <h1 class="hero-title">JUST<span>.</span>SEAN<span>.</span>FLOWS</h1>
+        <p style="font-family:'Montserrat'; font-size:12px; letter-spacing:0.3em; color:rgba(253,252,240,0.6); uppercase">
+            A MULTIVERSAL SOUND & HAUTE COUTURE LOGO EXPERIENCE
+        </p>
+    </section>
+
+    <!-- ACT II: THE GATEKEEPER -->
+    <section>
+        <div class="gate-card">
+            <div class="gate-bg"></div>
+            <div style="position:relative; z-index:10; display:flex; flex-direction:column; align-items:center; gap:16px;">
+                <div class="act-tag">ACT II — GATEKEEPER</div>
+                <div style="background:rgba(8,9,13,0.85); border:1px solid var(--border-gold); padding:12px 24px; border-radius:16px;">
+                    <span style="font-family:'Montserrat'; font-size:10px; color:var(--gold-primary); font-weight:700; display:block;">[ GATEKEEPER ]</span>
+                    <p style="font-style:italic; font-size:1.2rem; margin-top:4px;">"IDs out, everyone! Name and ID!!"</p>
+                </div>
+
+                <input type="text" class="input-box" id="nameInput" placeholder="ENTER YOUR NAME...">
+                <button class="enter-btn" onclick="submitName()">ENTER THE MANOR</button>
+                <div id="gateMsg" style="font-family:'Montserrat'; font-size:11px; color:var(--gold-primary); letter-spacing:0.2em; display:none;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ACT III: 40 MASTERWORKS LOGO EXHIBITION -->
+    <section>
+        <div class="act-tag">ACT III — 40 MASTERWORKS LOGO EXHIBITION</div>
+        <h2 style="font-size:2.5rem; font-weight:300; letter-spacing:0.1em;">CURATED LOGO CATALOGUE</h2>
+
+        <div class="logo-grid">
+            <div class="logo-card">
+                <img src="/assets/logos/logo_clean_01_ysl_monogram_1786398697349.jpg" alt="01. YSL Monogram">
+                <div style="padding:16px; text-align:left;">
+                    <span style="font-family:'Montserrat'; font-size:8px; color:var(--gold-primary); letter-spacing:0.2em;">01. HAUTE COUTURE</span>
+                    <h4 style="font-size:1.1rem; margin-top:4px;">YSL Minimal Monogram</h4>
+                </div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/logos/logo_clean_02_celine_serif_1786398708890.jpg" alt="02. Celine Serif">
+                <div style="padding:16px; text-align:left;">
+                    <span style="font-family:'Montserrat'; font-size:8px; color:var(--gold-primary); letter-spacing:0.2em;">02. HAUTE COUTURE</span>
+                    <h4 style="font-size:1.1rem; margin-top:4px;">Celine Gold Dot Serif</h4>
+                </div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/logos/logo_clean_11_sine_wave_1786398798443.jpg" alt="11. Sine Wave">
+                <div style="padding:16px; text-align:left;">
+                    <span style="font-family:'Montserrat'; font-size:8px; color:var(--gold-primary); letter-spacing:0.2em;">11. ESSENTIAL SOUND</span>
+                    <h4 style="font-size:1.1rem; margin-top:4px;">Clean Sine Wave Monogram</h4>
+                </div>
+            </div>
+            <div class="logo-card">
+                <img src="/assets/logos/logo_clean_21_kr_seal_square_1786398911531.jpg" alt="21. Joseon Seal">
+                <div style="padding:16px; text-align:left;">
+                    <span style="font-family:'Montserrat'; font-size:8px; color:var(--gold-primary); letter-spacing:0.2em;">21. KOREAN HERITAGE</span>
+                    <h4 style="font-size:1.1rem; margin-top:4px;">Joseon Royal Gold Stamp</h4>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:30px;">
+            <a href="/logos.html" class="nav-btn" style="padding:12px 30px;">EXPLORE ALL 40 MASTERWORKS LOGOS →</a>
+        </div>
+    </section>
+
+    <!-- ACT IV & V: AUDIO SYMPHONY & CORPORATE MONOLITH -->
+    <section style="background:linear-gradient(180deg, #08090d 0%, #0f121a 100%); border-top:1px solid var(--border-gold);">
+        <div class="act-tag">ACT IV & V — ORCHESTRAL SYMPHONY & CORPORATE MONOLITH</div>
+        <h2 style="font-size:3rem; font-weight:300; letter-spacing:0.2em;">JUST SEAN FLOWS INC.</h2>
+        <p style="font-family:'Montserrat'; font-size:11px; color:rgba(253,252,240,0.6); letter-spacing:0.2em; max-width:600px; margin-top:12px;">
+            A MINOR PURE ORCHESTRAL SYMPHONY & HIGH-FASHION CORPORATE IDENTITY
+        </p>
+
+        <div class="cta-group">
+            <a href="/mixer.html" class="enter-btn" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+                <i data-lucide="sliders" style="width:14px;"></i>
+                <span>OPEN 5-STEM STUDIO</span>
+            </a>
+            <a href="https://instagram.com/just.sean.flows" target="_blank" class="nav-btn" style="padding:14px 30px; display:inline-flex; align-items:center; gap:8px;">
+                <i data-lucide="instagram" style="width:14px;"></i>
+                <span>@JUST.SEAN.FLOWS</span>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        JUST SEAN FLOWS © 2026. ALL RIGHTS RESERVED. SCROLL CINEMA EXPERIENCE.
+    </footer>
+
+    <script>
+        // Track Scroll Progress
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
+
+        function submitName() {
+            const val = document.getElementById('nameInput').value.trim();
+            if (val) {
+                const msg = document.getElementById('gateMsg');
+                msg.innerText = `WELCOME TO THE MANOR, ${val.toUpperCase()} — GATE CLEARED`;
+                msg.style.display = 'block';
+
+                if ('speechSynthesis' in window) {
+                    const u = new SpeechSynthesisUtterance(`Welcome to the manor, ${val}`);
+                    u.pitch = 0.5;
+                    u.rate = 0.9;
+                    window.speechSynthesis.speak(u);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

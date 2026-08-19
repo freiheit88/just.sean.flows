@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CinematicOpening from './components/CinematicOpening';
 import LanguageSelector from './src/components/LanguageSelector';
 import IntroEngraveView from './src/components/IntroEngraveView';
+import ConductorChatView from './src/components/ConductorChatView';
 import EngravingSequence from './src/components/EngravingSequence';
 
 import {
@@ -43,6 +44,271 @@ class SimpleErrorBoundary extends React.Component {
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const BUILD_VERSION = "v1.4.0-clockwork-masterpiece-final";
+
+
+const PaperCard = ({ children, className = "", onClick, delay = 0 }) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0.98, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.5, delay }}
+        onClick={onClick}
+        className={`relative bg-[#f4e4bc] text-[#2c241b] p-6 md:p-8 shadow-[0_15px_40px_rgba(0,0,0,0.6)] border-2 border-[#d4c5a3] bg-[url('https://www.transparenttextures.com/patterns/aged-paper.png')] overflow-hidden ${className} group flex flex-col`}
+    >
+        {/* Ornate Corners */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#8B7355] m-1 rounded-tl-sm group-hover:scale-110 transition-transform" />
+        <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#8B7355] m-1 rounded-tr-sm group-hover:scale-110 transition-transform" />
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#8B7355] m-1 rounded-bl-sm group-hover:scale-110 transition-transform" />
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#8B7355] m-1 rounded-br-sm group-hover:scale-110 transition-transform" />
+
+        {/* Inner Decorative Border */}
+        <div className="absolute inset-1 border border-[#8B7355]/20 pointer-events-none" />
+
+        <div className="relative z-10">{children}</div>
+    </motion.div>
+);
+
+
+const GalleryView = ({ selectedLang, userAvatar, setViewMode, setTodos, playSfx, todos }) => {
+    // [V10 UPDATE: Cinematic Editorial 3x3 Grid]
+    const gridItems = [
+        { id: 1, type: 'text', title: selectedLang.ui.manorTitle || 'MULTIVERSE CORE', subtitle: selectedLang.name },
+        { id: 2, type: 'image', title: 'MEMORY', image: selectedLang.image },
+        { id: 3, type: 'text', title: 'AETHER RECORD', subtitle: 'Sync 88' },
+        { id: 4, type: 'image', title: 'ARCHIVE', image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e63?auto=format&fit=crop&q=80&w=300' },
+        { id: 5, type: 'current', title: selectedLang.ui.comingSoon || 'COMING SOON', isCenter: true },
+        { id: 6, type: 'manor', title: selectedLang.ui.manorTitle || 'THE MANOR' },
+        { id: 7, type: 'text', title: 'DIGITAL SOUL', subtitle: 'Humanity in Code' },
+        { id: 8, type: 'image', title: 'VISION', image: 'https://images.unsplash.com/photo-1440688807730-73e4e2169fb8?auto=format&fit=crop&w=300&q=80' },
+        { id: 9, type: 'rules', title: 'HOUSE RULES', subtitle: 'No Artificial Empathy' },
+    ];
+
+    return (
+        <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center space-y-6 h-full py-4 overflow-hidden">
+            <div className="text-center">
+                <h1 className={`text-3xl md:text-4xl font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-1 uppercase tracking-widest leading-none filter drop-shadow-md`}>{selectedLang.ui.galleryTitle || "ARCHIVE"}</h1>
+                <p className={`text-[10px] font-black uppercase tracking-[0.5em] ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/50'}`}>{selectedLang.ui.gallerySub || "Historical Record"}</p>
+            </div>
+
+            <div className="w-full aspect-square grid grid-cols-3 grid-rows-3 gap-[2px] p-2 bg-[#0A0A0B]/80 backdrop-blur-md border border-white/10 shadow-2xl relative">
+                {/* Vintage overlay artifact */}
+                <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-overlay bg-[url('/assets/steampunk_paper_texture.png')]" />
+
+                {gridItems.map((slot, idx) => (
+                    <motion.div
+                        key={slot.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: idx * 0.1, duration: 0.8, ease: "easeOut" }}
+                        className="w-full h-full relative"
+                    >
+                        {slot.type === 'current' ? (
+                            <button
+                                onClick={() => { playSfx?.('click'); }}
+                                onMouseEnter={() => playSfx?.('hover')}
+                                className={`w-full h-full relative bg-[#0A0A0B] border border-white/20 overflow-hidden group active:scale-95 transition-transform hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] flex flex-col justify-center items-center`}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 z-10" />
+                                <div className="absolute inset-0 flex items-center justify-center p-2 z-0">
+                                    {userAvatar?.image ? (
+                                        <img src={userAvatar.image} className="w-full h-full object-cover opacity-60 mix-blend-luminosity" alt="avatar" />
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center">
+                                            <div className={`w-12 h-12 rounded-full border-2 border-[${THEME_CONFIG[selectedLang.id]?.accent || '#C5A059'}] flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(197,160,89,0.3)]`}>
+                                                <span className={`text-2xl font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{selectedLang.flag}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="relative z-20 text-center px-1">
+                                    <p className={`text-[8px] font-serif italic mb-1 opacity-70 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{userAvatar?.textName || selectedLang.name}</p>
+                                    <h4 className={`text-[10px] font-black uppercase tracking-widest leading-tight ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`}>{slot.title}</h4>
+                                </div>
+                            </button>
+                        ) : slot.type === 'manor' ? (
+                            <button
+                                onClick={() => {
+                                    if (!todos?.home) AudioManager.playMina(selectedLang.id, 'dashboard');
+                                    setViewMode('home_interior');
+                                    setTodos(p => ({ ...p, home: true }));
+                                    playSfx?.('click');
+                                }}
+                                onMouseEnter={() => playSfx?.('hover')}
+                                className={`w-full h-full relative bg-[#121214] flex flex-col items-center justify-center hover:bg-white/5 transition-colors group active:scale-95 border border-transparent hover:border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/50`}
+                            >
+                                <LucideLayout size={24} className={`mb-2 opacity-50 group-hover:opacity-100 transition-opacity ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`} />
+                                <span className="text-white/60 text-[8px] font-black uppercase tracking-widest text-center">{slot.title}</span>
+                            </button>
+                        ) : slot.type === 'image' ? (
+                            <div className="w-full h-full relative overflow-hidden bg-black grayscale hover:grayscale-0 transition-all duration-1000 group">
+                                <img src={slot.image} className="w-full h-full object-cover opacity-40 group-hover:opacity-80 transition-opacity duration-1000 group-hover:scale-110" alt="archive" />
+                                <div className="absolute bottom-1 left-1 bg-black/80 px-1 py-0.5 text-white/80 text-[7px] font-black uppercase tracking-widest backdrop-blur-sm">{slot.title}</div>
+                            </div>
+                        ) : slot.type === 'rules' ? (
+                            <div className={`w-full h-full relative bg-[${THEME_CONFIG[selectedLang.id]?.accent || '#555'}]/10 flex flex-col items-center justify-center text-center p-2 border border-white/5 hover:bg-white/10 transition-colors`}>
+                                <LucideInfo size={16} className={`mb-1 opacity-60 ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white'}`} />
+                                <span className={`font-black text-[9px] uppercase leading-none mb-1 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'}`}>{slot.title}</span>
+                                <span className="text-[7px] font-serif italic text-white/50 leading-tight uppercase">{slot.subtitle}</span>
+                            </div>
+                        ) : (
+                            <div className="w-full h-full relative bg-[#0D0D10] flex flex-col items-center justify-center p-2 text-center border border-white/5 hover:border-white/20 transition-colors">
+                                <span className={`font-black text-[8px] uppercase leading-tight mb-1 ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'}`}>{slot.title}</span>
+                                <span className={`text-[6px] font-serif italic leading-none ${THEME_CONFIG[selectedLang.id]?.accent || 'text-white/40'}`}>{slot.subtitle}</span>
+                            </div>
+                        )}
+                    </motion.div>
+                ))}
+            </div>
+
+            <p className="text-[8px] font-black uppercase tracking-[0.4em] text-white/30 text-center px-8 border-t border-white/10 pt-4">
+                "Digital Body. Analog Soul."
+            </p>
+        </div>
+    );
+};
+
+
+const ManorView = ({ selectedLang, setViewMode, userAvatar, candleLit, setCandleLit, gearsSpinning, setGearsSpinning, loreText, playSfx }) => (
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-2 py-4">
+        <button onClick={() => { setViewMode('gallery'); playSfx?.('click'); }} className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1">
+            <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
+        </button>
+
+        <PaperCard className={`w-full flex-1 max-h-[75vh] p-0 border border-[${THEME_CONFIG[selectedLang.id]?.border || '#333'}] bg-transparent relative overflow-hidden shadow-2xl backdrop-blur-md`}>
+            {/* Ambient Background with subtle noise/vignette */}
+            <div
+                className="absolute inset-0 bg-center bg-cover opacity-10 mix-blend-overlay"
+                style={{ backgroundImage: "url('/assets/steampunk_manor_background.png')" }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80" />
+
+            <div className="relative z-10 flex flex-col items-center p-6 h-full overflow-y-auto no-scrollbar">
+                <div className="w-full flex justify-between mb-8 px-2">
+                    <div className="cursor-pointer hover:scale-110 transition-transform flex items-center gap-2" onClick={() => setCandleLit(!candleLit)} onMouseEnter={() => playSfx?.('hover')}>
+                        <LucideFlame size={20} className={candleLit ? `text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]` : 'text-white/20'} />
+                        <span className="text-[8px] uppercase tracking-widest text-white/30 font-black hidden sm:block">Aether Core</span>
+                    </div>
+                    <div className="cursor-pointer hover:rotate-90 transition-transform flex items-center gap-2" onClick={() => setGearsSpinning(!gearsSpinning)} onMouseEnter={() => playSfx?.('hover')}>
+                        <span className="text-[8px] uppercase tracking-widest text-white/30 font-black hidden sm:block">Sync</span>
+                        <motion.div animate={{ rotate: gearsSpinning ? 360 : 0 }} transition={{ duration: 4, repeat: gearsSpinning ? Infinity : 0, ease: "linear" }}>
+                            <LucideOrbit size={20} className={`text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]`} />
+                        </motion.div>
+                    </div>
+                </div>
+
+                <div className={`relative w-28 h-28 mb-4 transition-all duration-700 ${candleLit ? '' : 'brightness-50'}`}>
+                    <div className="absolute inset-0 border-4 border-[#C5A059] rounded-full shadow-[0_0_20px_rgba(197,160,89,0.3)]" />
+                    <div className="w-full h-full rounded-full overflow-hidden bg-black flex items-center justify-center p-2 border-2 border-[#8B7355]/40 shadow-inner">
+                        {userAvatar?.image ? (
+                            <img src={userAvatar.image} className="w-full h-full object-cover rounded-full" />
+                        ) : (
+                            <span className="text-[#C5A059] font-black text-4xl text-center uppercase drop-shadow-md">{userAvatar?.textName?.charAt(0) || selectedLang?.name?.charAt(0) || "M"}</span>
+                        )}
+                    </div>
+                </div>
+
+                <h3 className={`text-xl font-serif font-black ${THEME_CONFIG[selectedLang.id]?.text || 'text-white'} mb-6 uppercase tracking-[0.3em] text-center leading-none`}>{selectedLang.ui.manorTitle}</h3>
+
+                <div className={`w-full flex-1 bg-black/40 backdrop-blur-sm p-5 border-l border-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}]/30 rounded-r-lg font-mono text-[10px] ${THEME_CONFIG[selectedLang.id]?.text || 'text-white/80'} leading-relaxed relative overflow-y-auto no-scrollbar shadow-inner`}>
+                    {loreText || selectedLang?.welcome || "Welcome to the Lord Manor."}<span className={`inline-block w-1.5 h-3 bg-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] ml-1 animate-ping`} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 w-full mt-6 pt-4 border-t border-white/10">
+                    <motion.div whileHover={{ y: -2 }} className="flex flex-col items-center gap-2 cursor-pointer group" onClick={() => playSfx?.('click')} onMouseEnter={() => playSfx?.('hover')}>
+                        <LucideCompass size={18} className={`text-white/40 group-hover:text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] transition-colors`} />
+                        <span className={`text-[9px] font-black uppercase text-white/40 group-hover:text-[${THEME_CONFIG[selectedLang.id]?.accent || '#FFF'}] tracking-widest`}>{selectedLang.ui.manorHeirlooms}</span>
+                    </motion.div>
+                    <div className="flex flex-col items-center gap-2 opacity-20 pointer-events-none">
+                        <LucideMapPin size={18} className="text-white" />
+                        <span className="text-[9px] font-black uppercase text-white tracking-widest">{selectedLang.ui.manorEstate}</span>
+                    </div>
+                </div>
+            </div>
+        </PaperCard>
+    </motion.div>
+);
+
+// [V9 UPDATE: MissionView Redesign with IT-tech effects]
+
+const MissionView = ({ selectedLang, setViewMode, PROJECTS, previewId, handlePreviewVote, isAuthenticated, setIsAuthenticated, oracleMessage, setStep, setTodos, playSfx }) => (
+    <div className="w-full max-w-lg h-full flex flex-col items-center justify-center space-y-4 py-4 overflow-hidden px-4 scanline">
+        <button
+            onClick={() => { setViewMode('gallery'); playSfx?.('click'); }}
+            className="text-[#C5A059] hover:text-[#f4e4bc] uppercase text-[10px] font-black tracking-widest mb-2 self-start flex items-center gap-1 transition-all hover:translate-x-1"
+        >
+            <LucideChevronLeft size={16} /> {selectedLang.ui.returnGallery}
+        </button>
+
+        <div className="w-full flex-1 flex flex-col overflow-hidden">
+            <PaperCard className="py-4 px-6 border-[#C5A059] shadow-lg mb-4 shrink-0 bg-paper aether-glow">
+                <h3 className="text-[10px] font-black text-[#5C1A1A] uppercase tracking-[0.2em] flex items-center gap-1 border-b border-black/5 pb-2">
+                    <LucideInfo size={14} /> {selectedLang.ui.authTitle}
+                </h3>
+                {!isAuthenticated ? (
+                    <button onClick={() => { setIsAuthenticated(true); playSfx?.('forge'); }} className="w-full mt-2 py-3 bg-[#1A1612] text-[#C5A059] text-[10px] font-black uppercase border border-[#C5A059]/40 hover:bg-[#5C1A1A] hover:text-white transition-all shadow-md active:scale-95">
+                        {selectedLang.ui.authBtn}
+                    </button>
+                ) : (
+                    <div className="flex items-center justify-center gap-2 text-[#556B2F] font-black bg-[#556B2F]/10 p-2 mt-2 border border-[#556B2F]/30 uppercase text-[10px]">
+                        <LucideCheckCircle size={16} /> {selectedLang.ui.authDone}
+                    </div>
+                )}
+            </PaperCard>
+
+            <div className="flex-1 w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex items-start gap-4 pb-4 px-2">
+                {PROJECTS.map((proj) => {
+                    const isSelected = previewId === proj.id;
+                    const isInactive = previewId && !isSelected;
+                    return (
+                        <div key={proj.id} className={`min-w-[280px] h-full snap-center transition-all duration-500 ${isInactive ? 'opacity-20 grayscale scale-90 blur-[1px]' : 'scale-100'}`}>
+                            <PaperCard
+                                onClick={() => { if (!isInactive && isAuthenticated) { handlePreviewVote(proj.id); playSfx?.('click'); } }}
+                                className={`h-full cursor-pointer transition-all duration-700 overflow-hidden border-2 p-0 shadow-2xl flex flex-col relative ${isSelected ? 'border-[#C5A059] bg-[#2C241B]/20 aether-glow' : 'border-[#2C241B] hover:border-[#8B7355] bg-black/5'}`}
+                            >
+                                {isSelected && <div className="absolute inset-0 bg-[#C5A059]/5 animate-pulse pointer-events-none" />}
+                                <div className="p-6 flex flex-col flex-1 relative z-10">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <span className={`text-[10px] font-mono uppercase px-2 py-1 border transition-colors ${isSelected ? 'border-[#5C1A1A] text-[#5C1A1A] bg-[#5C1A1A]/10' : 'border-[#8B7355] text-[#8B7355]'}`}>Case #0{proj.id}</span>
+                                        {isSelected && <LucideSparkles className="text-[#C5A059] animate-spin-slow" size={18} />}
+                                    </div>
+                                    <h4 className={`text-xl font-serif font-black uppercase tracking-wider mb-4 leading-tight transition-colors ${isSelected ? 'text-[#C5A059]' : 'text-[#8B7355]'}`}>{proj.title}</h4>
+                                    <p className="text-[#8B7355] text-[11px] font-medium leading-relaxed italic opacity-80 mb-6 flex-1">
+                                        {proj.desc}
+                                    </p>
+
+                                    <AnimatePresence>
+                                        {isSelected && (
+                                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="mt-auto">
+                                                <div className="bg-[#1A1612] p-6 border-l-4 border-[#C5A059] mb-4 shadow-inner relative overflow-hidden">
+                                                    <div className="absolute top-0 left-0 w-full h-[1px] bg-[#C5A059]/30 animate-scan-line" />
+                                                    <div className="absolute top-1 right-1"><LucideFeather size={14} className="text-[#5C1A1A] opacity-30" /></div>
+                                                    <p className="text-[#f4e4bc] text-[11px] leading-relaxed text-center font-serif italic">"{oracleMessage || selectedLang.ui.consulting}"</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => { playSfx?.('shutter'); setStep('trailer'); setTodos(p => ({ ...p, voted: true })); }}
+                                                    className="w-full py-4 bg-[#5C1A1A] text-white font-black uppercase text-xs tracking-[0.2em] border-b-4 border-black active:scale-95 transition-transform shadow-2xl hover:bg-[#7D2626]"
+                                                >
+                                                    {selectedLang.ui.sealBtn}
+                                                </button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    {!isSelected && isAuthenticated && (
+                                        <div className="mt-auto pt-4 border-t border-[#8B7355]/10 text-[9px] font-black uppercase text-[#8B7355] text-center tracking-widest animate-pulse">Tap to examine destiny</div>
+                                    )}
+                                </div>
+                            </PaperCard>
+                        </div>
+                    );
+                })}
+            </div>
+            <div className="text-center py-2"><span className="text-[8px] font-black uppercase text-[#8B7355] tracking-widest opacity-60 flex items-center gap-2">
+                <LucideArrowLeft size={10} className="animate-bounce-x" /> Swipe Aether Cases <LucideArrowRight size={10} className="animate-bounce-x" />
+            </span></div>
+        </div>
+    </div>
+);
+
+
 
 /**
  * [V19] Singleton AudioManager
@@ -175,14 +441,14 @@ const AudioManager = {
     },
 
     playMainTheme: (targetVolume = 0.35, fadeDuration = 3000) => {
-        if (AudioManager.mainTheme && !AudioManager.mainTheme.paused && AudioManager.mainTheme.src.includes(`background_candiate1.mp3`)) return;
+        if (AudioManager.mainTheme && !AudioManager.mainTheme.paused && AudioManager.mainTheme.src.includes(`A%20twelve-alibi_MR_master.wav`)) return;
 
         if (AudioManager.mainTheme) {
             AudioManager.mainTheme.pause();
             AudioManager.mainTheme.currentTime = 0;
         }
 
-        const audio = new Audio('/assets/sounds/background_candiate1.mp3');
+        const audio = new Audio('/assets/manual_upload/A twelve-alibi_MR_master.wav');
         audio.volume = 0;
         audio.loop = true;
         audio.play().catch(() => { });
@@ -1029,143 +1295,65 @@ const GlassCard = ({ children, className = "", onClick, delay = 0 }) => (
 // --- View Components (Extracted to fix focus issues) ---
 
 
-const ComingSoonView = ({ selectedLang, currentTheme, setViewMode, setStep, metrics, onEarnBadge, earnedBadges }) => {
-    const primaryArchetype = earnedBadges.length > 0 ? earnedBadges[0] : null;
-
-    // Calculate Archetype Title on Load
-    useEffect(() => {
-        if (!metrics) return;
-        const enhancedMetrics = {
-            ...metrics,
-            sessionTimeSeconds: metrics.timeSpentMs / 1000,
-            selectedLangId: selectedLang?.id
-        };
-        const calculated = calculateArchetype(enhancedMetrics);
-
-        // Bail out explicitly and correctly here as well to avoid calling the dispatcher unnecessarily
-        const newBadges = calculated.filter(b => !earnedBadges.some(eb => eb.id === b.id));
-        if (newBadges.length > 0) {
-            onEarnBadge(newBadges);
-        }
-    }, [metrics.totalClicks, metrics.uniqueCards, metrics.timeSpentMs, selectedLang?.id, onEarnBadge, earnedBadges]);
-
+const ComingSoonView = ({ onReset }) => {
     return (
-        <motion.div
-            key="coming-soon-wrapper"
-            initial={{ opacity: 1, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.8 }}
-            className="fixed inset-0 z-[99999] bg-gradient-to-t from-black via-black/80 to-transparent w-full h-full flex flex-col items-center justify-start py-20 px-4 md:px-8 text-center overflow-y-auto overflow-x-hidden custom-scrollbar pointer-events-auto"
-            style={{ minHeight: '100%' }}
-        >
-            <AnimatePresence mode="wait">
+        <div className="w-full h-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black select-none">
+            {/* Background POV Visual */}
+            <img 
+                src="/assets/manual_upload/club_gate_1st_person.jpg" 
+                alt="Background POV" 
+                className="absolute inset-0 w-full h-full object-cover z-0 opacity-40 brightness-50"
+            />
+
+            {/* Vignette Overlay */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.95)_100%)] z-10 pointer-events-none" />
+
+            {/* Centered Phone-shaped Gold Frame */}
+            <motion.div
+                initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="relative z-20 w-full max-w-[350px] h-[78vh] bg-black/65 backdrop-blur-xl border border-[#C5A059]/30 rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.85)] flex flex-col items-center justify-center p-8 gap-8"
+            >
+                {/* Rotating Golden Compass Graphic */}
                 <motion.div
-                    key="mina-announcement"
-                    initial={{ opacity: 0, y: -20, x: "-50%" }}
-                    animate={{ opacity: 1, y: 0, x: "-50%" }}
-                    exit={{ opacity: 0, y: -10, x: "-50%" }}
-                    transition={{ duration: 1.2, delay: 0.2, type: "spring", bounce: 0.3 }}
-                    className="w-[95%] max-w-[500px] absolute top-6 md:top-8 left-1/2 flex flex-col items-center z-[5000]"
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 25, ease: "linear" }}
+                    className="w-24 h-24 border-2 border-dashed border-[#C5A059]/50 rounded-full flex items-center justify-center relative"
                 >
-                    {/* Inventory / Title Unlocked Announcement using MinaDirective */}
-                    <div className="w-full flex justify-center opacity-95 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
-                        {(() => {
-                            let displayTitle = "Analyzing...";
-                            if (primaryArchetype && selectedLang?.ui?.badges) {
-                                const def = selectedLang.ui.badges[primaryArchetype.id];
-                                if (def) {
-                                    let localizedTitle = def.title;
-                                    let localizedSub = def.sub || def.title;
-                                    if (primaryArchetype.vars) {
-                                        Object.entries(primaryArchetype.vars).forEach(([k, v]) => {
-                                            localizedTitle = localizedTitle.replace(`{${k}}`, v);
-                                            localizedSub = localizedSub.replace(`{${k}}`, v);
-                                        });
-                                    }
-                                    displayTitle = `${selectedLang?.ui?.titleEarned || "NEW TITLE ACQUIRED"}: [ ${selectedLang?.id === 'ko' ? localizedTitle : localizedSub} ]`;
-                                }
-                            }
-                            return (
-                                <MinaDirective
-                                    isVisible={true}
-                                    activeStep="coming_soon"
-                                    text={displayTitle}
-                                    position="relative"
-                                    interactionMode="passive"
-                                    badges={earnedBadges}
-                                    sysName={selectedLang?.ui?.minaSystem || "SEAN'S COMMENT"}
-                                />
-                            );
-                        })()}
+                    <div className="w-16 h-16 border border-[#C5A059]/30 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#C5A059] to-amber-700 rounded-full animate-pulse shadow-[0_0_15px_rgba(197,160,89,0.5)]" />
                     </div>
+                    {/* Compass needle */}
+                    <div className="absolute top-2 bottom-2 w-[2px] bg-[#C5A059] origin-center rotate-45" />
                 </motion.div>
-            </AnimatePresence>
 
-            <div className="mb-12 mt-40 md:mt-48 relative flex justify-center items-end h-24 gap-1.5 opacity-60 flex-shrink-0">
-                {[...Array(15)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        animate={{ height: ["20%", "100%", "20%"] }}
-                        transition={{ duration: 0.5 + Math.random(), repeat: Infinity, ease: "easeInOut", delay: Math.random() * 0.5 }}
-                        className="w-1.5 rounded-t-sm border border-black/20"
-                        style={{ backgroundColor: '#C5A059' }}
-                    />
-                ))}
-            </div>
+                {/* Narrative Text */}
+                <div className="text-center flex flex-col gap-2">
+                    <span className="font-mono text-[9px] tracking-[0.25em] text-[#C5A059] uppercase animate-pulse">
+                        [ Frequencies Locked ]
+                    </span>
+                    <h2 className="font-serif text-[18px] font-black tracking-widest text-[#FDFCF0] uppercase">
+                        Coming Soon
+                    </h2>
+                    <p className="font-serif text-[#f5e6b8]/75 text-[11px] leading-relaxed tracking-wider mt-2">
+                        The gatekeeper is tuning the multiversal alignment. Receive the frequencies and wait for the signal.
+                    </p>
+                </div>
 
-            <motion.h2
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className={`text-3xl md:text-5xl font-black uppercase tracking-[0.2em] mb-4 flex-shrink-0 px-4 w-full break-words ${currentTheme?.text || 'text-white'}`}
-                style={{ textShadow: "0 0 20px rgba(197,160,89,0.3)" }}
-            >
-                {selectedLang?.ui?.comingSoon || "Coming Soon"}
-            </motion.h2>
-
-            <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className={`text-sm md:text-base font-bold italic max-w-sm w-full px-4 leading-relaxed opacity-90 break-keep word-break ${currentTheme?.text || 'text-white'}`}
-            >
-                "{selectedLang?.ui?.comingSoonDesc1 || "This is the current end of the line! Updates coming soon. However, you can continue listening to the music of each multiverse here."}"<br /><br />
-                <span className="text-[#00E5FF] font-black drop-shadow-[0_0_10px_rgba(0,229,255,0.8)] block w-full">
-                    {selectedLang?.ui?.comingSoonDesc2 || "There are a total of 2 tracks prepared for each language, so please enjoy them to the end!"}
-                </span>
-            </motion.p>
-
-            <div className="flex flex-col gap-4 mt-10">
+                {/* Re-tune Button */}
                 <motion.button
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.0 }}
-                    onClick={() => {
-                        AudioManager.playSfx('shutter', 0.6);
-                        setStep('dashboard');
-                        setViewMode('gallery');
-                    }}
-                    className={`px-8 py-4 border active:scale-95 transition-all text-[10px] uppercase font-black font-sans tracking-[0.3em] backdrop-blur-md ${currentTheme?.border || 'border-[#C5A059]/40'} ${currentTheme?.text || 'text-white'} hover:bg-white/10 shadow-lg`}
+                    whileHover={{ scale: 1.03, borderColor: "rgba(197, 160, 89, 0.7)" }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={onReset}
+                    className="w-full py-2.5 border border-[#C5A059]/30 rounded-full font-serif text-[10px] tracking-[0.25em] text-[#C5A059] uppercase hover:text-[#FDFCF0] hover:bg-[#C5A059]/10 transition-all duration-300 cursor-pointer shadow-md mt-4"
                 >
-                    {selectedLang?.id === 'ko' ? "매너 갤러리" : "Enter Gallery"}
+                    Re-tune
                 </motion.button>
-                <motion.button
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.2 }}
-                    onClick={() => {
-                        AudioManager.playSfx('piano-mystic-high', 0.6);
-                        setStep('language');
-                    }}
-                    className="px-8 py-3 opacity-60 hover:opacity-100 active:scale-95 transition-all text-[10px] uppercase font-black tracking-widest text-[#00E5FF] hover:text-white"
-                >
-                    {selectedLang?.id === 'ko' ? "다중 우주로 돌아가기" : "Return to Multiverse"}
-                </motion.button>
-            </div>
-        </motion.div>
+            </motion.div>
+        </div>
     );
-};
+}
 
 
 // Removed MultiverseGrid component definition per Phase 1 refactoring
@@ -1221,8 +1409,10 @@ const ConfirmView = ({ selectedLang, confirmLanguage, theme }) => {
 
 const App = () => {
     // === INITIAL STATE ===
-    const [currentPhase, setCurrentPhase] = useState('VOLUME_CHECK');
+    const [currentPhase, setCurrentPhase] = useState('GATEWAY');
     const [selectedLang, setSelectedLang] = useState(null);
+    const [preintroBrightness, setPreintroBrightness] = useState(1.0);
+    const videoRef = useRef(null);
 
     const [isMinaSpeaking, setIsMinaSpeaking] = useState(false);
 
@@ -1232,6 +1422,15 @@ const App = () => {
             window.setMinaSpeaking = null;
         };
     }, []);
+
+    useEffect(() => {
+        if (currentPhase === 'VOLUME_CHECK' && videoRef.current) {
+            videoRef.current.muted = true;
+            videoRef.current.play().catch(err => {
+                console.log("Autoplay failed:", err);
+            });
+        }
+    }, [currentPhase]);
 
     // User Achievement Tracking State
     const [appStartTime] = useState(Date.now());
@@ -1700,24 +1899,51 @@ const App = () => {
 
             {/* [BOLD UI OVERHAUL] Panning Atmospheric Collage Background */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-                <motion.div
-                    initial={{ scale: 1.2, x: "-5%", y: "-5%" }}
-                    animate={{
-                        x: ["-5%", "5%", "-5%"],
-                        y: ["-5%", "5%", "-5%"],
-                    }}
-                    transition={{
-                        x: { duration: 120, repeat: Infinity, ease: "linear" },
-                        y: { duration: 150, repeat: Infinity, ease: "linear" },
-                    }}
-                    className="absolute inset-[-10%] bg-cover bg-center grayscale-[40%] blur-[8px]"
-                    style={{ backgroundImage: "url('/assets/intro-collage.png')", backgroundSize: 'cover' }}
-                />
+                {(currentPhase === 'VOLUME_CHECK' || currentPhase === 'LANGUAGE_QUEST') ? (
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <video
+                            ref={videoRef}
+                            src="/assets/manual_upload/club_entrance_1st_person.mp4"
+                            autoPlay={true}
+                            loop={true}
+                            playsInline={true}
+                            muted={true}
+                            className="absolute inset-0 w-full h-full object-cover transition-all duration-[2500ms] ease-out hidden"
+                            onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                        <img
+                            src="/assets/manual_upload/club_gate_1st_person.jpg"
+                            alt="Club Entrance POV"
+                            className="absolute inset-0 w-full h-full object-cover transition-all duration-[2500ms] ease-out"
+                            style={{
+                                filter: `brightness(${preintroBrightness})`,
+                            }}
+                        />
+                    </div>
+                ) : (
+                    <motion.div
+                        initial={{ scale: 1.2, x: "-5%", y: "-5%" }}
+                        animate={{
+                            x: ["-5%", "5%", "-5%"],
+                            y: ["-5%", "5%", "-5%"],
+                        }}
+                        transition={{
+                            x: { duration: 120, repeat: Infinity, ease: "linear" },
+                            y: { duration: 150, repeat: Infinity, ease: "linear" },
+                        }}
+                        className="absolute inset-[-10%] bg-cover bg-center grayscale-[40%] blur-[8px]"
+                        style={{ backgroundImage: "url('/assets/intro-collage.png')", backgroundSize: 'cover' }}
+                    />
+                )}
 
                 {/* Heavy Dark Overlays for "Flashy but Restrained" feel */}
-                <div className="absolute inset-0 bg-black/80" />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/60 to-black/95" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.9)_100%)]" />
+                {currentPhase === 'VOLUME_CHECK' ? null : (
+                    <>
+                        <div className="absolute inset-0 bg-black/80" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/95 via-black/60 to-black/95" />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(0,0,0,0.9)_100%)]" />
+                    </>
+                )}
 
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-30 mix-blend-overlay" />
             </div>
@@ -1737,7 +1963,7 @@ const App = () => {
                                         group: 'awareness'
                                     }]);
                                 }
-                                setCurrentPhase('IDENTITY'); // Skip AWARENESS completely
+                                setCurrentPhase('CONDUCTOR_CHAT');
                             }}
                         />
                     </div>
@@ -1767,7 +1993,16 @@ const App = () => {
                                 {(currentPhase === 'VOLUME_CHECK' || currentPhase === 'AWARENESS' || currentPhase === 'LANGUAGE_QUEST' || currentPhase === 'CASSETTE_INSERT') && (
                                     <LanguageSelector
                                         phase={currentPhase}
-                                        onVolumeCheckComplete={() => setCurrentPhase('LANGUAGE_QUEST')}
+                                        onVolumeCheckComplete={() => setCurrentPhase('GATEWAY')}
+                                        onVolumeCheckTrigger={() => {
+                                            if (videoRef.current) {
+                                                videoRef.current.muted = false;
+                                                videoRef.current.volume = 0.3;
+                                                videoRef.current.play().catch(() => {});
+                                                AudioManager.mainTheme = videoRef.current;
+                                            }
+                                            setPreintroBrightness(0.5);
+                                        }}
                                         onCassetteComplete={() => setCurrentPhase('GATEWAY')}
                                         onAwarenessComplete={() => {
                                             if (!earnedBadges.includes('keeper_of_rules')) {
@@ -1796,6 +2031,25 @@ const App = () => {
                                         isWipReached={isWipReached}
                                         onWipReached={handleWipReached}
                                         selectedLang={selectedLang}
+                                    />
+                                )}
+                                {currentPhase === 'CONDUCTOR_CHAT' && (
+                                    <ConductorChatView
+                                        apiKey={apiKey}
+                                        onComplete={() => setCurrentPhase('COMING_SOON')}
+                                        AudioManager={AudioManager}
+                                    />
+                                )}
+                                {currentPhase === 'COMING_SOON' && (
+                                    <ComingSoonView
+                                        onReset={() => {
+                                            setPreintroBrightness(1.0);
+                                            if (videoRef.current) {
+                                                videoRef.current.muted = true;
+                                                videoRef.current.volume = 0;
+                                            }
+                                            setCurrentPhase('GATEWAY');
+                                        }}
                                     />
                                 )}
                                 {currentPhase === 'IDENTITY' && (

@@ -148,7 +148,7 @@ const LanguageCard = ({ lang, isFocused, isStaged, isDimmable, onFocus, onReady,
 };
 
 // --- LanguageSelector Component ---
-const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking, earnedBadges, onEarnBadge, AudioManager, MinaDirective, calculateArchetype, selectedPath, isWipReached, onWipReached, phase, onVolumeCheckComplete, onCassetteComplete, onAwarenessComplete, onSealComplete, selectedLang }) => {
+const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, cardsExplored, setCardsExplored, isMinaSpeaking, earnedBadges, onEarnBadge, AudioManager, MinaDirective, calculateArchetype, selectedPath, isWipReached, onWipReached, phase, onVolumeCheckComplete, onVolumeCheckTrigger, onCassetteComplete, onAwarenessComplete, onSealComplete, selectedLang }) => {
     const [focusedLang, setFocusedLang] = useState(null);
     const [stagedLang, setStagedLang] = useState(null);
     const [minaText, setMinaText] = useState("");
@@ -160,6 +160,21 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
 
     // --- AWARENESS PHASE SCORED-BOARD ---
     const [awarenessScoreboardVisible, setAwarenessScoreboardVisible] = useState(false);
+
+    // --- Pre-intro screen state ---
+    const [preintroStep, setPreintroStep] = useState('touch'); // 'touch' | 'clearing'
+    const [preintroLoading, setPreintroLoading] = useState(true);
+
+    useEffect(() => {
+        if (phase === 'VOLUME_CHECK') {
+            setPreintroLoading(true);
+            const timer = setTimeout(() => {
+                setPreintroLoading(false);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [phase]);
+
 
     useEffect(() => {
         if (phase === 'AWARENESS' && selectedLang) {
@@ -383,57 +398,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [phase]);
 
-    useEffect(() => {
-        let volumeTimer;
-        let audioCtx;
-        let masterGain;
 
-        if (phase === 'VOLUME_CHECK') {
-            try {
-                // Auto-playing ambient drone (browsers might block this depending on policy, we handle via catch)
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                
-                masterGain = audioCtx.createGain();
-                masterGain.gain.setValueAtTime(0.001, audioCtx.currentTime);
-                masterGain.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + 2.0);
-                masterGain.connect(audioCtx.destination);
-
-                const osc = audioCtx.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(329.63, audioCtx.currentTime); // E4 - calm, ethereal note
-                osc.connect(masterGain);
-
-                const lfo = audioCtx.createOscillator();
-                lfo.type = 'sine';
-                lfo.frequency.setValueAtTime(0.3, audioCtx.currentTime); // Slow pulse
-                
-                const lfoGain = audioCtx.createGain();
-                lfoGain.gain.setValueAtTime(0.04, audioCtx.currentTime); // Modulation depth
-                lfo.connect(lfoGain);
-                lfoGain.connect(masterGain.gain);
-
-                osc.start();
-                lfo.start();
-            } catch (e) {
-                console.log("AudioContext blocked from auto-playing. Requires interaction.", e);
-            }
-
-            volumeTimer = setTimeout(() => {
-                if (masterGain && audioCtx && audioCtx.state !== 'closed') {
-                    masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.0);
-                }
-                if (onVolumeCheckComplete) onVolumeCheckComplete();
-            }, 8000);
-        }
-
-        return () => {
-            if (volumeTimer) clearTimeout(volumeTimer);
-            if (audioCtx && audioCtx.state !== 'closed') {
-                if (masterGain) masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-                setTimeout(() => audioCtx.close(), 600);
-            }
-        };
-    }, [phase, onVolumeCheckComplete]);
 
     useEffect(() => {
         if (countdownTime === 0 && stagedLang && !isSealed) {
@@ -536,114 +501,104 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
 
     if (phase === 'VOLUME_CHECK') {
         const handleVolumeConfirmed = () => {
-            // Play a soft, pleasant C5 chime using Web Audio API on valid user interaction
+            if (preintroStep !== 'touch') return;
+            setPreintroStep('clearing');
+
+            // Play Timpani heavy kick sound
             try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                
-                const masterGain = audioCtx.createGain();
-                masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-                masterGain.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.05);
-                masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
-                masterGain.connect(audioCtx.destination);
-
-                const osc = audioCtx.createOscillator();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                osc.connect(masterGain);
-
-                const overtone = audioCtx.createOscillator();
-                overtone.type = 'sine';
-                overtone.frequency.setValueAtTime(1046.50, audioCtx.currentTime); // C6
-                const overtoneGain = audioCtx.createGain();
-                overtoneGain.gain.setValueAtTime(0, audioCtx.currentTime);
-                overtoneGain.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.05);
-                overtoneGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.0);
-                overtone.connect(overtoneGain);
-                overtoneGain.connect(masterGain);
-
-                osc.start();
-                overtone.start();
-                osc.stop(audioCtx.currentTime + 1.5);
-                overtone.stop(audioCtx.currentTime + 1.5);
+                const timpaniAudio = new Audio('/assets/sounds/TS_IFD_kick_timpani_heavy.wav');
+                timpaniAudio.volume = 0.8;
+                timpaniAudio.play().catch(() => {});
             } catch (e) {
-                console.log("AudioContext not supported or blocked", e);
+                console.log("SFX play failed:", e);
             }
 
-            // Small delay to let the sound play, then advance phase
+            // Trigger parent to start music video audio & brighten
+            if (onVolumeCheckTrigger) onVolumeCheckTrigger();
+
+            // Transition to language selection after 2.5 seconds (giving time for the screen to clear)
             setTimeout(() => {
                 if (onVolumeCheckComplete) onVolumeCheckComplete();
-            }, 500);
+            }, 2500);
         };
 
+        const isCleared = preintroStep === 'clearing';
+
         return (
-            <div className="w-full h-full flex flex-col items-center justify-start pt-10 md:pt-20 p-4 relative overflow-hidden bg-black">
-                {/* Clean, dark ambient background */}
-                <motion.div 
-                    className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(197,160,89,0.05)_0%,transparent_60%)]"
-                    animate={{ opacity: [0.3, 0.7, 0.3] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                />
-
-                {/* Reduced size: 60% of original. max-w-[170px] instead of [280px] */}
-                <div className="relative aspect-[4/5] w-[50%] max-w-[170px]">
-                    {/* Classical gold circular progress ring (Enlarged by 50% to prevent overlap, doubled thickness) */}
-                    <svg className="absolute inset-[-60%] w-[220%] h-[220%] pointer-events-none" viewBox="0 0 100 100">
-                        {/* Background subtle ring */}
-                        <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(197,160,89,0.1)" strokeWidth="1" />
-                        {/* Progress ring animating over 8s */}
-                        <motion.circle 
-                            cx="50" cy="50" r="44" 
-                            fill="none" 
-                            stroke="#C5A059" 
-                            strokeWidth="3" 
-                            strokeLinecap="round"
-                            strokeDasharray="276" // ~2 * pi * 44
-                            strokeDashoffset={276}
-                            animate={{ strokeDashoffset: 0 }}
-                            transition={{ duration: 8, ease: "linear" }}
-                            style={{ transformOrigin: 'center', transform: 'rotate(-90deg)' }}
-                            className="drop-shadow-[0_0_8px_rgba(197,160,89,0.5)]"
-                        />
-                    </svg>
-
-                    {/* The Volume Check Card (Classical aesthetic) */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        onClick={handleVolumeConfirmed}
-                        className="w-full h-full relative cursor-pointer group"
-                    >
-                        {/* Elegant container without heavy IT glassmorphism */}
-                        <div className="absolute inset-0 bg-[#0a0806] rounded-xl border border-[#C5A059]/30 shadow-[0_0_30px_rgba(197,160,89,0.1)] flex flex-col items-center justify-center overflow-hidden transition-all duration-1000 group-hover:border-[#C5A059]/60 group-hover:shadow-[0_0_20px_rgba(197,160,89,0.3)] hover:scale-105">
-                            
-                            {/* Subtle noise texture */}
-                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/film-grain.png')] opacity-10 mix-blend-overlay pointer-events-none" />
-
-                            <motion.div 
-                                className="mb-3 text-[#C5A059]"
-                                animate={{ scale: [1, 1.05, 1], filter: ['brightness(1)', 'brightness(1.5)', 'brightness(1)'] }}
-                                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            <div className="absolute inset-0 w-full h-full bg-transparent overflow-hidden z-[9999] flex items-center justify-center select-none">
+                {/* UI Container */}
+                <div 
+                    className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none transition-all duration-700"
+                    style={{
+                        opacity: isCleared ? 0 : 1,
+                        scale: isCleared ? 0.95 : 1
+                    }}
+                >
+                    <AnimatePresence mode="wait">
+                        {preintroLoading ? (
+                            <motion.div
+                                key="preintro-loading"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 1.05 }}
+                                transition={{ duration: 0.8, ease: "easeInOut" }}
+                                className="flex flex-col items-center justify-center gap-4"
                             >
-                                <LucideVolume2 size={32} strokeWidth={1} />
+                                {/* Spinning mechanical compass radar */}
+                                <motion.div 
+                                    className="text-[#f5e6b8] opacity-75 animate-[spin_6s_linear_infinite]"
+                                >
+                                    <LucideCompass size={48} strokeWidth={1} />
+                                </motion.div>
+                                
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="font-serif text-[#f5e6b8] text-sm tracking-[0.3em] uppercase animate-pulse">
+                                        Connecting to Aether
+                                    </span>
+                                    <span className="text-[10px] text-white/40 tracking-[0.25em] font-sans font-bold uppercase">
+                                        Aligning Resonator . . .
+                                    </span>
+                                </div>
                             </motion.div>
-                            
-                            <div className="text-2xl md:text-3xl font-serif font-black text-[#FDFCF0] tracking-[0.1em] drop-shadow-[0_0_8px_rgba(197,160,89,0.5)]">
-                                30%
-                            </div>
-                        </div>
-                        
-                        {/* Soft sweep reflection effect on hover */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#C5A059]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000 transform -translate-x-full group-hover:translate-x-full" style={{ transitionProperty: 'transform, opacity' }} />
-                    </motion.div>
+                        ) : (
+                            <motion.button
+                                key="preintro-action"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.8, ease: "easeOut" }}
+                                onClick={handleVolumeConfirmed}
+                                disabled={isCleared}
+                                className="pointer-events-auto cursor-pointer flex flex-col items-center justify-center px-10 py-5 rounded-full border border-[#f5e6b8]/50 bg-[#0a0c12]/80 text-[#f5e6b8] shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md active:scale-95 transition-all duration-300 origin-center animate-[breathe_2s_ease-in-out_infinite]"
+                                style={{
+                                    outline: 'none',
+                                }}
+                            >
+                                <span 
+                                    className="font-serif text-3xl md:text-4xl font-bold tracking-wider leading-none text-[#f5e6b8]"
+                                    style={{
+                                        textShadow: '0 0 20px rgba(245, 230, 184, 0.6)'
+                                    }}
+                                >
+                                    Touch here!
+                                </span>
+                                <span className="text-xs md:text-sm text-white/60 font-semibold tracking-widest mt-2 uppercase">
+                                    Volume UP 🎧🔊
+                                </span>
+                            </motion.button>
+                        )}
+                    </AnimatePresence>
                 </div>
+
+                {/* Inline CSS for breathe animation keyframes */}
+                <style>{`
+                    @keyframes breathe {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.04); }
+                    }
+                `}</style>
             </div>
         );
     }
-
     if (phase === 'CASSETTE_INSERT') {
         const langName = selectedLang?.name || 'English';
         
@@ -840,7 +795,7 @@ const LanguageSelector = ({ LANGUAGES, handleLanguageSelect, setSpiritHint, card
                     ))}
                 </div>
             )}
-            {phase !== 'AWARENESS' && (
+            {phase !== 'AWARENESS' && phase !== 'LANGUAGE_QUEST' && (
                 <div className="fixed inset-0 z-[-1] bg-cover bg-center opacity-40 mix-blend-screen pointer-events-none" style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", filter: "blur(6px)" }} />
             )}
             <div className={`fixed inset-0 z-0 bg-cover bg-center transition-opacity duration-[3000ms] pointer-events-none ${activeBackground ? 'opacity-70' : 'opacity-0'}`} style={activeBackground ? { backgroundImage: `url(${activeBackground})` } : {}} />

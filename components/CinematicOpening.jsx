@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LucideSparkles, LucideOrbit, LucideInstagram } from 'lucide-react';
+import { LucideSparkles, LucideOrbit, LucideCompass, LucideVolume2, LucideVolumeX, LucideInstagram } from 'lucide-react';
 import SmokeAssistant from './SmokeAssistant';
 import MinaDirective from './MinaDirective';
 
@@ -8,7 +8,208 @@ const CinematicOpening = ({ onStart, onComplete }) => {
     const [phase, setPhase] = useState('idle'); // locked, idle, ignite, flash, finish
     const [isInteracted, setIsInteracted] = useState(true);
 
+    // --- Interactive Volume Calibration Overlay States ---
+    const [calibrationStep, setCalibrationStep] = useState('start'); // 'start', 'playing', 'dismissed'
+    const calibrationAudioRef = useRef(null);
+    const videoElementRef = useRef(null);
+
     const audioRef = useRef(null);
+
+    // Autoplay safety effect for background video
+    useEffect(() => {
+        if (videoElementRef.current) {
+            videoElementRef.current.muted = true;
+            videoElementRef.current.play().catch(err => {
+                console.log("CinematicOpening background video autoplay blocked:", err);
+            });
+        }
+    }, []);
+
+    // Calibration Sound Loop Manager
+    useEffect(() => {
+        if (calibrationStep === 'playing') {
+            try {
+                const audio = new Audio('/assets/manual_upload/A twelve-alibi_MR_master.wav');
+                audio.loop = true;
+                audio.volume = 0.08; // Quiet reference BGM
+                calibrationAudioRef.current = audio;
+                audio.play().catch(e => console.log("Calibration audio play deferred:", e));
+            } catch (e) {
+                console.log("Failed to setup calibration audio:", e);
+            }
+        }
+        return () => {
+            if (calibrationAudioRef.current) {
+                calibrationAudioRef.current.pause();
+                calibrationAudioRef.current = null;
+            }
+        };
+    }, [calibrationStep]);
+
+    const handleCalibrationClick = () => {
+        if (calibrationStep === 'start') {
+            setCalibrationStep('playing');
+        } else if (calibrationStep === 'playing') {
+            // Play Timpani heavy kick sound
+            try {
+                const timpaniAudio = new Audio('/assets/sounds/TS_IFD_kick_timpani_heavy.wav');
+                timpaniAudio.volume = 0.8;
+                timpaniAudio.play().catch(() => {});
+            } catch (e) {
+                console.log("SFX play failed:", e);
+            }
+
+            // Fade out the calibration audio
+            if (calibrationAudioRef.current) {
+                const audio = calibrationAudioRef.current;
+                let vol = audio.volume;
+                const fade = setInterval(() => {
+                    vol -= 0.01;
+                    if (vol <= 0) {
+                        vol = 0;
+                        audio.pause();
+                        clearInterval(fade);
+                    } else {
+                        audio.volume = vol;
+                    }
+                }, 50);
+            }
+
+            setCalibrationStep('dismissed');
+            
+            // Trigger main BGM fade-in on parent
+            if (onStart) onStart();
+        }
+    };
+
+    // 3D Spatial Audio Engine (European Park Ambience)
+    useEffect(() => {
+        let audioCtx;
+        let sources = [];
+        
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            // Create listener
+            const listener = audioCtx.listener;
+            if (listener.positionX) {
+                listener.positionX.setValueAtTime(0, audioCtx.currentTime);
+                listener.positionY.setValueAtTime(0, audioCtx.currentTime);
+                listener.positionZ.setValueAtTime(0, audioCtx.currentTime);
+            } else {
+                listener.setPosition(0, 0, 0);
+            }
+
+            // Helper to load, decode and setup 3D Panner Node for a sound file
+            const setupSpatialLayer = async (url, initialPos, updatePosFn) => {
+                try {
+                    const response = await fetch(url);
+                    const arrayBuffer = await response.arrayBuffer();
+                    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+                    const source = audioCtx.createBufferSource();
+                    source.buffer = audioBuffer;
+                    source.loop = true;
+
+                    const panner = audioCtx.createPanner();
+                    panner.panningModel = 'HRTF';
+                    panner.distanceModel = 'inverse';
+                    panner.refDistance = 1;
+                    panner.maxDistance = 100;
+                    panner.rolloffFactor = 1;
+
+                    if (panner.positionX) {
+                        panner.positionX.setValueAtTime(initialPos.x, audioCtx.currentTime);
+                        panner.positionY.setValueAtTime(initialPos.y, audioCtx.currentTime);
+                        panner.positionZ.setValueAtTime(initialPos.z, audioCtx.currentTime);
+                    } else {
+                        panner.setPosition(initialPos.x, initialPos.y, initialPos.z);
+                    }
+
+                    const gainNode = audioCtx.createGain();
+                    gainNode.gain.setValueAtTime(initialPos.vol, audioCtx.currentTime);
+
+                    source.connect(gainNode);
+                    gainNode.connect(panner);
+                    panner.connect(audioCtx.destination);
+
+                    source.start();
+                    sources.push(source);
+
+                    if (updatePosFn) {
+                        let startTime = audioCtx.currentTime;
+                        const tick = () => {
+                            if (audioCtx.state === 'closed') return;
+                            const t = audioCtx.currentTime - startTime;
+                            const newPos = updatePosFn(t);
+                            if (panner.positionX) {
+                                panner.positionX.setValueAtTime(newPos.x, audioCtx.currentTime);
+                                panner.positionY.setValueAtTime(newPos.y, audioCtx.currentTime);
+                                panner.positionZ.setValueAtTime(newPos.z, audioCtx.currentTime);
+                            } else {
+                                panner.setPosition(newPos.x, newPos.y, newPos.z);
+                            }
+                            requestAnimationFrame(tick);
+                        };
+                        requestAnimationFrame(tick);
+                    }
+                } catch (err) {
+                    console.log("Spatial layer setup failed", url, err);
+                }
+            };
+
+            // Birds (Elevated Left, circling overhead slowly)
+            setupSpatialLayer(
+                '/assets/sounds/ambient_birds.mp3',
+                { x: -3, y: 3, z: 1, vol: 0.15 },
+                (t) => {
+                    const radius = 4;
+                    const speed = 0.15;
+                    return {
+                        x: Math.cos(t * speed) * radius,
+                        y: 3,
+                        z: Math.sin(t * speed) * radius
+                    };
+                }
+            );
+
+            // Wind (Behind the listener, slowly drifting left to right)
+            setupSpatialLayer(
+                '/assets/sounds/ambient_wind.mp3',
+                { x: 0, y: 1, z: 4, vol: 0.08 },
+                (t) => {
+                    const range = 5;
+                    const speed = 0.08;
+                    return {
+                        x: Math.sin(t * speed) * range,
+                        y: 1,
+                        z: 4
+                    };
+                }
+            );
+
+            // Children/Chatter (Front Right, stationary)
+            setupSpatialLayer(
+                '/assets/sounds/ambient_chatter.mp3',
+                { x: 3, y: 0, z: -4, vol: 0.12 }
+            );
+
+        } catch (e) {
+            console.log("3D Spatial Audio Context creation failed", e);
+        }
+
+        return () => {
+            if (audioCtx) {
+                audioCtx.close().catch(() => {});
+            }
+            sources.forEach(src => {
+                try { src.stop(); } catch (e) {}
+            });
+        };
+    }, []);
 
     const handleUnlock = () => {
         setIsInteracted(true);
@@ -56,6 +257,137 @@ const CinematicOpening = ({ onStart, onComplete }) => {
 
     return (
         <div className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden font-['Cormorant_Garamond',_serif]">
+            {/* Global 1st-Person POV Background */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <video
+                    ref={videoElementRef}
+                    src="/assets/manual_upload/club_entrance_1st_person.mp4"
+                    autoPlay={true}
+                    loop={true}
+                    playsInline={true}
+                    muted={true}
+                    className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none transition-all duration-[2500ms] ease-out hidden"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                />
+                <motion.img
+                    src="/assets/manual_upload/club_gate_1st_person.jpg"
+                    alt="Club Entrance POV"
+                    initial={{ scale: 1.0 }}
+                    animate={{ scale: [1.0, 1.05, 1.0] }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none transition-all duration-[2500ms] ease-out"
+                    style={{
+                        filter: calibrationStep !== 'dismissed' ? 'brightness(1.0)' : 'brightness(0.6)',
+                    }}
+                />
+            </div>
+
+            {/* Calibration Overlay */}
+            <AnimatePresence>
+                {calibrationStep !== 'dismissed' && (
+                    <motion.div
+                        key="calibration-overlay"
+                        initial={{ opacity: 1, filter: "blur(0px)" }}
+                        exit={{ 
+                            opacity: 0, 
+                            filter: "blur(20px)", 
+                            scale: 1.05,
+                        }}
+                        transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+                        onClick={handleCalibrationClick}
+                        className="fixed inset-0 z-[50000] bg-black/15 backdrop-blur-[3px] cursor-pointer select-none"
+                    >
+                        <div className="relative w-full h-full max-w-[430px] mx-auto flex items-center justify-center p-4">
+                            {/* Center Widget Card */}
+                            <div className="flex flex-col items-center justify-center p-6 bg-[#0a0c12]/50 border border-white/10 rounded-2xl max-w-[260px] w-full text-center shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md relative overflow-hidden">
+                                <motion.div 
+                                    className="text-[#C5A059] mb-4 opacity-80"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                                >
+                                    <LucideCompass size={32} strokeWidth={1} />
+                                </motion.div>
+
+                                <AnimatePresence mode="wait">
+                                    {calibrationStep === 'start' ? (
+                                        <motion.div
+                                            key="step-start"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="flex flex-col items-center gap-2"
+                                        >
+                                            <h3 className="font-serif text-[#FDFCF0] text-sm tracking-[0.2em] uppercase font-bold">
+                                                🔊 Calibrate Sound
+                                            </h3>
+                                            <div className="mt-2 text-[#C5A059] font-sans text-[9px] tracking-[0.15em] uppercase font-black animate-pulse">
+                                                👇 Tap to Play Tone
+                                            </div>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            key="step-playing"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="flex flex-col items-center gap-2"
+                                        >
+                                            <h3 className="font-serif text-[#C5A059] text-sm tracking-[0.2em] uppercase font-bold">
+                                                🎧 Align Volume
+                                            </h3>
+                                            <p className="text-[10px] text-white/70 tracking-wider font-light uppercase">
+                                                🔉 Adjust system volume to 20%
+                                            </p>
+                                            <div className="mt-3 text-[9px] text-white/30 tracking-[0.2em] font-sans uppercase animate-pulse">
+                                                👉 Tap to Enter 👈
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+
+                            {/* Right Side Vertical Volume Slider HUD (similar to mobile system volume overlay) */}
+                            {calibrationStep === 'playing' && (
+                                <motion.div 
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.5, ease: "easeOut" }}
+                                    className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-50 pointer-events-none"
+                                >
+                                    <span className="text-[11px] opacity-70">🔊</span>
+                                    <div className="relative h-[180px] flex items-center justify-center">
+                                        {/* Slider Track */}
+                                        <div className="w-[10px] h-[180px] bg-white/15 rounded-full relative border border-white/10 overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+                                            {/* Progress Fill (20% from bottom) */}
+                                            <div 
+                                                className="absolute bottom-0 left-0 w-full bg-[#C5A059] rounded-full shadow-[0_0_12px_#C5A059]"
+                                                style={{ height: '20%' }}
+                                            />
+                                            {/* Target Line at 20% mark */}
+                                            <div 
+                                                className="absolute left-0 w-full h-[2px] bg-white shadow-[0_0_6px_rgba(255,255,255,1)]"
+                                                style={{ bottom: '20%' }}
+                                            />
+                                        </div>
+                                        
+                                        {/* Target Indicator pointer pointing to the 20% height mark */}
+                                        <div 
+                                            className="absolute right-[22px] bottom-[30px] flex items-center gap-1.5 text-[#C5A059] font-mono text-[9px] font-black uppercase tracking-widest select-none whitespace-nowrap"
+                                        >
+                                            <span className="animate-pulse">Target 20%</span>
+                                            <span>👉</span>
+                                        </div>
+                                    </div>
+                                    <span className="text-[11px] opacity-70">🔉</span>
+                                </motion.div>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <AnimatePresence>
                 {phase === 'locked' && (
                     <motion.div
@@ -66,18 +398,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         onClick={handleUnlock}
                         className="absolute inset-0 z-50 flex flex-col items-center justify-center cursor-pointer group p-4"
                     >
-                        {/* Centered, Contained Intro Poster Background as requested */}
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none bg-black flex items-center justify-center">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1, filter: "blur(4px)" }}
-                                transition={{ duration: 2 }}
-                                className="absolute inset-0 bg-no-repeat bg-center"
-                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", backgroundSize: 'contain' }}
-                            />
-                            {/* Dark Overlay for readability and atmosphere */}
-                            <div className="absolute inset-0 bg-black/30 pointer-events-none" />
-                        </div>
+                        {/* Removed click_anywhere_bg image div */}
 
                         {/* SEAN's comment / MinaDirective implementation */}
                         <div className="relative z-[5000] w-full max-w-5xl px-8 md:px-12 mx-auto pointer-events-none flex justify-center">
@@ -105,16 +426,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
                         transition={{ duration: 1, ease: "easeOut" }}
                         className="flex flex-col items-center justify-center w-full h-full relative p-4"
                     >
-                        {/* Centered, Contained Intro Poster Background as requested */}
-                        <div className="absolute inset-0 overflow-hidden pointer-events-none bg-black flex items-center justify-center">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1, filter: "blur(4px)" }}
-                                transition={{ duration: 2 }}
-                                className="absolute inset-0 bg-no-repeat bg-center"
-                                style={{ backgroundImage: "url('/assets/click_anywhere_bg.jpg')", backgroundSize: 'contain' }}
-                            />
-                        </div>
+                        {/* Removed click_anywhere_bg image div */}
 
                         {/* Heavy Dark Overlays for "Flashy but Restrained" feel */}
                         <div className="absolute inset-0 bg-black/80 pointer-events-none" />
@@ -289,7 +601,7 @@ const CinematicOpening = ({ onStart, onComplete }) => {
 
             {/* V12 Update: Seamless Audio Element */}
             <audio id="bg-audio" loop preload="auto">
-                <source src="/assets/sounds/background_candiate1.mp3" type="audio/mpeg" />
+                <source src="/assets/manual_upload/A twelve-alibi_MR_master.wav" type="audio/wav" />
             </audio>
             {/* Final Clean Fade */}
             {phase === 'finish' && (

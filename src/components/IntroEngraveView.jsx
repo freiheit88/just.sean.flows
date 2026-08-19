@@ -1,127 +1,120 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LucideShield, LucideFeather, LucideLoader2, LucideUpload, LucideCamera, LucideBot } from 'lucide-react';
-import MinaDirective from '../../components/MinaDirective';
+import { LucideChevronRight, LucideVolume2 } from 'lucide-react';
 
-const IntroEngraveView = ({ selectedLang, userName, setUserName, generateTextCharacter, isAvatarGenerating, handleImageUpload, uploadedImage, generateCharacter, THEME_CONFIG, handleAnalogSoul }) => {
-    const [aiUserName, setAiUserName] = useState('');
+const IntroEngraveView = ({ userName, setUserName, handleAnalogSoul }) => {
+    const [dialogueStep, setDialogueStep] = useState(0); // 0: guard shouting, 1: input ready
+    const [guardSpeech, setGuardSpeech] = useState("IDs out, everyone! Name and ID!!");
 
     useEffect(() => {
+        // Trigger synthetic bouncer voice if Web Speech API is supported
+        if ('speechSynthesis' in window) {
+            try {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance("IDs out, everyone! Name and ID!");
+                utterance.pitch = 0.5; // Low pitch for intimidating bouncer voice
+                utterance.rate = 0.85; // Slightly slower pacing
+                utterance.volume = 0.8;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                console.log("SpeechSynthesis error:", e);
+            }
+        }
+
+        // Show name input field after 1.2 seconds
         const timer = setTimeout(() => {
-            setIsMinaExpanded(false);
-        }, 3000);
+            setDialogueStep(1);
+        }, 1200);
+
         return () => clearTimeout(timer);
     }, []);
+
+    const handleSubmit = (e) => {
+        if (e) e.preventDefault();
+        if (userName && userName.trim()) {
+            handleAnalogSoul?.(userName.trim());
+        }
+    };
+
     return (
-        <div className="flex flex-col w-full h-full justify-start items-center px-4 relative z-20 overflow-y-auto no-scrollbar pb-2 pt-[100px] md:pt-[130px]">
-            {/* Removed SEAN'S COMMENT Directive Container */}
+        <div className="fixed inset-0 z-20 flex flex-col items-center justify-center overflow-hidden font-['Cormorant_Garamond',_serif] select-none">
+            {/* 1st Person POV Background (Supports video when uploaded, falls back to 1st person POV image with subtle breathing zoom animation) */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                <video
+                    src="/assets/manual_upload/club_entrance_1st_person.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover hidden"
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                />
+                <motion.img
+                    src="/assets/manual_upload/club_gate_1st_person.jpg"
+                    alt="Club Gate Entrance POV"
+                    initial={{ scale: 1.0 }}
+                    animate={{ scale: [1.0, 1.05, 1.0] }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-full h-full object-cover filter brightness-[0.75] contrast-[1.1]"
+                />
+                {/* Cinematic Vignette */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/60 pointer-events-none" />
+            </div>
 
-            <div className="w-full max-w-4xl flex flex-col gap-3 md:gap-4 shrink-0 transition-all duration-500">
-                {/* PRIMARY: Analog Soul (Reject AI) */}
+            {/* Bouncer Dialogue & Input Form Container */}
+            <div className="relative z-10 w-full max-w-sm px-6 flex flex-col items-center gap-6">
+                
+                {/* Guard Dialogue Subtitle Floating HUD */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: -15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="flex flex-col justify-between bg-[#110D08]/80 backdrop-blur-xl border border-[#C5A059]/40 shadow-[0_0_30px_rgba(197,160,89,0.15),inset_0_0_20px_rgba(197,160,89,0.05)] relative overflow-hidden group p-5 md:p-8 rounded-lg"
+                    transition={{ duration: 0.6 }}
+                    className="flex flex-col items-center text-center gap-1.5 bg-black/40 border border-[#C5A059]/30 px-5 py-3 rounded-full backdrop-blur-md shadow-[0_0_20px_rgba(0,0,0,0.8)]"
                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#C5A059]/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
-                    <div className="absolute top-4 right-4 opacity-20"><LucideShield size={64} className="text-[#C5A059]" /></div>
-
-                    <div>
-                        <h2 className="text-lg md:text-xl font-serif text-[#C5A059] font-black uppercase tracking-[0.15em] mb-1 drop-shadow-md">
-                            Analog
-                        </h2>
-                        <h3 className="text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] flex items-center gap-2 text-[#FDFCF0]/80 mb-2 border-l-2 border-[#C5A059]/50 pl-2">
-                            USE NICKNAME
-                        </h3>
-                        <p className="text-[10px] md:text-[11px] text-white/60 leading-snug font-serif italic mb-3 max-w-[95%]">
-                            "Skip the A.I. and just use a nickname to enter."
-                        </p>
+                    <div className="flex items-center gap-2 text-[#C5A059] text-[9px] font-sans font-black uppercase tracking-[0.25em]">
+                        <LucideVolume2 size={12} className="animate-pulse" />
+                        <span>[ GATEKEEPER ]</span>
                     </div>
-
-                    <div className="space-y-4 md:space-y-6 relative z-10 w-full mt-auto">
-                        <input
-                            type="text"
-                            maxLength={12}
-                            value={userName}
-                            onChange={e => setUserName(e.target.value)}
-                            placeholder="YOUR NICKNAME"
-                            className="w-full bg-black/40 border-b-2 border-white/20 p-2.5 md:p-3 focus:outline-none font-serif tracking-[0.15em] text-base transition-all focus:border-[#C5A059] text-center text-[#FDFCF0] placeholder-white/20"
-                        />
-                        <button
-                            onClick={() => handleAnalogSoul?.(userName)}
-                            disabled={isAvatarGenerating || !userName.trim()}
-                            className="w-full py-3.5 border border-[#C5A059]/50 bg-gradient-to-r from-[#C5A059]/10 via-[#C5A059]/20 to-[#C5A059]/10 text-[#FDFCF0] font-black uppercase tracking-[0.15em] text-[10px] hover:bg-[#C5A059]/30 hover:border-[#C5A059] disabled:opacity-30 disabled:grayscale transition-all shadow-[0_0_15px_rgba(197,160,89,0.2)] active:scale-[0.98] flex items-center justify-center gap-2 backdrop-blur-md relative overflow-hidden group/btn"
-                        >
-                            <span className="absolute inset-0 w-full h-full bg-white/5 scale-x-0 group-hover/btn:scale-x-100 origin-left transition-transform duration-500 ease-out" />
-                            <span className="relative z-10 flex items-center gap-2">
-                                <LucideFeather size={14} /> START WITH NICKNAME
-                            </span>
-                        </button>
-                    </div>
+                    <p className="text-xs md:text-sm font-serif text-[#FDFCF0] italic tracking-wider drop-shadow-md">
+                        "{guardSpeech}"
+                    </p>
                 </motion.div>
 
-                {/* SECONDARY: A.I. Intervention (Accept AI) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="flex flex-col bg-[#050505]/60 relative overflow-hidden group p-5 border border-white/10 opacity-60 hover:opacity-100 transition-opacity duration-500 shadow-xl rounded-lg"
-                >
-                    <div className="border-l-2 border-white/20 pl-2 mb-3">
-                        <h3 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.1em] flex items-center gap-2 text-white/50 mb-1">
-                            A.I. AVATAR
-                        </h3>
-                        <p className="text-[9px] text-white/30 leading-snug font-serif italic max-w-[95%]">
-                            "Provide your nickname or upload a photo for A.I. synthesis."
-                        </p>
-                    </div>
-
-                    <div className="flex-1 flex flex-col justify-center items-center gap-3 w-full">
-                        {!isAvatarGenerating ? (
-                            <>
+                {/* Ultra-Minimalist Floating Single Input Field */}
+                <AnimatePresence>
+                    {dialogueStep >= 1 && (
+                        <motion.form
+                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1.0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                            onSubmit={handleSubmit}
+                            className="w-full flex flex-col items-center gap-4"
+                        >
+                            <div className="relative w-full group">
                                 <input
                                     type="text"
-                                    maxLength={12}
-                                    value={aiUserName}
-                                    onChange={e => setAiUserName(e.target.value)}
-                                    placeholder="YOUR NICKNAME (OPTIONAL)"
-                                    className="w-full bg-black/40 border-b-2 border-white/20 p-2 focus:outline-none font-serif tracking-[0.1em] text-sm transition-all focus:border-[#C5A059] text-center text-[#FDFCF0] placeholder-white/20"
+                                    maxLength={16}
+                                    autoFocus
+                                    value={userName}
+                                    onChange={e => setUserName(e.target.value)}
+                                    placeholder="ENTER YOUR NAME..."
+                                    className="w-full bg-[#0a0c12]/70 border border-[#C5A059]/40 rounded-xl px-5 py-4 text-center font-serif text-base text-[#FDFCF0] placeholder-white/30 tracking-[0.2em] focus:outline-none focus:border-[#C5A059] focus:shadow-[0_0_25px_rgba(197,160,89,0.3)] transition-all backdrop-blur-xl uppercase"
                                 />
-                                <label className="block w-full cursor-pointer group/upload flex-1 min-h-[70px]">
-                                    <div className={`w-full h-full p-2 border border-dashed ${uploadedImage ? 'border-[#C5A059]/50 bg-[#C5A059]/10 shadow-[0_0_10px_rgba(197,160,89,0.1)]' : 'border-white/20 bg-white/5 group-hover/upload:bg-white/10 group-hover/upload:border-white/40'} rounded-lg flex flex-col items-center justify-center transition-all backdrop-blur-sm`}>
-                                        <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
-                                        {uploadedImage ? (
-                                            <LucideCamera className="text-[#C5A059] mb-2 drop-shadow-[0_0_5px_rgba(197,160,89,0.5)]" size={20} />
-                                        ) : (
-                                            <LucideUpload className="text-white/40 mb-2 group-hover/upload:text-white/80 transition-colors" size={20} />
-                                        )}
-                                        <p className="font-sans font-bold uppercase tracking-widest text-[9px] text-white/40 group-hover/upload:text-white/80 transition-colors text-center mt-1">
-                                            {uploadedImage ? "PHOTO UPLOADED" : "UPLOAD PHOTO"}
-                                        </p>
-                                    </div>
-                                </label>
-
-                                <AnimatePresence>
-                                    {(uploadedImage || aiUserName.trim()) && (
-                                        <motion.button
-                                            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                                            onClick={() => generateCharacter(aiUserName)}
-                                            className={`w-full py-4 mt-2 bg-white/10 border border-white/30 backdrop-blur-md text-white/90 font-black uppercase tracking-[0.2em] text-[10px] md:text-xs hover:bg-white/20 hover:text-white transition-all flex items-center justify-center gap-2 active:scale-95 rounded-sm`}
-                                        >
-                                            <LucideBot size={16} /> START A.I. SCAN
-                                        </motion.button>
-                                    )}
-                                </AnimatePresence>
-                            </>
-                        ) : (
-                            <div className="text-center p-8 w-full mt-2 flex-1 bg-black/40 rounded-sm border border-white/5 flex flex-col items-center justify-center min-h-[150px]">
-                                <LucideLoader2 className="animate-spin mx-auto text-white/60 mb-4" size={32} />
-                                <p className="text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold text-white/80 animate-pulse">Scanning your dimension...</p>
+                                <div className="absolute inset-0 rounded-xl border border-[#C5A059]/20 pointer-events-none group-hover:border-[#C5A059]/50 transition-colors" />
                             </div>
-                        )}
-                    </div>
-                </motion.div>
+
+                            <button
+                                type="submit"
+                                disabled={!userName || !userName.trim()}
+                                className="w-full py-3.5 bg-gradient-to-r from-[#C5A059]/20 via-[#C5A059]/40 to-[#C5A059]/20 border border-[#C5A059]/60 rounded-xl text-[#FDFCF0] font-sans text-[10px] font-black uppercase tracking-[0.25em] hover:bg-[#C5A059]/50 disabled:opacity-30 disabled:pointer-events-none transition-all shadow-[0_0_20px_rgba(197,160,89,0.2)] active:scale-[0.98] flex items-center justify-center gap-2 backdrop-blur-md"
+                            >
+                                <span>INSCRIBE & ENTER</span>
+                                <LucideChevronRight size={14} />
+                            </button>
+                        </motion.form>
+                    )}
+                </AnimatePresence>
 
             </div>
         </div>
