@@ -83,30 +83,65 @@ const DEFAULT_ENDING = {
     quote: 'Holding a cold martini, captivated by solo violin at midnight.'
 };
 
-// MULTI-COLOR & SHAPE STAR DATABASE WITH PARALLAX MASS & DEPTH
-const STARS_DATABASE = Array.from({ length: 36 }).map((_, i) => {
-    const size = 4 + (i * 7) % 11; // 4px to 14px
-    const isLarge = size > 9;
-    const isMedium = size >= 6 && size <= 9;
+// ASTRONOMICAL VECTOR STAR COMPONENTS (Diffraction Spikes, Photospheres, Lens Flares)
+function AstronomicalSpikeStar({ color, size }) {
+    return (
+        <svg viewBox="0 0 60 60" width={size * 2.6} height={size * 2.6} className="overflow-visible pointer-events-none drop-shadow-[0_0_12px_rgba(255,255,255,0.6)]">
+            {/* Outer Halo Glow */}
+            <circle cx="30" cy="30" r="18" fill={color} opacity="0.3" filter="blur(4px)" />
+            {/* Diffraction Cross Spikes */}
+            <path d="M 30,2 L 32.5,27.5 L 58,30 L 32.5,32.5 L 30,58 L 27.5,32.5 L 2,30 L 27.5,27.5 Z" fill={color} opacity="0.9" />
+            {/* Secondary Rays */}
+            <path d="M 30,12 L 31.5,28.5 L 48,30 L 31.5,31.5 L 30,48 L 28.5,31.5 L 12,30 L 28.5,28.5 Z" fill="#FFFFFF" opacity="0.75" />
+            {/* Bright Center Photosphere */}
+            <circle cx="30" cy="30" r="3" fill="#FFFFFF" />
+        </svg>
+    );
+}
+
+function AstronomicalOrbStar({ color, size }) {
+    return (
+        <svg viewBox="0 0 40 40" width={size * 2.0} height={size * 2.0} className="overflow-visible pointer-events-none">
+            <circle cx="20" cy="20" r="14" fill={color} opacity="0.35" filter="blur(3px)" />
+            <circle cx="20" cy="20" r="7" fill={color} opacity="0.85" />
+            <circle cx="20" cy="20" r="2.5" fill="#FFFFFF" />
+        </svg>
+    );
+}
+
+function AstronomicalFlareStar({ color, size }) {
+    return (
+        <svg viewBox="0 0 80 40" width={size * 3.2} height={size * 1.6} className="overflow-visible pointer-events-none">
+            <path d="M 0,20 Q 40,16 80,20 Q 40,24 0,20 Z" fill={color} opacity="0.85" filter="blur(1px)" />
+            <path d="M 40,5 Q 38,20 40,35 Q 42,20 40,5 Z" fill={color} opacity="0.65" />
+            <circle cx="40" cy="20" r="2.5" fill="#FFFFFF" />
+        </svg>
+    );
+}
+
+// MULTI-COLOR & ASTRONOMICAL SHAPE STAR DATABASE WITH PARALLAX MASS & DEPTH
+const STARS_DATABASE = Array.from({ length: 32 }).map((_, i) => {
+    const size = 5 + (i * 7) % 12; // 5px to 16px
+    const isLarge = size > 10;
+    const isMedium = size >= 7 && size <= 10;
 
     const colors = ['#E7FF00', '#00F0FF', '#FF0055', '#FFFFFF', '#C5A059'];
     const color = colors[i % colors.length];
 
-    const shapes = ['✦', '★', '✧', '•'];
-    const shape = shapes[i % shapes.length];
+    const type = i % 3; // 0: Spike, 1: Orb, 2: Flare
 
-    const zDepth = isLarge ? -90 : isMedium ? 15 : 90;
-    const tiltMult = isLarge ? 0.35 : isMedium ? 0.8 : 1.5;
+    const zDepth = isLarge ? -95 : isMedium ? 15 : 95;
+    const tiltMult = isLarge ? 0.35 : isMedium ? 0.85 : 1.55;
 
     return {
         id: i,
         size,
         color,
-        shape,
+        type,
         left: `${(i * 11 + 4) % 92}vw`,
         delay: (i * 0.22) % 2.8,
-        duration: isLarge ? 5.2 : isMedium ? 3.6 : 2.4, // Large heavy stars move slow, small light sparkles move fast!
-        opacityMax: 0.35 + (i % 5) * 0.15,
+        duration: isLarge ? 5.4 : isMedium ? 3.8 : 2.5, // Heavy stars move slowly, small light stars get dragged smoothly!
+        opacityMax: 0.45 + (i % 5) * 0.12,
         zDepth,
         tiltMult,
         isLarge
@@ -271,7 +306,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & 3D GYROSCOPE SPATIAL UNIVERSE
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & ASTRONOMICAL VECTOR STARFIELD
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -416,7 +451,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         });
     };
 
-    // GUARANTEED INSTANT SOUND UNLOCKER WITH GUITAR AS MASTER TIER 1 TRACK
+    // GUARANTEED INSTANT SOUND UNLOCKER WITH FOOTSTEP CHECK SOUND
     const forceUnlockAudio = (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
 
@@ -869,7 +904,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: 3D GYROSCOPE SPATIAL UNIVERSE WITH MASS-BASED PARALLAX DRAG PHYSICS */}
+            {/* 2. INITIAL UNLOCK SPLASH: ASTRONOMICAL VECTOR STARFIELD WITH ZERO EMOJI TEXT */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -885,13 +920,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* MULTI-COLOR & SHAPE 3D PARALLAX STARFIELD LAYER */}
+                        {/* PURE VECTOR ASTRONOMICAL STARFIELD LAYER */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
                             {STARS_DATABASE.map((s) => {
                                 const starTiltX = tilt.x * 24 * s.tiltMult;
                                 const starTiltY = tilt.y * 24 * s.tiltMult;
 
-                                // Large heavy stars stay grounded, small light stars get dragged upward with LET'S GO !
                                 const startY = s.isLarge ? '80vh' : '100vh';
                                 const endY = s.isLarge ? '10vh' : '-20vh';
 
@@ -916,20 +950,19 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                             ease: 'easeInOut'
                                         }}
                                         style={{
-                                            transform: `translate3d(${starTiltX}px, ${starTiltY}px, ${s.zDepth}px)`,
-                                            color: s.color,
-                                            fontSize: `${s.size}px`,
-                                            textShadow: `0 0 16px ${s.color}`
+                                            transform: `translate3d(${starTiltX}px, ${starTiltY}px, ${s.zDepth}px)`
                                         }}
-                                        className="absolute font-sans leading-none font-bold select-none transition-transform duration-150 ease-out"
+                                        className="absolute select-none transition-transform duration-150 ease-out flex items-center justify-center"
                                     >
-                                        {s.shape}
+                                        {s.type === 0 && <AstronomicalSpikeStar color={s.color} size={s.size} />}
+                                        {s.type === 1 && <AstronomicalOrbStar color={s.color} size={s.size} />}
+                                        {s.type === 2 && <AstronomicalFlareStar color={s.color} size={s.size} />}
                                     </motion.div>
                                 );
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER (translateZ(40px) Forefront Depth) */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -1349,7 +1382,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
 
             <button
                 onClick={onBack}
-                className="mt-6 font-mono text-[11px] text-white/40 hover:text-white transition-colors"
+                className="mt-6 font-mono text-[11px] text-[#FFFFFF]/40 hover:text-white transition-colors"
             >
                 ← RE-MIX STEMS &amp; TRY ANOTHER
             </button>
