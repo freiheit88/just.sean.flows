@@ -252,20 +252,20 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. CENTERED ULTRA-3D EMBOSSED TITLE HEADER */}
+            {/* 2. ULTRA-MINIMALIST FLOATING 3D HEADER (NO TACKY PILL BOX CONTAINER!) */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 py-6 flex items-center justify-center pointer-events-none">
                 <motion.div 
                     style={{
                         transform: `perspective(600px) rotateX(${tilt.y * -35}deg) rotateY(${tilt.x * 35}deg) translateZ(40px)`,
                         transformStyle: 'preserve-3d'
                     }}
-                    className="pointer-events-auto flex items-center justify-center gap-3 px-6 py-2 rounded-full bg-black/80 border-2 border-[#E7FF00]/60 shadow-[0_12px_40px_rgba(231,255,0,0.35)] backdrop-blur-2xl transition-transform duration-100 ease-out"
+                    className="pointer-events-auto flex items-center justify-center gap-3 py-1 transition-transform duration-100 ease-out"
                 >
-                    <span className="w-3 h-3 rounded-full bg-[#E7FF00] shadow-[0_0_20px_#E7FF00] animate-pulse"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_18px_#E7FF00] animate-pulse"></span>
                     <span 
-                        className="font-mono font-black text-sm sm:text-lg tracking-[0.38em] text-[#E7FF00] uppercase"
+                        className="font-mono font-black text-base sm:text-xl tracking-[0.38em] text-[#E7FF00] uppercase"
                         style={{
-                            textShadow: '0 2px 0 #C5A059, 0 4px 0 #000000, 0 6px 20px rgba(231,255,0,0.85)'
+                            textShadow: '0 2px 0 #C5A059, 0 4px 0 #000000, 0 6px 22px rgba(231,255,0,0.9)'
                         }}
                     >
                         @just.sean.flows
@@ -318,7 +318,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// PRE-LOADED SPLASH STATE: MAIN ENGINE & MUSIC HELD FROZEN UNTIL USER CLICKS LET'S GO !
+// PRE-LOADED SPLASH STATE WITH FOOTSTEP RATE-LIMIT (MAX 260MS) & SMOOTH SCROLL PACING
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -478,10 +478,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         } catch (e) {}
     };
 
-    // DYNAMIC PACING TRIGGER
+    // STRICT FOOTSTEP RATE-LIMIT SAFEGUARD (MIN 260MS BETWEEN STEPS TO PREVENT DOUBLE-FIRE OVERLAPS)
+    const MIN_FOOTSTEP_INTERVAL_MS = 260;
+
     const triggerCleanFootstep = (speedVelocity = 1) => {
         const now = Date.now();
-        const dynamicInterval = Math.max(320, 800 - Math.min(speedVelocity * 60, 480));
+        const dynamicInterval = Math.max(MIN_FOOTSTEP_INTERVAL_MS, 750 - Math.min(speedVelocity * 80, 480));
         
         if (now - lastFootstepTimeRef.current >= dynamicInterval) {
             lastFootstepTimeRef.current = now;
@@ -702,7 +704,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         const interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) return 100;
-                const next = Math.min(100, prev + 0.05);
+                const next = Math.min(100, prev + 0.08); // Smooth & comfortable baseline pacing!
                 progressRef.current = next;
                 return next;
             });
@@ -711,7 +713,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         return () => clearInterval(interval);
     }, [isAudioUnlocked]);
 
-    // PROGRESSIVE SCROLL & TOUCH ENGINE WITH DYNAMIC PACING FOOTSTEP TRIGGER
+    // PROGRESSIVE SCROLL & TOUCH ENGINE WITH EASY SENSITIVITY & CLEAN FOOTSTEP RATE LIMITING
     useEffect(() => {
         const handleWheel = (e) => {
             const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
@@ -725,22 +727,22 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
 
             const rawDelta = e.deltaY;
             const cPower = currentPower.current;
-            let tierMult = 0.7;
-            if (cPower < 20) tierMult = 3.2;
-            else if (cPower < 50) tierMult = 1.8;
+            let tierMult = 1.0;
+            if (cPower < 20) tierMult = 3.6;
+            else if (cPower < 50) tierMult = 2.2;
 
-            const powerIncrement = Math.min(rawDelta * 0.008 * tierMult, 2.8);
+            const powerIncrement = Math.min(rawDelta * 0.015 * tierMult, 4.5);
             currentPower.current = Math.min(100, currentPower.current + powerIncrement);
             lastScrollPumpTime.current = Date.now();
 
-            const clampedDelta = Math.min(rawDelta * 0.0022, 1.2);
+            const clampedDelta = Math.min(rawDelta * 0.0045, 2.5);
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
                 return next;
             });
 
-            triggerCleanFootstep(rawDelta * 0.015);
+            triggerCleanFootstep(rawDelta * 0.02);
         };
 
         const handleTouchStart = (e) => {
@@ -775,22 +777,22 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 const velocity = deltaY / timeDiff;
 
                 const cPower = currentPower.current;
-                let tierMult = 0.7;
-                if (cPower < 20) tierMult = 3.4;
-                else if (cPower < 50) tierMult = 1.9;
+                let tierMult = 1.0;
+                if (cPower < 20) tierMult = 3.8;
+                else if (cPower < 50) tierMult = 2.4;
 
-                const powerIncrement = Math.min((velocity * 0.45 + deltaY * 0.008) * tierMult, 3.8);
+                const powerIncrement = Math.min((velocity * 0.6 + deltaY * 0.015) * tierMult, 5.5);
                 currentPower.current = Math.min(100, currentPower.current + powerIncrement);
                 lastScrollPumpTime.current = now;
 
-                const strokeProgress = Math.min(deltaY * 0.010, 2.2);
+                const strokeProgress = Math.min(deltaY * 0.022, 3.8);
                 setProgress((prev) => {
                     const next = Math.min(100, prev + strokeProgress);
                     progressRef.current = next;
                     return next;
                 });
 
-                triggerCleanFootstep(velocity * 1.8);
+                triggerCleanFootstep(velocity * 2.2);
             }
 
             touchStartY.current = currentY;
@@ -841,7 +843,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 style={{ backgroundImage: `url(${currentFrame.src})` }}
             />
 
-            {/* 6 Synchronized Multi-Stem Audio Elements (PRE-LOADED IN MEMORY, WAITING FOR UNLOCK) */}
+            {/* 6 Synchronized Multi-Stem Audio Elements */}
             <audio ref={guitarRef} src={STEM_SRCS.guitar} loop playsInline preload="auto" />
             <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
             <audio ref={drumsRef} src={STEM_SRCS.drums} loop playsInline preload="auto" />
