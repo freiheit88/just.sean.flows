@@ -11,8 +11,8 @@ const ATELIER_IMG = "/assets/frankfurt_sound_atelier.jpg";
 
 // Encoded Audio URIs for 100% Mobile & PC Browser Compatibility
 const STEM_SRCS = {
-    bass: "/assets/manual_upload/A%20Twelve-minute%20Alibi/2%20Bass.mp3",
     guitar: "/assets/manual_upload/A%20Twelve-minute%20Alibi/3%20Guitar.mp3",
+    bass: "/assets/manual_upload/A%20Twelve-minute%20Alibi/2%20Bass.mp3",
     drums: "/assets/manual_upload/A%20Twelve-minute%20Alibi/1%20Drums.mp3",
     perc: "/assets/manual_upload/A%20Twelve-minute%20Alibi/4%20Percussion.mp3",
     synth: "/assets/manual_upload/A%20Twelve-minute%20Alibi/5%20Synth.mp3",
@@ -229,7 +229,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE (3 GUITAR AS MASTER TIER 1 TRACK)
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -245,15 +245,15 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [audioTier, setAudioTier] = useState(1);
 
     const audioCtxRef = useRef(null);
-    const bassRef = useRef(null);
-    const guitarRef = useRef(null);
+    const guitarRef = useRef(null); // MASTER TIER 1 TRACK (3 Guitar.mp3)
+    const bassRef = useRef(null);   // TIER 2 TRACK (2 Bass.mp3)
     const drumsRef = useRef(null);
     const percRef = useRef(null);
     const synthRef = useRef(null);
     const vocalRef = useRef(null);
 
     const mediaNodesRef = useRef({});
-    const prevStemVolsRef = useRef({ guitar: 0, drums: 0, perc: 0, synth: 0, vocal: 0 });
+    const prevStemVolsRef = useRef({ bass: 0, drums: 0, perc: 0, synth: 0, vocal: 0 });
 
     // Dynamic Footstep Timestamp Guard & Alternating Foot State
     const lastFootstepTimeRef = useRef(0);
@@ -355,7 +355,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     // SETUP UNIFIED WEB AUDIO MEDIA GRAPH
     const setupUnifiedAudioGraph = (ctx) => {
         const stemsMap = {
-            bass: bassRef, guitar: guitarRef, drums: drumsRef,
+            guitar: guitarRef, bass: bassRef, drums: drumsRef,
             perc: percRef, synth: synthRef, vocal: vocalRef
         };
 
@@ -365,7 +365,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 try {
                     const sourceNode = ctx.createMediaElementSource(ref.current);
                     const gainNode = ctx.createGain();
-                    gainNode.gain.value = key === 'bass' ? 0.50 : 0.0;
+                    gainNode.gain.value = key === 'guitar' ? 0.50 : 0.0;
                     sourceNode.connect(gainNode);
                     gainNode.connect(ctx.destination);
                     mediaNodesRef.current[key] = { sourceNode, gainNode };
@@ -374,7 +374,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         });
     };
 
-    // GUARANTEED INSTANT BASS & SOUND ENGINE UNLOCKER
+    // GUARANTEED INSTANT SOUND UNLOCKER WITH GUITAR AS MASTER TIER 1 TRACK
     const forceUnlockAudio = (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
 
@@ -394,20 +394,21 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             }
         } catch (err) {}
 
-        if (bassRef.current) {
-            bassRef.current.muted = false;
-            bassRef.current.playsInline = true;
-            bassRef.current.volume = 0.50;
-            if (mediaNodesRef.current.bass) {
-                mediaNodesRef.current.bass.gainNode.gain.value = 0.50;
+        // FORCE INSTANT GUITAR PLAYBACK (Level 1 Master Track = 0.50 Volume)
+        if (guitarRef.current) {
+            guitarRef.current.muted = false;
+            guitarRef.current.playsInline = true;
+            guitarRef.current.volume = 0.50;
+            if (mediaNodesRef.current.guitar) {
+                mediaNodesRef.current.guitar.gainNode.gain.value = 0.50;
             }
-            if (bassRef.current.paused) {
-                bassRef.current.play().catch(() => {});
+            if (guitarRef.current.paused) {
+                guitarRef.current.play().catch(() => {});
             }
         }
 
-        const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
-        const otherRefs = [guitarRef, drumsRef, percRef, synthRef, vocalRef];
+        const masterTime = (guitarRef.current && guitarRef.current.currentTime) ? guitarRef.current.currentTime : 0;
+        const otherRefs = [bassRef, drumsRef, percRef, synthRef, vocalRef];
 
         otherRefs.forEach((r) => {
             if (r.current) {
@@ -426,7 +427,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     // CLEAN UNMOUNT AUDIO LIFECYCLE CLEANUP
     useEffect(() => {
         return () => {
-            [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
+            [guitarRef, bassRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
                 if (r.current) {
                     try {
                         r.current.pause();
@@ -436,7 +437,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // REAL-TIME VOLUME DECAY & UNIFIED DSP GAIN ASSIGNMENT
+    // REAL-TIME VOLUME DECAY & GUITAR-FIRST STEM UNMUTE ENGINE
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
@@ -477,53 +478,58 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 setLivePowerStr(`${powerInt}`);
             }
 
+            // TIER 1: Guitar (3 Guitar.mp3) is Tier 1 Master Track!
+            // TIER 2: Bass (2 Bass.mp3) turns on at 20%+
+            // TIER 3: Drums/Perc/Synth turn on at 50%+
+            // TIER 4: Vocals turn on at 80%+
             let tier = 1;
-            let targetBass = 0.50;
-            let targetGuitar = 0.0;
+            let targetGuitar = 0.50; // Master Tier 1 Initial Sound
+            let targetBass = 0.0;
             let targetOtherInst = 0.0;
             let targetVocal = 0.0;
 
             if (rawPower >= 80) {
                 tier = 4;
-                targetBass = 1.0;
                 targetGuitar = 1.0;
+                targetBass = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
             } else if (rawPower >= 50) {
                 tier = 3;
                 if (unlockedLevelFloor.current < 50) unlockedLevelFloor.current = 50;
-                targetBass = 0.90;
                 targetGuitar = 0.90;
+                targetBass = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
             } else if (rawPower >= 20) {
                 tier = 2;
                 if (unlockedLevelFloor.current < 20) unlockedLevelFloor.current = 20;
-                targetBass = 0.75;
-                targetGuitar = 0.70;
+                targetGuitar = 0.75;
+                targetBass = 0.70; // Bass enters at Tier 2!
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
             } else {
                 tier = 1;
-                targetBass = 0.50;
-                targetGuitar = 0.0;
+                targetGuitar = 0.50; // Initial Tier 1 Sound
+                targetBass = 0.0;
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
             }
 
             setAudioTier(tier);
 
-            if (bassRef.current) {
-                bassRef.current.volume = targetBass;
-                if (mediaNodesRef.current.bass) {
-                    mediaNodesRef.current.bass.gainNode.gain.value = targetBass;
+            // Master Guitar Volume & Gain Adjustment
+            if (guitarRef.current) {
+                guitarRef.current.volume = targetGuitar;
+                if (mediaNodesRef.current.guitar) {
+                    mediaNodesRef.current.guitar.gainNode.gain.value = targetGuitar;
                 }
-                if (bassRef.current.paused) {
-                    bassRef.current.play().catch(() => {});
+                if (guitarRef.current.paused) {
+                    guitarRef.current.play().catch(() => {});
                 }
             }
 
-            const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
+            const masterTime = (guitarRef.current && guitarRef.current.currentTime) ? guitarRef.current.currentTime : 0;
 
             const applyStemVolClean = (ref, targetVol, stemKey) => {
                 if (ref.current) {
@@ -545,7 +551,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 }
             };
 
-            applyStemVolClean(guitarRef, targetGuitar, 'guitar');
+            applyStemVolClean(bassRef, targetBass, 'bass');
             applyStemVolClean(drumsRef, targetOtherInst, 'drums');
             applyStemVolClean(percRef, targetOtherInst, 'perc');
             applyStemVolClean(synthRef, targetOtherInst, 'synth');
@@ -694,9 +700,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 style={{ backgroundImage: `url(${currentFrame.src})` }}
             />
 
-            {/* 6 Synchronized Multi-Stem Audio Elements */}
-            <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
+            {/* 6 Synchronized Multi-Stem Audio Elements (Guitar as Master Track 1) */}
             <audio ref={guitarRef} src={STEM_SRCS.guitar} loop playsInline preload="auto" />
+            <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
             <audio ref={drumsRef} src={STEM_SRCS.drums} loop playsInline preload="auto" />
             <audio ref={percRef} src={STEM_SRCS.perc} loop playsInline preload="auto" />
             <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
@@ -1177,7 +1183,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
                 <span>ENDING UNLOCKED: {safeEnding.title}</span>
             </div>
 
-            <h2 className="font-sans text-3xl sm:text-5xl font-black text-[#FFFFFF] uppercase mb-2">
+            <h2 className="font-sans text-3xl sm:text-5xl font-black text-white uppercase mb-2">
                 9:16 VIP PASS READY
             </h2>
             <p className="font-mono text-[11px] text-white/60 max-w-xs mb-6">
