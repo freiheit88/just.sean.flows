@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
+    Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronUp, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
@@ -89,7 +89,7 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // Dynamic Gyroscope & Mouse 3D Parallax Orientation
+    // Amplified 3D Gyroscope & Mouse Parallax Orientation
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false });
     
@@ -140,8 +140,8 @@ export default function App() {
     useEffect(() => {
         const handleDeviceOrientation = (e) => {
             if (e.beta !== null && e.gamma !== null) {
-                const normX = Math.max(-1, Math.min(1, e.gamma / 30));
-                const normY = Math.max(-1, Math.min(1, e.beta / 30));
+                const normX = Math.max(-1, Math.min(1, e.gamma / 22));
+                const normY = Math.max(-1, Math.min(1, e.beta / 22));
                 setTilt({ x: normX, y: normY });
             }
         };
@@ -180,24 +180,20 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. Editorial 3D Star Title Header (STEM MIXER Button REMOVED!) */}
-            <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-5 flex items-center justify-between pointer-events-none">
+            {/* 2. Editorial 3D Star Title Header (No AI Star Icon, Amplified 3D Depth!) */}
+            <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-6 flex items-center justify-between pointer-events-none">
                 <motion.div 
                     style={{
-                        transform: `perspective(600px) rotateX(${tilt.y * -14}deg) rotateY(${tilt.x * 14}deg) translateZ(10px)`
+                        transform: `perspective(500px) rotateX(${tilt.y * -28}deg) rotateY(${tilt.x * 28}deg) translateZ(25px)`,
+                        transformStyle: 'preserve-3d'
                     }}
-                    className="pointer-events-auto flex items-center gap-2.5 transition-transform duration-200 ease-out"
+                    className="pointer-events-auto flex items-center gap-3 transition-transform duration-100 ease-out"
                 >
-                    <div className="relative flex items-center justify-center">
-                        <span className="w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00] animate-pulse"></span>
-                        <Sparkles className="w-3.5 h-3.5 text-[#E7FF00] absolute -top-1 -right-1 opacity-60 animate-spin" style={{ animationDuration: '6s' }} />
-                    </div>
-                    <span className="font-mono font-black text-xs sm:text-sm tracking-[0.28em] text-white uppercase drop-shadow-[0_0_10px_rgba(231,255,0,0.5)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_16px_#E7FF00] animate-pulse"></span>
+                    <span className="font-mono font-black text-sm sm:text-base tracking-[0.32em] text-white uppercase drop-shadow-[0_4px_16px_rgba(231,255,0,0.5)]">
                         @just.sean.flows
                     </span>
                 </motion.div>
-
-                {/* STEM MIXER button completely removed per user request! */}
             </header>
 
             <main className="relative z-10 w-full h-full flex items-center justify-center">
@@ -245,7 +241,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & 3D PARALLAX STAR SPLASH
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & ONE-WAY ASCENDING LET'S GO ! FADE
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -843,7 +839,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: STARLIGHT ASCENDING 3D PARALLAX ANIMATION FOR LET'S GO ! */}
+            {/* 2. INITIAL UNLOCK SPLASH: ONE-WAY BOTTOM-TO-CENTER ASCENDING FADE LOOP */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -853,84 +849,90 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         onClick={(e) => forceUnlockAudio(e)}
                         onTouchStart={(e) => forceUnlockAudio(e)}
-                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/70 backdrop-blur-xl cursor-pointer overflow-hidden"
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/75 backdrop-blur-xl cursor-pointer overflow-hidden"
                     >
-                        {/* Ascending Starlight Particle Sparks */}
+                        {/* Randomized Starlight Particle Sparks (Random Sizes & Intensities!) */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                            {[...Array(16)].map((_, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{
-                                        x: `${15 + (i * 5) % 70}vw`,
-                                        y: '100vh',
-                                        opacity: 0,
-                                        scale: 0.3 + (i % 4) * 0.2
-                                    }}
-                                    animate={{
-                                        y: '-10vh',
-                                        opacity: [0, 0.8, 0],
-                                        scale: [0.3, 1.2, 0.2]
-                                    }}
-                                    transition={{
-                                        duration: 3.5 + (i % 3) * 1.2,
-                                        repeat: Infinity,
-                                        delay: i * 0.25,
-                                        ease: 'easeInOut'
-                                    }}
-                                    className="absolute w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]"
-                                />
-                            ))}
+                            {[...Array(28)].map((_, i) => {
+                                const randomSize = 2 + (i * 7) % 6; // 2px to 7px
+                                const randomLeft = `${(i * 13 + 5) % 90}vw`;
+                                const randomDelay = (i * 0.3) % 2.5;
+                                const randomDuration = 2.8 + (i % 4) * 0.9;
+                                const randomOpacityMax = 0.4 + (i % 5) * 0.15;
+
+                                return (
+                                    <motion.div
+                                        key={i}
+                                        initial={{
+                                            x: randomLeft,
+                                            y: '100vh',
+                                            opacity: 0,
+                                            scale: 0.4
+                                        }}
+                                        animate={{
+                                            y: '-10vh',
+                                            opacity: [0, randomOpacityMax, 0],
+                                            scale: [0.4, 1.4, 0.3]
+                                        }}
+                                        transition={{
+                                            duration: randomDuration,
+                                            repeat: Infinity,
+                                            delay: randomDelay,
+                                            ease: 'easeInOut'
+                                        }}
+                                        style={{
+                                            width: `${randomSize}px`,
+                                            height: `${randomSize}px`,
+                                        }}
+                                        className="absolute rounded-full bg-[#E7FF00] shadow-[0_0_14px_#E7FF00]"
+                                    />
+                                );
+                            })}
                         </div>
 
-                        {/* Floating 3D Parallax Gyroscope-Responsive "LET'S GO !" Container */}
+                        {/* ONE-WAY ASCENDING LET'S GO ! LOOP (Starts deep at bottom, moves up to center & fades out) */}
                         <motion.div
-                            initial={{ y: 80, opacity: 0.2 }}
+                            initial={{ y: 220, opacity: 1 }}
                             animate={{ 
-                                y: [80, 0, -10, 0],
-                                opacity: [0.3, 1, 0.7, 1]
+                                y: [220, 0],
+                                opacity: [1, 0]
                             }}
                             transition={{
-                                duration: 4.2,
+                                duration: 3.4,
                                 repeat: Infinity,
-                                repeatType: 'reverse',
-                                ease: 'easeInOut'
+                                ease: [0.25, 0.1, 0.25, 1.0]
                             }}
                             style={{
-                                transform: `perspective(600px) rotateX(${tilt.y * -16}deg) rotateY(${tilt.x * 16}deg)`
+                                transform: `perspective(500px) rotateX(${tilt.y * -18}deg) rotateY(${tilt.x * 18}deg)`
                             }}
                             className="flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-10 transition-transform duration-150 ease-out"
                         >
-                            {/* Accentuated Glowing Star Ring Halo */}
-                            <div className="relative mb-2">
-                                <Sparkles className="w-6 h-6 text-[#E7FF00] animate-spin mb-1 opacity-80" style={{ animationDuration: '8s' }} />
-                            </div>
-
                             <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                                 style={{
-                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.65)',
+                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
                                     color: 'transparent',
-                                    textShadow: '0 0 25px rgba(255,255,255,0.35)'
+                                    textShadow: '0 0 25px rgba(255,255,255,0.4)'
                                 }}
                             >
                                 LET
                             </span>
                             <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                                 style={{
-                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.65)',
+                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
                                     color: 'transparent',
-                                    textShadow: '0 0 25px rgba(255,255,255,0.35)'
+                                    textShadow: '0 0 25px rgba(255,255,255,0.4)'
                                 }}
                             >
                                 'S
                             </span>
                             <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                                 style={{
-                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.65)',
+                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
                                     color: 'transparent',
-                                    textShadow: '0 0 25px rgba(255,255,255,0.35)'
+                                    textShadow: '0 0 25px rgba(255,255,255,0.4)'
                                 }}
                             >
                                 GO
@@ -938,25 +940,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             <span 
                                 className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00]"
                                 style={{
-                                    WebkitTextStroke: '2px rgba(231, 255, 0, 0.90)',
+                                    WebkitTextStroke: '2px rgba(231, 255, 0, 0.95)',
                                     color: 'transparent',
-                                    textShadow: '0 0 35px rgba(231,255,0,0.7)'
+                                    textShadow: '0 0 35px rgba(231,255,0,0.85)'
                                 }}
                             >
                                 !
                             </span>
-
-                            {/* Upward Swipe Guidance Gesture Cue */}
-                            <motion.div
-                                animate={{ y: [-2, -12, -2], opacity: [0.4, 1, 0.4] }}
-                                transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-                                className="mt-8 flex flex-col items-center gap-1"
-                            >
-                                <ChevronUp className="w-5 h-5 text-[#E7FF00] filter drop-shadow-[0_0_8px_#E7FF00]" />
-                                <span className="font-mono text-[9px] font-bold tracking-[0.35em] uppercase text-white/70">
-                                    SWIPE UP / TAP TO START
-                                </span>
-                            </motion.div>
                         </motion.div>
                     </motion.div>
                 )}
