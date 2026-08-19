@@ -84,35 +84,94 @@ const DEFAULT_ENDING = {
     quote: 'Holding a cold martini, captivated by solo violin at midnight.'
 };
 
-// VINTAGE HOTEL KEYS & CAST BRONZE EMBLEM DATA
-const VINTAGE_KEYS_DATABASE = [
-    { text: "ROOM #65", type: "brass_tag", color: "#C5A059", left: "8vw", zDepth: -110, duration: 7.2, opacityMax: 0.75, tiltMult: 0.35, isLarge: true },
-    { text: "🔑", type: "key_icon", color: "#E7FF00", left: "22vw", zDepth: 80, duration: 2.5, opacityMax: 0.65, tiltMult: 1.4, isLarge: false },
-    { text: "02:00 AM", type: "time_tag", color: "#00F0FF", left: "38vw", zDepth: 20, duration: 4.2, opacityMax: 0.8, tiltMult: 0.8, isLarge: false },
-    { text: "🗝️", type: "key_icon", color: "#C5A059", left: "54vw", zDepth: -80, duration: 6.8, opacityMax: 0.7, tiltMult: 0.4, isLarge: true },
-    { text: "FRANKFURT", type: "badge", color: "#FFFFFF", left: "70vw", zDepth: 60, duration: 3.1, opacityMax: 0.7, tiltMult: 1.2, isLarge: false },
-    { text: "[ATELIER 65]", type: "brass_tag", color: "#FF0055", left: "86vw", zDepth: -100, duration: 7.5, opacityMax: 0.75, tiltMult: 0.3, isLarge: true },
+// 100 DISTINCT ATELIER CONCEPT FRAGMENTS WITH MAXIMUM STYLING & FONT VARIETY
+const ATELIER_100_WORDS = [
+    // --- 1. MUSICAL TERMS & CADENZAS (1-20) ---
+    "CADENZA", "ALLEGRO", "TUTTI", "FORTE", "TEMPO 128", 
+    "44.1 kHz", "24-BIT STEREO", "VIBRATO", "OVERTONE", "REVERB 85%",
+    "FERMATA 𝄐", "SOLO VIOLIN", "NOIR BASS", "AMP FEEDBACK", "STEINWAY",
+    "DEEP ECHO", "HARMONICS", "CRESCENDO", "SUB-BASS 30Hz", "PAGANINI 44.1s",
+
+    // --- 2. LOGO & ATELIER NUMBERS (21-40) ---
+    "ROOM #65", "#065 WINE", "LOGO NO.65", "STEM #01", "STEM #02",
+    "STEM #03", "STEM #04", "SERIES 2026", "EDITION 1/1", "GUILD #065",
+    "FRAME #07", "LABEL NO.65", "VAULT 065", "TUBE 80.12", "RESERVE #65",
+    "KEY #065", "CODE 0200", "PASS #065", "STAGE #01", "DECAL NO.65",
+
+    // --- 3. ATELIER LOCATION & HYBRID SOUND LAB (41-60) ---
+    "FRANKFURT", "ALTE OPER", "CONCERT PALACE", "STAGE DOOR", "VIP ALL-ACCESS",
+    "CANAL ALLEY", "LETTERPRESS", "WINE & TREBLE", "TUBE AMP", "BRONZE EMBLEM",
+    "24/7 SOUND LAB", "HYBRID DSP", "GERMANY 2026", "FLASHLIGHT ALLEY", "MIDNIGHT SALON",
+    "GOLD LEAF", "DOOR KNOCKER", "GLASS DECAL", "WOVEN TAPESTRY", "SHEFFIELD GRIT",
+
+    // --- 4. SONG LYRICS & MIDNIGHT QUOTES (61-80) ---
+    ""WALK WITH MUSIC?"", ""MIDNIGHT SOLITUDE"", ""VELVET DISTORTION"", ""CHAMPAGNE NOCTURNE"", ""CRYSTAL FLUTE"",
+    ""ALMOST AT THE DOOR"", ""THE DOORS OPEN"", ""COLD MARTINI"", ""PRIVATE SKETCH"", ""STILL AWAKE HERE"",
+    ""PEEK INSIDE?"", ""MY PRIVATE HAVEN"", ""STAGE READY"", ""HARMONY SCULPTOR"", ""NIGHT VELOCITY"",
+    ""DECORUM SHATTERED"", ""HEAVY NOIR BASS"", ""SOVEREIGN ARCHITECT"", ""SYSTEMS & FREQUENCIES"", ""NOCTURNAL AESTHETE"",
+
+    // --- 5. VINTAGE KEYS, WAX SEALS & EMBLEMS (81-100) ---
+    "🔑", "🗝️", "🔒", "⚜", "§", "¶", "⚜ GUILD", "🔑 ROOM 65", "🗝️ SECRET VAULT", "🔒 PRIVATE DOOR",
+    "⚜ EMBLEM", "§ 02:00 AM", "¶ LESSON 65", "🔑 KEY TO HAVEN", "🗝️ CONCERT HALL", "🔒 PASSKEY",
+    "⚜ ATELIER", "§ SERENADE", "¶ NOCTURNE", "@just.sean.flows"
+];
+
+// GENERATE 100 WILDLY DISTINCT STYLED ATELIER DEBRIS OBJECTS
+const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
+    // 8 Varied Container Style Types
+    const styleType = i % 8;
     
-    { text: "⚜", type: "wax_seal", color: "#C5A059", left: "14vw", zDepth: 40, duration: 3.8, opacityMax: 0.6, tiltMult: 1.0, isLarge: false },
-    { text: "GUILD #065", type: "badge", color: "#E7FF00", left: "30vw", zDepth: -90, duration: 6.5, opacityMax: 0.8, tiltMult: 0.4, isLarge: true },
-    { text: "KEY TO VAULT", type: "brass_tag", color: "#00F0FF", left: "48vw", zDepth: 90, duration: 2.2, opacityMax: 0.85, tiltMult: 1.5, isLarge: false },
-    { text: "🔒", type: "lock_icon", color: "#C5A059", left: "64vw", zDepth: 10, duration: 4.6, opacityMax: 0.65, tiltMult: 0.7, isLarge: false },
-    { text: "VIP PASS", type: "badge", color: "#FF0055", left: "80vw", zDepth: -60, duration: 5.8, opacityMax: 0.7, tiltMult: 0.5, isLarge: true },
-    
-    { text: "CADENZA", type: "time_tag", color: "#FFFFFF", left: "18vw", zDepth: -120, duration: 8.0, opacityMax: 0.65, tiltMult: 0.25, isLarge: true },
-    { text: "🗝️", type: "key_icon", color: "#E7FF00", left: "42vw", zDepth: 70, duration: 2.8, opacityMax: 0.7, tiltMult: 1.3, isLarge: false },
-    { text: "#065 WINE", type: "brass_tag", color: "#C5A059", left: "58vw", zDepth: -70, duration: 6.2, opacityMax: 0.8, tiltMult: 0.45, isLarge: true },
-    { text: "§ 02:00", type: "wax_seal", color: "#00F0FF", left: "76vw", zDepth: 30, duration: 3.5, opacityMax: 0.75, tiltMult: 0.9, isLarge: false },
-    { text: "SECRET DOOR", type: "badge", color: "#FF0055", left: "92vw", zDepth: -110, duration: 7.4, opacityMax: 0.65, tiltMult: 0.3, isLarge: true }
-].map((item, i) => {
-    const leftNum = parseFloat(item.left);
-    const distFromCenter = leftNum - 50;
-    const pullX = Math.abs(distFromCenter) < 38 ? (distFromCenter * -0.20) : 0;
+    // 7 Color Palette Tones
+    const colors = ['#E7FF00', '#00F0FF', '#FF0055', '#FFFFFF', '#C5A059', '#A855F7', '#10B981'];
+    const color = colors[(i * 3 + (i % 7)) % colors.length];
+
+    // Varied Font Families
+    const fontFamilies = [
+        "font-mono font-bold", 
+        "font-sans font-black", 
+        "font-serif italic font-medium", 
+        "font-mono font-light", 
+        "font-sans font-extrabold uppercase", 
+        "font-serif font-bold uppercase",
+        "font-mono font-black"
+    ];
+    const fontFamily = fontFamilies[i % fontFamilies.length];
+
+    // Varied Rotations (-22deg to +22deg)
+    const rotation = ((i * 13) % 45) - 22;
+
+    // Varied Sizes
+    const isEmoji = ["🔑", "🗝️", "🔒", "⚜", "§", "¶"].includes(text);
+    const sizeClass = isEmoji ? "text-xl sm:text-3xl" : (i % 5 === 0 ? "text-xs sm:text-sm" : "text-[9px] sm:text-[11px]");
+
+    // Distribute evenly across screen width (3vw to 94vw)
+    const leftPercent = 3 + ((i * 19 + (i % 9) * 11) % 92);
+    const distFromCenter = leftPercent - 50;
+    const pullX = Math.abs(distFromCenter) < 38 ? (distFromCenter * -0.22) : 0;
+
+    const isLarge = i % 3 === 0;
+    const isMedium = i % 3 === 1;
+
+    const zDepth = isLarge ? -120 : isMedium ? 10 : 90;
+    const tiltMult = isLarge ? 0.3 : isMedium ? 0.75 : 1.5;
 
     return {
-        ...item,
         id: i,
-        pullXPx: pullX * 4
+        text,
+        styleType,
+        color,
+        fontFamily,
+        rotation,
+        sizeClass,
+        isEmoji,
+        left: `${leftPercent}vw`,
+        pullXPx: pullX * 4,
+        delay: (i * 0.08) % 3.2,
+        duration: isLarge ? 7.8 : isMedium ? 4.6 : 2.4, // Diverse speeds (2.4s to 7.8s)
+        opacityMax: 0.35 + (i % 6) * 0.10,
+        zDepth,
+        tiltMult,
+        isLarge
     };
 });
 
@@ -274,7 +333,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & VINTAGE HOTEL KEYS & EMBLEMS
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & 100-ITEM DICTIONARY DEBRIS STAGE
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -872,7 +931,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: VINTAGE HOTEL KEYS & CAST BRONZE EMBLEMS (STARS 100% GONE!) */}
+            {/* 2. INITIAL UNLOCK SPLASH: 100 WILDLY DISTINCT STYLED ATELIER DEBRIS OBJECTS */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -888,14 +947,14 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* 3D PARALLAX VINTAGE HOTEL KEYS & BRASS BADGE LAYER */}
+                        {/* 100-ITEM 3D PARALLAX DICTIONARY DEBRIS LAYER */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
-                            {VINTAGE_KEYS_DATABASE.map((item) => {
-                                const tiltXVal = tilt.x * 24 * item.tiltMult;
-                                const tiltYVal = tilt.y * 24 * item.tiltMult;
+                            {ATELIER_DEBRIS_100.map((item) => {
+                                const tiltXVal = tilt.x * 26 * item.tiltMult;
+                                const tiltYVal = tilt.y * 26 * item.tiltMult;
 
-                                const startY = item.isLarge ? '85vh' : '105vh';
-                                const endY = item.isLarge ? '12vh' : '-25vh';
+                                const startY = item.isLarge ? '85vh' : '108vh';
+                                const endY = item.isLarge ? '10vh' : '-28vh';
 
                                 return (
                                     <motion.div
@@ -904,13 +963,15 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                             y: startY,
                                             x: 0,
                                             opacity: 0,
-                                            scale: 0.6
+                                            scale: 0.6,
+                                            rotate: item.rotation
                                         }}
                                         animate={{
                                             y: [startY, endY],
                                             x: [0, item.pullXPx],
                                             opacity: [0, item.opacityMax, 0],
-                                            scale: [0.6, 1.1, 0.5]
+                                            scale: [0.6, 1.15, 0.5],
+                                            rotate: [item.rotation, item.rotation * -0.5, item.rotation]
                                         }}
                                         transition={{
                                             duration: item.duration,
@@ -925,37 +986,74 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                         }}
                                         className="absolute select-none transition-transform duration-150 ease-out flex items-center justify-center pointer-events-none"
                                     >
-                                        {item.type === "brass_tag" && (
+                                        {/* 8 DIVERSE CONTAINER STYLES */}
+                                        {item.styleType === 0 && (
                                             <div 
-                                                className="px-3 py-1 rounded-lg border border-amber-500/40 bg-amber-950/40 backdrop-blur-md font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(197,160,89,0.3)]"
+                                                className={`px-3 py-1 rounded-md border border-amber-500/50 bg-amber-950/60 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase shadow-[0_0_15px_rgba(197,160,89,0.4)]`}
+                                                style={{ color: item.color, borderColor: `${item.color}70` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.styleType === 1 && (
+                                            <div 
+                                                className={`px-3 py-0.5 rounded-full border bg-black/80 ${item.fontFamily} ${item.sizeClass} tracking-wider uppercase shadow-[0_0_20px_rgba(0,240,255,0.4)]`}
+                                                style={{ color: item.color, borderColor: `${item.color}80` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.styleType === 2 && (
+                                            <div 
+                                                className={`px-2.5 py-1 rounded-sm border-2 border-dashed bg-black/70 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
                                                 style={{ color: item.color, borderColor: `${item.color}60` }}
                                             >
                                                 {item.text}
                                             </div>
                                         )}
 
-                                        {item.type === "badge" && (
+                                        {item.styleType === 3 && (
                                             <div 
-                                                className="px-2.5 py-0.5 rounded-full border bg-black/60 font-mono text-[9px] sm:text-[10px] font-black tracking-widest uppercase shadow-md"
-                                                style={{ color: item.color, borderColor: `${item.color}50` }}
+                                                className={`font-serif italic font-medium underline underline-offset-4 ${item.sizeClass} tracking-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]`}
+                                                style={{ color: item.color, textDecorationColor: `${item.color}80` }}
                                             >
                                                 {item.text}
                                             </div>
                                         )}
 
-                                        {item.type === "time_tag" && (
+                                        {item.styleType === 4 && (
                                             <div 
-                                                className="font-mono text-xs font-bold tracking-widest uppercase drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                                                className={`font-sans font-black tracking-tighter uppercase ${item.sizeClass} drop-shadow-[0_0_15px_rgba(231,255,0,0.5)]`}
                                                 style={{ color: item.color }}
                                             >
                                                 {item.text}
                                             </div>
                                         )}
 
-                                        {(item.type === "key_icon" || item.type === "lock_icon" || item.type === "wax_seal") && (
+                                        {item.styleType === 5 && (
                                             <div 
-                                                className="text-lg sm:text-2xl drop-shadow-[0_0_12px_rgba(231,255,0,0.5)] leading-none"
-                                                style={{ color: item.color }}
+                                                className="w-10 h-10 rounded-full border-2 bg-amber-900/60 flex items-center justify-center font-mono font-black text-xs shadow-lg"
+                                                style={{ color: item.color, borderColor: `${item.color}80` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.styleType === 6 && (
+                                            <div 
+                                                className={`px-3 py-1.5 rounded-lg border-2 bg-neutral-900/90 ${item.fontFamily} ${item.sizeClass} tracking-[0.25em] uppercase shadow-2xl`}
+                                                style={{ color: item.color, borderColor: `${item.color}70` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.styleType === 7 && (
+                                            <div 
+                                                className={`px-2 py-0.5 rounded bg-white/10 ${item.fontFamily} ${item.sizeClass} border tracking-wider`}
+                                                style={{ color: item.color, borderColor: `${item.color}40` }}
                                             >
                                                 {item.text}
                                             </div>
