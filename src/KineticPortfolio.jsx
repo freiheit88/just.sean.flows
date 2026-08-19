@@ -86,39 +86,39 @@ const DEFAULT_ENDING = {
 // SOFT AMBIENT ASTRONOMICAL VECTOR STARS (Softer, Distant, Non-Glaring)
 function AstronomicalSpikeStar({ color, size }) {
     return (
-        <svg viewBox="0 0 60 60" width={size * 2.0} height={size * 2.0} className="overflow-visible pointer-events-none opacity-85">
-            <circle cx="30" cy="30" r="16" fill={color} opacity="0.25" filter="blur(3px)" />
-            <path d="M 30,4 L 32,28 L 56,30 L 32,32 L 30,56 L 28,32 L 4,30 L 28,28 Z" fill={color} opacity="0.65" />
-            <circle cx="30" cy="30" r="2" fill="#FFFFFF" opacity="0.7" />
+        <svg viewBox="0 0 60 60" width={size * 2.2} height={size * 2.2} className="overflow-visible pointer-events-none drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+            <circle cx="30" cy="30" r="16" fill={color} opacity="0.3" filter="blur(3px)" />
+            <path d="M 30,4 L 32,28 L 56,30 L 32,32 L 30,56 L 28,32 L 4,30 L 28,28 Z" fill={color} opacity="0.8" />
+            <circle cx="30" cy="30" r="2.5" fill="#FFFFFF" opacity="0.9" />
         </svg>
     );
 }
 
 function AstronomicalOrbStar({ color, size }) {
     return (
-        <svg viewBox="0 0 40 40" width={size * 1.6} height={size * 1.6} className="overflow-visible pointer-events-none opacity-80">
-            <circle cx="20" cy="20" r="14" fill={color} opacity="0.2" filter="blur(3px)" />
-            <circle cx="20" cy="20" r="5" fill={color} opacity="0.55" />
-            <circle cx="20" cy="20" r="1.8" fill="#FFFFFF" opacity="0.6" />
+        <svg viewBox="0 0 40 40" width={size * 1.8} height={size * 1.8} className="overflow-visible pointer-events-none">
+            <circle cx="20" cy="20" r="14" fill={color} opacity="0.25" filter="blur(3px)" />
+            <circle cx="20" cy="20" r="6" fill={color} opacity="0.75" />
+            <circle cx="20" cy="20" r="2" fill="#FFFFFF" opacity="0.8" />
         </svg>
     );
 }
 
 function AstronomicalFlareStar({ color, size }) {
     return (
-        <svg viewBox="0 0 80 40" width={size * 2.4} height={size * 1.2} className="overflow-visible pointer-events-none opacity-85">
-            <path d="M 0,20 Q 40,17 80,20 Q 40,23 0,20 Z" fill={color} opacity="0.55" filter="blur(1px)" />
-            <path d="M 40,6 Q 38.5,20 40,34 Q 41.5,20 40,6 Z" fill={color} opacity="0.4" />
-            <circle cx="40" cy="20" r="1.8" fill="#FFFFFF" opacity="0.65" />
+        <svg viewBox="0 0 80 40" width={size * 2.6} height={size * 1.3} className="overflow-visible pointer-events-none">
+            <path d="M 0,20 Q 40,17 80,20 Q 40,23 0,20 Z" fill={color} opacity="0.7" filter="blur(1px)" />
+            <path d="M 40,6 Q 38.5,20 40,34 Q 41.5,20 40,6 Z" fill={color} opacity="0.5" />
+            <circle cx="40" cy="20" r="2" fill="#FFFFFF" opacity="0.8" />
         </svg>
     );
 }
 
-// DYNAMIC LIVING STARFIELD DATABASE WITH MAGNETIC GRAVITATIONAL DRAG
+// FULL SCREEN DISTRIBUTED STARFIELD DATABASE (5vw to 95vw Across Entire Screen!)
 const STARS_DATABASE = Array.from({ length: 36 }).map((_, i) => {
-    const size = 3 + (i * 7) % 9; // 3px to 11px (More distant feeling!)
-    const isLarge = size > 8;
-    const isMedium = size >= 5 && size <= 8;
+    const size = 5 + (i * 7) % 11; // 5px to 15px
+    const isLarge = size > 10;
+    const isMedium = size >= 7 && size <= 10;
 
     const colors = ['#E7FF00', '#00F0FF', '#FF0055', '#FFFFFF', '#C5A059'];
     const color = colors[i % colors.length];
@@ -126,23 +126,23 @@ const STARS_DATABASE = Array.from({ length: 36 }).map((_, i) => {
     const type = i % 3;
 
     const zDepth = isLarge ? -120 : isMedium ? 10 : 90;
-    const tiltMult = isLarge ? 0.25 : isMedium ? 0.75 : 1.5;
+    const tiltMult = isLarge ? 0.35 : isMedium ? 0.8 : 1.5;
 
-    const rawLeftPercent = (i * 11 + 4) % 92;
-    const distFromCenter = (rawLeftPercent - 50);
-    // Nearby stars bend inward toward LET'S GO !'s ascending magnetic trajectory!
-    const pullFactor = Math.abs(distFromCenter) < 32 ? (distFromCenter * -0.22) : 0;
+    // Guaranteed wide distribution across entire screen (4vw to 94vw)
+    const leftPercent = 4 + ((i * 17 + (i % 5) * 23) % 90);
+    const distFromCenter = leftPercent - 50;
+    const pullX = Math.abs(distFromCenter) < 36 ? (distFromCenter * -0.22) : 0;
 
     return {
         id: i,
         size,
         color,
         type,
-        left: `${rawLeftPercent}vw`,
-        pullX: `${pullFactor}vw`,
-        delay: (i * 0.28) % 3.2,
-        duration: isLarge ? 7.5 : isMedium ? 4.4 : 2.2, // Diverse speeds (2.2s to 7.5s)!
-        opacityMax: 0.20 + (i % 6) * 0.08, // Soft ambient opacity (0.20 to 0.60)!
+        left: `${leftPercent}vw`,
+        pullXPx: pullX * 4, // Shift relative to left position
+        delay: (i * 0.22) % 3.0,
+        duration: isLarge ? 7.2 : isMedium ? 4.5 : 2.4, // Diverse speeds
+        opacityMax: 0.35 + (i % 5) * 0.12,
         zDepth,
         tiltMult,
         isLarge
@@ -307,7 +307,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & LIVING MAGNETIC STARFIELD
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & FULL-SCREEN STARFIELD
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -905,7 +905,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: LIVING MAGNETIC STARFIELD WITH ORGANIC GRAVITATIONAL ATTRACTION */}
+            {/* 2. INITIAL UNLOCK SPLASH: FULL SCREEN UNCOVERED DYNAMIC STARFIELD */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -921,7 +921,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* DYNAMIC LIVING STARFIELD LAYER WITH DIVERSE SPEEDS & MAGNETIC ATTRACTION */}
+                        {/* UNCOVERED FULL-SCREEN STARFIELD LAYER */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
                             {STARS_DATABASE.map((s) => {
                                 const starTiltX = tilt.x * 24 * s.tiltMult;
@@ -934,16 +934,16 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                     <motion.div
                                         key={s.id}
                                         initial={{
-                                            x: s.left,
                                             y: startY,
+                                            x: 0,
                                             opacity: 0,
-                                            scale: 0.3
+                                            scale: 0.4
                                         }}
                                         animate={{
                                             y: [startY, endY],
-                                            x: ['0vw', s.pullX], // Dynamic magnetic inward attraction toward LET'S GO !
+                                            x: [0, s.pullXPx],
                                             opacity: [0, s.opacityMax, 0],
-                                            scale: [0.3, 1.1, 0.2]
+                                            scale: [0.4, 1.2, 0.3]
                                         }}
                                         transition={{
                                             duration: s.duration,
@@ -952,9 +952,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                             ease: 'easeInOut'
                                         }}
                                         style={{
+                                            left: s.left,
+                                            top: 0,
                                             transform: `translate3d(${starTiltX}px, ${starTiltY}px, ${s.zDepth}px)`
                                         }}
-                                        className="absolute select-none transition-transform duration-150 ease-out flex items-center justify-center"
+                                        className="absolute select-none transition-transform duration-150 ease-out flex items-center justify-center pointer-events-none"
                                     >
                                         {s.type === 0 && <AstronomicalSpikeStar color={s.color} size={s.size} />}
                                         {s.type === 1 && <AstronomicalOrbStar color={s.color} size={s.size} />}
