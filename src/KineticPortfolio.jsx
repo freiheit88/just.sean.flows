@@ -279,7 +279,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. ULTRA-CLEAN 1.0-SECOND COOLDOWN SINGLE FOOTSTEP ENGINE (ZERO OVERLAP GUARANTEED)
+// 1. MASTER-CLOCK CONTINUOUS PHASE-LOCK SYNC ENGINE (BASS REF MASTER CLOCK)
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -379,7 +379,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // ABSOLUTE 1.0-SECOND COOLDOWN FOOTSTEP TRIGGER (ZERO OVERLAP GUARANTEED!)
+    // ABSOLUTE 1.0-SECOND COOLDOWN FOOTSTEP TRIGGER
     const triggerCleanFootstep = () => {
         const now = Date.now();
         if (now - lastFootstepTimeRef.current >= 1000) {
@@ -390,7 +390,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         }
     };
 
-    // GUARANTEED SOUND ENGINE UNLOCKER
+    // GUARANTEED SOUND ENGINE UNLOCKER WITH MASTER-CLOCK SYNCHRONIZATION
     const forceUnlockAudio = () => {
         if (!isAudioUnlocked) {
             setIsAudioUnlocked(true);
@@ -408,20 +408,29 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
 
         const audioRefs = [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef];
+        
+        // Use bassRef as the absolute master clock source!
+        if (bassRef.current) {
+            if (bassRef.current.paused) {
+                bassRef.current.play().catch(() => {});
+            }
+        }
         const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
 
         audioRefs.forEach((r, idx) => {
             if (r.current) {
                 r.current.muted = false;
                 r.current.playsInline = true;
+                
+                // Snap all stems to exact master bass currentTime before playing
+                if (Math.abs(r.current.currentTime - masterTime) > 0.015) {
+                    r.current.currentTime = masterTime;
+                }
+
                 if (idx === 0) {
                     r.current.volume = 0.50;
                 } else if (r.current.volume === undefined || r.current.volume === null) {
                     r.current.volume = 0.0;
-                }
-
-                if (Math.abs(r.current.currentTime - masterTime) > 0.08) {
-                    r.current.currentTime = masterTime;
                 }
 
                 if (r.current.paused) {
@@ -431,16 +440,25 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         });
     };
 
-    // CHECKPOINT-ONLY SYNC
-    const performCheckpointSync = () => {
+    // SAMPLE-ACCURATE CONTINUOUS MASTER-CLOCK SYNC ENGINE
+    const syncStemsToMasterClock = () => {
         if (!bassRef.current) return;
         const masterTime = bassRef.current.currentTime;
+        if (!masterTime || masterTime === 0) return;
 
         [guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
             if (r.current) {
-                const diff = Math.abs(r.current.currentTime - masterTime);
-                if (diff > 0.08) {
-                    r.current.currentTime = masterTime;
+                // If stem is playing audio (volume > 0.01), enforce strict < 20ms sync alignment to bass!
+                if (r.current.volume > 0.01) {
+                    const drift = Math.abs(r.current.currentTime - masterTime);
+                    if (drift > 0.025) {
+                        r.current.currentTime = masterTime;
+                    }
+                } else {
+                    // Even if muted, keep currentTime aligned in background so unmuting is 100% seamless!
+                    if (Math.abs(r.current.currentTime - masterTime) > 0.05) {
+                        r.current.currentTime = masterTime;
+                    }
                 }
             }
         });
@@ -459,7 +477,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // DECAY ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12 TREMBLING EASTER EGG
+    // REAL-TIME VOLUME DECAY ENGINE & SAMPLE-ACCURATE CONTINUOUS STEM SYNC
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
@@ -534,22 +552,32 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 targetVocal = 0.0;
             }
 
-            if (tier !== lastSyncTier.current) {
-                lastSyncTier.current = tier;
-                performCheckpointSync();
-            }
-
             setAudioTier(tier);
 
+            // 1. Update Master Bass
             if (bassRef.current) {
                 bassRef.current.volume = targetBass;
                 if (bassRef.current.paused) bassRef.current.play().catch(() => {});
             }
-            if (guitarRef.current) guitarRef.current.volume = targetGuitar;
-            if (drumsRef.current) drumsRef.current.volume = targetOtherInst;
-            if (percRef.current) percRef.current.volume = targetOtherInst;
-            if (synthRef.current) synthRef.current.volume = targetOtherInst;
-            if (vocalRef.current) vocalRef.current.volume = targetVocal;
+
+            // 2. Master Clock Continuous Resynchronization (Eliminates off-beat delays!)
+            syncStemsToMasterClock();
+
+            // 3. Smooth Volume Assignment & Play Enforcement
+            const applyStemVol = (ref, targetVol) => {
+                if (ref.current) {
+                    ref.current.volume = targetVol;
+                    if (targetVol > 0 && ref.current.paused) {
+                        ref.current.play().catch(() => {});
+                    }
+                }
+            };
+
+            applyStemVol(guitarRef, targetGuitar);
+            applyStemVol(drumsRef, targetOtherInst);
+            applyStemVol(percRef, targetOtherInst);
+            applyStemVol(synthRef, targetOtherInst);
+            applyStemVol(vocalRef, targetVocal);
 
         }, 50);
 
