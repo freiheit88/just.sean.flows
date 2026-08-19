@@ -321,7 +321,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & RGB CHROMATIC ABERRATION SPLIT STAGE
+// 1. DYNAMIC GYROSCOPE FILTER DISSOLVE & HIGH-IMPACT RGB CHROMATIC ABERRATION
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -774,9 +774,17 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     const tiltX = tilt.x * 20;
     const tiltY = tilt.y * 15;
 
-    // DYNAMIC RGB CHROMATIC ABERRATION SPLIT DISTANCE (Calculated from Device Tilt / Mouse Velocity)
-    const chromSplitX = tilt.x * 9;
-    const chromSplitY = tilt.y * 6;
+    // 1. CALCULATE TILT MOTION MAGNITUDE (0.0 to 1.0) FOR GYROSCOPE DISSOLVE
+    const tiltMagnitude = Math.min(1.0, Math.hypot(tilt.x, tilt.y) * 1.4);
+
+    // 2. DYNAMIC FILTER DISSOLVE VALUES (Dark opacity: 0.52 -> 0.12, Blur: 3px -> 0.3px)
+    const dynamicDarkOpacity = Math.max(0.12, 0.52 * (1.0 - tiltMagnitude * 0.78));
+    const dynamicBlurPx = Math.max(0.3, 3.0 * (1.0 - tiltMagnitude * 0.85)).toFixed(1);
+
+    // 3. AMPLIFIED RGB CHROMATIC ABERRATION SPLIT DISTANCE ("TANG! 💥" PUNCH)
+    const chromSplitX = tilt.x * 24;
+    const chromSplitY = tilt.y * 16;
+    const chromGlitchFlash = Math.min(1.0, Math.hypot(tilt.x, tilt.y) * 1.8);
 
     return (
         <div 
@@ -923,7 +931,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: LAYER-BASED DYNAMIC RGB CHROMATIC ABERRATION SPLIT */}
+            {/* 2. INITIAL UNLOCK SPLASH: DYNAMIC GYRO DISSOLVING FILTER & HIGH-IMPACT RGB SPLIT */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -939,8 +947,14 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* 50% DARK OVERLAY & SUBTLE 3% BLUR FILTER LAYER BEHIND LET'S GO ! (Z-10) */}
-                        <div className="absolute inset-0 bg-black/50 backdrop-blur-[3px] pointer-events-none z-10" />
+                        {/* DYNAMIC GYRO DISSOLVING FILTER LAYER (BEHIND LET'S GO ! Z-10) */}
+                        <div 
+                            className="absolute inset-0 pointer-events-none z-10 transition-all duration-150 ease-out"
+                            style={{
+                                backgroundColor: `rgba(0, 0, 0, ${dynamicDarkOpacity})`,
+                                backdropFilter: `blur(${dynamicBlurPx}px)`
+                            }}
+                        />
 
                         {/* 100-ITEM 3D PARALLAX DICTIONARY DEBRIS LAYER WITH DYNAMIC RGB SHADOWS (Z-0) */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
@@ -951,8 +965,8 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 const startY = item.isLarge ? '85vh' : '108vh';
                                 const endY = item.isLarge ? '10vh' : '-28vh';
 
-                                // Dynamic RGB Chromatic Shadow for Debris
-                                const rgbShadow = `${chromSplitX * 0.8}px ${chromSplitY * 0.8}px 8px rgba(255,0,85,0.4), ${-chromSplitX * 0.8}px ${-chromSplitY * 0.8}px 8px rgba(0,240,255,0.4)`;
+                                // Dynamic High-Impact RGB Chromatic Shadow for Debris
+                                const rgbShadow = `${chromSplitX * 0.9}px ${chromSplitY * 0.9}px 12px rgba(255,0,85,${0.35 + chromGlitchFlash * 0.45}), ${-chromSplitX * 0.9}px ${-chromSplitY * 0.9}px 12px rgba(0,240,255,${0.35 + chromGlitchFlash * 0.45})`;
 
                                 return (
                                     <motion.div
@@ -1067,7 +1081,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                                 className={`${item.sizeClass} leading-none`}
                                                 style={{ 
                                                     color: item.color,
-                                                    filter: `drop-shadow(${chromSplitX}px ${chromSplitY}px 4px rgba(255,0,85,0.6)) drop-shadow(${-chromSplitX}px ${-chromSplitY}px 4px rgba(0,240,255,0.6))`
+                                                    filter: `drop-shadow(${chromSplitX * 1.2}px ${chromSplitY * 1.2}px 6px rgba(255,0,85,0.7)) drop-shadow(${-chromSplitX * 1.2}px ${-chromSplitY * 1.2}px 6px rgba(0,240,255,0.7))`
                                                 }}
                                             >
                                                 {item.text}
@@ -1078,7 +1092,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH DYNAMIC RGB CHROMATIC SPLIT CHANNELS (Z-20) */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH HIGH-IMPACT "TANG! 💥" RGB CHROMATIC SPLIT (Z-20) */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -1097,11 +1111,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             }}
                             className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20 transition-transform duration-100 ease-out"
                         >
-                            {/* RED/MAGENTA RGB GHOST SPLIT LAYER */}
+                            {/* RED/MAGENTA RGB GHOST SPLIT LAYER - HIGH-IMPACT "TANG! 💥" PUNCH */}
                             <div 
-                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-80 mix-blend-screen transition-transform duration-75 ease-out"
+                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none mix-blend-screen transition-transform duration-75 ease-out"
                                 style={{
-                                    transform: `translate3d(${-chromSplitX * 1.4}px, ${-chromSplitY * 1.4}px, 5px)`
+                                    transform: `translate3d(${-chromSplitX * 1.6}px, ${-chromSplitY * 1.6}px, 10px)`,
+                                    opacity: 0.35 + chromGlitchFlash * 0.65,
+                                    filter: `drop-shadow(0 0 15px rgba(255,0,85,${0.4 + chromGlitchFlash * 0.6}))`
                                 }}
                             >
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">LET</span>
@@ -1110,11 +1126,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">!</span>
                             </div>
 
-                            {/* CYAN/NEON BLUE RGB GHOST SPLIT LAYER */}
+                            {/* CYAN/NEON BLUE RGB GHOST SPLIT LAYER - HIGH-IMPACT "TANG! 💥" PUNCH */}
                             <div 
-                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-80 mix-blend-screen transition-transform duration-75 ease-out"
+                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none mix-blend-screen transition-transform duration-75 ease-out"
                                 style={{
-                                    transform: `translate3d(${chromSplitX * 1.4}px, ${chromSplitY * 1.4}px, 5px)`
+                                    transform: `translate3d(${chromSplitX * 1.6}px, ${chromSplitY * 1.6}px, 10px)`,
+                                    opacity: 0.35 + chromGlitchFlash * 0.65,
+                                    filter: `drop-shadow(0 0 15px rgba(0,240,255,${0.4 + chromGlitchFlash * 0.6}))`
                                 }}
                             >
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">LET</span>
