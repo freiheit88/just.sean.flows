@@ -279,7 +279,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. OPTIMIZED ZERO SIDE-EFFECT AUDIO & FOOTSTEP ENGINE
+// 1. INSTANT UNLOCK & IMMEDIATE BASS PLAYBACK ENGINE
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -302,7 +302,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const synthRef = useRef(null);
     const vocalRef = useRef(null);
 
-    // Track previous stem volume states to detect 0 -> >0 volume transitions without seek-thrashing
     const prevStemVolsRef = useRef({ guitar: 0, drums: 0, perc: 0, synth: 0, vocal: 0 });
 
     // Dynamic Footstep Timestamp Guard & Alternating Foot State
@@ -322,7 +321,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
 
-    // INDEPENDENT WEB AUDIO SYNTHESIZED FOOTSTEP (Zero side-effect on HTML5 Audio threads!)
+    // INDEPENDENT WEB AUDIO SYNTHESIZED FOOTSTEP
     const playSingleFootstepSound = () => {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -335,7 +334,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const isLeft = isLeftFootRef.current;
             isLeftFootRef.current = !isLeft;
 
-            // 1. Crisp Leather Impact Oscillator
             const osc = ctx.createOscillator();
             const oscGain = ctx.createGain();
             osc.type = 'sine';
@@ -345,7 +343,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             oscGain.gain.setValueAtTime(0.15, ctx.currentTime);
             oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
-            // 2. High-Frequency Stone Click Noise
             const bufferSize = Math.floor(ctx.sampleRate * 0.05);
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
@@ -365,11 +362,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             noiseGain.gain.setValueAtTime(0.22, ctx.currentTime);
             noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
-            // 3. Main Master Gain Node (+20% Volume Boost)
             const mainGain = ctx.createGain();
             mainGain.gain.value = 1.05;
 
-            // 4. European Alley Echo Delay Node (220ms spatial delay)
             const delayNode = ctx.createDelay();
             delayNode.delayTime.value = 0.22;
 
@@ -406,8 +401,10 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         }
     };
 
-    // GUARANTEED CLEAN SOUND ENGINE UNLOCKER
-    const forceUnlockAudio = () => {
+    // GUARANTEED INSTANT BASS & SOUND ENGINE UNLOCKER
+    const forceUnlockAudio = (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+
         if (!isAudioUnlocked) {
             setIsAudioUnlocked(true);
             triggerCleanFootstep(1.5);
@@ -421,32 +418,28 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     audioCtxRef.current.resume();
                 }
             }
-        } catch (e) {}
+        } catch (err) {}
 
-        const audioRefs = [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef];
-        
+        // FORCE INSTANT BASS PLAYBACK (Level 1 Volume = 0.50)
         if (bassRef.current) {
+            bassRef.current.muted = false;
+            bassRef.current.playsInline = true;
+            bassRef.current.volume = 0.50;
             if (bassRef.current.paused) {
                 bassRef.current.play().catch(() => {});
             }
         }
-        const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
 
-        audioRefs.forEach((r, idx) => {
+        const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
+        const otherRefs = [guitarRef, drumsRef, percRef, synthRef, vocalRef];
+
+        otherRefs.forEach((r) => {
             if (r.current) {
                 r.current.muted = false;
                 r.current.playsInline = true;
-                
-                if (Math.abs(r.current.currentTime - masterTime) > 0.02) {
-                    r.current.currentTime = masterTime;
-                }
-
-                if (idx === 0) {
-                    r.current.volume = 0.50;
-                } else if (r.current.volume === undefined || r.current.volume === null) {
+                if (r.current.volume === undefined || r.current.volume === null) {
                     r.current.volume = 0.0;
                 }
-
                 if (r.current.paused) {
                     r.current.play().catch(() => {});
                 }
@@ -467,7 +460,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // ZERO SIDE-EFFECT HIGH-PERFORMANCE VOLUME & STEM UNMUTE SYNC ENGINE
+    // REAL-TIME VOLUME DECAY & INSTANT STEM PLAYBACK ENGINE
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
@@ -544,20 +537,20 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             setAudioTier(tier);
 
-            // Master Bass Volume Adjustment
+            // Instant Master Bass Playback Enforcement
             if (bassRef.current) {
                 bassRef.current.volume = targetBass;
-                if (bassRef.current.paused) bassRef.current.play().catch(() => {});
+                if (bassRef.current.paused) {
+                    bassRef.current.play().catch(() => {});
+                }
             }
 
             const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
 
-            // Clean Stem Volume Update & 0 -> >0 Unmute-Only Seek (Eliminates 50ms seek thrashing!)
             const applyStemVolClean = (ref, targetVol, stemKey) => {
                 if (ref.current) {
                     const prevVol = prevStemVolsRef.current[stemKey] || 0;
                     
-                    // ONLY seek to master bass time ONCE at the exact instant volume turns up from 0!
                     if (prevVol <= 0.01 && targetVol > 0.01 && masterTime > 0) {
                         ref.current.currentTime = masterTime;
                     }
@@ -603,7 +596,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (!isScrollableChild && e.cancelable && window.scrollY === 0 && e.deltaY < 0) {
                 e.preventDefault();
             }
-            forceUnlockAudio();
+            forceUnlockAudio(e);
 
             if (e.deltaY <= 0) return;
 
@@ -628,7 +621,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
 
         const handleTouchStart = (e) => {
-            forceUnlockAudio();
+            forceUnlockAudio(e);
             if (e.touches && e.touches[0]) {
                 touchStartY.current = e.touches[0].clientY;
                 touchStartTime.current = Date.now();
@@ -646,7 +639,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 }
             }
 
-            forceUnlockAudio();
+            forceUnlockAudio(e);
             if (!e.touches || !e.touches[0]) return;
 
             const currentY = e.touches[0].clientY;
@@ -680,8 +673,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             touchStartTime.current = now;
         };
 
-        const handleTouchEnd = () => {
-            forceUnlockAudio();
+        const handleTouchEnd = (e) => {
+            forceUnlockAudio(e);
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
@@ -710,8 +703,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     return (
         <div 
-            onClick={() => forceUnlockAudio()}
-            onTouchStart={() => forceUnlockAudio()}
+            onClick={(e) => forceUnlockAudio(e)}
+            onTouchStart={(e) => forceUnlockAudio(e)}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none flex items-center justify-center cursor-pointer"
         >
             {/* Ambient Background Blur for Desktop */}
@@ -785,7 +778,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     {/* ULTRA-MINIMALIST POWER NUMBER DISPLAY */}
                     <div className="flex flex-col items-center gap-1.5 pt-4">
                         <button
-                            onClick={() => forceUnlockAudio()}
+                            onClick={(e) => forceUnlockAudio(e)}
                             className={`pointer-events-auto inline-flex items-center justify-center px-4 py-1 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl font-mono text-xs font-black tracking-widest transition-all ${
                                 isTremblingAt8012 
                                     ? 'border-[#FF0055] text-[#FF0055] animate-bounce shadow-[0_0_25px_#FF0055]' 
@@ -853,7 +846,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: 4-LINE VERTICAL GHOST OUTLINE (LET / 'S / GO / !) WITH NO HELPER TEXT */}
+            {/* 2. INITIAL UNLOCK SPLASH: DIRECT TOUCH/CLICK UNLOCK HANDLER ATTACHED TO SPLASH OVERLAY */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -861,7 +854,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0, scale: 1.05 }}
                         transition={{ duration: 0.5, ease: 'easeOut' }}
-                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/60 backdrop-blur-xl"
+                        onClick={(e) => forceUnlockAudio(e)}
+                        onTouchStart={(e) => forceUnlockAudio(e)}
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/60 backdrop-blur-xl cursor-pointer"
                     >
                         <motion.div
                             animate={{ y: [-6, 6, -6] }}
