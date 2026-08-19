@@ -111,7 +111,7 @@ const ATELIER_100_WORDS = [
     "⚜ ATELIER", "§ SERENADE", "¶ NOCTURNE", "@just.sean.flows"
 ];
 
-// CLEAN & DIVERSE SHAPE CATEGORIES
+// GENERATE 100 DIVERSE SHAPE CATEGORIES WITH 3X AMPLIFIED 3D Z-DEPTH
 const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
     const isEmoji = ["🔑", "🗝️", "🔒", "⚜", "§", "¶"].includes(text);
     const shapeCategory = isEmoji ? 6 : (i % 6);
@@ -140,8 +140,9 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
     const isLarge = i % 3 === 0;
     const isMedium = i % 3 === 1;
 
-    const zDepth = isLarge ? -120 : isMedium ? 10 : 90;
-    const tiltMult = isLarge ? 0.3 : isMedium ? 0.75 : 1.5;
+    // 3X AMPLIFIED 3D Z-DEPTH & PARALLAX TILT MULTIPLIERS
+    const zDepth = isLarge ? -180 : isMedium ? 20 : 140;
+    const tiltMult = isLarge ? 0.6 : isMedium ? 1.4 : 2.8;
 
     return {
         id: i,
@@ -155,7 +156,8 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
         left: `${leftPercent}vw`,
         pullXPx: pullX * 4,
         delay: (i * 0.08) % 3.2,
-        duration: isLarge ? 6.5 : isMedium ? 4.0 : 2.2, // Clean, elegant base duration
+        duration: isLarge ? 6.5 : isMedium ? 4.0 : 2.2,
+        opacityMax: 0.45 + (i % 6) * 0.10,
         zDepth,
         tiltMult
     };
@@ -218,8 +220,8 @@ export default function App() {
     useEffect(() => {
         const handleDeviceOrientation = (e) => {
             if (e.beta !== null && e.gamma !== null) {
-                const normX = Math.max(-1, Math.min(1, e.gamma / 20));
-                const normY = Math.max(-1, Math.min(1, e.beta / 20));
+                const normX = Math.max(-1, Math.min(1, e.gamma / 16));
+                const normY = Math.max(-1, Math.min(1, e.beta / 16));
                 setTilt({ x: normX, y: normY });
             }
         };
@@ -319,10 +321,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// ULTRA-CLEAN 3-LOGIC STAGE:
-// Logic 1: 3D Gyro Tilt Parallax
-// Logic 2: Tilt-Based Ascending Speed Shift
-// Logic 3: Crisp Red & Cyan RGB Ghost Offset
+// 3X MORE LOUD & UNMISSABLE 3D PARALLAX & RGB SHIFT STAGE WITH SEAN'S FAVORED FILTER
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -772,24 +771,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
     const isAtelierOptionVisible = (activeFrameIdx === 1 || activeFrameIdx === 3);
 
-    // =========================================================================
-    // 3 CLEAN & ELEGANT CORE LOGICS ONLY:
-    // LOGIC 1: 3D Gyro Tilt Parallax
-    // LOGIC 2: Tilt-Based Ascending Speed Acceleration (Speed 1x -> 2.5x)
-    // LOGIC 3: Crisp Red & Cyan RGB Ghost Offset
-    // =========================================================================
+    // 3X AMPLIFIED 3D GYRO TILT & RGB CHROMATIC SHIFT (100% UNMISSABLE & LOUD)
+    const tiltX = tilt.x * 55; // 3x Amplified Tilt Angle X
+    const tiltY = tilt.y * 45; // 3x Amplified Tilt Angle Y
 
-    // LOGIC 1: Clean 3D Gyro Tilt Angles
-    const tiltX = tilt.x * 24;
-    const tiltY = tilt.y * 18;
-
-    // LOGIC 2: Clean Speed Acceleration (1.0x -> 2.5x based on tilt magnitude)
-    const tiltMagnitude = Math.min(1.0, Math.hypot(tilt.x, tilt.y));
-    const speedMult = 1.0 + tiltMagnitude * 1.5;
-
-    // LOGIC 3: Crisp RGB Ghost Offset Distance
-    const ghostOffsetX = tilt.x * 28;
-    const ghostOffsetY = tilt.y * 18;
+    const ghostOffsetX = tilt.x * 65; // 3x LOUD RGB Ghost Offset X (up to 65px!)
+    const ghostOffsetY = tilt.y * 45; // 3x LOUD RGB Ghost Offset Y (up to 45px!)
 
     return (
         <div 
@@ -900,7 +887,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                     className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs"
                                     style={{
                                         textShadow: cursorPos.isHovered 
-                                            ? `${tiltX * 1.5}px ${tiltY * 1.5}px 35px rgba(231,255,0,0.4)` 
+                                            ? `${tiltX * 0.5}px ${tiltY * 0.5}px 35px rgba(231,255,0,0.4)` 
                                             : '0 0 35px rgba(0,0,0,0.9)'
                                     }}
                                 >
@@ -936,7 +923,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: SUPER CLEAN 3-LOGIC ATELIER STAGE */}
+            {/* 2. INITIAL UNLOCK SPLASH: 100 DEBRIS + DARK FILTER/BLUR + 3X LOUD 3D RGB SHIFT */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -948,21 +935,21 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         onTouchStart={(e) => forceUnlockAudio(e)}
                         className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/90 cursor-pointer overflow-hidden"
                         style={{
-                            perspective: '800px',
+                            perspective: '600px',
                             transformStyle: 'preserve-3d'
                         }}
                     >
+                        {/* CLEAN DARK OVERLAY & BLUR FILTER LAYER (FAVORED BY SEAN!) */}
+                        <div className="absolute inset-0 bg-black/55 backdrop-blur-[3.5px] pointer-events-none z-10" />
+
                         {/* 100-ITEM 3D PARALLAX DEBRIS LAYER (Z-0) */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
                             {ATELIER_DEBRIS_100.map((item) => {
-                                const tiltXVal = tilt.x * 26 * item.tiltMult;
-                                const tiltYVal = tilt.y * 26 * item.tiltMult;
+                                const tiltXVal = tilt.x * 32 * item.tiltMult;
+                                const tiltYVal = tilt.y * 32 * item.tiltMult;
 
                                 const startY = item.isLarge ? '85vh' : '108vh';
                                 const endY = item.isLarge ? '10vh' : '-28vh';
-
-                                // LOGIC 2: Clean Speed Acceleration based on Gyro Tilt
-                                const currentDuration = item.duration / speedMult;
 
                                 return (
                                     <motion.div
@@ -982,7 +969,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                             rotate: [item.rotation, item.rotation * -0.5, item.rotation]
                                         }}
                                         transition={{
-                                            duration: currentDuration,
+                                            duration: item.duration,
                                             repeat: Infinity,
                                             delay: item.delay,
                                             ease: 'easeInOut'
@@ -1062,7 +1049,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH CRISP RED/CYAN GHOST OFFSET (Z-20) */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH 3X LOUD 65PX RGB SHIFT (Z-20) */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -1076,49 +1063,49 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 ease: 'easeInOut'
                             }}
                             style={{
-                                transform: `perspective(600px) rotateX(${tiltY * -1.2}deg) rotateY(${tiltX * 1.2}deg) translateZ(40px)`,
+                                transform: `perspective(600px) rotateX(${tiltY * -1.4}deg) rotateY(${tiltX * 1.4}deg) translateZ(60px)`,
                                 transformStyle: 'preserve-3d'
                             }}
                             className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20"
                         >
-                            {/* LOGIC 3: CRISP RED GHOST OFFSET */}
+                            {/* 3X LOUD NEON RED/MAGENTA GHOST LAYER (65PX SHIFT!) */}
                             <div 
-                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-70 transition-transform duration-75 ease-out"
+                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-90 transition-transform duration-75 ease-out"
                                 style={{
-                                    transform: `translate3d(${-ghostOffsetX}px, ${-ghostOffsetY}px, 0)`
+                                    transform: `translate3d(${-ghostOffsetX}px, ${-ghostOffsetY}px, 20px)`
                                 }}
                             >
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">LET</span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">'S</span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">GO</span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">!</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_20px_#FF0055]">LET</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_20px_#FF0055]">'S</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_20px_#FF0055]">GO</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_25px_#FF0055]">!</span>
                             </div>
 
-                            {/* LOGIC 3: CRISP CYAN GHOST OFFSET */}
+                            {/* 3X LOUD NEON CYAN/BLUE GHOST LAYER (65PX SHIFT!) */}
                             <div 
-                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-70 transition-transform duration-75 ease-out"
+                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-90 transition-transform duration-75 ease-out"
                                 style={{
-                                    transform: `translate3d(${ghostOffsetX}px, ${ghostOffsetY}px, 0)`
+                                    transform: `translate3d(${ghostOffsetX}px, ${ghostOffsetY}px, 20px)`
                                 }}
                             >
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">LET</span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">'S</span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">GO</span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">!</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_20px_#00F0FF]">LET</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_20px_#00F0FF]">'S</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_20px_#00F0FF]">GO</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_25px_#00F0FF]">!</span>
                             </div>
 
                             {/* MASTER CORE FOREGROUND TEXT */}
                             <div className="relative z-10 flex flex-col items-center text-center">
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
                                     LET
                                 </span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
                                     'S
                                 </span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
                                     GO
                                 </span>
-                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00] drop-shadow-[0_0_30px_#E7FF00]">
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00] drop-shadow-[0_0_35px_#E7FF00]">
                                     !
                                 </span>
                             </div>
