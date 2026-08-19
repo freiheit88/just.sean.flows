@@ -86,47 +86,39 @@ const DEFAULT_ENDING = {
 
 // 100 DISTINCT ATELIER CONCEPT FRAGMENTS
 const ATELIER_100_WORDS = [
-    // --- 1. MUSICAL TERMS & CADENZAS (1-20) ---
     "CADENZA", "ALLEGRO", "TUTTI", "FORTE", "TEMPO 128", 
     "44.1 kHz", "24-BIT STEREO", "VIBRATO", "OVERTONE", "REVERB 85%",
     "FERMATA 𝄐", "SOLO VIOLIN", "NOIR BASS", "AMP FEEDBACK", "STEINWAY",
     "DEEP ECHO", "HARMONICS", "CRESCENDO", "SUB-BASS 30Hz", "PAGANINI 44.1s",
 
-    // --- 2. LOGO & ATELIER NUMBERS (21-40) ---
     "ROOM #65", "#065 WINE", "LOGO NO.65", "STEM #01", "STEM #02",
     "STEM #03", "STEM #04", "SERIES 2026", "EDITION 1/1", "GUILD #065",
     "FRAME #07", "LABEL NO.65", "VAULT 065", "TUBE 80.12", "RESERVE #65",
     "KEY #065", "CODE 0200", "PASS #065", "STAGE #01", "DECAL NO.65",
 
-    // --- 3. ATELIER LOCATION & HYBRID SOUND LAB (41-60) ---
     "FRANKFURT", "ALTE OPER", "CONCERT PALACE", "STAGE DOOR", "VIP ALL-ACCESS",
     "CANAL ALLEY", "LETTERPRESS", "WINE & TREBLE", "TUBE AMP", "BRONZE EMBLEM",
     "24/7 SOUND LAB", "HYBRID DSP", "GERMANY 2026", "FLASHLIGHT ALLEY", "MIDNIGHT SALON",
     "GOLD LEAF", "DOOR KNOCKER", "GLASS DECAL", "WOVEN TAPESTRY", "SHEFFIELD GRIT",
 
-    // --- 4. SONG LYRICS & MIDNIGHT QUOTES (61-80) ---
     "'WALK WITH MUSIC?'", "'MIDNIGHT SOLITUDE'", "'VELVET DISTORTION'", "'CHAMPAGNE NOCTURNE'", "'CRYSTAL FLUTE'",
     "'ALMOST AT THE DOOR'", "'THE DOORS OPEN'", "'COLD MARTINI'", "'PRIVATE SKETCH'", "'STILL AWAKE HERE'",
     "'PEEK INSIDE?'", "'MY PRIVATE HAVEN'", "'STAGE READY'", "'HARMONY SCULPTOR'", "'NIGHT VELOCITY'",
     "'DECORUM SHATTERED'", "'HEAVY NOIR BASS'", "'SOVEREIGN ARCHITECT'", "'SYSTEMS & FREQUENCIES'", "'NOCTURNAL AESTHETE'",
 
-    // --- 5. VINTAGE KEYS, WAX SEALS & EMBLEMS (81-100) ---
     "🔑", "🗝️", "🔒", "⚜", "§", "¶", "⚜ GUILD", "🔑 ROOM 65", "🗝️ SECRET VAULT", "🔒 PRIVATE DOOR",
     "⚜ EMBLEM", "§ 02:00 AM", "¶ LESSON 65", "🔑 KEY TO HAVEN", "🗝️ CONCERT HALL", "🔒 PASSKEY",
     "⚜ ATELIER", "§ SERENADE", "¶ NOCTURNE", "@just.sean.flows"
 ];
 
-// GENERATE 100 NON-BOXED & HIGHLY DIVERSE SHAPE CATEGORIES
+// GENERATE 100 NON-BOXY & HIGHLY DIVERSE SHAPE CATEGORIES
 const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
-    // 7 Non-Boxy Shape Categories
     const isEmoji = ["🔑", "🗝️", "🔒", "⚜", "§", "¶"].includes(text);
     const shapeCategory = isEmoji ? 6 : (i % 6);
     
-    // 7 Color Palette Tones
     const colors = ['#E7FF00', '#00F0FF', '#FF0055', '#FFFFFF', '#C5A059', '#A855F7', '#10B981'];
     const color = colors[(i * 3 + (i % 7)) % colors.length];
 
-    // Varied Font Families
     const fontFamilies = [
         "font-mono font-bold", 
         "font-sans font-black", 
@@ -138,13 +130,9 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
     ];
     const fontFamily = fontFamilies[i % fontFamilies.length];
 
-    // Varied Rotations (-22deg to +22deg)
     const rotation = ((i * 13) % 45) - 22;
-
-    // Varied Sizes
     const sizeClass = isEmoji ? "text-xl sm:text-3xl" : (i % 4 === 0 ? "text-xs sm:text-sm" : "text-[9px] sm:text-[11px]");
 
-    // Distribute evenly across screen width (3vw to 94vw)
     const leftPercent = 3 + ((i * 19 + (i % 9) * 11) % 92);
     const distFromCenter = leftPercent - 50;
     const pullX = Math.abs(distFromCenter) < 38 ? (distFromCenter * -0.22) : 0;
@@ -167,7 +155,7 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
         left: `${leftPercent}vw`,
         pullXPx: pullX * 4,
         delay: (i * 0.08) % 3.2,
-        duration: isLarge ? 7.8 : isMedium ? 4.6 : 2.4, // Diverse speeds
+        duration: isLarge ? 7.8 : isMedium ? 4.6 : 2.4,
         opacityMax: 0.35 + (i % 6) * 0.10,
         zDepth,
         tiltMult,
@@ -333,7 +321,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & DIVERSE NON-BOXY DEBRIS STAGE
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & RGB CHROMATIC ABERRATION SPLIT STAGE
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -786,6 +774,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     const tiltX = tilt.x * 20;
     const tiltY = tilt.y * 15;
 
+    // DYNAMIC RGB CHROMATIC ABERRATION SPLIT DISTANCE (Calculated from Device Tilt / Mouse Velocity)
+    const chromSplitX = tilt.x * 9;
+    const chromSplitY = tilt.y * 6;
+
     return (
         <div 
             onClick={(e) => forceUnlockAudio(e)}
@@ -931,7 +923,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: 100 NON-BOXY DEBRIS & 50% DARK / 3% BLUR READABILITY FILTER */}
+            {/* 2. INITIAL UNLOCK SPLASH: LAYER-BASED DYNAMIC RGB CHROMATIC ABERRATION SPLIT */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -947,10 +939,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* 50% DARK OVERLAY & SUBTLE 3% BLUR FILTER LAYER BEHIND LET'S GO ! */}
+                        {/* 50% DARK OVERLAY & SUBTLE 3% BLUR FILTER LAYER BEHIND LET'S GO ! (Z-10) */}
                         <div className="absolute inset-0 bg-black/50 backdrop-blur-[3px] pointer-events-none z-10" />
 
-                        {/* 100-ITEM 3D PARALLAX DICTIONARY DEBRIS LAYER (Z-0) */}
+                        {/* 100-ITEM 3D PARALLAX DICTIONARY DEBRIS LAYER WITH DYNAMIC RGB SHADOWS (Z-0) */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
                             {ATELIER_DEBRIS_100.map((item) => {
                                 const tiltXVal = tilt.x * 26 * item.tiltMult;
@@ -958,6 +950,9 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
 
                                 const startY = item.isLarge ? '85vh' : '108vh';
                                 const endY = item.isLarge ? '10vh' : '-28vh';
+
+                                // Dynamic RGB Chromatic Shadow for Debris
+                                const rgbShadow = `${chromSplitX * 0.8}px ${chromSplitY * 0.8}px 8px rgba(255,0,85,0.4), ${-chromSplitX * 0.8}px ${-chromSplitY * 0.8}px 8px rgba(0,240,255,0.4)`;
 
                                 return (
                                     <motion.div
@@ -992,8 +987,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                         {/* 7 DISTINCT NON-BOXY SHAPE CATEGORIES */}
                                         {item.shapeCategory === 0 && (
                                             <div 
-                                                className={`${item.fontFamily} ${item.sizeClass} tracking-wider drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]`}
-                                                style={{ color: item.color }}
+                                                className={`${item.fontFamily} ${item.sizeClass} tracking-wider`}
+                                                style={{ 
+                                                    color: item.color,
+                                                    textShadow: rgbShadow
+                                                }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1001,8 +999,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
 
                                         {item.shapeCategory === 1 && (
                                             <div 
-                                                className={`px-3.5 py-0.5 rounded-full border bg-black/60 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase shadow-[0_0_15px_rgba(0,0,0,0.5)]`}
-                                                style={{ color: item.color, borderColor: `${item.color}70` }}
+                                                className={`px-3.5 py-0.5 rounded-full border bg-black/60 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
+                                                style={{ 
+                                                    color: item.color, 
+                                                    borderColor: `${item.color}70`,
+                                                    boxShadow: rgbShadow
+                                                }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1010,8 +1012,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
 
                                         {item.shapeCategory === 2 && (
                                             <div 
-                                                className="w-10 h-10 rounded-full border-2 bg-neutral-900/80 flex items-center justify-center font-mono font-black text-xs shadow-xl"
-                                                style={{ color: item.color, borderColor: `${item.color}80` }}
+                                                className="w-10 h-10 rounded-full border-2 bg-neutral-900/80 flex items-center justify-center font-mono font-black text-xs"
+                                                style={{ 
+                                                    color: item.color, 
+                                                    borderColor: `${item.color}80`,
+                                                    boxShadow: rgbShadow
+                                                }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1019,8 +1025,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
 
                                         {item.shapeCategory === 3 && (
                                             <div 
-                                                className={`font-serif italic font-medium underline underline-offset-8 decoration-2 ${item.sizeClass} tracking-normal drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]`}
-                                                style={{ color: item.color, textDecorationColor: `${item.color}80` }}
+                                                className={`font-serif italic font-medium underline underline-offset-8 decoration-2 ${item.sizeClass} tracking-normal`}
+                                                style={{ 
+                                                    color: item.color, 
+                                                    textDecorationColor: `${item.color}80`,
+                                                    textShadow: rgbShadow
+                                                }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1028,8 +1038,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
 
                                         {item.shapeCategory === 4 && (
                                             <div 
-                                                className={`px-3 py-1 bg-neutral-900/90 border-l-4 -skew-x-12 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase shadow-lg`}
-                                                style={{ color: item.color, borderLeftColor: item.color }}
+                                                className={`px-3 py-1 bg-neutral-900/90 border-l-4 -skew-x-12 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
+                                                style={{ 
+                                                    color: item.color, 
+                                                    borderLeftColor: item.color,
+                                                    boxShadow: rgbShadow
+                                                }}
                                             >
                                                 <span className="inline-block skew-x-12">{item.text}</span>
                                             </div>
@@ -1038,7 +1052,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                         {item.shapeCategory === 5 && (
                                             <div 
                                                 className={`px-3 py-0.5 rounded-sm border border-dashed bg-black/70 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
-                                                style={{ color: item.color, borderColor: `${item.color}60` }}
+                                                style={{ 
+                                                    color: item.color, 
+                                                    borderColor: `${item.color}60`,
+                                                    boxShadow: rgbShadow
+                                                }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1046,8 +1064,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
 
                                         {item.shapeCategory === 6 && (
                                             <div 
-                                                className={`${item.sizeClass} drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] leading-none`}
-                                                style={{ color: item.color }}
+                                                className={`${item.sizeClass} leading-none`}
+                                                style={{ 
+                                                    color: item.color,
+                                                    filter: `drop-shadow(${chromSplitX}px ${chromSplitY}px 4px rgba(255,0,85,0.6)) drop-shadow(${-chromSplitX}px ${-chromSplitY}px 4px rgba(0,240,255,0.6))`
+                                                }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1057,7 +1078,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER (Z-20) */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH DYNAMIC RGB CHROMATIC SPLIT CHANNELS (Z-20) */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -1074,48 +1095,77 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 transform: `perspective(600px) rotateX(${tilt.y * -32}deg) rotateY(${tilt.x * 32}deg) translateZ(40px)`,
                                 transformStyle: 'preserve-3d'
                             }}
-                            className="flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20 transition-transform duration-100 ease-out"
+                            className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20 transition-transform duration-100 ease-out"
                         >
-                            <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
+                            {/* RED/MAGENTA RGB GHOST SPLIT LAYER */}
+                            <div 
+                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-80 mix-blend-screen transition-transform duration-75 ease-out"
                                 style={{
-                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
-                                    color: 'transparent',
-                                    textShadow: '0 0 30px rgba(255,255,255,0.45)'
+                                    transform: `translate3d(${-chromSplitX * 1.4}px, ${-chromSplitY * 1.4}px, 5px)`
                                 }}
                             >
-                                LET
-                            </span>
-                            <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">LET</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">'S</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">GO</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">!</span>
+                            </div>
+
+                            {/* CYAN/NEON BLUE RGB GHOST SPLIT LAYER */}
+                            <div 
+                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-80 mix-blend-screen transition-transform duration-75 ease-out"
                                 style={{
-                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
-                                    color: 'transparent',
-                                    textShadow: '0 0 30px rgba(255,255,255,0.45)'
+                                    transform: `translate3d(${chromSplitX * 1.4}px, ${chromSplitY * 1.4}px, 5px)`
                                 }}
                             >
-                                'S
-                            </span>
-                            <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
-                                style={{
-                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
-                                    color: 'transparent',
-                                    textShadow: '0 0 30px rgba(255,255,255,0.45)'
-                                }}
-                            >
-                                GO
-                            </span>
-                            <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00]"
-                                style={{
-                                    WebkitTextStroke: '2px rgba(231, 255, 0, 0.95)',
-                                    color: 'transparent',
-                                    textShadow: '0 0 40px rgba(231,255,0,0.9)'
-                                }}
-                            >
-                                !
-                            </span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">LET</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">'S</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">GO</span>
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">!</span>
+                            </div>
+
+                            {/* MASTER CORE FOREGROUND LAYER (YELLOW / WHITE CORE) */}
+                            <div className="relative z-10 flex flex-col items-center text-center">
+                                <span 
+                                    className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
+                                    style={{
+                                        WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.85)',
+                                        color: 'transparent',
+                                        textShadow: '0 0 30px rgba(255,255,255,0.45)'
+                                    }}
+                                >
+                                    LET
+                                </span>
+                                <span 
+                                    className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
+                                    style={{
+                                        WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.85)',
+                                        color: 'transparent',
+                                        textShadow: '0 0 30px rgba(255,255,255,0.45)'
+                                    }}
+                                >
+                                    'S
+                                </span>
+                                <span 
+                                    className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
+                                    style={{
+                                        WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.85)',
+                                        color: 'transparent',
+                                        textShadow: '0 0 30px rgba(255,255,255,0.45)'
+                                    }}
+                                >
+                                    GO
+                                </span>
+                                <span 
+                                    className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00]"
+                                    style={{
+                                        WebkitTextStroke: '2px rgba(231, 255, 0, 0.95)',
+                                        color: 'transparent',
+                                        textShadow: '0 0 40px rgba(231,255,0,0.9)'
+                                    }}
+                                >
+                                    !
+                                </span>
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}
