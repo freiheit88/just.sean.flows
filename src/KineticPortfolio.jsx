@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Menu, X
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
 const MR_AUDIO_SRC = "/assets/manual_upload/A twelve-alibi_MR_master.wav";
+const VOCAL_AUDIO_SRC = "/assets/manual_upload/A Twelve-minute Alibi/0 Lead Vocals.mp3";
 
 const FRAMES = [
     { id: 0, src: "/assets/walk_01.jpg", tag: "01/07", label: "MIDNIGHT PLAZA", sub: "Distant View Across the Square" },
@@ -32,7 +33,6 @@ export default function App() {
     const [currentStep, setCurrentStep] = useState('flipbook'); // 'flipbook', 'mixer_ending', 'ticket'
     const [userNickname, setUserNickname] = useState("SEAN");
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const [stems, setStems] = useState({
         violin: 85,
@@ -80,7 +80,6 @@ export default function App() {
 
     return (
         <div className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden">
-            {/* Ultra-Clean Floating Dynamic Island Header */}
             <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-3 flex items-center justify-between pointer-events-none">
                 <div className="pointer-events-auto flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/15 shadow-2xl">
                     <span className="w-2 h-2 rounded-full bg-[#E7FF00] animate-pulse"></span>
@@ -128,25 +127,75 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. MOBILE-FIRST 3D KINETIC FLIPBOOK WALKING ENGINE
+// 1. MOBILE-FIRST 3D KINETIC FLIPBOOK WALKING ENGINE WITH BEAT-SYNC VOCAL BURST
 // ==============================================================================
 function FlipbookWalkingEngine({ onEnterMixer }) {
-    const [progress, setProgress] = useState(0); // 0 ~ 100
+    const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
-    const [isMusicPlaying, setIsMusicPlaying] = useState(false);
     const [isWarping, setIsWarping] = useState(false);
     const [warpSpeedMessage, setWarpSpeedMessage] = useState("");
+    const [vocalVolumePercent, setVocalVolumePercent] = useState(0);
 
     const audioCtxRef = useRef(null);
     const bgmRef = useRef(null);
+    const vocalRef = useRef(null);
     const lastStepTime = useRef(0);
     const isLeftFoot = useRef(true);
     const touchStartY = useRef(0);
 
     const progressRef = useRef(0);
-    const lastScrollVelocity = useRef(0);
+    const scrollCount = useRef(0);
+    const isBgmStarted = useRef(false);
+    const lastHardScrollTime = useRef(0);
     const checkPointPassed = useRef({ cp1: false, cp2: false });
+
+    // Start MR Background Music smoothly
+    const startMRPlayback = () => {
+        if (isBgmStarted.current || !bgmRef.current) return;
+        isBgmStarted.current = true;
+        bgmRef.current.volume = 0.65;
+        bgmRef.current.play().catch(() => {});
+
+        // Start Vocal in sync at 0 volume
+        if (vocalRef.current) {
+            vocalRef.current.volume = 0;
+            vocalRef.current.currentTime = bgmRef.current.currentTime;
+            vocalRef.current.play().catch(() => {});
+        }
+    };
+
+    // Auto MR start: After 2 seconds OR 10 scrolls
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            startMRPlayback();
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Vocal Volume Decay Loop (Fades out rapidly if user stops scrolling hard)
+    useEffect(() => {
+        const decayInterval = setInterval(() => {
+            const timeSinceHardScroll = Date.now() - lastHardScrollTime.current;
+            if (vocalRef.current) {
+                if (timeSinceHardScroll < 700) {
+                    // Maintain high vocal volume
+                    vocalRef.current.volume = 0.95;
+                    setVocalVolumePercent(95);
+                } else if (timeSinceHardScroll < 1800) {
+                    // Exponential decay
+                    const decay = Math.max(0, 0.95 - (timeSinceHardScroll - 700) / 1100);
+                    vocalRef.current.volume = decay;
+                    setVocalVolumePercent(Math.round(decay * 100));
+                } else {
+                    vocalRef.current.volume = 0;
+                    setVocalVolumePercent(0);
+                }
+            }
+        }, 60);
+
+        return () => clearInterval(decayInterval);
+    }, []);
 
     // Binaural Stereo Left/Right Panned Procedural Footsteps
     const playStereoFootstep = () => {
@@ -234,7 +283,7 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
         const interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) return 100;
-                const next = Math.min(100, prev + 0.16); // 20% longer atmospheric journey
+                const next = Math.min(100, prev + 0.16);
                 progressRef.current = next;
                 return next;
             });
@@ -243,14 +292,21 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
         return () => clearInterval(interval);
     }, []);
 
-    // 2. Active Scroll: 30% Tighter on Mobile + Speed Clamping
+    // 2. Active Scroll: Trigger Lead Vocal Burst on hard scroll
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
+            scrollCount.current += 1;
+            if (scrollCount.current >= 10) startMRPlayback();
+
             const rawDelta = Math.abs(e.deltaY);
-            // 20% longer pacing for desktop
             const clampedDelta = Math.min(rawDelta * 0.0028, 1.2);
-            lastScrollVelocity.current = clampedDelta;
+
+            // Hard scroll rhythm trigger for Lead Vocals
+            if (rawDelta > 15) {
+                lastHardScrollTime.current = Date.now();
+                startMRPlayback();
+            }
 
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
@@ -279,13 +335,21 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
             }
         };
 
-        // Mobile touch swipe: 30% tighter resistance (0.013 from 0.02)
         const handleTouchMove = (e) => {
             if (!e.touches || !e.touches[0]) return;
+            scrollCount.current += 1;
+            if (scrollCount.current >= 10) startMRPlayback();
+
             const currentY = e.touches[0].clientY;
             const rawDelta = Math.max(0, (touchStartY.current - currentY) * 0.013);
             touchStartY.current = currentY;
             const clampedDelta = Math.min(rawDelta, 1.1);
+
+            // Hard mobile swipe trigger for Lead Vocals
+            if (rawDelta > 0.15) {
+                lastHardScrollTime.current = Date.now();
+                startMRPlayback();
+            }
 
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
@@ -316,18 +380,15 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
     useEffect(() => {
         const frameIdx = Math.min(FRAMES.length - 1, Math.max(0, Math.floor((progress / 100) * FRAMES.length)));
         setActiveFrameIdx(frameIdx);
-
-        if (progress >= 88 && !isMusicPlaying && bgmRef.current) {
-            bgmRef.current.volume = 0.6;
-            bgmRef.current.play().then(() => setIsMusicPlaying(true)).catch(() => {});
-        }
-    }, [progress, isMusicPlaying]);
+    }, [progress]);
 
     const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
 
     return (
         <div className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none">
+            {/* Audio Elements */}
             <audio ref={bgmRef} src={MR_AUDIO_SRC} loop preload="metadata" />
+            <audio ref={vocalRef} src={VOCAL_AUDIO_SRC} loop preload="metadata" />
 
             {/* 1. 100vh Fullscreen 7-Frame Visual Stack */}
             <div className="relative w-full h-full">
@@ -378,18 +439,32 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
 
             {/* 3. Mobile-First 3D Kinetic Text & Spatial HUD */}
             <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-8 px-4 sm:px-12 text-center z-20">
-                {/* 3D Floating Frame Tag (Converging pill) */}
-                <motion.div 
-                    key={`tag-${activeFrameIdx}`}
-                    initial={{ opacity: 0, y: -12, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#E7FF00]/30 mx-auto font-mono text-[10px] text-[#E7FF00] tracking-widest"
-                >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-ping" />
-                    <span>{currentFrame.tag} · {currentFrame.label}</span>
-                </motion.div>
+                {/* Top Location Pill & Vocal Rhythm EQ Indicator */}
+                <div className="flex flex-col items-center gap-2 mx-auto">
+                    <motion.div 
+                        key={`tag-${activeFrameIdx}`}
+                        initial={{ opacity: 0, y: -12, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-[#E7FF00]/30 font-mono text-[10px] text-[#E7FF00] tracking-widest"
+                    >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-ping" />
+                        <span>{currentFrame.tag} · {currentFrame.label}</span>
+                    </motion.div>
 
-                {/* 3D Kinetic Stagger Headline (Cinema Look) */}
+                    {/* Live Lead Vocal Pulse Tag */}
+                    {vocalVolumePercent > 5 && (
+                        <motion.div 
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E7FF00]/20 border border-[#E7FF00] text-[#E7FF00] font-mono text-[9px] font-bold tracking-wider animate-pulse"
+                        >
+                            <Mic className="w-3 h-3" />
+                            <span>VOCAL HARMONY: {vocalVolumePercent}%</span>
+                        </motion.div>
+                    )}
+                </div>
+
+                {/* 3D Kinetic Stagger Headline */}
                 <div className="max-w-3xl mx-auto my-auto px-2">
                     <AnimatePresence mode="wait">
                         <motion.div
@@ -417,7 +492,7 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
                     </AnimatePresence>
                 </div>
 
-                {/* Bottom Interactive Area & Mobile Swipe Hint */}
+                {/* Bottom Interactive Area */}
                 <div className="pointer-events-auto flex flex-col items-center gap-3">
                     {progress >= 88 ? (
                         <button
@@ -430,7 +505,7 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
                     ) : (
                         <div className="flex flex-col items-center gap-1 font-mono text-[11px] text-white/60 tracking-wider">
                             <span className="animate-bounce">
-                                [ 위로 스와이프하여 전진 ]
+                                [ 비트에 맞춰 힘차게 스와이프하면 보컬이 울려 퍼집니다 ]
                             </span>
                             <ChevronDown className="w-4 h-4 text-[#E7FF00]" />
                         </div>
