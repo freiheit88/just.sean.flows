@@ -279,12 +279,11 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FOOTSTEP SOUND ENGINE WITH +20% VOLUME BOOST, DEEP ECHO DELAY & DYNAMIC PACING
+// 1. OPTIMIZED ZERO SIDE-EFFECT AUDIO & FOOTSTEP ENGINE
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
-    const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
     // Initial Audio Unlock & Blur Overlay State
     const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
@@ -303,6 +302,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const synthRef = useRef(null);
     const vocalRef = useRef(null);
 
+    // Track previous stem volume states to detect 0 -> >0 volume transitions without seek-thrashing
+    const prevStemVolsRef = useRef({ guitar: 0, drums: 0, perc: 0, synth: 0, vocal: 0 });
+
     // Dynamic Footstep Timestamp Guard & Alternating Foot State
     const lastFootstepTimeRef = useRef(0);
     const isLeftFootRef = useRef(true);
@@ -315,13 +317,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const currentPower = useRef(0);
     const unlockedLevelFloor = useRef(0);
     const lastScrollPumpTime = useRef(Date.now());
-    const lastSyncTier = useRef(1);
 
     // 80.12% Trembling Hold Ref
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
 
-    // ENHANCED FOOTSTEP SOUND GENERATOR WITH +20% VOLUME & RICH SPATIAL ECHO REVERB
+    // INDEPENDENT WEB AUDIO SYNTHESIZED FOOTSTEP (Zero side-effect on HTML5 Audio threads!)
     const playSingleFootstepSound = () => {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -341,7 +342,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             osc.frequency.setValueAtTime(isLeft ? 165 : 190, ctx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(75, ctx.currentTime + 0.05);
 
-            oscGain.gain.setValueAtTime(0.15, ctx.currentTime); // Boosted impact
+            oscGain.gain.setValueAtTime(0.15, ctx.currentTime);
             oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
             // 2. High-Frequency Stone Click Noise
@@ -361,21 +362,20 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             noiseFilter.Q.value = 2.4;
 
             const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.22, ctx.currentTime); // Boosted click
+            noiseGain.gain.setValueAtTime(0.22, ctx.currentTime);
             noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
-            // 3. Main Master Gain Node (+20% Overall Volume Boost: 0.85 -> 1.05)
+            // 3. Main Master Gain Node (+20% Volume Boost)
             const mainGain = ctx.createGain();
             mainGain.gain.value = 1.05;
 
-            // 4. Rich European Alley Echo / Reverb Delay Node (Noticeable 220ms repeating echo tail!)
+            // 4. European Alley Echo Delay Node (220ms spatial delay)
             const delayNode = ctx.createDelay();
-            delayNode.delayTime.value = 0.22; // 220ms echo delay
+            delayNode.delayTime.value = 0.22;
 
             const echoFeedbackGain = ctx.createGain();
-            echoFeedbackGain.gain.value = 0.42; // Strong feedback for distinct repeating echoes
+            echoFeedbackGain.gain.value = 0.42;
 
-            // Connect dry audio path
             osc.connect(oscGain);
             noise.connect(noiseFilter);
             noiseFilter.connect(noiseGain);
@@ -383,7 +383,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             oscGain.connect(mainGain);
             noiseGain.connect(mainGain);
 
-            // Connect wet echo path
             mainGain.connect(ctx.destination);
             mainGain.connect(delayNode);
             delayNode.connect(echoFeedbackGain);
@@ -399,18 +398,15 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     // DYNAMIC SPEED-BASED FOOTSTEP PACING TRIGGER (320ms to 800ms)
     const triggerCleanFootstep = (speedVelocity = 1) => {
         const now = Date.now();
-        // Dynamic interval: Fast scroll/swipe -> ~320ms interval; Slow scroll -> ~800ms interval
         const dynamicInterval = Math.max(320, 800 - Math.min(speedVelocity * 60, 480));
         
         if (now - lastFootstepTimeRef.current >= dynamicInterval) {
             lastFootstepTimeRef.current = now;
             playSingleFootstepSound();
-            setIsHeadBobbing(true);
-            setTimeout(() => setIsHeadBobbing(false), 160);
         }
     };
 
-    // GUARANTEED SOUND ENGINE UNLOCKER WITH MASTER-CLOCK SYNCHRONIZATION
+    // GUARANTEED CLEAN SOUND ENGINE UNLOCKER
     const forceUnlockAudio = () => {
         if (!isAudioUnlocked) {
             setIsAudioUnlocked(true);
@@ -441,7 +437,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 r.current.muted = false;
                 r.current.playsInline = true;
                 
-                if (Math.abs(r.current.currentTime - masterTime) > 0.015) {
+                if (Math.abs(r.current.currentTime - masterTime) > 0.02) {
                     r.current.currentTime = masterTime;
                 }
 
@@ -453,28 +449,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                 if (r.current.paused) {
                     r.current.play().catch(() => {});
-                }
-            }
-        });
-    };
-
-    // SAMPLE-ACCURATE CONTINUOUS MASTER-CLOCK SYNC ENGINE
-    const syncStemsToMasterClock = () => {
-        if (!bassRef.current) return;
-        const masterTime = bassRef.current.currentTime;
-        if (!masterTime || masterTime === 0) return;
-
-        [guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
-            if (r.current) {
-                if (r.current.volume > 0.01) {
-                    const drift = Math.abs(r.current.currentTime - masterTime);
-                    if (drift > 0.025) {
-                        r.current.currentTime = masterTime;
-                    }
-                } else {
-                    if (Math.abs(r.current.currentTime - masterTime) > 0.05) {
-                        r.current.currentTime = masterTime;
-                    }
                 }
             }
         });
@@ -493,7 +467,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // REAL-TIME VOLUME DECAY ENGINE & SAMPLE-ACCURATE CONTINUOUS STEM SYNC
+    // ZERO SIDE-EFFECT HIGH-PERFORMANCE VOLUME & STEM UNMUTE SYNC ENGINE
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
@@ -570,27 +544,38 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             setAudioTier(tier);
 
+            // Master Bass Volume Adjustment
             if (bassRef.current) {
                 bassRef.current.volume = targetBass;
                 if (bassRef.current.paused) bassRef.current.play().catch(() => {});
             }
 
-            syncStemsToMasterClock();
+            const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
 
-            const applyStemVol = (ref, targetVol) => {
+            // Clean Stem Volume Update & 0 -> >0 Unmute-Only Seek (Eliminates 50ms seek thrashing!)
+            const applyStemVolClean = (ref, targetVol, stemKey) => {
                 if (ref.current) {
+                    const prevVol = prevStemVolsRef.current[stemKey] || 0;
+                    
+                    // ONLY seek to master bass time ONCE at the exact instant volume turns up from 0!
+                    if (prevVol <= 0.01 && targetVol > 0.01 && masterTime > 0) {
+                        ref.current.currentTime = masterTime;
+                    }
+
                     ref.current.volume = targetVol;
+                    prevStemVolsRef.current[stemKey] = targetVol;
+
                     if (targetVol > 0 && ref.current.paused) {
                         ref.current.play().catch(() => {});
                     }
                 }
             };
 
-            applyStemVol(guitarRef, targetGuitar);
-            applyStemVol(drumsRef, targetOtherInst);
-            applyStemVol(percRef, targetOtherInst);
-            applyStemVol(synthRef, targetOtherInst);
-            applyStemVol(vocalRef, targetVocal);
+            applyStemVolClean(guitarRef, targetGuitar, 'guitar');
+            applyStemVolClean(drumsRef, targetOtherInst, 'drums');
+            applyStemVolClean(percRef, targetOtherInst, 'perc');
+            applyStemVolClean(synthRef, targetOtherInst, 'synth');
+            applyStemVolClean(vocalRef, targetVocal, 'vocal');
 
         }, 50);
 
@@ -639,7 +624,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            // Dynamic footstep trigger matching wheel delta
             triggerCleanFootstep(rawDelta * 0.015);
         };
 
@@ -689,7 +673,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                // Dynamic footstep trigger matching touch swipe velocity
                 triggerCleanFootstep(velocity * 1.8);
             }
 
@@ -758,8 +741,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         initial={false}
                         animate={{
                             opacity: activeFrameIdx === idx ? 1 : 0,
-                            scale: activeFrameIdx === idx ? (isHeadBobbing ? 1.02 : 1.0) : 1.05,
-                            y: activeFrameIdx === idx ? (isHeadBobbing ? -5 : 0) : 0,
+                            scale: activeFrameIdx === idx ? 1.0 : 1.05,
                         }}
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         className="absolute inset-0 w-full h-full"
