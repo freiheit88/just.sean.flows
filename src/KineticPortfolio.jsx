@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Footprints
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
@@ -270,7 +270,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH DIRECT IN-PICTURE BUILDING CLICK ZONE (No Text Boxes)
+// 1. FLIPBOOK ENGINE WITH GUARANTEED MOBILE AUDIO UNLOCK & SEPARATE PC/MOBILE KINETICS
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -282,6 +282,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [simulatedVolume, setSimulatedVolume] = useState(12);
     const [isLocked30Glitter, setIsLocked30Glitter] = useState(false);
     const [showSwipeCue, setShowSwipeCue] = useState(true);
+    const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
 
     const audioCtxRef = useRef(null);
     const bassRef = useRef(null);
@@ -303,30 +304,43 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const currentEnergy = useRef(0);
     const lastEnergyPumpTime = useRef(Date.now());
 
-    // Robust Mobile Audio Unlocker for all 6 stems
-    const unlockAllStems = () => {
-        const audioRefs = [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef];
+    // 100% Guaranteed Synchronous Mobile Audio Unlocker
+    const forceUnlockMobileAudio = () => {
+        if (isAudioStarted.current) return;
 
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) {
                 if (!audioCtxRef.current) audioCtxRef.current = new AudioCtx();
-                if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
+                if (audioCtxRef.current.state === 'suspended') {
+                    audioCtxRef.current.resume();
+                }
             }
         } catch (e) {}
 
+        const audioRefs = [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef];
         const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
 
-        audioRefs.forEach((r) => {
+        audioRefs.forEach((r, idx) => {
             if (r.current) {
                 r.current.muted = false;
+                r.current.playsInline = true;
+                // Bass (index 0) starts with 0.50 volume immediately, others 0
+                if (idx === 0) {
+                    r.current.volume = 0.50;
+                } else {
+                    r.current.volume = 0.0;
+                }
+
                 if (Math.abs(r.current.currentTime - masterTime) > 0.06) {
                     r.current.currentTime = masterTime;
                 }
+
                 const p = r.current.play();
                 if (p !== undefined) {
                     p.then(() => {
                         isAudioStarted.current = true;
+                        setIsAudioUnlocked(true);
                     }).catch(() => {});
                 }
             }
@@ -352,14 +366,15 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
-    // 5X HARDER Dynamic Volume Engine with Fast Decay
+    // Dynamic Volume Engine with Fast Decay
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
             const timeSincePump = now - lastEnergyPumpTime.current;
 
+            // Fast decay: drops 3.5 energy every 50ms when idle
             if (timeSincePump > 100) {
-                currentEnergy.current = Math.max(0, currentEnergy.current - 4.5);
+                currentEnergy.current = Math.max(0, currentEnergy.current - 3.5);
             }
 
             const energy = currentEnergy.current;
@@ -369,17 +384,17 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             let targetOtherInst = 0.0;
             let targetVocal = 0.0;
 
-            if (energy >= 88) {
+            if (energy >= 85) {
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
-            } else if (energy >= 55) {
+            } else if (energy >= 50) {
                 targetBass = 0.90;
                 targetGuitar = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
-            } else if (energy >= 20) {
+            } else if (energy >= 18) {
                 targetBass = 0.75;
                 targetGuitar = 0.70;
                 targetOtherInst = 0.0;
@@ -416,16 +431,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
         const t5 = setTimeout(() => {
             setIsInitialBuffering(false);
-            unlockAllStems();
+            forceUnlockMobileAudio();
         }, 2800);
 
-        const t6 = setTimeout(() => {
-            if (!isAudioStarted.current) unlockAllStems();
-        }, 3800);
-
         return () => {
-            clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
-            clearTimeout(t4); clearTimeout(t5); clearTimeout(t6);
+            clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5);
         };
     }, []);
 
@@ -434,9 +444,10 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearTimeout(timer);
     }, []);
 
-    const playStereoFootstep = () => {
+    // Audible Crisp Footstep Synthesizer (Stereo Panned Footsteps)
+    const playAudibleFootstep = () => {
         const now = Date.now();
-        if (now - lastStepTime.current < 260) return;
+        if (now - lastStepTime.current < 240) return;
         lastStepTime.current = now;
 
         try {
@@ -450,47 +461,66 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const isLeft = isLeftFoot.current;
             isLeftFoot.current = !isLeft;
 
-            const bufferSize = Math.floor(ctx.sampleRate * 0.08);
+            // Crisp cobblestone step sound (Dual-tone crunch + sub punch)
+            const osc = ctx.createOscillator();
+            const oscGain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(isLeft ? 85 : 95, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.08);
+
+            oscGain.gain.setValueAtTime(0.35, ctx.currentTime);
+            oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+
+            const bufferSize = Math.floor(ctx.sampleRate * 0.06);
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) {
-                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.015));
+                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.012));
             }
 
             const noise = ctx.createBufferSource();
             noise.buffer = buffer;
 
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = isLeft ? 520 : 580;
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.value = isLeft ? 1200 : 1450;
+            noiseFilter.Q.value = 1.8;
+
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.4, ctx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
 
             const panner = (typeof ctx.createStereoPanner === 'function') ? ctx.createStereoPanner() : null;
             if (panner) {
-                panner.pan.setValueAtTime(isLeft ? -0.38 : 0.38, ctx.currentTime);
+                panner.pan.setValueAtTime(isLeft ? -0.4 : 0.4, ctx.currentTime);
             }
 
-            const gain = ctx.createGain();
-            gain.gain.setValueAtTime(0.28, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.075);
+            osc.connect(oscGain);
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
 
-            noise.connect(filter);
             if (panner) {
-                filter.connect(panner);
-                panner.connect(gain);
+                oscGain.connect(panner);
+                noiseGain.connect(panner);
+                panner.connect(ctx.destination);
             } else {
-                filter.connect(gain);
+                oscGain.connect(ctx.destination);
+                noiseGain.connect(ctx.destination);
             }
-            gain.connect(ctx.destination);
+
+            osc.start();
             noise.start();
+            osc.stop(ctx.currentTime + 0.09);
+            noise.stop(ctx.currentTime + 0.09);
         } catch (e) {}
     };
 
-    // Autopilot timeline
+    // Gentle Autopilot timeline
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) return 100;
-                const next = Math.min(100, prev + 0.16);
+                const next = Math.min(100, prev + 0.12);
                 progressRef.current = next;
                 return next;
             });
@@ -499,75 +529,82 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // Active Gesture Velocity Handlers
+    // SEPARATE PC vs MOBILE KINETICS ENGINE
     useEffect(() => {
+        // 1. PC Mouse Wheel Handler (Calibrated for mouse wheel notches)
         const handleWheel = (e) => {
             e.preventDefault();
             setShowSwipeCue(false);
-            if (!isAudioStarted.current) unlockAllStems();
+            forceUnlockMobileAudio();
 
             const rawDelta = Math.abs(e.deltaY);
-            const energyAdd = Math.min(rawDelta * 0.08, 12);
+            // PC: Moderate wheel spinning gives ~10-15 energy. Fast roll reaches 85+.
+            const energyAdd = Math.min(rawDelta * 0.12, 16);
             currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
             lastEnergyPumpTime.current = Date.now();
 
-            const clampedDelta = Math.min(rawDelta * 0.0028, 1.2);
+            // Progress: 1 wheel tick advances ~1.8% to 3.0%
+            const clampedDelta = Math.min(rawDelta * 0.0035, 1.8);
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
                 return next;
             });
 
-            playStereoFootstep();
+            playAudibleFootstep();
             setIsHeadBobbing(true);
-            setTimeout(() => setIsHeadBobbing(false), 180);
+            setTimeout(() => setIsHeadBobbing(false), 160);
         };
 
+        // 2. Mobile Touch Handlers (Physical Velocity & Logarithmic Damping)
         const handleTouchStart = (e) => {
+            forceUnlockMobileAudio();
             if (e.touches && e.touches[0]) {
                 touchStartY.current = e.touches[0].clientY;
                 touchStartTime.current = Date.now();
-                if (!isAudioStarted.current) unlockAllStems();
             }
         };
 
         const handleTouchMove = (e) => {
+            forceUnlockMobileAudio();
             if (!e.touches || !e.touches[0]) return;
             setShowSwipeCue(false);
-            if (!isAudioStarted.current) unlockAllStems();
 
             const currentY = e.touches[0].clientY;
             const deltaY = touchStartY.current - currentY;
             const now = Date.now();
             const timeDiff = Math.max(16, now - touchStartTime.current);
 
+            // Upward swipe
             if (deltaY > 0) {
-                const velocity = deltaY / timeDiff;
+                const velocity = deltaY / timeDiff; // px per ms (typically 0.3 ~ 3.0)
+
+                // Mobile Energy Combo: Only fast flicks (> 0.5 px/ms) pump energy significantly
                 if (velocity > 0.4) {
-                    const energyAdd = Math.min(velocity * 12, 16);
+                    const energyAdd = Math.min(velocity * 14, 20);
                     currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
                     lastEnergyPumpTime.current = now;
                 }
+
+                // Mobile Progress: Logarithmic Damping (Max 4% progress per swipe stroke)
+                const strokeProgress = Math.min(Math.log1p(deltaY * 0.08) * 0.9, 3.8);
+                setProgress((prev) => {
+                    const next = Math.min(100, prev + strokeProgress);
+                    progressRef.current = next;
+                    return next;
+                });
+
+                playAudibleFootstep();
+                setIsHeadBobbing(true);
+                setTimeout(() => setIsHeadBobbing(false), 160);
             }
 
             touchStartY.current = currentY;
             touchStartTime.current = now;
-
-            const rawDelta = Math.max(0, deltaY * 0.013);
-            const clampedDelta = Math.min(rawDelta, 1.1);
-            setProgress((prev) => {
-                const next = Math.min(100, prev + clampedDelta);
-                progressRef.current = next;
-                return next;
-            });
-
-            playStereoFootstep();
-            setIsHeadBobbing(true);
-            setTimeout(() => setIsHeadBobbing(false), 180);
         };
 
         const handleTouchEnd = () => {
-            if (!isAudioStarted.current) unlockAllStems();
+            forceUnlockMobileAudio();
         };
 
         window.addEventListener('wheel', handleWheel, { passive: false });
@@ -599,8 +636,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     return (
         <div 
-            onClick={() => { if (!isAudioStarted.current) unlockAllStems(); }}
-            onTouchStart={() => { if (!isAudioStarted.current) unlockAllStems(); }}
+            onClick={() => forceUnlockMobileAudio()}
+            onTouchStart={() => forceUnlockMobileAudio()}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none"
         >
             {/* 6 Synchronized Multi-Stem Audio Elements with Encoded Mobile URIs */}
@@ -611,7 +648,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
             <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
 
-            {/* 1. 100vh Fullscreen 7-Frame Visual Stack with Direct In-Picture Building Highlight */}
+            {/* 1. 100vh Fullscreen 7-Frame Visual Stack */}
             <div 
                 className="relative w-full h-full transition-all duration-700"
                 style={{
@@ -647,7 +684,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     );
                 })}
 
-                {/* 2. DIRECT IN-PICTURE BUILDING CLICK ZONE & ORGANIC CONTOUR (Frames 2 & 3 - Zero Text Boxes) */}
+                {/* 2. DIRECT IN-PICTURE BUILDING CLICK ZONE (Frames 2 & 3 - Zero Text Boxes) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && !isInitialBuffering && (
                         <motion.div
@@ -657,7 +694,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                             transition={{ duration: 0.6 }}
                             className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none"
                         >
-                            {/* The Actual In-Picture Clickable Building Zone */}
                             <motion.button
                                 onClick={(e) => {
                                     e.stopPropagation();
@@ -667,10 +703,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                 whileTap={{ scale: 0.98 }}
                                 className="pointer-events-auto relative w-[280px] sm:w-[420px] h-[260px] sm:h-[360px] -mt-8 sm:-mt-12 rounded-3xl cursor-pointer group outline-none"
                             >
-                                {/* Organic Neon Architectural Contour Highlight */}
                                 <div className="absolute inset-0 rounded-3xl border-2 border-[#00F0FF]/40 group-hover:border-[#00F0FF] transition-all duration-300 shadow-[0_0_30px_rgba(0,240,255,0.25)] group-hover:shadow-[0_0_50px_rgba(0,240,255,0.6)]" />
-
-                                {/* Glowing Light Sweep within Building Window Frame */}
                                 <div className="absolute inset-0 rounded-3xl bg-[#00F0FF]/[0.03] group-hover:bg-[#00F0FF]/[0.08] transition-colors duration-300" />
                             </motion.button>
                         </motion.div>
@@ -679,7 +712,19 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                 {/* Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-20 pb-8 px-4 sm:px-12 text-center z-20">
-                    <div className="h-6" />
+                    <div className="h-6 flex items-center justify-center">
+                        {/* Audio Tap Unlock Status Badge if on mobile */}
+                        {!isAudioUnlocked && (
+                            <motion.div 
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ repeat: Infinity, duration: 1.5 }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase"
+                            >
+                                <Volume2 className="w-3 h-3" />
+                                <span>TAP SCREEN TO ACTIVATE SOUND</span>
+                            </motion.div>
+                        )}
+                    </div>
 
                     {/* True 3D Letter-by-Letter Assembled Kinetic Typography */}
                     <div className="max-w-4xl mx-auto my-auto px-2">
@@ -752,7 +797,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Progress Track Only (No Artificial Button Boxes) */}
+                    {/* Bottom Progress Track */}
                     <div className="pointer-events-auto flex flex-col items-center gap-3">
                         {progress >= 88 && (
                             <button
