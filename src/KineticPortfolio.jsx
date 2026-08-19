@@ -9,14 +9,14 @@ import {
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
 const ATELIER_IMG = "/assets/frankfurt_sound_atelier.jpg";
 
-// 5 Multi-Stems Synchronized Audio Assets
+// Encoded Audio URIs for 100% Mobile Browser Compatibility
 const STEM_SRCS = {
-    bass: "/assets/manual_upload/A Twelve-minute Alibi/2 Bass.mp3",
-    guitar: "/assets/manual_upload/A Twelve-minute Alibi/3 Guitar.mp3",
-    drums: "/assets/manual_upload/A Twelve-minute Alibi/1 Drums.mp3",
-    perc: "/assets/manual_upload/A Twelve-minute Alibi/4 Percussion.mp3",
-    synth: "/assets/manual_upload/A Twelve-minute Alibi/5 Synth.mp3",
-    vocal: "/assets/manual_upload/A Twelve-minute Alibi/0 Lead Vocals.mp3",
+    bass: "/assets/manual_upload/A%20Twelve-minute%20Alibi/2%20Bass.mp3",
+    guitar: "/assets/manual_upload/A%20Twelve-minute%20Alibi/3%20Guitar.mp3",
+    drums: "/assets/manual_upload/A%20Twelve-minute%20Alibi/1%20Drums.mp3",
+    perc: "/assets/manual_upload/A%20Twelve-minute%20Alibi/4%20Percussion.mp3",
+    synth: "/assets/manual_upload/A%20Twelve-minute%20Alibi/5%20Synth.mp3",
+    vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
 const FRAMES = [
@@ -257,7 +257,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH 5X HARDER 4-TIER MULTI-STEM MAESTRO ENGINE
+// 1. FLIPBOOK ENGINE WITH PROVEN MOBILE AUDIO STACK & TRUE 5X LEVEL 4 CALIBRATION
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -284,18 +284,18 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const lastStepTime = useRef(0);
     const isLeftFoot = useRef(true);
     const touchStartY = useRef(0);
+    const touchStartTime = useRef(0);
 
     const progressRef = useRef(0);
     const isAudioStarted = useRef(false);
 
-    // Energy / Combo Reservoir for 5x Difficulty
-    const currentEnergy = useRef(0); // 0.0 ~ 100.0
+    // True Combo Energy Reservoir (0 ~ 100)
+    const currentEnergy = useRef(0);
     const lastEnergyPumpTime = useRef(Date.now());
 
-    // Play all stems simultaneously in perfect sync
-    const attemptPlayAudio = () => {
+    // Robust Mobile Audio Unlocker for all 6 stems
+    const unlockAllStems = () => {
         const audioRefs = [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef];
-        if (!bassRef.current) return;
 
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -305,24 +305,25 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             }
         } catch (e) {}
 
-        const masterTime = bassRef.current.currentTime || 0;
+        const masterTime = (bassRef.current && bassRef.current.currentTime) ? bassRef.current.currentTime : 0;
 
         audioRefs.forEach((r) => {
             if (r.current) {
-                if (Math.abs(r.current.currentTime - masterTime) > 0.05) {
+                r.current.muted = false;
+                if (Math.abs(r.current.currentTime - masterTime) > 0.06) {
                     r.current.currentTime = masterTime;
                 }
                 const p = r.current.play();
                 if (p !== undefined) {
-                    p.catch(() => {});
+                    p.then(() => {
+                        isAudioStarted.current = true;
+                    }).catch(() => {});
                 }
             }
         });
-
-        isAudioStarted.current = true;
     };
 
-    // Keep all 6 audio stems in sample-accurate time sync
+    // Auto-sync intervals for all stems
     useEffect(() => {
         const syncInterval = setInterval(() => {
             if (bassRef.current && isAudioStarted.current) {
@@ -330,7 +331,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 [guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
                     if (r.current) {
                         const diff = Math.abs(r.current.currentTime - masterTime);
-                        if (diff > 0.04) {
+                        if (diff > 0.05) {
                             r.current.currentTime = masterTime;
                         }
                     }
@@ -341,44 +342,43 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
-    // 5X HARDER Dynamic Energy Decay & Stem Volume Engine (Every 50ms)
+    // 5X HARDER Dynamic Volume Engine with Fast Decay
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
             const timeSincePump = now - lastEnergyPumpTime.current;
 
-            // Swift exponential decay if user pauses or slows down
-            if (timeSincePump > 120) {
-                const decayAmount = (timeSincePump - 120) * 0.08;
-                currentEnergy.current = Math.max(0, currentEnergy.current - decayAmount);
+            // Fast decay: drops 4.5 energy every 50ms (90 energy/sec) when user is not actively pumping!
+            if (timeSincePump > 100) {
+                currentEnergy.current = Math.max(0, currentEnergy.current - 4.5);
             }
 
-            const energy = currentEnergy.current; // 0 to 100
+            const energy = currentEnergy.current; // 0 ~ 100
 
             // 5X Harder Calibration:
-            // Level 1 (Idle / Slow, Energy < 18): Bass 50%, Others 0%
-            // Level 2 (Active Pace, Energy 18 ~ 48): Bass 75%, Guitar 70%
-            // Level 3 (Hard Rush, Energy 48 ~ 82): Bass/Guitar 90%, Drums/Perc/Synth 85%
-            // Level 4 (5X HARDER HYPER OVERDRIVE, Energy >= 82): Requires furious continuous strokes! Full Band + Lead Vocals 95%
+            // Level 1: Idle (Energy < 20) -> Bass 50%
+            // Level 2: Active Walk (Energy 20 ~ 55) -> Bass 75%, Guitar 70%
+            // Level 3: Fast Sprint (Energy 55 ~ 88) -> All inst except vocal 85%
+            // Level 4: 5X HARDER HYPER OVERDRIVE (Energy >= 88) -> Needs continuous multi-swipe frenzy! Full Band + Vocals 95%
             let tier = 1;
             let targetBass = 0.50;
             let targetGuitar = 0.0;
             let targetOtherInst = 0.0;
             let targetVocal = 0.0;
 
-            if (energy >= 82) {
+            if (energy >= 88) {
                 tier = 4;
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
-            } else if (energy >= 48) {
+            } else if (energy >= 55) {
                 tier = 3;
                 targetBass = 0.90;
                 targetGuitar = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
-            } else if (energy >= 18) {
+            } else if (energy >= 20) {
                 tier = 2;
                 targetBass = 0.75;
                 targetGuitar = 0.70;
@@ -419,11 +419,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
         const t5 = setTimeout(() => {
             setIsInitialBuffering(false);
-            attemptPlayAudio();
+            unlockAllStems();
         }, 2800);
 
         const t6 = setTimeout(() => {
-            if (!isAudioStarted.current) attemptPlayAudio();
+            if (!isAudioStarted.current) unlockAllStems();
         }, 3800);
 
         return () => {
@@ -502,16 +502,16 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // 5x Harder Active Scroll Handlers (Energy Accumulator)
+    // 5x Harder True Gesture-Velocity Handlers
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
             setShowSwipeCue(false);
-            if (!isAudioStarted.current) attemptPlayAudio();
+            if (!isAudioStarted.current) unlockAllStems();
 
             const rawDelta = Math.abs(e.deltaY);
-            // 5x harder: small wheel adds ~5 energy, rapid intense strokes pump it up to 85+
-            const energyAdd = Math.min(rawDelta * 0.14, 18);
+            // Wheel energy pump: modest addition per tick
+            const energyAdd = Math.min(rawDelta * 0.08, 12);
             currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
             lastEnergyPumpTime.current = Date.now();
 
@@ -530,44 +530,62 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         const handleTouchStart = (e) => {
             if (e.touches && e.touches[0]) {
                 touchStartY.current = e.touches[0].clientY;
-                if (!isAudioStarted.current) attemptPlayAudio();
+                touchStartTime.current = Date.now();
+                if (!isAudioStarted.current) unlockAllStems();
             }
         };
 
         const handleTouchMove = (e) => {
             if (!e.touches || !e.touches[0]) return;
             setShowSwipeCue(false);
-            if (!isAudioStarted.current) attemptPlayAudio();
+            if (!isAudioStarted.current) unlockAllStems();
 
             const currentY = e.touches[0].clientY;
-            const rawDelta = Math.max(0, (touchStartY.current - currentY) * 0.013);
+            const deltaY = touchStartY.current - currentY;
+            const now = Date.now();
+            const timeDiff = Math.max(16, now - touchStartTime.current);
+
+            // Calculate true physical swipe velocity (px per ms)
+            if (deltaY > 0) {
+                const velocity = deltaY / timeDiff; // Typically 0.2 to 2.5
+                // Only fast flicks (> 0.6 px/ms) generate high energy!
+                if (velocity > 0.4) {
+                    const energyAdd = Math.min(velocity * 12, 16);
+                    currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
+                    lastEnergyPumpTime.current = now;
+                }
+            }
+
             touchStartY.current = currentY;
+            touchStartTime.current = now;
 
-            // 5x harder touch pumping: single casual swipe only adds ~10-15 energy.
-            // Level 4 (82+) requires 4~5 frantic consecutive rhythmic flicks!
-            const energyAdd = Math.min(rawDelta * 18, 22);
-            currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
-            lastEnergyPumpTime.current = Date.now();
-
+            const rawDelta = Math.max(0, deltaY * 0.013);
             const clampedDelta = Math.min(rawDelta, 1.1);
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
                 return next;
             });
+
             playStereoFootstep();
             setIsHeadBobbing(true);
             setTimeout(() => setIsHeadBobbing(false), 180);
         };
 
+        const handleTouchEnd = () => {
+            if (!isAudioStarted.current) unlockAllStems();
+        };
+
         window.addEventListener('wheel', handleWheel, { passive: false });
         window.addEventListener('touchstart', handleTouchStart, { passive: true });
         window.addEventListener('touchmove', handleTouchMove, { passive: true });
+        window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
         return () => {
             window.removeEventListener('wheel', handleWheel);
             window.removeEventListener('touchstart', handleTouchStart);
             window.removeEventListener('touchmove', handleTouchMove);
+            window.removeEventListener('touchend', handleTouchEnd);
         };
     }, []);
 
@@ -587,16 +605,17 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     return (
         <div 
-            onClick={() => { if (!isAudioStarted.current) attemptPlayAudio(); }}
+            onClick={() => { if (!isAudioStarted.current) unlockAllStems(); }}
+            onTouchStart={() => { if (!isAudioStarted.current) unlockAllStems(); }}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none"
         >
-            {/* 6 Synchronized Multi-Stem Audio Elements */}
-            <audio ref={bassRef} src={STEM_SRCS.bass} loop preload="auto" />
-            <audio ref={guitarRef} src={STEM_SRCS.guitar} loop preload="auto" />
-            <audio ref={drumsRef} src={STEM_SRCS.drums} loop preload="auto" />
-            <audio ref={percRef} src={STEM_SRCS.perc} loop preload="auto" />
-            <audio ref={synthRef} src={STEM_SRCS.synth} loop preload="auto" />
-            <audio ref={vocalRef} src={STEM_SRCS.vocal} loop preload="auto" />
+            {/* 6 Synchronized Multi-Stem Audio Elements with Encoded Mobile URIs */}
+            <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
+            <audio ref={guitarRef} src={STEM_SRCS.guitar} loop playsInline preload="auto" />
+            <audio ref={drumsRef} src={STEM_SRCS.drums} loop playsInline preload="auto" />
+            <audio ref={percRef} src={STEM_SRCS.perc} loop playsInline preload="auto" />
+            <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
+            <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
 
             {/* 1. LAYER BEHIND BLUR: 100vh 7-Frame Visual Stack */}
             <div 
