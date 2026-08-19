@@ -382,7 +382,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     // ABSOLUTE 1.0-SECOND COOLDOWN FOOTSTEP TRIGGER (ZERO OVERLAP GUARANTEED!)
     const triggerCleanFootstep = () => {
         const now = Date.now();
-        // Strict 1000ms (1.0 sec) cooldown rule: Absolute maximum 1 footstep per second!
         if (now - lastFootstepTimeRef.current >= 1000) {
             lastFootstepTimeRef.current = now;
             playSingleFootstepSound();
@@ -599,7 +598,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            // Clean single footstep attempt (gated by strict 1.0 sec rule)
             triggerCleanFootstep();
         };
 
@@ -649,7 +647,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                // Clean single footstep attempt (gated by strict 1.0 sec rule)
                 triggerCleanFootstep();
             }
 
@@ -831,7 +828,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: FLOATING GHOST OUTLINE (L E T ' S   G O) + MINIMAL VOLUME ICON */}
+            {/* 2. INITIAL UNLOCK SPLASH: 4-LINE VERTICAL GHOST OUTLINE (LET / 'S / GO / !) WITH NO HELPER TEXT */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -839,32 +836,53 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0, scale: 1.05 }}
                         transition={{ duration: 0.5, ease: 'easeOut' }}
-                        className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-black/60 backdrop-blur-xl"
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/60 backdrop-blur-xl"
                     >
                         <motion.div
-                            animate={{ y: [-5, 5, -5] }}
-                            transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-                            className="flex flex-col items-center text-center cursor-pointer px-6"
+                            animate={{ y: [-6, 6, -6] }}
+                            transition={{ repeat: Infinity, duration: 3.2, ease: 'easeInOut' }}
+                            className="flex flex-col items-center text-center cursor-pointer select-none leading-[1.15]"
                         >
-                            {/* FLOATING GHOST OUTLINE TEXT: L E T ' S   G O */}
-                            <h1 
-                                className="font-mono text-xl sm:text-3xl font-black uppercase tracking-[0.6em] sm:tracking-[0.8em] transition-all duration-300 hover:scale-105"
+                            <span 
+                                className="font-mono text-3xl sm:text-5xl font-black tracking-[0.4em] sm:tracking-[0.5em] block uppercase"
                                 style={{
-                                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.45)',
+                                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.40)',
                                     color: 'transparent',
-                                    textShadow: '0 0 25px rgba(255,255,255,0.2)'
+                                    textShadow: '0 0 20px rgba(255,255,255,0.15)'
                                 }}
                             >
-                                L E T ' S   G O
-                            </h1>
-
-                            {/* SUBTLE TRANSPARENT GHOST BORDER BADGE */}
-                            <div className="mt-6 inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md hover:border-[#E7FF00]/40 transition-colors">
-                                <Volume2 className="w-3.5 h-3.5 text-white/50 animate-pulse" />
-                                <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.3em] uppercase text-white/40 font-bold">
-                                    TAP ANYWHERE TO UNLOCK SOUND
-                                </span>
-                            </div>
+                                LET
+                            </span>
+                            <span 
+                                className="font-mono text-3xl sm:text-5xl font-black tracking-[0.4em] sm:tracking-[0.5em] block uppercase"
+                                style={{
+                                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.40)',
+                                    color: 'transparent',
+                                    textShadow: '0 0 20px rgba(255,255,255,0.15)'
+                                }}
+                            >
+                                'S
+                            </span>
+                            <span 
+                                className="font-mono text-3xl sm:text-5xl font-black tracking-[0.4em] sm:tracking-[0.5em] block uppercase"
+                                style={{
+                                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.40)',
+                                    color: 'transparent',
+                                    textShadow: '0 0 20px rgba(255,255,255,0.15)'
+                                }}
+                            >
+                                GO
+                            </span>
+                            <span 
+                                className="font-mono text-3xl sm:text-5xl font-black tracking-[0.4em] sm:tracking-[0.5em] block uppercase text-[#E7FF00]"
+                                style={{
+                                    WebkitTextStroke: '1px rgba(231, 255, 0, 0.60)',
+                                    color: 'transparent',
+                                    textShadow: '0 0 25px rgba(231,255,0,0.3)'
+                                }}
+                            >
+                                !
+                            </span>
                         </motion.div>
                     </motion.div>
                 )}
