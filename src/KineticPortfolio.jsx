@@ -279,7 +279,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. MASTER-CLOCK CONTINUOUS PHASE-LOCK SYNC ENGINE (BASS REF MASTER CLOCK)
+// 1. FOOTSTEP SOUND ENGINE WITH +20% VOLUME BOOST, DEEP ECHO DELAY & DYNAMIC PACING
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -303,7 +303,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const synthRef = useRef(null);
     const vocalRef = useRef(null);
 
-    // Footstep Timestamp Guard: Absolute minimum 1000ms (1.0 sec) between footsteps!
+    // Dynamic Footstep Timestamp Guard & Alternating Foot State
     const lastFootstepTimeRef = useRef(0);
     const isLeftFootRef = useRef(true);
     const touchStartY = useRef(0);
@@ -321,7 +321,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
 
-    // SINGLE CLEAN FOOTSTEP SOUND GENERATOR
+    // ENHANCED FOOTSTEP SOUND GENERATOR WITH +20% VOLUME & RICH SPATIAL ECHO REVERB
     const playSingleFootstepSound = () => {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -334,15 +334,17 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const isLeft = isLeftFootRef.current;
             isLeftFootRef.current = !isLeft;
 
+            // 1. Crisp Leather Impact Oscillator
             const osc = ctx.createOscillator();
             const oscGain = ctx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(isLeft ? 160 : 185, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.05);
+            osc.frequency.setValueAtTime(isLeft ? 165 : 190, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(75, ctx.currentTime + 0.05);
 
-            oscGain.gain.setValueAtTime(0.12, ctx.currentTime);
+            oscGain.gain.setValueAtTime(0.15, ctx.currentTime); // Boosted impact
             oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
+            // 2. High-Frequency Stone Click Noise
             const bufferSize = Math.floor(ctx.sampleRate * 0.05);
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
@@ -355,23 +357,38 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             const noiseFilter = ctx.createBiquadFilter();
             noiseFilter.type = 'bandpass';
-            noiseFilter.frequency.value = isLeft ? 1350 : 1550;
-            noiseFilter.Q.value = 2.2;
+            noiseFilter.frequency.value = isLeft ? 1400 : 1600;
+            noiseFilter.Q.value = 2.4;
 
             const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.18, ctx.currentTime);
+            noiseGain.gain.setValueAtTime(0.22, ctx.currentTime); // Boosted click
             noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
+            // 3. Main Master Gain Node (+20% Overall Volume Boost: 0.85 -> 1.05)
             const mainGain = ctx.createGain();
-            mainGain.gain.value = 0.85;
+            mainGain.gain.value = 1.05;
 
+            // 4. Rich European Alley Echo / Reverb Delay Node (Noticeable 220ms repeating echo tail!)
+            const delayNode = ctx.createDelay();
+            delayNode.delayTime.value = 0.22; // 220ms echo delay
+
+            const echoFeedbackGain = ctx.createGain();
+            echoFeedbackGain.gain.value = 0.42; // Strong feedback for distinct repeating echoes
+
+            // Connect dry audio path
             osc.connect(oscGain);
             noise.connect(noiseFilter);
             noiseFilter.connect(noiseGain);
 
             oscGain.connect(mainGain);
             noiseGain.connect(mainGain);
+
+            // Connect wet echo path
             mainGain.connect(ctx.destination);
+            mainGain.connect(delayNode);
+            delayNode.connect(echoFeedbackGain);
+            echoFeedbackGain.connect(delayNode);
+            delayNode.connect(ctx.destination);
 
             osc.start(); noise.start();
             osc.stop(ctx.currentTime + 0.06);
@@ -379,10 +396,13 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // ABSOLUTE 1.0-SECOND COOLDOWN FOOTSTEP TRIGGER
-    const triggerCleanFootstep = () => {
+    // DYNAMIC SPEED-BASED FOOTSTEP PACING TRIGGER (320ms to 800ms)
+    const triggerCleanFootstep = (speedVelocity = 1) => {
         const now = Date.now();
-        if (now - lastFootstepTimeRef.current >= 1000) {
+        // Dynamic interval: Fast scroll/swipe -> ~320ms interval; Slow scroll -> ~800ms interval
+        const dynamicInterval = Math.max(320, 800 - Math.min(speedVelocity * 60, 480));
+        
+        if (now - lastFootstepTimeRef.current >= dynamicInterval) {
             lastFootstepTimeRef.current = now;
             playSingleFootstepSound();
             setIsHeadBobbing(true);
@@ -394,7 +414,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const forceUnlockAudio = () => {
         if (!isAudioUnlocked) {
             setIsAudioUnlocked(true);
-            triggerCleanFootstep();
+            triggerCleanFootstep(1.5);
         }
 
         try {
@@ -409,7 +429,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
         const audioRefs = [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef];
         
-        // Use bassRef as the absolute master clock source!
         if (bassRef.current) {
             if (bassRef.current.paused) {
                 bassRef.current.play().catch(() => {});
@@ -422,7 +441,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 r.current.muted = false;
                 r.current.playsInline = true;
                 
-                // Snap all stems to exact master bass currentTime before playing
                 if (Math.abs(r.current.currentTime - masterTime) > 0.015) {
                     r.current.currentTime = masterTime;
                 }
@@ -448,14 +466,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
         [guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
             if (r.current) {
-                // If stem is playing audio (volume > 0.01), enforce strict < 20ms sync alignment to bass!
                 if (r.current.volume > 0.01) {
                     const drift = Math.abs(r.current.currentTime - masterTime);
                     if (drift > 0.025) {
                         r.current.currentTime = masterTime;
                     }
                 } else {
-                    // Even if muted, keep currentTime aligned in background so unmuting is 100% seamless!
                     if (Math.abs(r.current.currentTime - masterTime) > 0.05) {
                         r.current.currentTime = masterTime;
                     }
@@ -554,16 +570,13 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             setAudioTier(tier);
 
-            // 1. Update Master Bass
             if (bassRef.current) {
                 bassRef.current.volume = targetBass;
                 if (bassRef.current.paused) bassRef.current.play().catch(() => {});
             }
 
-            // 2. Master Clock Continuous Resynchronization (Eliminates off-beat delays!)
             syncStemsToMasterClock();
 
-            // 3. Smooth Volume Assignment & Play Enforcement
             const applyStemVol = (ref, targetVol) => {
                 if (ref.current) {
                     ref.current.volume = targetVol;
@@ -598,7 +611,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // PROGRESSIVE SCROLL & TOUCH ENGINE WITH 1.0-SEC CLEAN FOOTSTEP TRIGGER
+    // PROGRESSIVE SCROLL & TOUCH ENGINE WITH DYNAMIC PACING FOOTSTEP TRIGGER
     useEffect(() => {
         const handleWheel = (e) => {
             const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
@@ -626,7 +639,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            triggerCleanFootstep();
+            // Dynamic footstep trigger matching wheel delta
+            triggerCleanFootstep(rawDelta * 0.015);
         };
 
         const handleTouchStart = (e) => {
@@ -675,7 +689,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                triggerCleanFootstep();
+                // Dynamic footstep trigger matching touch swipe velocity
+                triggerCleanFootstep(velocity * 1.8);
             }
 
             touchStartY.current = currentY;
@@ -1253,7 +1268,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
             <div className="w-full flex flex-col gap-2.5">
                 <button
                     onClick={downloadTicket}
-                    className="w-full py-3.5 rounded-full bg-[#E7FF00] text-black font-mono text-xs font-black tracking-wider uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(231,255,0,0.4)] flex items-center justify-center gap-2"
+                    className="w-full py-3.5 rounded-full bg-[#E7FF00] text-black font-mono text-xs font-black tracking-wider uppercase hover:scale-105 transition-all shadow-[0_0_40px_rgba(231,255,0,0.4)] flex items-center justify-center gap-2"
                 >
                     <Download className="w-4 h-4" />
                     <span>DOWNLOAD 9:16 STORY TICKET</span>
