@@ -145,7 +145,8 @@ export default function App() {
         <div 
             onPointerMove={handlePointerMove}
             onTouchMove={handleTouchMove}
-            className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden"
+            style={{ overscrollBehavior: 'none', touchAction: 'none' }}
+            className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0"
         >
             {/* 1. Awwwards Magnetic Difference Jelly Lens */}
             <div className="hidden md:block pointer-events-none fixed inset-0 z-50 mix-blend-difference">
@@ -270,7 +271,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH DEV KINETICS HUD & RESPONSIVE POWER CALIBRATION
+// 1. FLIPBOOK ENGINE WITH STRICT PULL-TO-REFRESH DEFENSE & UPWARD AURORA WAVE
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -286,7 +287,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
     const [simulatedVolume, setSimulatedVolume] = useState(12);
     const [isLocked30Glitter, setIsLocked30Glitter] = useState(false);
-    const [showSwipeCue, setShowSwipeCue] = useState(true);
 
     const audioCtxRef = useRef(null);
     const bassRef = useRef(null);
@@ -368,13 +368,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
-    // RESPONSIVE POWER DECAY ENGINE & DEV HUD SYNC (Every 50ms)
+    // Power Decay Engine & Live HUD Sync
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
             const timeSincePump = now - lastEnergyPumpTime.current;
 
-            // Gentle responsive decay: drops 2.0 energy every 50ms (40 energy/sec) when idle
             if (timeSincePump > 140) {
                 currentEnergy.current = Math.max(0, currentEnergy.current - 2.0);
             }
@@ -382,11 +381,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const energy = Math.round(currentEnergy.current);
             setLivePower(energy);
 
-            // Responsive Calibration:
-            // Level 1: Idle (0 ~ 15) -> Bass 50%
-            // Level 2: Active Pace (16 ~ 45) -> Bass 75%, Guitar 70%
-            // Level 3: Rush (46 ~ 75) -> All instruments 85%
-            // Level 4: Overdrive (76 ~ 100) -> Full Band + Lead Vocal 95%
             let tier = 1;
             let targetBass = 0.50;
             let targetGuitar = 0.0;
@@ -454,12 +448,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    useEffect(() => {
-        const timer = setTimeout(() => setShowSwipeCue(false), 6500);
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Audible Crisp Footsteps
+    // Audible Crisp Footsteps (ONLY on forward progress)
     const playAudibleFootstep = () => {
         const now = Date.now();
         if (now - lastStepTime.current < 220) return;
@@ -543,17 +532,19 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // RESPONSIVE SCROLL HANDLERS & DEV VELOCITY TRACKER
+    // STRICT PULL-TO-REFRESH DEFENSE & UPWARD-ONLY KINETICS
     useEffect(() => {
+        // Prevent all browser overscroll & pull-to-refresh
         const handleWheel = (e) => {
-            e.preventDefault();
-            setShowSwipeCue(false);
+            if (e.cancelable) e.preventDefault();
             forceUnlockMobileAudio();
 
-            const rawDelta = Math.abs(e.deltaY);
-            setLastVelocityStr((rawDelta).toFixed(0) + " delta");
+            // ONLY process downward wheel / forward scroll (e.deltaY > 0)
+            if (e.deltaY <= 0) return; // Strict ignore reverse scroll
 
-            // Responsive Wheel Power: ~25-35 energy per fast spin
+            const rawDelta = e.deltaY;
+            setLastVelocityStr(rawDelta.toFixed(0) + " delta");
+
             const energyAdd = Math.min(rawDelta * 0.28, 38);
             currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
             lastEnergyPumpTime.current = Date.now();
@@ -579,20 +570,22 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
 
         const handleTouchMove = (e) => {
+            // STRICT DEFENSE: Block pull-to-refresh on mobile
+            if (e.cancelable) e.preventDefault();
             forceUnlockMobileAudio();
             if (!e.touches || !e.touches[0]) return;
-            setShowSwipeCue(false);
 
             const currentY = e.touches[0].clientY;
             const deltaY = touchStartY.current - currentY;
             const now = Date.now();
             const timeDiff = Math.max(16, now - touchStartTime.current);
 
+            // ONLY process UPWARD swipe gestures (deltaY > 0)
+            // Downward gestures (deltaY <= 0) are completely blocked!
             if (deltaY > 0) {
                 const velocity = deltaY / timeDiff; // px per ms
                 setLastVelocityStr(velocity.toFixed(2) + " px/ms");
 
-                // Responsive Touch Power: A normal swipe adds ~25-35 energy easily!
                 const energyAdd = Math.min(velocity * 28 + deltaY * 0.12, 45);
                 currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
                 lastEnergyPumpTime.current = now;
@@ -619,7 +612,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
         window.addEventListener('wheel', handleWheel, { passive: false });
         window.addEventListener('touchstart', handleTouchStart, { passive: true });
-        window.addEventListener('touchmove', handleTouchMove, { passive: true });
+        window.addEventListener('touchmove', handleTouchMove, { passive: false });
         window.addEventListener('touchend', handleTouchEnd, { passive: true });
 
         return () => {
@@ -907,25 +900,36 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 )}
             </AnimatePresence>
 
-            {/* 3. ZERO-TEXT VISUAL UPWARD ENERGY CUE */}
-            <AnimatePresence>
-                {showSwipeCue && !isInitialBuffering && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20, transition: { duration: 0.6 } }}
-                        className="fixed inset-x-0 bottom-24 pointer-events-none z-30 flex flex-col items-center justify-center"
-                    >
-                        <div className="w-7 h-14 rounded-full border border-white/20 bg-black/60 backdrop-blur-xl p-1 flex flex-col items-center justify-end overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.6)]">
-                            <motion.div
-                                animate={{ y: [0, -32, 0], opacity: [0.2, 1, 0], scale: [0.8, 1.1, 0.6] }}
-                                transition={{ repeat: Infinity, duration: 1.8, ease: [0.45, 0, 0.55, 1] }}
-                                className="w-3.5 h-3.5 rounded-full bg-gradient-to-t from-[#E7FF00]/40 to-[#E7FF00] shadow-[0_0_12px_#E7FF00]"
-                            />
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* 3. ULTRA-CHIC RISING AURORA LIGHT WAVE (Below to Above Shimmer Effect) */}
+            <div className="fixed inset-x-0 bottom-0 h-48 pointer-events-none z-30 overflow-hidden">
+                <motion.div
+                    animate={{
+                        y: ['100%', '-80%'],
+                        opacity: [0, 0.6, 0]
+                    }}
+                    transition={{
+                        repeat: Infinity,
+                        duration: 3.2,
+                        ease: [0.25, 0.1, 0.25, 1.0]
+                    }}
+                    className="w-full h-24 bg-gradient-to-t from-[#E7FF00]/0 via-[#E7FF00]/15 to-[#E7FF00]/0 blur-xl"
+                />
+
+                <motion.div
+                    animate={{
+                        y: ['100%', '-100%'],
+                        opacity: [0, 0.85, 0],
+                        scaleY: [0.8, 1.2, 0.8]
+                    }}
+                    transition={{
+                        repeat: Infinity,
+                        duration: 2.8,
+                        delay: 0.8,
+                        ease: [0.4, 0, 0.2, 1]
+                    }}
+                    className="w-full h-8 bg-gradient-to-t from-transparent via-[#E7FF00]/30 to-transparent blur-md"
+                />
+            </div>
         </div>
     );
 }
