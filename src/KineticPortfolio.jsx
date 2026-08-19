@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity
+    Compass, ExternalLink, QrCode, ChevronUp, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
@@ -89,10 +89,9 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // High Precision Subtle Cursor Flashlight Physics
-    const [cursorPos, setCursorPos] = useState({ 
-        x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false
-    });
+    // Dynamic Gyroscope & Mouse 3D Parallax Orientation
+    const [tilt, setTilt] = useState({ x: 0, y: 0 });
+    const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false });
     
     const spotlightRef = useRef(null);
 
@@ -137,11 +136,26 @@ export default function App() {
         setCurrentStep('ticket');
     };
 
-    const handlePointerMove = (e) => {
-        const x = e.clientX / window.innerWidth;
-        const y = e.clientY / window.innerHeight;
+    // Mobile Gyroscope Device Orientation Event Listener
+    useEffect(() => {
+        const handleDeviceOrientation = (e) => {
+            if (e.beta !== null && e.gamma !== null) {
+                const normX = Math.max(-1, Math.min(1, e.gamma / 30));
+                const normY = Math.max(-1, Math.min(1, e.beta / 30));
+                setTilt({ x: normX, y: normY });
+            }
+        };
 
-        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true });
+        window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+        return () => window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
+    }, []);
+
+    const handlePointerMove = (e) => {
+        const normX = (e.clientX / window.innerWidth - 0.5) * 2;
+        const normY = (e.clientY / window.innerHeight - 0.5) * 2;
+
+        setCursorPos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight, rawX: e.clientX, rawY: e.clientY, isHovered: true });
+        setTilt({ x: normX, y: normY });
 
         if (spotlightRef.current) {
             spotlightRef.current.style.transform = `translate3d(${e.clientX - 100}px, ${e.clientY - 100}px, 0)`;
@@ -166,28 +180,30 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. Editorial Brand Header */}
+            {/* 2. Editorial 3D Star Title Header (STEM MIXER Button REMOVED!) */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-5 flex items-center justify-between pointer-events-none">
-                <div className="pointer-events-auto flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-pulse"></span>
-                    <span className="font-mono font-bold text-xs sm:text-sm tracking-[0.25em] text-white/90 lowercase hover:text-white transition-colors">
+                <motion.div 
+                    style={{
+                        transform: `perspective(600px) rotateX(${tilt.y * -14}deg) rotateY(${tilt.x * 14}deg) translateZ(10px)`
+                    }}
+                    className="pointer-events-auto flex items-center gap-2.5 transition-transform duration-200 ease-out"
+                >
+                    <div className="relative flex items-center justify-center">
+                        <span className="w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00] animate-pulse"></span>
+                        <Sparkles className="w-3.5 h-3.5 text-[#E7FF00] absolute -top-1 -right-1 opacity-60 animate-spin" style={{ animationDuration: '6s' }} />
+                    </div>
+                    <span className="font-mono font-black text-xs sm:text-sm tracking-[0.28em] text-white uppercase drop-shadow-[0_0_10px_rgba(231,255,0,0.5)]">
                         @just.sean.flows
                     </span>
-                </div>
+                </motion.div>
 
-                <div className="pointer-events-auto">
-                    <button
-                        onClick={() => setCurrentStep(currentStep === 'flipbook' ? 'mixer_ending' : 'flipbook')}
-                        className="font-mono text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#E7FF00] hover:underline transition-all"
-                    >
-                        {currentStep === 'flipbook' ? 'STEM MIXER →' : '← WALK OPERA'}
-                    </button>
-                </div>
+                {/* STEM MIXER button completely removed per user request! */}
             </header>
 
             <main className="relative z-10 w-full h-full flex items-center justify-center">
                 {currentStep === 'flipbook' && (
                     <FlipbookWalkingEngine 
+                        tilt={tilt}
                         cursorPos={cursorPos}
                         onEnterMixer={() => setCurrentStep('mixer_ending')} 
                         onOpenAtelier={() => setShowAtelierModal(true)}
@@ -229,9 +245,9 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE (3 GUITAR AS MASTER TIER 1 TRACK)
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & 3D PARALLAX STAR SPLASH
 // ==============================================================================
-function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
+function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     
@@ -246,7 +262,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     const audioCtxRef = useRef(null);
     const guitarRef = useRef(null); // MASTER TIER 1 TRACK (3 Guitar.mp3)
-    const bassRef = useRef(null);   // TIER 2 TRACK (2 Bass.mp3)
+    const bassRef = useRef(null);
     const drumsRef = useRef(null);
     const percRef = useRef(null);
     const synthRef = useRef(null);
@@ -341,7 +357,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // DYNAMIC PACING TRIGGER (320ms to 800ms)
+    // DYNAMIC PACING TRIGGER
     const triggerCleanFootstep = (speedVelocity = 1) => {
         const now = Date.now();
         const dynamicInterval = Math.max(320, 800 - Math.min(speedVelocity * 60, 480));
@@ -394,7 +410,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             }
         } catch (err) {}
 
-        // FORCE INSTANT GUITAR PLAYBACK (Level 1 Master Track = 0.50 Volume)
         if (guitarRef.current) {
             guitarRef.current.muted = false;
             guitarRef.current.playsInline = true;
@@ -478,12 +493,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 setLivePowerStr(`${powerInt}`);
             }
 
-            // TIER 1: Guitar (3 Guitar.mp3) is Tier 1 Master Track!
-            // TIER 2: Bass (2 Bass.mp3) turns on at 20%+
-            // TIER 3: Drums/Perc/Synth turn on at 50%+
-            // TIER 4: Vocals turn on at 80%+
             let tier = 1;
-            let targetGuitar = 0.50; // Master Tier 1 Initial Sound
+            let targetGuitar = 0.50;
             let targetBass = 0.0;
             let targetOtherInst = 0.0;
             let targetVocal = 0.0;
@@ -505,12 +516,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 tier = 2;
                 if (unlockedLevelFloor.current < 20) unlockedLevelFloor.current = 20;
                 targetGuitar = 0.75;
-                targetBass = 0.70; // Bass enters at Tier 2!
+                targetBass = 0.70;
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
             } else {
                 tier = 1;
-                targetGuitar = 0.50; // Initial Tier 1 Sound
+                targetGuitar = 0.50;
                 targetBass = 0.0;
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
@@ -518,7 +529,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             setAudioTier(tier);
 
-            // Master Guitar Volume & Gain Adjustment
             if (guitarRef.current) {
                 guitarRef.current.volume = targetGuitar;
                 if (mediaNodesRef.current.guitar) {
@@ -685,8 +695,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
     const isAtelierOptionVisible = (activeFrameIdx === 1 || activeFrameIdx === 3);
 
-    const tiltX = (cursorPos.x - 0.5) * -18;
-    const tiltY = (cursorPos.y - 0.5) * 12;
+    const tiltX = tilt.x * 20;
+    const tiltY = tilt.y * 15;
 
     return (
         <div 
@@ -700,7 +710,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 style={{ backgroundImage: `url(${currentFrame.src})` }}
             />
 
-            {/* 6 Synchronized Multi-Stem Audio Elements (Guitar as Master Track 1) */}
+            {/* 6 Synchronized Multi-Stem Audio Elements */}
             <audio ref={guitarRef} src={STEM_SRCS.guitar} loop playsInline preload="auto" />
             <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
             <audio ref={drumsRef} src={STEM_SRCS.drums} loop playsInline preload="auto" />
@@ -797,7 +807,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                     className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs"
                                     style={{
                                         textShadow: cursorPos.isHovered 
-                                            ? `${tiltX * 1.8}px ${tiltY * 1.8}px 35px rgba(231,255,0,0.4)` 
+                                            ? `${tiltX * 1.5}px ${tiltY * 1.5}px 35px rgba(231,255,0,0.4)` 
                                             : '0 0 35px rgba(0,0,0,0.9)'
                                     }}
                                 >
@@ -833,7 +843,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: DIRECT TOUCH/CLICK UNLOCK HANDLER ATTACHED TO SPLASH OVERLAY */}
+            {/* 2. INITIAL UNLOCK SPLASH: STARLIGHT ASCENDING 3D PARALLAX ANIMATION FOR LET'S GO ! */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -843,53 +853,110 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         onClick={(e) => forceUnlockAudio(e)}
                         onTouchStart={(e) => forceUnlockAudio(e)}
-                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/60 backdrop-blur-xl cursor-pointer"
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/70 backdrop-blur-xl cursor-pointer overflow-hidden"
                     >
+                        {/* Ascending Starlight Particle Sparks */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                            {[...Array(16)].map((_, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{
+                                        x: `${15 + (i * 5) % 70}vw`,
+                                        y: '100vh',
+                                        opacity: 0,
+                                        scale: 0.3 + (i % 4) * 0.2
+                                    }}
+                                    animate={{
+                                        y: '-10vh',
+                                        opacity: [0, 0.8, 0],
+                                        scale: [0.3, 1.2, 0.2]
+                                    }}
+                                    transition={{
+                                        duration: 3.5 + (i % 3) * 1.2,
+                                        repeat: Infinity,
+                                        delay: i * 0.25,
+                                        ease: 'easeInOut'
+                                    }}
+                                    className="absolute w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]"
+                                />
+                            ))}
+                        </div>
+
+                        {/* Floating 3D Parallax Gyroscope-Responsive "LET'S GO !" Container */}
                         <motion.div
-                            animate={{ y: [-6, 6, -6] }}
-                            transition={{ repeat: Infinity, duration: 3.2, ease: 'easeInOut' }}
-                            className="flex flex-col items-center text-center cursor-pointer select-none leading-[1.15]"
+                            initial={{ y: 80, opacity: 0.2 }}
+                            animate={{ 
+                                y: [80, 0, -10, 0],
+                                opacity: [0.3, 1, 0.7, 1]
+                            }}
+                            transition={{
+                                duration: 4.2,
+                                repeat: Infinity,
+                                repeatType: 'reverse',
+                                ease: 'easeInOut'
+                            }}
+                            style={{
+                                transform: `perspective(600px) rotateX(${tilt.y * -16}deg) rotateY(${tilt.x * 16}deg)`
+                            }}
+                            className="flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-10 transition-transform duration-150 ease-out"
                         >
+                            {/* Accentuated Glowing Star Ring Halo */}
+                            <div className="relative mb-2">
+                                <Sparkles className="w-6 h-6 text-[#E7FF00] animate-spin mb-1 opacity-80" style={{ animationDuration: '8s' }} />
+                            </div>
+
                             <span 
-                                className="font-mono text-3xl sm:text-5xl font-black tracking-[0.4em] sm:tracking-[0.5em] block uppercase"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                                 style={{
-                                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.40)',
+                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.65)',
                                     color: 'transparent',
-                                    textShadow: '0 0 20px rgba(255,255,255,0.15)'
+                                    textShadow: '0 0 25px rgba(255,255,255,0.35)'
                                 }}
                             >
                                 LET
                             </span>
                             <span 
-                                className="font-mono text-3xl sm:text-5xl font-black tracking-[0.4em] sm:tracking-[0.5em] block uppercase"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                                 style={{
-                                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.40)',
+                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.65)',
                                     color: 'transparent',
-                                    textShadow: '0 0 20px rgba(255,255,255,0.15)'
+                                    textShadow: '0 0 25px rgba(255,255,255,0.35)'
                                 }}
                             >
                                 'S
                             </span>
                             <span 
-                                className="font-mono text-3xl sm:text-5xl font-black tracking-[0.4em] sm:tracking-[0.5em] block uppercase"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                                 style={{
-                                    WebkitTextStroke: '1px rgba(255, 255, 255, 0.40)',
+                                    WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.65)',
                                     color: 'transparent',
-                                    textShadow: '0 0 20px rgba(255,255,255,0.15)'
+                                    textShadow: '0 0 25px rgba(255,255,255,0.35)'
                                 }}
                             >
                                 GO
                             </span>
                             <span 
-                                className="font-mono text-3xl sm:text-5xl font-black tracking-[0.4em] sm:tracking-[0.5em] block uppercase text-[#E7FF00]"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00]"
                                 style={{
-                                    WebkitTextStroke: '1px rgba(231, 255, 0, 0.60)',
+                                    WebkitTextStroke: '2px rgba(231, 255, 0, 0.90)',
                                     color: 'transparent',
-                                    textShadow: '0 0 25px rgba(231,255,0,0.3)'
+                                    textShadow: '0 0 35px rgba(231,255,0,0.7)'
                                 }}
                             >
                                 !
                             </span>
+
+                            {/* Upward Swipe Guidance Gesture Cue */}
+                            <motion.div
+                                animate={{ y: [-2, -12, -2], opacity: [0.4, 1, 0.4] }}
+                                transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
+                                className="mt-8 flex flex-col items-center gap-1"
+                            >
+                                <ChevronUp className="w-5 h-5 text-[#E7FF00] filter drop-shadow-[0_0_8px_#E7FF00]" />
+                                <span className="font-mono text-[9px] font-bold tracking-[0.35em] uppercase text-white/70">
+                                    SWIPE UP / TAP TO START
+                                </span>
+                            </motion.div>
                         </motion.div>
                     </motion.div>
                 )}
