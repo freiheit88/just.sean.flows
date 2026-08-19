@@ -19,65 +19,65 @@ const STEM_SRCS = {
     vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
-// 7 Urban Rustic Frames with Half-Length Concise English Text
+// 7 Frames featuring Logo No. 65 (Wine x Treble) & Logo No. 67 (Pick Face) with Concise English Text
 const FRAMES = [
     { 
         id: 0, 
-        src: "/assets/urban_rustic_01_courtyard_1787172615555.jpg", 
+        src: "/assets/logo_v01_no65_neon_1787173132242.jpg", 
         titleTop: "JUST SEAN FLOWS", 
         titleMain: "WALK WITH MUSIC?", 
         sub: "Private Midnight Sound Sketch",
-        buildingSign: "@JUST.SEAN.FLOWS // BURGUNDY PICK EMBLEM"
+        buildingSign: "BRAND MARK NO. 65 // WINE × TREBLE"
     },
     { 
         id: 1, 
-        src: "/assets/urban_rustic_02_stone_alley_1787172632085.jpg", 
+        src: "/assets/logo_v02_no67_brass_1787173140129.jpg", 
         titleTop: "GUILD ATELIER", 
         titleMain: "WANT A QUICK LOOK?", 
         sub: "Hybrid Sound Lab in Formation",
-        buildingSign: "@JUST.SEAN.FLOWS // GLASS EMBLEM",
+        buildingSign: "BRAND MARK NO. 67 // BRASS PICK FACE",
         hasBuildingTarget: true
     },
     { 
         id: 2, 
-        src: "/assets/urban_rustic_05_curved_bakery_1787172686912.jpg", 
+        src: "/assets/logo_v08_no67_neon_window_1787173201900.jpg", 
         titleTop: "02:00 AM", 
         titleMain: "STILL AWAKE HERE.", 
-        sub: "24/7 Burgundy Pick Lab",
-        buildingSign: "@JUST.SEAN.FLOWS // BURGUNDY NEON PICK"
+        sub: "24/7 White Neon Pick Studio",
+        buildingSign: "BRAND MARK NO. 67 // NEON PICK FACE"
     },
     { 
         id: 3, 
-        src: "/assets/urban_rustic_03_canal_signboard_1787172648703.jpg", 
+        src: "/assets/logo_v13_no65_stained_glass_1787173253587.jpg", 
         titleTop: "CANAL ALLEY", 
         titleMain: "PEEK INSIDE?", 
-        sub: "Wisteria & Vintage Piano",
-        buildingSign: "@JUST.SEAN.FLOWS // WROUGHT IRON PICK",
+        sub: "Stained Glass Transom & Piano",
+        buildingSign: "BRAND MARK NO. 65 // STAINED GLASS",
         hasBuildingTarget: true
     },
     { 
         id: 4, 
-        src: "/assets/urban_rustic_04_passageway_1787172669011.jpg", 
+        src: "/assets/logo_v14_no67_hanging_wood_1787173261681.jpg", 
         titleTop: "SECRET HIDEAWAY", 
         titleMain: "MY PRIVATE HAVEN.", 
-        sub: "Analog Gear & Brass Pick",
-        buildingSign: "@JUST.SEAN.FLOWS // BRASS PICK PLAQUE"
+        sub: "Mahogany Carved Pick Sign",
+        buildingSign: "BRAND MARK NO. 67 // MAHOGANY PICK"
     },
     { 
         id: 5, 
-        src: "/assets/urban_rustic_07_yellow_brick_1787172741769.jpg", 
+        src: "/assets/logo_v17_no65_glass_decal_1787173294923.jpg", 
         titleTop: "NEARLY THERE", 
         titleMain: "ALMOST AT THE DOOR.", 
-        sub: "Olive Tree & Tube Amps",
-        buildingSign: "@JUST.SEAN.FLOWS // SOUND STUDIO PLAQUE"
+        sub: "Gold Leaf Glass Decal Atelier",
+        buildingSign: "BRAND MARK NO. 65 // GOLD LEAF DECAL"
     },
     { 
         id: 6, 
-        src: "/assets/walk_07.jpg", 
+        src: "/assets/logo_v20_no67_flagship_1787173320136.jpg", 
         titleTop: "STAGE READY", 
         titleMain: "THE DOORS OPEN.", 
-        sub: "Golden Concert Sanctuary",
-        buildingSign: null
+        sub: "Flagship Backlit Sound Sanctuary",
+        buildingSign: "BRAND MARK NO. 67 // FLAGSHIP BACKLIGHT"
     }
 ];
 
@@ -276,7 +276,7 @@ export default function App() {
                     <FlipbookWalkingEngine 
                         cursorPos={cursorPos}
                         onEnterMixer={() => setCurrentStep('mixer_ending')} 
-                        onOpenAtelier={() => setShowAtelierModal(false)}
+                        onOpenAtelier={() => setShowAtelierModal(true)}
                     />
                 )}
 
@@ -315,7 +315,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH 10-SEC TAP SPLASH CARD & 3-SEC FOOTSTEP AMBIENCE
+// 1. FLIPBOOK ENGINE WITH LOGO NO.65 & NO.67 MARKS & 10S TAP UNLOCKER
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -358,7 +358,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const lastScrollPumpTime = useRef(Date.now());
     const lastSyncTier = useRef(1);
 
-    // AUDIBLE CRISP SINGLE FOOTSTEP (Web Audio API)
+    // AUDIBLE CRISP SINGLE FOOTSTEP
     const playSingleFootstep = () => {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -431,15 +431,13 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     // PLAY 3-SECOND REALISTIC WALKING FOOTSTEP AMBIENCE SEQUENCE
     const trigger3SecFootstepSequence = () => {
         playSingleFootstep();
-        
-        // Sequence of 5 natural footsteps over 3 seconds
         setTimeout(() => playSingleFootstep(), 500);
         setTimeout(() => playSingleFootstep(), 1150);
         setTimeout(() => playSingleFootstep(), 1750);
         setTimeout(() => playSingleFootstep(), 2400);
     };
 
-    // GUARANTEED SOUND ENGINE UNLOCKER (Calls play() on all 6 audio elements + 3s Footstep Ambience)
+    // GUARANTEED SOUND ENGINE UNLOCKER
     const forceUnlockAudio = (isExplicitTap = false) => {
         if (isExplicitTap) {
             setShow10sSplashOverlay(false);
@@ -883,9 +881,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </div>
                     </div>
 
-                    {/* True 3D Letter-by-Letter Assembled Kinetic Typography & Building Sign Overlay */}
+                    {/* True 3D Letter-by-Letter Assembled Typography & Building Sign Overlay */}
                     <div className="max-w-4xl mx-auto my-auto px-2 flex flex-col items-center">
-                        {/* 1:1 Locked Burgundy Wine Guitar Pick Logo Badge Overlay */}
+                        {/* Brand Mark Emblem Overlay Badge */}
                         {currentFrame.buildingSign && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.8, y: 15 }}
@@ -897,7 +895,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                     <span className="w-1 h-1 rounded-full bg-white animate-ping" />
                                 </div>
                                 <span className="font-mono text-[10px] sm:text-xs font-black text-[#FF4D79] tracking-widest uppercase">
-                                    BURGUNDY PICK LOGO: {currentFrame.buildingSign}
+                                    {currentFrame.buildingSign}
                                 </span>
                             </motion.div>
                         )}
