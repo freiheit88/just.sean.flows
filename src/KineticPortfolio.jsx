@@ -19,7 +19,7 @@ const STEM_SRCS = {
     vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
-// 7 Urban Rustic Frames with Half-Length Concise English Text & 1:1 Pick Logo Matching
+// 7 Urban Rustic Frames with Half-Length Concise English Text
 const FRAMES = [
     { 
         id: 0, 
@@ -276,7 +276,7 @@ export default function App() {
                     <FlipbookWalkingEngine 
                         cursorPos={cursorPos}
                         onEnterMixer={() => setCurrentStep('mixer_ending')} 
-                        onOpenAtelier={() => setShowAtelierModal(true)}
+                        onOpenAtelier={() => setShowAtelierModal(false)}
                     />
                 )}
 
@@ -315,12 +315,16 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH CONCISE ENGLISH TEXT & BURGUNDY PICK LOGO
+// 1. FLIPBOOK ENGINE WITH 10-SEC TAP SPLASH CARD & 3-SEC FOOTSTEP AMBIENCE
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
+    
+    // 10-Second Splash Sound Unlocker Overlay State
+    const [show10sSplashOverlay, setShow10sSplashOverlay] = useState(true);
+    const [splashCountdown, setSplashCountdown] = useState(10);
     
     // Live Dev Kinetics Power Meter (0 ~ 100)
     const [livePower, setLivePower] = useState(0);
@@ -354,8 +358,94 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const lastScrollPumpTime = useRef(Date.now());
     const lastSyncTier = useRef(1);
 
-    // GUARANTEED SOUND ENGINE UNLOCKER
-    const forceUnlockAudio = () => {
+    // AUDIBLE CRISP SINGLE FOOTSTEP (Web Audio API)
+    const playSingleFootstep = () => {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+
+            if (!audioCtxRef.current) audioCtxRef.current = new AudioCtx();
+            const ctx = audioCtxRef.current;
+            if (ctx.state === 'suspended') ctx.resume();
+
+            const isLeft = isLeftFoot.current;
+            isLeftFoot.current = !isLeft;
+
+            const mainGain = ctx.createGain();
+            mainGain.gain.setValueAtTime(0.26, ctx.currentTime);
+
+            const osc = ctx.createOscillator();
+            const oscGain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(isLeft ? 90 : 100, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(32, ctx.currentTime + 0.08);
+
+            oscGain.gain.setValueAtTime(0.28, ctx.currentTime);
+            oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+
+            const bufferSize = Math.floor(ctx.sampleRate * 0.06);
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.012));
+            }
+
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const noiseFilter = ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.value = isLeft ? 1250 : 1480;
+            noiseFilter.Q.value = 1.8;
+
+            const noiseGain = ctx.createGain();
+            noiseGain.gain.setValueAtTime(0.30, ctx.currentTime);
+            noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+
+            const delayNode = ctx.createDelay();
+            delayNode.delayTime.value = 0.16;
+
+            const feedbackGain = ctx.createGain();
+            feedbackGain.gain.value = 0.28;
+
+            osc.connect(oscGain);
+            noise.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+
+            oscGain.connect(mainGain);
+            noiseGain.connect(mainGain);
+
+            mainGain.connect(delayNode);
+            delayNode.connect(feedbackGain);
+            feedbackGain.connect(delayNode);
+
+            mainGain.connect(ctx.destination);
+            delayNode.connect(ctx.destination);
+
+            osc.start(); noise.start();
+            osc.stop(ctx.currentTime + 0.09);
+            noise.stop(ctx.currentTime + 0.09);
+        } catch (e) {}
+    };
+
+    // PLAY 3-SECOND REALISTIC WALKING FOOTSTEP AMBIENCE SEQUENCE
+    const trigger3SecFootstepSequence = () => {
+        playSingleFootstep();
+        
+        // Sequence of 5 natural footsteps over 3 seconds
+        setTimeout(() => playSingleFootstep(), 500);
+        setTimeout(() => playSingleFootstep(), 1150);
+        setTimeout(() => playSingleFootstep(), 1750);
+        setTimeout(() => playSingleFootstep(), 2400);
+    };
+
+    // GUARANTEED SOUND ENGINE UNLOCKER (Calls play() on all 6 audio elements + 3s Footstep Ambience)
+    const forceUnlockAudio = (isExplicitTap = false) => {
+        if (isExplicitTap) {
+            setShow10sSplashOverlay(false);
+            trigger3SecFootstepSequence();
+        }
+
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) {
@@ -394,6 +484,22 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             }
         });
     };
+
+    // 10-Second Countdown & Auto-Dismiss Timer
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setSplashCountdown((prev) => {
+                if (prev <= 1) {
+                    setShow10sSplashOverlay(false);
+                    clearInterval(timer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, []);
 
     // CHECKPOINT-ONLY SYNC
     const performCheckpointSync = () => {
@@ -515,97 +621,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // AUDIBLE CRISP FOOTSTEPS (-30% VOLUME REDUCTION + WET SPATIAL ECHO REVERB)
-    const playAudibleFootstep = () => {
-        const now = Date.now();
-        if (now - lastStepTime.current < 220) return;
-        lastStepTime.current = now;
-
-        try {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (!AudioCtx) return;
-
-            if (!audioCtxRef.current) audioCtxRef.current = new AudioCtx();
-            const ctx = audioCtxRef.current;
-            if (ctx.state === 'suspended') ctx.resume();
-
-            const isLeft = isLeftFoot.current;
-            isLeftFoot.current = !isLeft;
-
-            const mainGain = ctx.createGain();
-            mainGain.gain.setValueAtTime(0.24, ctx.currentTime);
-
-            const osc = ctx.createOscillator();
-            const oscGain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(isLeft ? 85 : 95, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.08);
-
-            oscGain.gain.setValueAtTime(0.25, ctx.currentTime);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-
-            const bufferSize = Math.floor(ctx.sampleRate * 0.06);
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.012));
-            }
-
-            const noise = ctx.createBufferSource();
-            noise.buffer = buffer;
-
-            const noiseFilter = ctx.createBiquadFilter();
-            noiseFilter.type = 'bandpass';
-            noiseFilter.frequency.value = isLeft ? 1200 : 1450;
-            noiseFilter.Q.value = 1.8;
-
-            const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.28, ctx.currentTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
-
-            const delayNode = ctx.createDelay();
-            delayNode.delayTime.value = 0.16;
-
-            const feedbackGain = ctx.createGain();
-            feedbackGain.gain.value = 0.28;
-
-            const echoFilter = ctx.createBiquadFilter();
-            echoFilter.type = 'lowpass';
-            echoFilter.frequency.value = 1800;
-
-            const panner = (typeof ctx.createStereoPanner === 'function') ? ctx.createStereoPanner() : null;
-            if (panner) {
-                panner.pan.setValueAtTime(isLeft ? -0.4 : 0.4, ctx.currentTime);
-            }
-
-            osc.connect(oscGain);
-            noise.connect(noiseFilter);
-            noiseFilter.connect(noiseGain);
-
-            oscGain.connect(mainGain);
-            noiseGain.connect(mainGain);
-
-            mainGain.connect(delayNode);
-            delayNode.connect(echoFilter);
-            echoFilter.connect(feedbackGain);
-            feedbackGain.connect(delayNode);
-
-            if (panner) {
-                mainGain.connect(panner);
-                echoFilter.connect(panner);
-                panner.connect(ctx.destination);
-            } else {
-                mainGain.connect(ctx.destination);
-                echoFilter.connect(ctx.destination);
-            }
-
-            osc.start();
-            noise.start();
-            osc.stop(ctx.currentTime + 0.09);
-            noise.stop(ctx.currentTime + 0.09);
-        } catch (e) {}
-    };
-
     // 5-SECOND EXTENDED WALKING PACING TIMELINE
     useEffect(() => {
         const interval = setInterval(() => {
@@ -650,7 +665,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            playAudibleFootstep();
+            playSingleFootstep();
             setIsHeadBobbing(true);
             setTimeout(() => setIsHeadBobbing(false), 160);
         };
@@ -702,7 +717,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                playAudibleFootstep();
+                playSingleFootstep();
                 setIsHeadBobbing(true);
                 setTimeout(() => setIsHeadBobbing(false), 160);
             }
@@ -823,7 +838,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     {/* LIVE DEV KINETICS ACCUMULATIVE POWER GAUGE HUD */}
                     <div className="flex flex-col items-center gap-1.5">
                         <button
-                            onClick={() => forceUnlockAudio()}
+                            onClick={() => forceUnlockAudio(true)}
                             className="pointer-events-auto inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-white/20 shadow-2xl font-mono text-[11px] font-bold hover:border-[#E7FF00] transition-colors"
                         >
                             <div className="flex items-center gap-1.5">
@@ -866,19 +881,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                 style={{ width: `${livePower}%` }}
                             />
                         </div>
-
-                        {/* Tap to Unmute Prompt */}
-                        {!hasUserUnlockedAudio && (
-                            <motion.button
-                                onClick={() => forceUnlockAudio()}
-                                initial={{ opacity: 0, y: -5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="pointer-events-auto mt-1 px-3 py-1 rounded-full bg-[#E7FF00] text-black font-mono text-[9px] font-black uppercase tracking-widest flex items-center gap-1 shadow-[0_0_15px_rgba(231,255,0,0.6)] animate-pulse"
-                            >
-                                <Volume2 className="w-3 h-3" />
-                                <span>TAP ANYWHERE TO UNLOCK BASS SOUND</span>
-                            </motion.button>
-                        )}
                     </div>
 
                     {/* True 3D Letter-by-Letter Assembled Kinetic Typography & Building Sign Overlay */}
@@ -991,54 +993,55 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* 2. LAYER ABOVE BLUR: SOFT BREATHING SHIMMER */}
+            {/* 4. 10-SECOND INITIAL SOUND UNLOCKER SPLASH OVERLAY CARD */}
             <AnimatePresence>
-                {isInitialBuffering && (
+                {show10sSplashOverlay && !isInitialBuffering && (
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, transition: { duration: 0.6 } }}
-                        className="fixed inset-0 pointer-events-none z-50 flex items-center justify-end pr-5 sm:pr-10"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.4 } }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm pointer-events-auto"
+                        onClick={() => forceUnlockAudio(true)}
                     >
-                        <motion.div
-                            initial={{ x: 40, opacity: 0 }}
-                            animate={{ 
-                                x: 0, 
-                                opacity: 1,
-                                scale: isLocked30Glitter ? [1.0, 1.04, 1.0] : 1.0
+                        <motion.button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                forceUnlockAudio(true);
                             }}
-                            exit={{ x: 40, opacity: 0 }}
-                            transition={isLocked30Glitter ? { repeat: Infinity, duration: 1.6, ease: "easeInOut" } : { duration: 0.4 }}
-                            className={`p-3.5 rounded-3xl bg-black/90 backdrop-blur-2xl border transition-all duration-500 shadow-2xl flex flex-col items-center gap-3 ${
-                                isLocked30Glitter 
-                                    ? 'border-[#E7FF00]/70 shadow-[0_0_22px_rgba(231,255,0,0.35)]' 
-                                    : 'border-white/20'
-                            }`}
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            className="relative w-full max-w-md p-6 rounded-3xl bg-black/90 border border-[#E7FF00]/80 shadow-[0_0_50px_rgba(231,255,0,0.4)] text-center flex flex-col items-center gap-4 cursor-pointer outline-none"
                         >
-                            <Volume2 className={`w-4 h-4 transition-colors ${isLocked30Glitter ? 'text-[#E7FF00]' : 'text-white/70'}`} />
-                            <div className="w-2 h-28 bg-white/20 rounded-full overflow-hidden flex flex-col justify-end p-0.5">
-                                <motion.div
-                                    className="w-full bg-[#E7FF00] rounded-full transition-all duration-200"
-                                    style={{ height: `${simulatedVolume}%` }}
-                                />
+                            <div className="w-12 h-12 rounded-2xl bg-[#E7FF00]/10 border border-[#E7FF00]/40 flex items-center justify-center text-[#E7FF00]">
+                                <Volume2 className="w-6 h-6 animate-pulse" />
                             </div>
-                            <motion.span 
-                                animate={isLocked30Glitter ? { opacity: [0.8, 1, 0.8], scale: [0.98, 1.04, 0.98] } : {}}
-                                transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
-                                className={`font-mono text-[10px] font-bold tracking-wider transition-all duration-300 ${
-                                    isLocked30Glitter 
-                                        ? 'text-[#E7FF00] drop-shadow-[0_0_8px_rgba(231,255,0,0.5)]' 
-                                        : 'text-white'
-                                }`}
-                            >
-                                {simulatedVolume}%
-                            </motion.span>
-                        </motion.div>
+
+                            <div>
+                                <span className="font-mono text-[10px] text-[#E7FF00] font-bold tracking-[0.25em] uppercase block mb-1">
+                                    JUST SEAN FLOWS // AUDIO EXPERIENCE
+                                </span>
+                                <h3 className="font-sans text-lg sm:text-xl font-black text-white uppercase tracking-tight">
+                                    TAP TO START MIDNIGHT SOUND
+                                </h3>
+                                <p className="font-mono text-[10px] text-white/60 mt-1">
+                                    Triggers immediate footstep &amp; 3-second walking ambience
+                                </p>
+                            </div>
+
+                            <div className="w-full py-3.5 rounded-full bg-[#E7FF00] text-black font-mono text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(231,255,0,0.5)]">
+                                <Play className="w-4 h-4 fill-current" />
+                                <span>TAP TO START ({splashCountdown}s)</span>
+                            </div>
+
+                            <span className="font-mono text-[9px] text-white/40">
+                                Auto-dismisses in {splashCountdown} seconds
+                            </span>
+                        </motion.button>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* 3. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
+            {/* 5. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
             <div className="fixed inset-x-0 bottom-0 h-48 pointer-events-none z-30 overflow-hidden">
                 <motion.div
                     animate={{
@@ -1057,9 +1060,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     );
 }
 
-// ==============================================================================
-// 2. FRANKFURT SOUND ATELIER & GUILD INTEL MODAL
-// ==============================================================================
+// FRANKFURT SOUND ATELIER MODAL
 function FrankfurtAtelierModal({ onClose }) {
     return (
         <motion.div
@@ -1143,9 +1144,7 @@ function FrankfurtAtelierModal({ onClose }) {
     );
 }
 
-// ==============================================================================
-// 3. STEM MIXER & MULTI-ENDING CONSOLE
-// ==============================================================================
+// STEM MIXER STAGE
 function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, onGenerateTicket }) {
     return (
         <div className="pt-20 pb-20 px-4 sm:px-8 max-w-4xl mx-auto">
@@ -1214,9 +1213,7 @@ function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, 
     );
 }
 
-// ==============================================================================
-// 4. INSTAGRAM STORY 9:16 VIP TICKET MODAL & CANVAS GENERATOR
-// ==============================================================================
+// INSTAGRAM STORY 9:16 VIP TICKET MODAL
 function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
     const canvasRef = useRef(null);
     const [ticketDataUrl, setTicketDataUrl] = useState(null);
