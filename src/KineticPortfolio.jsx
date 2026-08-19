@@ -84,7 +84,7 @@ const DEFAULT_ENDING = {
     quote: 'Holding a cold martini, captivated by solo violin at midnight.'
 };
 
-// 100 DISTINCT ATELIER CONCEPT FRAGMENTS WITH MAXIMUM STYLING & FONT VARIETY
+// 100 DISTINCT ATELIER CONCEPT FRAGMENTS
 const ATELIER_100_WORDS = [
     // --- 1. MUSICAL TERMS & CADENZAS (1-20) ---
     "CADENZA", "ALLEGRO", "TUTTI", "FORTE", "TEMPO 128", 
@@ -116,10 +116,11 @@ const ATELIER_100_WORDS = [
     "⚜ ATELIER", "§ SERENADE", "¶ NOCTURNE", "@just.sean.flows"
 ];
 
-// GENERATE 100 WILDLY DISTINCT STYLED ATELIER DEBRIS OBJECTS
+// GENERATE 100 NON-BOXED & HIGHLY DIVERSE SHAPE CATEGORIES
 const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
-    // 8 Varied Container Style Types
-    const styleType = i % 8;
+    // 7 Non-Boxy Shape Categories
+    const isEmoji = ["🔑", "🗝️", "🔒", "⚜", "§", "¶"].includes(text);
+    const shapeCategory = isEmoji ? 6 : (i % 6);
     
     // 7 Color Palette Tones
     const colors = ['#E7FF00', '#00F0FF', '#FF0055', '#FFFFFF', '#C5A059', '#A855F7', '#10B981'];
@@ -141,8 +142,7 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
     const rotation = ((i * 13) % 45) - 22;
 
     // Varied Sizes
-    const isEmoji = ["🔑", "🗝️", "🔒", "⚜", "§", "¶"].includes(text);
-    const sizeClass = isEmoji ? "text-xl sm:text-3xl" : (i % 5 === 0 ? "text-xs sm:text-sm" : "text-[9px] sm:text-[11px]");
+    const sizeClass = isEmoji ? "text-xl sm:text-3xl" : (i % 4 === 0 ? "text-xs sm:text-sm" : "text-[9px] sm:text-[11px]");
 
     // Distribute evenly across screen width (3vw to 94vw)
     const leftPercent = 3 + ((i * 19 + (i % 9) * 11) % 92);
@@ -158,7 +158,7 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
     return {
         id: i,
         text,
-        styleType,
+        shapeCategory,
         color,
         fontFamily,
         rotation,
@@ -167,7 +167,7 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
         left: `${leftPercent}vw`,
         pullXPx: pullX * 4,
         delay: (i * 0.08) % 3.2,
-        duration: isLarge ? 7.8 : isMedium ? 4.6 : 2.4, // Diverse speeds (2.4s to 7.8s)
+        duration: isLarge ? 7.8 : isMedium ? 4.6 : 2.4, // Diverse speeds
         opacityMax: 0.35 + (i % 6) * 0.10,
         zDepth,
         tiltMult,
@@ -333,7 +333,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & 100-ITEM DICTIONARY DEBRIS STAGE
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & DIVERSE NON-BOXY DEBRIS STAGE
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -931,7 +931,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: 100 WILDLY DISTINCT STYLED ATELIER DEBRIS OBJECTS */}
+            {/* 2. INITIAL UNLOCK SPLASH: 100 NON-BOXY DEBRIS & 50% DARK / 3% BLUR READABILITY FILTER */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -947,8 +947,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* 100-ITEM 3D PARALLAX DICTIONARY DEBRIS LAYER */}
-                        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
+                        {/* 50% DARK OVERLAY & SUBTLE 3% BLUR FILTER LAYER BEHIND LET'S GO ! */}
+                        <div className="absolute inset-0 bg-black/50 backdrop-blur-[3px] pointer-events-none z-10" />
+
+                        {/* 100-ITEM 3D PARALLAX DICTIONARY DEBRIS LAYER (Z-0) */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
                             {ATELIER_DEBRIS_100.map((item) => {
                                 const tiltXVal = tilt.x * 26 * item.tiltMult;
                                 const tiltYVal = tilt.y * 26 * item.tiltMult;
@@ -986,74 +989,65 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                         }}
                                         className="absolute select-none transition-transform duration-150 ease-out flex items-center justify-center pointer-events-none"
                                     >
-                                        {/* 8 DIVERSE CONTAINER STYLES */}
-                                        {item.styleType === 0 && (
+                                        {/* 7 DISTINCT NON-BOXY SHAPE CATEGORIES */}
+                                        {item.shapeCategory === 0 && (
                                             <div 
-                                                className={`px-3 py-1 rounded-md border border-amber-500/50 bg-amber-950/60 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase shadow-[0_0_15px_rgba(197,160,89,0.4)]`}
-                                                style={{ color: item.color, borderColor: `${item.color}70` }}
-                                            >
-                                                {item.text}
-                                            </div>
-                                        )}
-
-                                        {item.styleType === 1 && (
-                                            <div 
-                                                className={`px-3 py-0.5 rounded-full border bg-black/80 ${item.fontFamily} ${item.sizeClass} tracking-wider uppercase shadow-[0_0_20px_rgba(0,240,255,0.4)]`}
-                                                style={{ color: item.color, borderColor: `${item.color}80` }}
-                                            >
-                                                {item.text}
-                                            </div>
-                                        )}
-
-                                        {item.styleType === 2 && (
-                                            <div 
-                                                className={`px-2.5 py-1 rounded-sm border-2 border-dashed bg-black/70 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
-                                                style={{ color: item.color, borderColor: `${item.color}60` }}
-                                            >
-                                                {item.text}
-                                            </div>
-                                        )}
-
-                                        {item.styleType === 3 && (
-                                            <div 
-                                                className={`font-serif italic font-medium underline underline-offset-4 ${item.sizeClass} tracking-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]`}
-                                                style={{ color: item.color, textDecorationColor: `${item.color}80` }}
-                                            >
-                                                {item.text}
-                                            </div>
-                                        )}
-
-                                        {item.styleType === 4 && (
-                                            <div 
-                                                className={`font-sans font-black tracking-tighter uppercase ${item.sizeClass} drop-shadow-[0_0_15px_rgba(231,255,0,0.5)]`}
+                                                className={`${item.fontFamily} ${item.sizeClass} tracking-wider drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]`}
                                                 style={{ color: item.color }}
                                             >
                                                 {item.text}
                                             </div>
                                         )}
 
-                                        {item.styleType === 5 && (
+                                        {item.shapeCategory === 1 && (
                                             <div 
-                                                className="w-10 h-10 rounded-full border-2 bg-amber-900/60 flex items-center justify-center font-mono font-black text-xs shadow-lg"
-                                                style={{ color: item.color, borderColor: `${item.color}80` }}
-                                            >
-                                                {item.text}
-                                            </div>
-                                        )}
-
-                                        {item.styleType === 6 && (
-                                            <div 
-                                                className={`px-3 py-1.5 rounded-lg border-2 bg-neutral-900/90 ${item.fontFamily} ${item.sizeClass} tracking-[0.25em] uppercase shadow-2xl`}
+                                                className={`px-3.5 py-0.5 rounded-full border bg-black/60 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase shadow-[0_0_15px_rgba(0,0,0,0.5)]`}
                                                 style={{ color: item.color, borderColor: `${item.color}70` }}
                                             >
                                                 {item.text}
                                             </div>
                                         )}
 
-                                        {item.styleType === 7 && (
+                                        {item.shapeCategory === 2 && (
                                             <div 
-                                                className={`px-2 py-0.5 rounded bg-white/10 ${item.fontFamily} ${item.sizeClass} border tracking-wider`}
-                                                style={{ color: item.color, borderColor: `${item.color}40` }}
+                                                className="w-10 h-10 rounded-full border-2 bg-neutral-900/80 flex items-center justify-center font-mono font-black text-xs shadow-xl"
+                                                style={{ color: item.color, borderColor: `${item.color}80` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.shapeCategory === 3 && (
+                                            <div 
+                                                className={`font-serif italic font-medium underline underline-offset-8 decoration-2 ${item.sizeClass} tracking-normal drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]`}
+                                                style={{ color: item.color, textDecorationColor: `${item.color}80` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.shapeCategory === 4 && (
+                                            <div 
+                                                className={`px-3 py-1 bg-neutral-900/90 border-l-4 -skew-x-12 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase shadow-lg`}
+                                                style={{ color: item.color, borderLeftColor: item.color }}
+                                            >
+                                                <span className="inline-block skew-x-12">{item.text}</span>
+                                            </div>
+                                        )}
+
+                                        {item.shapeCategory === 5 && (
+                                            <div 
+                                                className={`px-3 py-0.5 rounded-sm border border-dashed bg-black/70 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
+                                                style={{ color: item.color, borderColor: `${item.color}60` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.shapeCategory === 6 && (
+                                            <div 
+                                                className={`${item.sizeClass} drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] leading-none`}
+                                                style={{ color: item.color }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1063,7 +1057,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER (Z-20) */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
