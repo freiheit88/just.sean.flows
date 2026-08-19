@@ -56,7 +56,7 @@ const FRAMES = [
         src: "/assets/logo_v09_no65_door_knocker_1787173209628.jpg", 
         titleTop: "SECRET HIDEAWAY", 
         titleMain: "MY PRIVATE HAVEN.", 
-        sub: "Cast Bronze Door Emblem"
+        sub: "Cast Bronze Emblem"
     },
     { 
         id: 5, 
@@ -279,7 +279,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. INSTANT UNLOCK & IMMEDIATE BASS PLAYBACK ENGINE
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE (MEDIA ELEMENT SOURCE BRIDGING)
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -302,6 +302,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const synthRef = useRef(null);
     const vocalRef = useRef(null);
 
+    // Unified Web Audio Media Element Source Nodes to avoid multi-thread sound card interference!
+    const mediaNodesRef = useRef({});
+
     const prevStemVolsRef = useRef({ guitar: 0, drums: 0, perc: 0, synth: 0, vocal: 0 });
 
     // Dynamic Footstep Timestamp Guard & Alternating Foot State
@@ -321,7 +324,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
 
-    // INDEPENDENT WEB AUDIO SYNTHESIZED FOOTSTEP
+    // UNIFIED WEB AUDIO FOOTSTEP SYNTHESIZER
     const playSingleFootstepSound = () => {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -390,7 +393,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // DYNAMIC SPEED-BASED FOOTSTEP PACING TRIGGER (320ms to 800ms)
+    // DYNAMIC PACING TRIGGER (320ms to 800ms)
     const triggerCleanFootstep = (speedVelocity = 1) => {
         const now = Date.now();
         const dynamicInterval = Math.max(320, 800 - Math.min(speedVelocity * 60, 480));
@@ -401,7 +404,31 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         }
     };
 
-    // GUARANTEED INSTANT BASS & SOUND ENGINE UNLOCKER
+    // SETUP UNIFIED WEB AUDIO MEDIA GRAPH (BRIDGES HTML5 AUDIO INTO SINGLE AudioContext)
+    const setupUnifiedAudioGraph = (ctx) => {
+        const stemsMap = {
+            bass: bassRef, guitar: guitarRef, drums: drumsRef,
+            perc: percRef, synth: synthRef, vocal: vocalRef
+        };
+
+        Object.keys(stemsMap).forEach((key) => {
+            const ref = stemsMap[key];
+            if (ref.current && !mediaNodesRef.current[key]) {
+                try {
+                    const sourceNode = ctx.createMediaElementSource(ref.current);
+                    const gainNode = ctx.createGain();
+                    gainNode.gain.value = key === 'bass' ? 0.50 : 0.0;
+                    sourceNode.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    mediaNodesRef.current[key] = { sourceNode, gainNode };
+                } catch (e) {
+                    // Fallback to HTML5 audio native volume if MediaElementSource is already bound
+                }
+            }
+        });
+    };
+
+    // GUARANTEED INSTANT BASS & SOUND ENGINE UNLOCKER WITH UNIFIED WEB AUDIO GRAPH
     const forceUnlockAudio = (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
 
@@ -414,9 +441,10 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) {
                 if (!audioCtxRef.current) audioCtxRef.current = new AudioCtx();
-                if (audioCtxRef.current.state === 'suspended') {
-                    audioCtxRef.current.resume();
-                }
+                const ctx = audioCtxRef.current;
+                if (ctx.state === 'suspended') ctx.resume();
+
+                setupUnifiedAudioGraph(ctx);
             }
         } catch (err) {}
 
@@ -425,6 +453,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             bassRef.current.muted = false;
             bassRef.current.playsInline = true;
             bassRef.current.volume = 0.50;
+            if (mediaNodesRef.current.bass) {
+                mediaNodesRef.current.bass.gainNode.gain.value = 0.50;
+            }
             if (bassRef.current.paused) {
                 bassRef.current.play().catch(() => {});
             }
@@ -460,7 +491,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // REAL-TIME VOLUME DECAY & INSTANT STEM PLAYBACK ENGINE
+    // REAL-TIME VOLUME DECAY & UNIFIED DSP GAIN ASSIGNMENT
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
@@ -537,9 +568,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             setAudioTier(tier);
 
-            // Instant Master Bass Playback Enforcement
+            // Master Bass Volume & Gain Adjustment
             if (bassRef.current) {
                 bassRef.current.volume = targetBass;
+                if (mediaNodesRef.current.bass) {
+                    mediaNodesRef.current.bass.gainNode.gain.value = targetBass;
+                }
                 if (bassRef.current.paused) {
                     bassRef.current.play().catch(() => {});
                 }
@@ -556,6 +590,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     }
 
                     ref.current.volume = targetVol;
+                    if (mediaNodesRef.current[stemKey]) {
+                        mediaNodesRef.current[stemKey].gainNode.gain.value = targetVol;
+                    }
                     prevStemVolsRef.current[stemKey] = targetVol;
 
                     if (targetVol > 0 && ref.current.paused) {
@@ -1002,7 +1039,7 @@ function FrankfurtAtelierModal({ onClose }) {
 
                 <button
                     onClick={onClose}
-                    className="w-full py-4 rounded-full bg-[#00F0FF] text-[#000000] font-mono text-xs font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)] my-2"
+                    className="w-full py-4 rounded-full bg-[#00F0FF] text-[#000000] font-mono text-[#000000] font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)] my-2"
                 >
                     RESUME WALKING TOWARDS CONCERT PALACE →
                 </button>
