@@ -16,11 +16,70 @@ const STEM_SRCS = {
     drums: "/assets/manual_upload/A%20Twelve-minute%20Alibi/1%20Drums.mp3",
     perc: "/assets/manual_upload/A%20Twelve-minute%20Alibi/4%20Percussion.mp3",
     synth: "/assets/manual_upload/A%20Twelve-minute%20Alibi/5%20Synth.mp3",
-    vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0 Lead Vocals.mp3",
+    vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
-// Fixed Hero Main Picture: 07. Stained Glass Transom Atelier
-const MAIN_HERO_IMAGE = "/assets/wine_atelier_01_stained_glass_1787173882749.jpg";
+// Full 7-Step Flipbook Story Timeline (100% Logo No. 65 Wine × Treble Atelier Collection)
+const FRAMES = [
+    { 
+        id: 0, 
+        src: "/assets/wine_atelier_04_neon_wisteria_1787173906304.jpg", 
+        titleTop: "JUST SEAN FLOWS", 
+        titleMain: "WALK WITH MUSIC?", 
+        sub: "Private Midnight Sound Sketch",
+        buildingSign: "BRAND MARK NO. 65 // BURGUNDY NEON WISTERIA"
+    },
+    { 
+        id: 1, 
+        src: "/assets/wine_atelier_01_stained_glass_1787173882749.jpg", 
+        titleTop: "GUILD ATELIER", 
+        titleMain: "WANT A QUICK LOOK?", 
+        sub: "Hybrid Sound Lab in Formation",
+        buildingSign: "BRAND MARK NO. 65 // STAINED GLASS TRANSOM",
+        hasBuildingTarget: true
+    },
+    { 
+        id: 2, 
+        src: "/assets/wine_atelier_02_poster_brick_1787173891199.jpg", 
+        titleTop: "02:00 AM", 
+        titleMain: "STILL AWAKE HERE.", 
+        sub: "24/7 Letterpress Concert Poster Lab",
+        buildingSign: "BRAND MARK NO. 65 // LETTERPRESS POSTER"
+    },
+    { 
+        id: 3, 
+        src: "/assets/wine_atelier_03_tapestry_piano_1787173899303.jpg", 
+        titleTop: "CANAL ALLEY", 
+        titleMain: "PEEK INSIDE?", 
+        sub: "Steinway Piano & Woven Tapestry",
+        buildingSign: "BRAND MARK NO. 65 // ACOUSTIC TAPESTRY",
+        hasBuildingTarget: true
+    },
+    { 
+        id: 4, 
+        src: "/assets/logo_v09_no65_door_knocker_1787173209628.jpg", 
+        titleTop: "SECRET HIDEAWAY", 
+        titleMain: "MY PRIVATE HAVEN.", 
+        sub: "Cast Bronze Door Emblem",
+        buildingSign: "BRAND MARK NO. 65 // BRONZE EMBLEM"
+    },
+    { 
+        id: 5, 
+        src: "/assets/logo_v11_no65_amp_1787173235884.jpg", 
+        titleTop: "NEARLY THERE", 
+        titleMain: "ALMOST AT THE DOOR.", 
+        sub: "Custom Tube Amplifier Faceplate",
+        buildingSign: "BRAND MARK NO. 65 // TUBE AMP FACEPLATE"
+    },
+    { 
+        id: 6, 
+        src: "/assets/logo_v17_no65_glass_decal_1787173294923.jpg", 
+        titleTop: "STAGE READY", 
+        titleMain: "THE DOORS OPEN.", 
+        sub: "Flagship Gold Leaf Glass Decal Atelier",
+        buildingSign: "BRAND MARK NO. 65 // GOLD LEAF DECAL"
+    }
+];
 
 const DEFAULT_ENDING = {
     id: 'virtuoso',
@@ -228,10 +287,11 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. CENTERED PERFECT 9:16 MOBILE STAGE ON PC FOR UNIFIED PIXEL-PERFECT ALIGNMENT
+// 1. FULL 7-STEP FLIPBOOK WALKING TIMELINE WITH LOGO NO. 65 ATELIER COLLECTION
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
+    const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
     // Zero-Box Sound Unlocker Shockwave State
@@ -668,6 +728,14 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
+    useEffect(() => {
+        const frameIdx = Math.min(FRAMES.length - 1, Math.max(0, Math.floor((progress / 100) * FRAMES.length)));
+        setActiveFrameIdx(frameIdx);
+    }, [progress]);
+
+    const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
+    const isAtelierOptionVisible = (activeFrameIdx === 1 || activeFrameIdx === 3);
+
     const tiltX = (cursorPos.x - 0.5) * -18;
     const tiltY = (cursorPos.y - 0.5) * 12;
 
@@ -679,8 +747,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         >
             {/* Ambient Background Blur for Desktop */}
             <div 
-                className="hidden md:block absolute inset-0 bg-cover bg-center filter blur-3xl opacity-30 scale-110 pointer-events-none"
-                style={{ backgroundImage: `url(${MAIN_HERO_IMAGE})` }}
+                className="hidden md:block absolute inset-0 bg-cover bg-center filter blur-3xl opacity-30 scale-110 pointer-events-none transition-all duration-700"
+                style={{ backgroundImage: `url(${currentFrame.src})` }}
             />
 
             {/* 6 Synchronized Multi-Stem Audio Elements */}
@@ -709,64 +777,83 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 )}
             </AnimatePresence>
 
-            {/* 1. CENTERED PERFECT 9:16 STAGE FRAME FOR UNIFIED PC & MOBILE PIXEL-PERFECT ALIGNMENT */}
+            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE (RESPONSIVE FULLSCREEN / CENTERED STAGE) */}
             <div 
                 className="relative w-full h-full md:w-[430px] md:h-[90vh] md:max-h-[920px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.15)] overflow-hidden transition-all duration-700 bg-black"
                 style={{
                     filter: isInitialBuffering ? 'blur(22px) brightness(35%) saturate(50%)' : 'none'
                 }}
             >
-                <motion.div
-                    animate={{
-                        scale: isHeadBobbing ? 1.02 : 1.0,
-                        y: isHeadBobbing ? -5 : 0,
-                    }}
-                    transition={{ duration: 0.35, ease: 'easeOut' }}
-                    className="absolute inset-0 w-full h-full"
-                >
-                    <img
-                        src={MAIN_HERO_IMAGE}
-                        alt="J.S.F Stained Glass Sound Atelier"
-                        className="w-full h-full object-cover transition-transform duration-700 scale-100"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/60" />
-                </motion.div>
+                {FRAMES.map((f, idx) => {
+                    const isTargetBuildingFrame = (idx === 1 || idx === 3);
+                    return (
+                        <motion.div
+                            key={f.id}
+                            initial={false}
+                            animate={{
+                                opacity: activeFrameIdx === idx ? 1 : 0,
+                                scale: activeFrameIdx === idx ? (isHeadBobbing ? 1.02 : 1.0) : 1.05,
+                                y: activeFrameIdx === idx ? (isHeadBobbing ? -5 : 0) : 0,
+                            }}
+                            transition={{ duration: 0.5, ease: 'easeOut' }}
+                            className="absolute inset-0 w-full h-full"
+                        >
+                            <img
+                                src={f.src}
+                                alt={f.titleMain}
+                                className="w-full h-full object-cover transition-transform duration-700 scale-100"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/60" />
+                        </motion.div>
+                    );
+                })}
 
-                {/* 2. DIRECT CLICKABLE ATELIER DOOR ZONE */}
-                <div className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none">
-                    <motion.button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenAtelier();
-                        }}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        className="pointer-events-auto relative w-[200px] h-[360px] ml-[-20px] mt-[50px] rounded-2xl cursor-pointer group outline-none"
-                    >
-                        <div className="absolute inset-0 rounded-2xl border-2 border-[#E7FF00]/40 group-hover:border-[#E7FF00] transition-all duration-300 shadow-[0_0_30px_rgba(231,255,0,0.25)] group-hover:shadow-[0_0_50px_rgba(231,255,0,0.7)]" />
-                        <div className="absolute inset-0 rounded-2xl bg-[#E7FF00]/[0.03] group-hover:bg-[#E7FF00]/[0.08] transition-colors duration-300" />
-                    </motion.button>
-                </div>
+                {/* 2. DIRECT CLICKABLE ATELIER DOOR ZONE (FRAME 1 & 3) */}
+                <AnimatePresence>
+                    {isAtelierOptionVisible && !isInitialBuffering && (
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none"
+                        >
+                            <motion.button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenAtelier();
+                                }}
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                className="pointer-events-auto relative w-[200px] h-[360px] ml-[-20px] mt-[50px] rounded-2xl cursor-pointer group outline-none"
+                            >
+                                <div className="absolute inset-0 rounded-2xl border-2 border-[#E7FF00]/40 group-hover:border-[#E7FF00] transition-all duration-300 shadow-[0_0_30px_rgba(231,255,0,0.25)] group-hover:shadow-[0_0_50px_rgba(231,255,0,0.7)]" />
+                                <div className="absolute inset-0 rounded-2xl bg-[#E7FF00]/[0.03] group-hover:bg-[#E7FF00]/[0.08] transition-colors duration-300" />
+                            </motion.button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-                {/* 3. EXACT PHYSICAL SIGN MATCHING OVERLAY BADGE */}
-                <div className="absolute right-[6%] top-[48%] z-30 pointer-events-none">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8, x: 20 }}
-                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="relative px-3.5 py-2 rounded-xl bg-black/90 border border-[#C5A059] shadow-[0_0_25px_rgba(197,160,89,0.5)] backdrop-blur-xl flex flex-col items-center text-center"
-                    >
-                        <span className="font-mono text-[8px] text-[#C5A059] font-black tracking-[0.2em] uppercase block">
-                            @just.sean.flows
-                        </span>
-                        <span className="font-sans text-[11px] font-black text-white tracking-widest uppercase mt-0.5">
-                            J.S.F ATELIER SONORE
-                        </span>
-                        <span className="font-mono text-[7.5px] text-[#E7FF00] tracking-wider mt-0.5">
-                            FRANKFURT AM MAIN
-                        </span>
-                    </motion.div>
-                </div>
+                {/* 3. EXACT PHYSICAL SIGN MATCHING OVERLAY BADGE (ON FRAME 1 & 3) */}
+                {currentFrame.buildingSign && (
+                    <div className="absolute right-[6%] top-[48%] z-30 pointer-events-none">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                            animate={{ opacity: 1, scale: 1, x: 0 }}
+                            transition={{ duration: 0.6 }}
+                            className="relative px-3 py-1.5 rounded-xl bg-black/90 border border-[#C5A059] shadow-[0_0_25px_rgba(197,160,89,0.5)] backdrop-blur-xl flex flex-col items-center text-center"
+                        >
+                            <span className="font-mono text-[7.5px] text-[#C5A059] font-black tracking-[0.2em] uppercase block">
+                                @just.sean.flows
+                            </span>
+                            <span className="font-sans text-[10px] font-black text-white tracking-widest uppercase mt-0.5">
+                                J.S.F ATELIER SONORE
+                            </span>
+                            <span className="font-mono text-[7px] text-[#E7FF00] tracking-wider mt-0.5">
+                                FRANKFURT AM MAIN
+                            </span>
+                        </motion.div>
+                    </div>
+                )}
 
                 {/* 4. Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
@@ -828,52 +915,37 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </motion.div>
                     </div>
 
-                    {/* True 3D Letter-by-Letter Assembled Typography Over Stained Glass Atelier */}
+                    {/* True 3D Letter-by-Letter Assembled Typography Dynamic Per Step */}
                     <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
-                        {/* Brand Mark Emblem Overlay Badge */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8, y: 15 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            transition={{ duration: 0.4 }}
-                            className="mb-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/90 border border-[#C5A059] shadow-[0_0_25px_rgba(197,160,89,0.5)] backdrop-blur-xl"
-                        >
-                            <div className="w-3 h-3.5 bg-[#800020] border border-[#E7FF00] clip-path-pick rounded-xs flex items-center justify-center shadow-sm">
-                                <span className="w-1 h-1 rounded-full bg-white animate-ping" />
-                            </div>
-                            <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-widest uppercase">
-                                BRAND MARK NO. 65 // STAINED GLASS
-                            </span>
-                        </motion.div>
-
-                        <motion.div
-                            animate={{ 
-                                rotateY: tiltX,
-                                rotateX: tiltY,
-                                scale: cursorPos.isOverTitle ? 1.04 : 1.0
-                            }}
-                            transition={{ duration: 0.25, ease: 'easeOut' }}
-                            style={{ transformPerspective: 1200, transformStyle: 'preserve-3d' }}
-                            className="flex flex-col items-center text-center"
-                        >
-                            <h2 className="font-sans text-xl sm:text-2xl font-light tracking-tight text-[#E7FF00] uppercase leading-none mb-2">
-                                JUST SEAN FLOWS
-                            </h2>
-
-                            <h1 
-                                className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs"
-                                style={{
-                                    textShadow: cursorPos.isHovered 
-                                        ? `${tiltX * 1.8}px ${tiltY * 1.8}px 35px rgba(231,255,0,0.4)` 
-                                        : '0 0 35px rgba(0,0,0,0.9)'
-                                }}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={`assembled-title-${activeFrameIdx}`}
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{ duration: 0.3 }}
+                                className="flex flex-col items-center text-center"
                             >
-                                WANT A QUICK LOOK?
-                            </h1>
+                                <h2 className="font-sans text-xl sm:text-2xl font-light tracking-tight text-[#E7FF00] uppercase leading-none mb-2">
+                                    {currentFrame.titleTop}
+                                </h2>
 
-                            <p className="mt-3 font-mono text-[10px] tracking-[0.2em] uppercase text-white/90 max-w-xs bg-black/60 px-3 py-1 rounded-full border border-white/10 backdrop-blur-sm">
-                                @just.sean.flows · Sound Guild Atelier
-                            </p>
-                        </motion.div>
+                                <h1 
+                                    className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs"
+                                    style={{
+                                        textShadow: cursorPos.isHovered 
+                                            ? `${tiltX * 1.8}px ${tiltY * 1.8}px 35px rgba(231,255,0,0.4)` 
+                                            : '0 0 35px rgba(0,0,0,0.9)'
+                                    }}
+                                >
+                                    {currentFrame.titleMain}
+                                </h1>
+
+                                <p className="mt-3 font-mono text-[10px] tracking-[0.2em] uppercase text-white/90 max-w-xs bg-black/60 px-3 py-1 rounded-full border border-white/10 backdrop-blur-sm">
+                                    {currentFrame.sub}
+                                </p>
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
 
                     {/* Bottom Progress Track & Dynamic Sound Pulse Visualizer */}
