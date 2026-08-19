@@ -111,7 +111,7 @@ const ATELIER_100_WORDS = [
     "⚜ ATELIER", "§ SERENADE", "¶ NOCTURNE", "@just.sean.flows"
 ];
 
-// GENERATE 100 NON-BOXY & HIGHLY DIVERSE SHAPE CATEGORIES
+// CLEAN & DIVERSE SHAPE CATEGORIES
 const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
     const isEmoji = ["🔑", "🗝️", "🔒", "⚜", "§", "¶"].includes(text);
     const shapeCategory = isEmoji ? 6 : (i % 6);
@@ -155,11 +155,9 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
         left: `${leftPercent}vw`,
         pullXPx: pullX * 4,
         delay: (i * 0.08) % 3.2,
-        baseDuration: isLarge ? 7.2 : isMedium ? 4.2 : 2.2, // Base speed
-        opacityMax: 0.40 + (i % 6) * 0.10,
+        duration: isLarge ? 6.5 : isMedium ? 4.0 : 2.2, // Clean, elegant base duration
         zDepth,
-        tiltMult,
-        isLarge
+        tiltMult
     };
 });
 
@@ -169,15 +167,10 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // Amplified 3D Gyroscope & Mouse Parallax Orientation
+    // 3D Gyroscope & Mouse Parallax Orientation
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false });
     
-    // Dynamic Gyro Acceleration & Movement Speed Scalar (0.0 to 3.5)
-    const [gyroAccel, setGyroAccel] = useState(0);
-    const prevTiltRef = useRef({ x: 0, y: 0 });
-    const lastPointerMoveTimeRef = useRef(Date.now());
-
     const spotlightRef = useRef(null);
 
     const [stems, setStems] = useState({
@@ -221,27 +214,13 @@ export default function App() {
         setCurrentStep('ticket');
     };
 
-    // REAL-TIME GYROSCOPE ACCELERATION CALCULATOR & DECAY LOOP
-    useEffect(() => {
-        const accelDecayInterval = setInterval(() => {
-            setGyroAccel((prev) => Math.max(0, prev * 0.88 - 0.02));
-        }, 40);
-
-        return () => clearInterval(accelDecayInterval);
-    }, []);
-
-    // Mobile Gyroscope Device Orientation Event Listener
+    // Mobile Gyroscope Device Orientation Listener
     useEffect(() => {
         const handleDeviceOrientation = (e) => {
             if (e.beta !== null && e.gamma !== null) {
-                const normX = Math.max(-1, Math.min(1, e.gamma / 18));
-                const normY = Math.max(-1, Math.min(1, e.beta / 18));
-                
-                const delta = Math.hypot(normX - prevTiltRef.current.x, normY - prevTiltRef.current.y);
-                prevTiltRef.current = { x: normX, y: normY };
-
+                const normX = Math.max(-1, Math.min(1, e.gamma / 20));
+                const normY = Math.max(-1, Math.min(1, e.beta / 20));
                 setTilt({ x: normX, y: normY });
-                setGyroAccel((prev) => Math.min(3.5, prev + delta * 4.5));
             }
         };
 
@@ -253,12 +232,8 @@ export default function App() {
         const normX = (e.clientX / window.innerWidth - 0.5) * 2;
         const normY = (e.clientY / window.innerHeight - 0.5) * 2;
 
-        const delta = Math.hypot(normX - prevTiltRef.current.x, normY - prevTiltRef.current.y);
-        prevTiltRef.current = { x: normX, y: normY };
-
         setCursorPos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight, rawX: e.clientX, rawY: e.clientY, isHovered: true });
         setTilt({ x: normX, y: normY });
-        setGyroAccel((prev) => Math.min(3.5, prev + delta * 3.8));
 
         if (spotlightRef.current) {
             spotlightRef.current.style.transform = `translate3d(${e.clientX - 100}px, ${e.clientY - 100}px, 0)`;
@@ -303,7 +278,6 @@ export default function App() {
                 {currentStep === 'flipbook' && (
                     <FlipbookWalkingEngine 
                         tilt={tilt}
-                        gyroAccel={gyroAccel}
                         cursorPos={cursorPos}
                         onEnterMixer={() => setCurrentStep('mixer_ending')} 
                         onOpenAtelier={() => setShowAtelierModal(true)}
@@ -345,9 +319,12 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. DYNAMIC GYROSCOPE WARP SPEED & 80PX RGB CHROMATIC SHATTER STAGE
+// ULTRA-CLEAN 3-LOGIC STAGE:
+// Logic 1: 3D Gyro Tilt Parallax
+// Logic 2: Tilt-Based Ascending Speed Shift
+// Logic 3: Crisp Red & Cyan RGB Ghost Offset
 // ==============================================================================
-function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpenAtelier }) {
+function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     
@@ -795,23 +772,24 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
     const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
     const isAtelierOptionVisible = (activeFrameIdx === 1 || activeFrameIdx === 3);
 
-    const tiltX = tilt.x * 20;
-    const tiltY = tilt.y * 15;
+    // =========================================================================
+    // 3 CLEAN & ELEGANT CORE LOGICS ONLY:
+    // LOGIC 1: 3D Gyro Tilt Parallax
+    // LOGIC 2: Tilt-Based Ascending Speed Acceleration (Speed 1x -> 2.5x)
+    // LOGIC 3: Crisp Red & Cyan RGB Ghost Offset
+    // =========================================================================
 
-    // 1. HIGH-ACCELERATION GYRO SPEED SCALAR (1.0x at rest -> 3.5x warp acceleration!)
-    const speedMult = 1.0 + Math.min(2.5, gyroAccel * 1.2);
+    // LOGIC 1: Clean 3D Gyro Tilt Angles
+    const tiltX = tilt.x * 24;
+    const tiltY = tilt.y * 18;
 
-    // 2. COMPLETE FILTER BLOWOUT & CLEAR OUT (70% Dark / 6px Blur at rest -> 0% Dark / 0px Blur when fast!)
-    const dynamicDarkOpacity = Math.max(0.0, 0.70 - gyroAccel * 0.35);
-    const dynamicBlurPx = Math.max(0.0, 6.0 - gyroAccel * 3.0).toFixed(1);
+    // LOGIC 2: Clean Speed Acceleration (1.0x -> 2.5x based on tilt magnitude)
+    const tiltMagnitude = Math.min(1.0, Math.hypot(tilt.x, tilt.y));
+    const speedMult = 1.0 + tiltMagnitude * 1.5;
 
-    // 3. MASSIVE 80PX RGB CHROMATIC SHATTER ("TANG! 💥" SUPER PUNCH)
-    const chromSplitX = (tilt.x * 35) + (Math.sin(Date.now() * 0.01) * gyroAccel * 15);
-    const chromSplitY = (tilt.y * 22) + (Math.cos(Date.now() * 0.01) * gyroAccel * 15);
-    const chromGlitchIntensity = Math.min(1.0, gyroAccel * 0.8 + Math.hypot(tilt.x, tilt.y) * 1.2);
-
-    // 4. 3D HYPERSPACE CAMERA ZOOM IN (+140px Z-Plane Warp)
-    const warpZDepth = gyroAccel * 55;
+    // LOGIC 3: Crisp RGB Ghost Offset Distance
+    const ghostOffsetX = tilt.x * 28;
+    const ghostOffsetY = tilt.y * 18;
 
     return (
         <div 
@@ -958,7 +936,7 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: GYRO ACCELERATION WARP DRIVE & 80PX RGB SHATTER */}
+            {/* 2. INITIAL UNLOCK SPLASH: SUPER CLEAN 3-LOGIC ATELIER STAGE */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -968,41 +946,23 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         onClick={(e) => forceUnlockAudio(e)}
                         onTouchStart={(e) => forceUnlockAudio(e)}
-                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/85 backdrop-blur-2xl cursor-pointer overflow-hidden"
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/90 cursor-pointer overflow-hidden"
                         style={{
                             perspective: '800px',
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* DYNAMIC GYRO BLOWOUT FILTER LAYER (BEHIND LET'S GO ! Z-10) */}
-                        <div 
-                            className="absolute inset-0 pointer-events-none z-10 transition-all duration-75 ease-out"
-                            style={{
-                                backgroundColor: `rgba(0, 0, 0, ${dynamicDarkOpacity})`,
-                                backdropFilter: `blur(${dynamicBlurPx}px)`
-                            }}
-                        />
-
-                        {/* 100-ITEM 3D PARALLAX WARP DRIVE DEBRIS LAYER (Z-0) */}
-                        <div 
-                            className="absolute inset-0 pointer-events-none overflow-hidden z-0 transition-transform duration-100 ease-out" 
-                            style={{ 
-                                transformStyle: 'preserve-3d',
-                                transform: `translateZ(${warpZDepth}px)`
-                            }}
-                        >
+                        {/* 100-ITEM 3D PARALLAX DEBRIS LAYER (Z-0) */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
                             {ATELIER_DEBRIS_100.map((item) => {
-                                const tiltXVal = tilt.x * 28 * item.tiltMult;
-                                const tiltYVal = tilt.y * 28 * item.tiltMult;
+                                const tiltXVal = tilt.x * 26 * item.tiltMult;
+                                const tiltYVal = tilt.y * 26 * item.tiltMult;
 
                                 const startY = item.isLarge ? '85vh' : '108vh';
                                 const endY = item.isLarge ? '10vh' : '-28vh';
 
-                                // Dynamic Speed Multiplier driven by Gyro Acceleration (Base Duration divided by speedMult!)
-                                const currentDuration = Math.max(0.6, item.baseDuration / speedMult);
-
-                                // Dynamic Hyper-Vibrant RGB Chromatic Shadow for Debris
-                                const rgbShadow = `${chromSplitX * 0.9}px ${chromSplitY * 0.9}px 14px rgba(255,0,85,${0.4 + chromGlitchIntensity * 0.6}), ${-chromSplitX * 0.9}px ${-chromSplitY * 0.9}px 14px rgba(0,240,255,${0.4 + chromGlitchIntensity * 0.6})`;
+                                // LOGIC 2: Clean Speed Acceleration based on Gyro Tilt
+                                const currentDuration = item.duration / speedMult;
 
                                 return (
                                     <motion.div
@@ -1017,8 +977,8 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                                         animate={{
                                             y: [startY, endY],
                                             x: [0, item.pullXPx],
-                                            opacity: [0, item.opacityMax + (gyroAccel * 0.15), 0],
-                                            scale: [0.6, 1.15 + (gyroAccel * 0.12), 0.5],
+                                            opacity: [0, item.opacityMax, 0],
+                                            scale: [0.6, 1.15, 0.5],
                                             rotate: [item.rotation, item.rotation * -0.5, item.rotation]
                                         }}
                                         transition={{
@@ -1032,16 +992,13 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                                             top: 0,
                                             transform: `translate3d(${tiltXVal}px, ${tiltYVal}px, ${item.zDepth}px)`
                                         }}
-                                        className="absolute select-none transition-transform duration-150 ease-out flex items-center justify-center pointer-events-none"
+                                        className="absolute select-none flex items-center justify-center pointer-events-none"
                                     >
-                                        {/* 7 DISTINCT NON-BOXY SHAPE CATEGORIES */}
+                                        {/* 7 CLEAN SHAPE CATEGORIES */}
                                         {item.shapeCategory === 0 && (
                                             <div 
                                                 className={`${item.fontFamily} ${item.sizeClass} tracking-wider`}
-                                                style={{ 
-                                                    color: item.color,
-                                                    textShadow: rgbShadow
-                                                }}
+                                                style={{ color: item.color }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1049,12 +1006,8 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
 
                                         {item.shapeCategory === 1 && (
                                             <div 
-                                                className={`px-3.5 py-0.5 rounded-full border bg-black/60 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
-                                                style={{ 
-                                                    color: item.color, 
-                                                    borderColor: `${item.color}70`,
-                                                    boxShadow: rgbShadow
-                                                }}
+                                                className={`px-3 py-0.5 rounded-full border bg-black/70 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
+                                                style={{ color: item.color, borderColor: `${item.color}70` }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1062,12 +1015,8 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
 
                                         {item.shapeCategory === 2 && (
                                             <div 
-                                                className="w-10 h-10 rounded-full border-2 bg-neutral-900/80 flex items-center justify-center font-mono font-black text-xs"
-                                                style={{ 
-                                                    color: item.color, 
-                                                    borderColor: `${item.color}80`,
-                                                    boxShadow: rgbShadow
-                                                }}
+                                                className="w-9 h-9 rounded-full border-2 bg-neutral-900/90 flex items-center justify-center font-mono font-black text-xs"
+                                                style={{ color: item.color, borderColor: `${item.color}80` }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1075,12 +1024,8 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
 
                                         {item.shapeCategory === 3 && (
                                             <div 
-                                                className={`font-serif italic font-medium underline underline-offset-8 decoration-2 ${item.sizeClass} tracking-normal`}
-                                                style={{ 
-                                                    color: item.color, 
-                                                    textDecorationColor: `${item.color}80`,
-                                                    textShadow: rgbShadow
-                                                }}
+                                                className={`font-serif italic font-medium underline underline-offset-4 ${item.sizeClass} tracking-normal`}
+                                                style={{ color: item.color, textDecorationColor: `${item.color}80` }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1089,11 +1034,7 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                                         {item.shapeCategory === 4 && (
                                             <div 
                                                 className={`px-3 py-1 bg-neutral-900/90 border-l-4 -skew-x-12 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
-                                                style={{ 
-                                                    color: item.color, 
-                                                    borderLeftColor: item.color,
-                                                    boxShadow: rgbShadow
-                                                }}
+                                                style={{ color: item.color, borderLeftColor: item.color }}
                                             >
                                                 <span className="inline-block skew-x-12">{item.text}</span>
                                             </div>
@@ -1102,11 +1043,7 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                                         {item.shapeCategory === 5 && (
                                             <div 
                                                 className={`px-3 py-0.5 rounded-sm border border-dashed bg-black/70 ${item.fontFamily} ${item.sizeClass} tracking-widest uppercase`}
-                                                style={{ 
-                                                    color: item.color, 
-                                                    borderColor: `${item.color}60`,
-                                                    boxShadow: rgbShadow
-                                                }}
+                                                style={{ color: item.color, borderColor: `${item.color}60` }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1115,10 +1052,7 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                                         {item.shapeCategory === 6 && (
                                             <div 
                                                 className={`${item.sizeClass} leading-none`}
-                                                style={{ 
-                                                    color: item.color,
-                                                    filter: `drop-shadow(${chromSplitX * 1.5}px ${chromSplitY * 1.5}px 8px rgba(255,0,85,0.85)) drop-shadow(${-chromSplitX * 1.5}px ${-chromSplitY * 1.5}px 8px rgba(0,240,255,0.85))`
-                                                }}
+                                                style={{ color: item.color }}
                                             >
                                                 {item.text}
                                             </div>
@@ -1128,7 +1062,7 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH MASSIVE 80PX "TANG! 💥" RGB SHATTER (Z-20) */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH CRISP RED/CYAN GHOST OFFSET (Z-20) */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -1142,18 +1076,16 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                                 ease: 'easeInOut'
                             }}
                             style={{
-                                transform: `perspective(600px) rotateX(${tilt.y * -32}deg) rotateY(${tilt.x * 32}deg) translateZ(40px)`,
+                                transform: `perspective(600px) rotateX(${tiltY * -1.2}deg) rotateY(${tiltX * 1.2}deg) translateZ(40px)`,
                                 transformStyle: 'preserve-3d'
                             }}
-                            className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20 transition-transform duration-75 ease-out"
+                            className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20"
                         >
-                            {/* RED/MAGENTA RGB GHOST LAYER - MASSIVE 80PX "TANG! 💥" SHATTER */}
+                            {/* LOGIC 3: CRISP RED GHOST OFFSET */}
                             <div 
-                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none mix-blend-screen transition-transform duration-75 ease-out"
+                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-70 transition-transform duration-75 ease-out"
                                 style={{
-                                    transform: `translate3d(${-chromSplitX * 1.8}px, ${-chromSplitY * 1.8}px, 15px)`,
-                                    opacity: 0.40 + chromGlitchIntensity * 0.60,
-                                    filter: `drop-shadow(0 0 25px rgba(255,0,85,${0.5 + chromGlitchIntensity * 0.5}))`
+                                    transform: `translate3d(${-ghostOffsetX}px, ${-ghostOffsetY}px, 0)`
                                 }}
                             >
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">LET</span>
@@ -1162,13 +1094,11 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">!</span>
                             </div>
 
-                            {/* CYAN/NEON BLUE RGB GHOST LAYER - MASSIVE 80PX "TANG! 💥" SHATTER */}
+                            {/* LOGIC 3: CRISP CYAN GHOST OFFSET */}
                             <div 
-                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none mix-blend-screen transition-transform duration-75 ease-out"
+                                className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-70 transition-transform duration-75 ease-out"
                                 style={{
-                                    transform: `translate3d(${chromSplitX * 1.8}px, ${chromSplitY * 1.8}px, 15px)`,
-                                    opacity: 0.40 + chromGlitchIntensity * 0.60,
-                                    filter: `drop-shadow(0 0 25px rgba(0,240,255,${0.5 + chromGlitchIntensity * 0.5}))`
+                                    transform: `translate3d(${ghostOffsetX}px, ${ghostOffsetY}px, 0)`
                                 }}
                             >
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">LET</span>
@@ -1177,46 +1107,18 @@ function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpe
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">!</span>
                             </div>
 
-                            {/* MASTER CORE FOREGROUND LAYER (YELLOW / WHITE CORE) */}
+                            {/* MASTER CORE FOREGROUND TEXT */}
                             <div className="relative z-10 flex flex-col items-center text-center">
-                                <span 
-                                    className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
-                                    style={{
-                                        WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.85)',
-                                        color: 'transparent',
-                                        textShadow: '0 0 30px rgba(255,255,255,0.45)'
-                                    }}
-                                >
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
                                     LET
                                 </span>
-                                <span 
-                                    className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
-                                    style={{
-                                        WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.85)',
-                                        color: 'transparent',
-                                        textShadow: '0 0 30px rgba(255,255,255,0.45)'
-                                    }}
-                                >
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
                                     'S
                                 </span>
-                                <span 
-                                    className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
-                                    style={{
-                                        WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.85)',
-                                        color: 'transparent',
-                                        textShadow: '0 0 30px rgba(255,255,255,0.45)'
-                                    }}
-                                >
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
                                     GO
                                 </span>
-                                <span 
-                                    className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00]"
-                                    style={{
-                                        WebkitTextStroke: '2px rgba(231, 255, 0, 0.95)',
-                                        color: 'transparent',
-                                        textShadow: '0 0 40px rgba(231,255,0,0.9)'
-                                    }}
-                                >
+                                <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00] drop-shadow-[0_0_30px_#E7FF00]">
                                     !
                                 </span>
                             </div>
