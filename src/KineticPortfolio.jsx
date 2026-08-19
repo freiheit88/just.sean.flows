@@ -89,16 +89,12 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // High Precision Cursor Tracking with rAF Butter-Smooth Physics
+    // High Precision Subtle Cursor Flashlight Physics
     const [cursorPos, setCursorPos] = useState({ 
-        x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false, isOverTitle: false, isOverBuilding: false, speed: 0
+        x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false
     });
     
-    // Trail physics node positions stored in Ref to prevent 120Hz React state thrashing
-    const trailNodesRef = useRef(Array.from({ length: 14 }, () => ({ x: -100, y: -100 })));
-    const trailElsRef = useRef([]);
-    const rafIdRef = useRef(null);
-    const mousePosRef = useRef({ x: -100, y: -100, lastTime: Date.now() });
+    const spotlightRef = useRef(null);
 
     const [stems, setStems] = useState({
         violin: 85, electric: 60, bass: 75, orchestra: 90
@@ -141,50 +137,15 @@ export default function App() {
         setCurrentStep('ticket');
     };
 
-    // Ultra 60fps/120fps rAF Physics Loop for Cursor Ribbon (Zero Lag)
-    useEffect(() => {
-        const updateTrail = () => {
-            const nodes = trailNodesRef.current;
-            const targetX = mousePosRef.current.x;
-            const targetY = mousePosRef.current.y;
-
-            nodes[0] = { x: targetX, y: targetY };
-
-            for (let i = 1; i < nodes.length; i++) {
-                const prev = nodes[i - 1];
-                const curr = nodes[i];
-                const ease = 0.50 - i * 0.025;
-                curr.x += (prev.x - curr.x) * ease;
-                curr.y += (prev.y - curr.y) * ease;
-            }
-
-            trailElsRef.current.forEach((el, i) => {
-                if (el) {
-                    const node = nodes[i];
-                    const size = Math.max(3, 22 - i * 1.3);
-                    el.style.transform = `translate3d(${node.x - size / 2}px, ${node.y - size / 2}px, 0)`;
-                }
-            });
-
-            rafIdRef.current = requestAnimationFrame(updateTrail);
-        };
-
-        rafIdRef.current = requestAnimationFrame(updateTrail);
-        return () => {
-            if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-        };
-    }, []);
-
     const handlePointerMove = (e) => {
-        mousePosRef.current.x = e.clientX;
-        mousePosRef.current.y = e.clientY;
-
         const x = e.clientX / window.innerWidth;
         const y = e.clientY / window.innerHeight;
-        const isOverTitle = Math.abs(x - 0.5) < 0.28 && Math.abs(y - 0.5) < 0.22;
-        const isOverBuilding = Math.abs(x - 0.5) < 0.22 && Math.abs(y - 0.5) < 0.22;
 
-        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true, isOverTitle, isOverBuilding, speed: 0 });
+        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true });
+
+        if (spotlightRef.current) {
+            spotlightRef.current.style.transform = `translate3d(${e.clientX - 100}px, ${e.clientY - 100}px, 0)`;
+        }
     };
 
     return (
@@ -192,28 +153,17 @@ export default function App() {
             onPointerMove={handlePointerMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0 flex items-center justify-center"
         >
-            {/* 1. BUTTER-SMOOTH 120FPS DIRECT DOM RIBBON TAIL CURSOR */}
-            <div className="hidden md:block pointer-events-none fixed inset-0 z-50 overflow-hidden">
-                {trailNodesRef.current.map((_, i) => {
-                    const size = Math.max(3, 22 - i * 1.3);
-                    const opacity = Math.max(0.08, 0.92 - i * 0.06);
-                    const color = i % 2 === 0 ? '#E7FF00' : '#00F0FF';
-                    return (
-                        <div
-                            key={i}
-                            ref={(el) => (trailElsRef.current[i] = el)}
-                            style={{
-                                width: size,
-                                height: size,
-                                backgroundColor: color,
-                                opacity: cursorPos.isHovered ? opacity : 0,
-                                boxShadow: i === 0 ? '0 0 20px #E7FF00, 0 0 35px #00F0FF' : 'none',
-                                willChange: 'transform'
-                            }}
-                            className="fixed top-0 left-0 rounded-full pointer-events-none transition-opacity duration-150 mix-blend-screen"
-                        />
-                    );
-                })}
+            {/* 1. MINIMALIST NIGHT ALLEY FLASHLIGHT SPOTLIGHT CURSOR */}
+            <div 
+                ref={spotlightRef}
+                style={{
+                    willChange: 'transform',
+                    opacity: cursorPos.isHovered ? 1 : 0
+                }}
+                className="hidden md:block fixed top-0 left-0 w-[200px] h-[200px] rounded-full pointer-events-none z-50 transition-opacity duration-300 mix-blend-screen"
+            >
+                <div className="w-full h-full rounded-full bg-radial from-[#E7FF00]/15 via-white/[0.04] to-transparent filter blur-md" />
+                <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
             {/* 2. Editorial Brand Header */}
@@ -279,7 +229,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE (MEDIA ELEMENT SOURCE BRIDGING)
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -302,9 +252,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const synthRef = useRef(null);
     const vocalRef = useRef(null);
 
-    // Unified Web Audio Media Element Source Nodes to avoid multi-thread sound card interference!
     const mediaNodesRef = useRef({});
-
     const prevStemVolsRef = useRef({ guitar: 0, drums: 0, perc: 0, synth: 0, vocal: 0 });
 
     // Dynamic Footstep Timestamp Guard & Alternating Foot State
@@ -404,7 +352,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         }
     };
 
-    // SETUP UNIFIED WEB AUDIO MEDIA GRAPH (BRIDGES HTML5 AUDIO INTO SINGLE AudioContext)
+    // SETUP UNIFIED WEB AUDIO MEDIA GRAPH
     const setupUnifiedAudioGraph = (ctx) => {
         const stemsMap = {
             bass: bassRef, guitar: guitarRef, drums: drumsRef,
@@ -421,14 +369,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     sourceNode.connect(gainNode);
                     gainNode.connect(ctx.destination);
                     mediaNodesRef.current[key] = { sourceNode, gainNode };
-                } catch (e) {
-                    // Fallback to HTML5 audio native volume if MediaElementSource is already bound
-                }
+                } catch (e) {}
             }
         });
     };
 
-    // GUARANTEED INSTANT BASS & SOUND ENGINE UNLOCKER WITH UNIFIED WEB AUDIO GRAPH
+    // GUARANTEED INSTANT BASS & SOUND ENGINE UNLOCKER
     const forceUnlockAudio = (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
 
@@ -448,7 +394,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             }
         } catch (err) {}
 
-        // FORCE INSTANT BASS PLAYBACK (Level 1 Volume = 0.50)
         if (bassRef.current) {
             bassRef.current.muted = false;
             bassRef.current.playsInline = true;
@@ -568,7 +513,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             setAudioTier(tier);
 
-            // Master Bass Volume & Gain Adjustment
             if (bassRef.current) {
                 bassRef.current.volume = targetBass;
                 if (mediaNodesRef.current.bass) {
@@ -1039,7 +983,7 @@ function FrankfurtAtelierModal({ onClose }) {
 
                 <button
                     onClick={onClose}
-                    className="w-full py-4 rounded-full bg-[#00F0FF] text-[#000000] font-mono text-[#000000] font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)] my-2"
+                    className="w-full py-4 rounded-full bg-[#00F0FF] text-[#000000] font-mono text-xs font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)] my-2"
                 >
                     RESUME WALKING TOWARDS CONCERT PALACE →
                 </button>
@@ -1233,7 +1177,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
                 <span>ENDING UNLOCKED: {safeEnding.title}</span>
             </div>
 
-            <h2 className="font-sans text-3xl sm:text-5xl font-black text-white uppercase mb-2">
+            <h2 className="font-sans text-3xl sm:text-5xl font-black text-[#FFFFFF] uppercase mb-2">
                 9:16 VIP PASS READY
             </h2>
             <p className="font-mono text-[11px] text-white/60 max-w-xs mb-6">
