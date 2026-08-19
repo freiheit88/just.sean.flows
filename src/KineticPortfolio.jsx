@@ -145,7 +145,6 @@ export default function App() {
         <div 
             onPointerMove={handlePointerMove}
             onTouchMove={handleTouchMove}
-            style={{ overscrollBehavior: 'none', touchAction: 'none' }}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0"
         >
             {/* 1. Awwwards Magnetic Difference Jelly Lens */}
@@ -231,7 +230,7 @@ export default function App() {
                 </div>
             </header>
 
-            <main>
+            <main className="relative z-10 w-full h-full">
                 {currentStep === 'flipbook' && (
                     <FlipbookWalkingEngine 
                         cursorPos={cursorPos}
@@ -241,22 +240,26 @@ export default function App() {
                 )}
 
                 {currentStep === 'mixer_ending' && (
-                    <StemMixerEndingStage
-                        userNickname={userNickname}
-                        setUserNickname={setUserNickname}
-                        stems={stems}
-                        setStems={setStems}
-                        onGenerateTicket={calculateEnding}
-                    />
+                    <div className="w-full h-full overflow-y-auto pt-16 pb-24 touch-pan-y" style={{ touchAction: 'pan-y' }}>
+                        <StemMixerEndingStage
+                            userNickname={userNickname}
+                            setUserNickname={setUserNickname}
+                            stems={stems}
+                            setStems={setStems}
+                            onGenerateTicket={calculateEnding}
+                        />
+                    </div>
                 )}
 
                 {currentStep === 'ticket' && (
-                    <InstagramStoryTicketModal
-                        userNickname={userNickname || "SEAN"}
-                        ending={activeEnding || DEFAULT_ENDING}
-                        stems={stems}
-                        onBack={() => setCurrentStep('mixer_ending')}
-                    />
+                    <div className="w-full h-full overflow-y-auto pt-16 pb-24 touch-pan-y" style={{ touchAction: 'pan-y' }}>
+                        <InstagramStoryTicketModal
+                            userNickname={userNickname || "SEAN"}
+                            ending={activeEnding || DEFAULT_ENDING}
+                            stems={stems}
+                            onBack={() => setCurrentStep('mixer_ending')}
+                        />
+                    </div>
                 )}
             </main>
 
@@ -271,7 +274,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH CHECKPOINT SYNC & LEVEL FLOOR SYSTEM (0%, 20%, 50%, 80%)
+// 1. FLIPBOOK ENGINE WITH ECHO FOOTSTEPS (-30% VOLUME) & PROGRESSIVE TIER DIFFICULTY
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -306,11 +309,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     // Power Reservoir & Level Floor (Checkpoints: 0%, 20%, 50%, 80%)
     const currentPower = useRef(0);
-    const unlockedLevelFloor = useRef(0); // Holds the highest unlocked tier floor!
+    const unlockedLevelFloor = useRef(0);
     const lastScrollPumpTime = useRef(Date.now());
     const lastSyncTier = useRef(1);
 
-    // Guaranteed Mobile Audio Unlocker (No 200ms seeking loop -> buttery smooth audio)
+    // Guaranteed Mobile Audio Unlocker
     const forceUnlockMobileAudio = () => {
         if (isAudioStarted.current) return;
 
@@ -331,7 +334,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (r.current) {
                 r.current.muted = false;
                 r.current.playsInline = true;
-                // Bass is ALWAYS 50% steady baseline
                 if (idx === 0) {
                     r.current.volume = 0.50;
                 } else {
@@ -352,7 +354,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         });
     };
 
-    // CHECKPOINT-ONLY SYNC (Fires strictly when unlocking a new Level checkpoint)
+    // CHECKPOINT-ONLY SYNC
     const performCheckpointSync = () => {
         if (!bassRef.current || !isAudioStarted.current) return;
         const masterTime = bassRef.current.currentTime;
@@ -367,13 +369,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         });
     };
 
-    // LEVEL FLOOR & POWER DECAY ENGINE (Runs smoothly every 50ms)
+    // LEVEL FLOOR & POWER DECAY ENGINE
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
             const timeSinceScroll = now - lastScrollPumpTime.current;
 
-            // When idle for >180ms, power gently decays down to the UNLOCKED LEVEL FLOOR
             if (timeSinceScroll > 180) {
                 const minFloor = unlockedLevelFloor.current;
                 currentPower.current = Math.max(minFloor, currentPower.current - 1.2);
@@ -382,11 +383,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const power = Math.round(currentPower.current);
             setLivePower(power);
 
-            // Tier Calculation & Floor Lock:
-            // Level 1 (0% ~ 20%): Bass 50% steady
-            // Level 2 (20% ~ 50%): Floor locks to 20% (Bass 75% + Guitar 70%)
-            // Level 3 (50% ~ 80%): Floor locks to 50% (Tutti Drums/Perc/Synth 85%)
-            // Level 4 (80% ~ 100%): Floor locks to 80% (Full Band + Lead Vocals 95%)
             let tier = 1;
             let targetBass = 0.50;
             let targetGuitar = 0.0;
@@ -395,27 +391,21 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             if (power >= 80) {
                 tier = 4;
-                if (unlockedLevelFloor.current < 80) {
-                    unlockedLevelFloor.current = 80;
-                }
+                if (unlockedLevelFloor.current < 80) unlockedLevelFloor.current = 80;
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
             } else if (power >= 50) {
                 tier = 3;
-                if (unlockedLevelFloor.current < 50) {
-                    unlockedLevelFloor.current = 50;
-                }
+                if (unlockedLevelFloor.current < 50) unlockedLevelFloor.current = 50;
                 targetBass = 0.90;
                 targetGuitar = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
             } else if (power >= 20) {
                 tier = 2;
-                if (unlockedLevelFloor.current < 20) {
-                    unlockedLevelFloor.current = 20;
-                }
+                if (unlockedLevelFloor.current < 20) unlockedLevelFloor.current = 20;
                 targetBass = 0.75;
                 targetGuitar = 0.70;
                 targetOtherInst = 0.0;
@@ -428,7 +418,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 targetVocal = 0.0;
             }
 
-            // Perform checkpoint audio sync ONLY when a new Tier is unlocked!
             if (tier !== lastSyncTier.current) {
                 lastSyncTier.current = tier;
                 performCheckpointSync();
@@ -469,7 +458,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // Audible Crisp Footsteps
+    // AUDIBLE CRISP FOOTSTEPS (-30% VOLUME REDUCTION + WET SPATIAL ECHO REVERB)
     const playAudibleFootstep = () => {
         const now = Date.now();
         if (now - lastStepTime.current < 220) return;
@@ -486,13 +475,17 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const isLeft = isLeftFoot.current;
             isLeftFoot.current = !isLeft;
 
+            // Reduced master gain (-30% lower: 0.24 instead of 0.35)
+            const mainGain = ctx.createGain();
+            mainGain.gain.setValueAtTime(0.24, ctx.currentTime);
+
             const osc = ctx.createOscillator();
             const oscGain = ctx.createGain();
             osc.type = 'sine';
             osc.frequency.setValueAtTime(isLeft ? 85 : 95, ctx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.08);
 
-            oscGain.gain.setValueAtTime(0.35, ctx.currentTime);
+            oscGain.gain.setValueAtTime(0.25, ctx.currentTime);
             oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
 
             const bufferSize = Math.floor(ctx.sampleRate * 0.06);
@@ -511,8 +504,19 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             noiseFilter.Q.value = 1.8;
 
             const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.4, ctx.currentTime);
+            noiseGain.gain.setValueAtTime(0.28, ctx.currentTime);
             noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+
+            // WET COBBLESTONE SPATIAL ECHO NODE (160ms delay with decay feedback)
+            const delayNode = ctx.createDelay();
+            delayNode.delayTime.value = 0.16; // 160ms echo
+
+            const feedbackGain = ctx.createGain();
+            feedbackGain.gain.value = 0.28; // 28% feedback decay
+
+            const echoFilter = ctx.createBiquadFilter();
+            echoFilter.type = 'lowpass';
+            echoFilter.frequency.value = 1800;
 
             const panner = (typeof ctx.createStereoPanner === 'function') ? ctx.createStereoPanner() : null;
             if (panner) {
@@ -523,13 +527,22 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             noise.connect(noiseFilter);
             noiseFilter.connect(noiseGain);
 
+            oscGain.connect(mainGain);
+            noiseGain.connect(mainGain);
+
+            // Connect Echo Feedback Loop
+            mainGain.connect(delayNode);
+            delayNode.connect(echoFilter);
+            echoFilter.connect(feedbackGain);
+            feedbackGain.connect(delayNode);
+
             if (panner) {
-                oscGain.connect(panner);
-                noiseGain.connect(panner);
+                mainGain.connect(panner);
+                echoFilter.connect(panner);
                 panner.connect(ctx.destination);
             } else {
-                oscGain.connect(ctx.destination);
-                noiseGain.connect(ctx.destination);
+                mainGain.connect(ctx.destination);
+                echoFilter.connect(ctx.destination);
             }
 
             osc.start();
@@ -553,10 +566,14 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // HARD SCROLL ENGINE WITH LEVEL FLOOR CHECKPOINTS
+    // PROGRESSIVE TIER DIFFICULTY SCROLL ENGINE (Easy lower levels, hard Level 4)
     useEffect(() => {
         const handleWheel = (e) => {
-            if (e.cancelable) e.preventDefault();
+            // Only prevent pull-to-refresh if not inside scrollable child
+            const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
+            if (!isScrollableChild && e.cancelable && window.scrollY === 0 && e.deltaY < 0) {
+                e.preventDefault();
+            }
             forceUnlockMobileAudio();
 
             if (e.deltaY <= 0) return;
@@ -564,7 +581,16 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const rawDelta = e.deltaY;
             setLastVelocityStr(rawDelta.toFixed(0) + " delta");
 
-            const powerIncrement = Math.min(rawDelta * 0.008, 1.2);
+            // Progressive Tier Scaling multiplier:
+            // 0% ~ 20%: Multiplier 3.2x (Super easy entry level!)
+            // 20% ~ 50%: Multiplier 1.8x (Smooth progression)
+            // 50% ~ 100%: Multiplier 0.7x (Current hard Level 4 challenge!)
+            const cPower = currentPower.current;
+            let tierMult = 0.7;
+            if (cPower < 20) tierMult = 3.2;
+            else if (cPower < 50) tierMult = 1.8;
+
+            const powerIncrement = Math.min(rawDelta * 0.008 * tierMult, 2.8);
             currentPower.current = Math.min(100, currentPower.current + powerIncrement);
             lastScrollPumpTime.current = Date.now();
 
@@ -589,7 +615,17 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
 
         const handleTouchMove = (e) => {
-            if (e.cancelable) e.preventDefault();
+            // STRICT DEFENSE: Block pull-to-refresh ONLY on main canvas when dragging down at top
+            const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
+            
+            if (!isScrollableChild && e.touches && e.touches[0]) {
+                const currentY = e.touches[0].clientY;
+                const deltaY = touchStartY.current - currentY;
+                if (deltaY < 0 && window.scrollY === 0 && e.cancelable) {
+                    e.preventDefault();
+                }
+            }
+
             forceUnlockMobileAudio();
             if (!e.touches || !e.touches[0]) return;
 
@@ -602,7 +638,13 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 const velocity = deltaY / timeDiff;
                 setLastVelocityStr(velocity.toFixed(2) + " px/ms");
 
-                const powerIncrement = Math.min(velocity * 0.45 + deltaY * 0.008, 1.8);
+                // Progressive Tier Scaling multiplier for touch:
+                const cPower = currentPower.current;
+                let tierMult = 0.7;
+                if (cPower < 20) tierMult = 3.4;
+                else if (cPower < 50) tierMult = 1.9;
+
+                const powerIncrement = Math.min((velocity * 0.45 + deltaY * 0.008) * tierMult, 3.8);
                 currentPower.current = Math.min(100, currentPower.current + powerIncrement);
                 lastScrollPumpTime.current = now;
 
@@ -667,7 +709,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
             <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
 
-            {/* 1. 100vh Fullscreen 7-Frame Visual Stack with Repurposed Factory/Lab Ateliers */}
+            {/* 1. 100vh Fullscreen 7-Frame Visual Stack */}
             <div 
                 className="relative w-full h-full transition-all duration-700"
                 style={{
@@ -951,7 +993,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 }
 
 // ==============================================================================
-// 2. FRANKFURT SOUND ATELIER & GUILD INTEL MODAL
+// 2. FRANKFURT SOUND ATELIER & GUILD INTEL MODAL (FULLY SCROLLABLE ON MOBILE)
 // ==============================================================================
 function FrankfurtAtelierModal({ onClose }) {
     return (
@@ -959,17 +1001,19 @@ function FrankfurtAtelierModal({ onClose }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl p-4 sm:p-8 flex items-center justify-center overflow-y-auto"
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl p-4 sm:p-8 flex items-center justify-center overflow-y-auto touch-pan-y"
+            style={{ touchAction: 'pan-y' }}
         >
             <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
-                className="w-full max-w-2xl bg-[#09090D] border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative"
+                className="w-full max-w-2xl max-h-[85vh] sm:max-h-[90vh] overflow-y-auto bg-[#09090D] border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative custom-scrollbar touch-pan-y"
+                style={{ touchAction: 'pan-y' }}
             >
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+                    className="absolute top-6 right-6 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-20"
                 >
                     <X className="w-5 h-5" />
                 </button>
@@ -979,7 +1023,7 @@ function FrankfurtAtelierModal({ onClose }) {
                     <span>CORPORATE INTEL &amp; SOUND ATELIER</span>
                 </div>
 
-                <h2 className="font-sans text-2xl sm:text-4xl font-black text-white uppercase mb-2">
+                <h2 className="font-sans text-2xl sm:text-4xl font-black text-white uppercase mb-2 pr-8">
                     JUST SEAN FLOWS // GUILD ATELIER
                 </h2>
                 <p className="font-mono text-xs text-white/60 mb-6">
@@ -1025,7 +1069,7 @@ function FrankfurtAtelierModal({ onClose }) {
 
                 <button
                     onClick={onClose}
-                    className="w-full py-4 rounded-full bg-[#00F0FF] text-black font-mono text-xs font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)]"
+                    className="w-full py-4 rounded-full bg-[#00F0FF] text-black font-mono text-xs font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)] my-2"
                 >
                     RESUME WALKING TOWARDS CONCERT PALACE →
                 </button>
