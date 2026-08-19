@@ -10,7 +10,6 @@ const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s"
 const MR_AUDIO_SRC = "/assets/manual_upload/A twelve-alibi_MR_master.wav";
 const VOCAL_AUDIO_SRC = "/assets/manual_upload/A Twelve-minute Alibi/0 Lead Vocals.mp3";
 const ATELIER_IMG = "/assets/frankfurt_sound_atelier.jpg";
-const BLUEPRINT_IMG = "/assets/atelier_blueprint_night.jpg";
 
 const FRAMES = [
     { id: 0, src: "/assets/walk_01.jpg", tag: "01/07", label: "MIDNIGHT PLAZA", sub: "Distant View Across the Square" },
@@ -238,7 +237,7 @@ function NeonParticleTrail() {
 }
 
 // ==============================================================================
-// 2. FLIPBOOK ENGINE WITH ATELIER INTEL OPTION & 5-SEC CHIC GESTURE TUTORIAL
+// 2. FLIPBOOK ENGINE WITH PHONE VOLUME HUD PRELOADER & BULLETPROOF AUDIO
 // ==============================================================================
 function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -246,6 +245,11 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     const [vocalVolumePercent, setVocalVolumePercent] = useState(0);
     const [showGestureTutorial, setShowGestureTutorial] = useState(true);
+
+    // 2-Second Phone-Style Floating Volume HUD Preloader State
+    const [isInitialBuffering, setIsInitialBuffering] = useState(true);
+    const [simulatedVolume, setSimulatedVolume] = useState(15);
+    const [isAudioLive, setIsAudioLive] = useState(false);
 
     const audioCtxRef = useRef(null);
     const bgmRef = useRef(null);
@@ -259,6 +263,67 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
     const isBgmStarted = useRef(false);
     const lastHardScrollTime = useRef(0);
 
+    // Multi-Tier Bulletproof Audio Playback Engine
+    const attemptPlayAudio = () => {
+        if (!bgmRef.current) return;
+
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                if (!audioCtxRef.current) audioCtxRef.current = new AudioCtx();
+                if (audioCtxRef.current.state === 'suspended') audioCtxRef.current.resume();
+            }
+        } catch (e) {}
+
+        const bgm = bgmRef.current;
+        bgm.volume = 0.65;
+
+        const playPromise = bgm.play();
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    isBgmStarted.current = true;
+                    setIsAudioLive(true);
+                    if (vocalRef.current) {
+                        vocalRef.current.volume = 0;
+                        vocalRef.current.currentTime = bgm.currentTime;
+                        vocalRef.current.play().catch(() => {});
+                    }
+                })
+                .catch(() => {
+                    // Autoplay blocked by browser until user gesture
+                });
+        }
+    };
+
+    // 1. Initial 2.0s Chic Volume HUD Animation & Preload sequence
+    useEffect(() => {
+        // Stepwise volume increase [15% -> 30% -> 50% -> 65%]
+        const t1 = setTimeout(() => setSimulatedVolume(30), 400);
+        const t2 = setTimeout(() => setSimulatedVolume(50), 900);
+        const t3 = setTimeout(() => setSimulatedVolume(65), 1400);
+
+        // At 2.0s, dissolve backdrop and trigger audio
+        const t4 = setTimeout(() => {
+            setIsInitialBuffering(false);
+            attemptPlayAudio();
+        }, 2000);
+
+        // Verification check: At 3.2s & 4.0s, ensure audio is live
+        const t5 = setTimeout(() => {
+            if (!isBgmStarted.current) attemptPlayAudio();
+        }, 3200);
+
+        const t6 = setTimeout(() => {
+            if (!isBgmStarted.current) attemptPlayAudio();
+        }, 4000);
+
+        return () => {
+            clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
+            clearTimeout(t4); clearTimeout(t5); clearTimeout(t6);
+        };
+    }, []);
+
     // 5-Second Chic Minimalist Gesture Tutorial
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -267,26 +332,7 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
         return () => clearTimeout(timer);
     }, []);
 
-    const startMRPlayback = () => {
-        if (isBgmStarted.current || !bgmRef.current) return;
-        isBgmStarted.current = true;
-        bgmRef.current.volume = 0.65;
-        bgmRef.current.play().catch(() => {});
-
-        if (vocalRef.current) {
-            vocalRef.current.volume = 0;
-            vocalRef.current.currentTime = bgmRef.current.currentTime;
-            vocalRef.current.play().catch(() => {});
-        }
-    };
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            startMRPlayback();
-        }, 2000);
-        return () => clearTimeout(timer);
-    }, []);
-
+    // Vocal Volume Decay Loop
     useEffect(() => {
         const decayInterval = setInterval(() => {
             const timeSinceHardScroll = Date.now() - lastHardScrollTime.current;
@@ -375,20 +421,20 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // Active Scroll
+    // Active Scroll & Touch Handlers (Immediately unlocks audio on first gesture)
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
             setShowGestureTutorial(false);
-            scrollCount.current += 1;
-            if (scrollCount.current >= 10) startMRPlayback();
+            if (!isBgmStarted.current) attemptPlayAudio();
 
+            scrollCount.current += 1;
             const rawDelta = Math.abs(e.deltaY);
             const clampedDelta = Math.min(rawDelta * 0.0028, 1.2);
 
             if (rawDelta > 15) {
                 lastHardScrollTime.current = Date.now();
-                startMRPlayback();
+                attemptPlayAudio();
             }
 
             setProgress((prev) => {
@@ -405,15 +451,16 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
         const handleTouchStart = (e) => {
             if (e.touches && e.touches[0]) {
                 touchStartY.current = e.touches[0].clientY;
+                if (!isBgmStarted.current) attemptPlayAudio();
             }
         };
 
         const handleTouchMove = (e) => {
             if (!e.touches || !e.touches[0]) return;
             setShowGestureTutorial(false);
-            scrollCount.current += 1;
-            if (scrollCount.current >= 10) startMRPlayback();
+            if (!isBgmStarted.current) attemptPlayAudio();
 
+            scrollCount.current += 1;
             const currentY = e.touches[0].clientY;
             const rawDelta = Math.max(0, (touchStartY.current - currentY) * 0.013);
             touchStartY.current = currentY;
@@ -421,7 +468,6 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
 
             if (rawDelta > 0.15) {
                 lastHardScrollTime.current = Date.now();
-                startMRPlayback();
             }
 
             setProgress((prev) => {
@@ -454,9 +500,13 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
     const isAtelierOptionVisible = activeFrameIdx === 2 || activeFrameIdx === 3; // Frames 3 & 4
 
     return (
-        <div className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none">
-            <audio ref={bgmRef} src={MR_AUDIO_SRC} loop preload="metadata" />
-            <audio ref={vocalRef} src={VOCAL_AUDIO_SRC} loop preload="metadata" />
+        <div 
+            onClick={() => { if (!isBgmStarted.current) attemptPlayAudio(); }}
+            className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none"
+        >
+            {/* Audio Elements */}
+            <audio ref={bgmRef} src={MR_AUDIO_SRC} loop preload="auto" />
+            <audio ref={vocalRef} src={VOCAL_AUDIO_SRC} loop preload="auto" />
 
             {/* 1. 100vh Fullscreen 7-Frame Visual Stack */}
             <div className="relative w-full h-full">
@@ -468,9 +518,11 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                             opacity: activeFrameIdx === idx ? 1 : 0,
                             scale: activeFrameIdx === idx ? (isHeadBobbing ? 1.025 : 1.0) : 1.06,
                             y: activeFrameIdx === idx ? (isHeadBobbing ? -6 : 0) : 0,
-                            filter: vocalVolumePercent > 50 ? 'contrast(115%) brightness(108%)' : 'none'
+                            filter: isInitialBuffering 
+                                ? 'blur(12px) brightness(60%)' 
+                                : (vocalVolumePercent > 50 ? 'contrast(115%) brightness(108%)' : 'none')
                         }}
-                        transition={{ duration: 0.45, ease: 'easeOut' }}
+                        transition={{ duration: 0.5, ease: 'easeOut' }}
                         className="absolute inset-0 w-full h-full"
                     >
                         <img
@@ -483,9 +535,40 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                 ))}
             </div>
 
-            {/* 2. 5-Second Chic Minimalist Gesture Tutorial Overlay */}
+            {/* 2. Phone-Style Floating Side Volume HUD (2-Second Chic Buffering) */}
             <AnimatePresence>
-                {showGestureTutorial && (
+                {isInitialBuffering && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, transition: { duration: 0.6 } }}
+                        className="absolute inset-0 pointer-events-none z-40 flex items-center justify-end pr-4 sm:pr-8"
+                    >
+                        {/* Realistic Floating Vertical Phone Volume Slider */}
+                        <motion.div
+                            initial={{ x: 30, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: 30, opacity: 0 }}
+                            className="p-3 rounded-3xl bg-black/75 backdrop-blur-2xl border border-white/20 shadow-2xl flex flex-col items-center gap-3"
+                        >
+                            <Volume2 className="w-4 h-4 text-[#E7FF00] animate-pulse" />
+                            <div className="w-1.5 h-24 bg-white/20 rounded-full overflow-hidden flex flex-col justify-end">
+                                <motion.div
+                                    className="w-full bg-[#E7FF00] rounded-full transition-all duration-300"
+                                    style={{ height: `${simulatedVolume}%` }}
+                                />
+                            </div>
+                            <span className="font-mono text-[9px] font-bold text-white tracking-wider">
+                                {simulatedVolume}%
+                            </span>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* 3. 5-Second Chic Minimalist Gesture Tutorial Overlay */}
+            <AnimatePresence>
+                {showGestureTutorial && !isInitialBuffering && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -508,7 +591,7 @@ function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
                 )}
             </AnimatePresence>
 
-            {/* 3. Floating Spatial HUD */}
+            {/* 4. Floating Spatial HUD */}
             <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-8 px-4 sm:px-12 text-center z-20">
                 {/* Top Pill & Live Lead Vocal Pulse Tag */}
                 <div className="flex flex-col items-center gap-2 mx-auto">
