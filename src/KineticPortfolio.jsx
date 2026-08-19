@@ -180,7 +180,7 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. Editorial 3D Star Title Header (No AI Star Icon, Amplified 3D Depth!) */}
+            {/* 2. Editorial 3D Star Title Header */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-6 flex items-center justify-between pointer-events-none">
                 <motion.div 
                     style={{
@@ -241,7 +241,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & ONE-WAY ASCENDING LET'S GO ! FADE
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & 100% ZERO-FLASH ASCENDING LET'S GO
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -839,7 +839,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: ONE-WAY BOTTOM-TO-CENTER ASCENDING FADE LOOP */}
+            {/* 2. INITIAL UNLOCK SPLASH: 100% ZERO-FLASH ASCENDING FADE LOOP (Fades in from bottom, fades out to 0 opacity at center, resets invisibly) */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -851,10 +851,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         onTouchStart={(e) => forceUnlockAudio(e)}
                         className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/75 backdrop-blur-xl cursor-pointer overflow-hidden"
                     >
-                        {/* Randomized Starlight Particle Sparks (Random Sizes & Intensities!) */}
+                        {/* Randomized Starlight Particle Sparks */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden">
                             {[...Array(28)].map((_, i) => {
-                                const randomSize = 2 + (i * 7) % 6; // 2px to 7px
+                                const randomSize = 2 + (i * 7) % 6;
                                 const randomLeft = `${(i * 13 + 5) % 90}vw`;
                                 const randomDelay = (i * 0.3) % 2.5;
                                 const randomDuration = 2.8 + (i % 4) * 0.9;
@@ -890,17 +890,18 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             })}
                         </div>
 
-                        {/* ONE-WAY ASCENDING LET'S GO ! LOOP (Starts deep at bottom, moves up to center & fades out) */}
+                        {/* 100% ZERO-FLASH ASCENDING FADE LOOP (Fades in at bottom y: 220, fades out to opacity: 0 at center y: 0, resets silently at opacity 0) */}
                         <motion.div
-                            initial={{ y: 220, opacity: 1 }}
+                            initial={{ y: 220, opacity: 0 }}
                             animate={{ 
-                                y: [220, 0],
-                                opacity: [1, 0]
+                                y: [220, 160, 30, 0],
+                                opacity: [0, 1, 0.7, 0]
                             }}
                             transition={{
                                 duration: 3.4,
                                 repeat: Infinity,
-                                ease: [0.25, 0.1, 0.25, 1.0]
+                                times: [0, 0.2, 0.85, 1],
+                                ease: 'easeInOut'
                             }}
                             style={{
                                 transform: `perspective(500px) rotateX(${tilt.y * -18}deg) rotateY(${tilt.x * 18}deg)`
