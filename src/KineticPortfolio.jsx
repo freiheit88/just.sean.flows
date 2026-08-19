@@ -83,6 +83,36 @@ const DEFAULT_ENDING = {
     quote: 'Holding a cold martini, captivated by solo violin at midnight.'
 };
 
+// MULTI-COLOR & SHAPE STAR DATABASE WITH PARALLAX MASS & DEPTH
+const STARS_DATABASE = Array.from({ length: 36 }).map((_, i) => {
+    const size = 4 + (i * 7) % 11; // 4px to 14px
+    const isLarge = size > 9;
+    const isMedium = size >= 6 && size <= 9;
+
+    const colors = ['#E7FF00', '#00F0FF', '#FF0055', '#FFFFFF', '#C5A059'];
+    const color = colors[i % colors.length];
+
+    const shapes = ['✦', '★', '✧', '•'];
+    const shape = shapes[i % shapes.length];
+
+    const zDepth = isLarge ? -90 : isMedium ? 15 : 90;
+    const tiltMult = isLarge ? 0.35 : isMedium ? 0.8 : 1.5;
+
+    return {
+        id: i,
+        size,
+        color,
+        shape,
+        left: `${(i * 11 + 4) % 92}vw`,
+        delay: (i * 0.22) % 2.8,
+        duration: isLarge ? 5.2 : isMedium ? 3.6 : 2.4, // Large heavy stars move slow, small light sparkles move fast!
+        opacityMax: 0.35 + (i % 5) * 0.15,
+        zDepth,
+        tiltMult,
+        isLarge
+    };
+});
+
 export default function App() {
     const [currentStep, setCurrentStep] = useState('flipbook');
     const [userNickname, setUserNickname] = useState("SEAN");
@@ -241,7 +271,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & EXTENDED BOTTOM-TO-UPPER-MIDDLE LOOP
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & 3D GYROSCOPE SPATIAL UNIVERSE
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -839,7 +869,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: EXTENDED BOTTOM-TO-UPPER-MIDDLE (y: 260 -> -120) FADE LOOP */}
+            {/* 2. INITIAL UNLOCK SPLASH: 3D GYROSCOPE SPATIAL UNIVERSE WITH MASS-BASED PARALLAX DRAG PHYSICS */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -849,48 +879,57 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         onClick={(e) => forceUnlockAudio(e)}
                         onTouchStart={(e) => forceUnlockAudio(e)}
-                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/75 backdrop-blur-xl cursor-pointer overflow-hidden"
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/80 backdrop-blur-2xl cursor-pointer overflow-hidden"
+                        style={{
+                            perspective: '800px',
+                            transformStyle: 'preserve-3d'
+                        }}
                     >
-                        {/* Randomized Starlight Particle Sparks */}
-                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                            {[...Array(28)].map((_, i) => {
-                                const randomSize = 2 + (i * 7) % 6;
-                                const randomLeft = `${(i * 13 + 5) % 90}vw`;
-                                const randomDelay = (i * 0.3) % 2.5;
-                                const randomDuration = 2.8 + (i % 4) * 0.9;
-                                const randomOpacityMax = 0.4 + (i % 5) * 0.15;
+                        {/* MULTI-COLOR & SHAPE 3D PARALLAX STARFIELD LAYER */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
+                            {STARS_DATABASE.map((s) => {
+                                const starTiltX = tilt.x * 24 * s.tiltMult;
+                                const starTiltY = tilt.y * 24 * s.tiltMult;
+
+                                // Large heavy stars stay grounded, small light stars get dragged upward with LET'S GO !
+                                const startY = s.isLarge ? '80vh' : '100vh';
+                                const endY = s.isLarge ? '10vh' : '-20vh';
 
                                 return (
                                     <motion.div
-                                        key={i}
+                                        key={s.id}
                                         initial={{
-                                            x: randomLeft,
-                                            y: '100vh',
+                                            x: s.left,
+                                            y: startY,
                                             opacity: 0,
-                                            scale: 0.4
+                                            scale: 0.3
                                         }}
                                         animate={{
-                                            y: '-10vh',
-                                            opacity: [0, randomOpacityMax, 0],
-                                            scale: [0.4, 1.4, 0.3]
+                                            y: [startY, endY],
+                                            opacity: [0, s.opacityMax, 0],
+                                            scale: [0.3, 1.4, 0.2]
                                         }}
                                         transition={{
-                                            duration: randomDuration,
+                                            duration: s.duration,
                                             repeat: Infinity,
-                                            delay: randomDelay,
+                                            delay: s.delay,
                                             ease: 'easeInOut'
                                         }}
                                         style={{
-                                            width: `${randomSize}px`,
-                                            height: `${randomSize}px`,
+                                            transform: `translate3d(${starTiltX}px, ${starTiltY}px, ${s.zDepth}px)`,
+                                            color: s.color,
+                                            fontSize: `${s.size}px`,
+                                            textShadow: `0 0 16px ${s.color}`
                                         }}
-                                        className="absolute rounded-full bg-[#E7FF00] shadow-[0_0_14px_#E7FF00]"
-                                    />
+                                        className="absolute font-sans leading-none font-bold select-none transition-transform duration-150 ease-out"
+                                    >
+                                        {s.shape}
+                                    </motion.div>
                                 );
                             })}
                         </div>
 
-                        {/* EXTENDED BOTTOM-TO-UPPER-MIDDLE ASCENDING FADE LOOP (y: 260 -> 180 -> 0 -> -120) */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER (translateZ(40px) Forefront Depth) */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -904,36 +943,37 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 ease: 'easeInOut'
                             }}
                             style={{
-                                transform: `perspective(500px) rotateX(${tilt.y * -18}deg) rotateY(${tilt.x * 18}deg)`
+                                transform: `perspective(600px) rotateX(${tilt.y * -32}deg) rotateY(${tilt.x * 32}deg) translateZ(40px)`,
+                                transformStyle: 'preserve-3d'
                             }}
-                            className="flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-10 transition-transform duration-150 ease-out"
+                            className="flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20 transition-transform duration-100 ease-out"
                         >
                             <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
                                 style={{
                                     WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
                                     color: 'transparent',
-                                    textShadow: '0 0 25px rgba(255,255,255,0.4)'
+                                    textShadow: '0 0 30px rgba(255,255,255,0.45)'
                                 }}
                             >
                                 LET
                             </span>
                             <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
                                 style={{
                                     WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
                                     color: 'transparent',
-                                    textShadow: '0 0 25px rgba(255,255,255,0.4)'
+                                    textShadow: '0 0 30px rgba(255,255,255,0.45)'
                                 }}
                             >
                                 'S
                             </span>
                             <span 
-                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                                className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase drop-shadow-[0_10px_25px_rgba(255,255,255,0.4)]"
                                 style={{
                                     WebkitTextStroke: '1.5px rgba(255, 255, 255, 0.75)',
                                     color: 'transparent',
-                                    textShadow: '0 0 25px rgba(255,255,255,0.4)'
+                                    textShadow: '0 0 30px rgba(255,255,255,0.45)'
                                 }}
                             >
                                 GO
@@ -943,7 +983,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 style={{
                                     WebkitTextStroke: '2px rgba(231, 255, 0, 0.95)',
                                     color: 'transparent',
-                                    textShadow: '0 0 35px rgba(231,255,0,0.85)'
+                                    textShadow: '0 0 40px rgba(231,255,0,0.9)'
                                 }}
                             >
                                 !
@@ -1096,7 +1136,7 @@ function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, 
                 ].map((s) => (
                     <div key={s.id} className="p-4 sm:p-5 rounded-2xl border border-white/15 bg-white/[0.02] flex flex-col justify-between">
                         <div className="flex justify-between items-center font-mono text-xs mb-2">
-                            <span className="font-bold text-white text-[11px]">{s.label}</span>
+                            <span className="font-bold text-[#FFFFFF] text-[11px]">{s.label}</span>
                             <span style={{ color: s.color }} className="font-bold">{stems[s.id]}%</span>
                         </div>
                         <input
