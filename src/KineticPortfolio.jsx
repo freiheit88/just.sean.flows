@@ -26,8 +26,7 @@ const FRAMES = [
         src: "/assets/wine_atelier_04_neon_wisteria_1787173906304.jpg", 
         titleTop: "JUST SEAN FLOWS", 
         titleMain: "WALK WITH MUSIC?", 
-        sub: "Private Midnight Sound Sketch",
-        buildingSign: "BRAND MARK NO. 65 // BURGUNDY NEON WISTERIA"
+        sub: "Private Midnight Sound Sketch"
     },
     { 
         id: 1, 
@@ -35,7 +34,6 @@ const FRAMES = [
         titleTop: "GUILD ATELIER", 
         titleMain: "WANT A QUICK LOOK?", 
         sub: "Hybrid Sound Lab in Formation",
-        buildingSign: "BRAND MARK NO. 65 // STAINED GLASS TRANSOM",
         hasBuildingTarget: true
     },
     { 
@@ -43,8 +41,7 @@ const FRAMES = [
         src: "/assets/wine_atelier_02_poster_brick_1787173891199.jpg", 
         titleTop: "02:00 AM", 
         titleMain: "STILL AWAKE HERE.", 
-        sub: "24/7 Letterpress Concert Poster Lab",
-        buildingSign: "BRAND MARK NO. 65 // LETTERPRESS POSTER"
+        sub: "24/7 Letterpress Concert Poster Lab"
     },
     { 
         id: 3, 
@@ -52,7 +49,6 @@ const FRAMES = [
         titleTop: "CANAL ALLEY", 
         titleMain: "PEEK INSIDE?", 
         sub: "Steinway Piano & Woven Tapestry",
-        buildingSign: "BRAND MARK NO. 65 // ACOUSTIC TAPESTRY",
         hasBuildingTarget: true
     },
     { 
@@ -60,24 +56,21 @@ const FRAMES = [
         src: "/assets/logo_v09_no65_door_knocker_1787173209628.jpg", 
         titleTop: "SECRET HIDEAWAY", 
         titleMain: "MY PRIVATE HAVEN.", 
-        sub: "Cast Bronze Door Emblem",
-        buildingSign: "BRAND MARK NO. 65 // BRONZE EMBLEM"
+        sub: "Cast Bronze Door Emblem"
     },
     { 
         id: 5, 
         src: "/assets/logo_v11_no65_amp_1787173235884.jpg", 
         titleTop: "NEARLY THERE", 
         titleMain: "ALMOST AT THE DOOR.", 
-        sub: "Custom Tube Amplifier Faceplate",
-        buildingSign: "BRAND MARK NO. 65 // TUBE AMP FACEPLATE"
+        sub: "Custom Tube Amplifier Faceplate"
     },
     { 
         id: 6, 
         src: "/assets/logo_v17_no65_glass_decal_1787173294923.jpg", 
         titleTop: "STAGE READY", 
         titleMain: "THE DOORS OPEN.", 
-        sub: "Flagship Gold Leaf Glass Decal Atelier",
-        buildingSign: "BRAND MARK NO. 65 // GOLD LEAF DECAL"
+        sub: "Flagship Gold Leaf Glass Decal Atelier"
     }
 ];
 
@@ -165,7 +158,6 @@ export default function App() {
                 curr.y += (prev.y - curr.y) * ease;
             }
 
-            // Direct DOM style update for buttery smooth 120fps ribbon tail
             trailElsRef.current.forEach((el, i) => {
                 if (el) {
                     const node = nodes[i];
@@ -287,24 +279,18 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FULL 7-STEP FLIPBOOK WALKING TIMELINE WITH LOGO NO. 65 ATELIER COLLECTION
+// 1. CLEANED MINIMALIST FLIPBOOK ENGINE WITH STRICT 450ms FOOTSTEP LOCK & NUMBER-ONLY POWER
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
-    // Zero-Box Sound Unlocker Shockwave State
-    const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
-    const [shockwavePos, setShockwavePos] = useState(null);
-    
-    // Live Dev Kinetics Power Meter State & 80.12% Trembling Easter Egg
-    const [livePower, setLivePower] = useState(0);
-    const [powerDisplayStr, setPowerDisplayStr] = useState("0%");
+    // Live Dev Kinetics Power Meter State (Raw Number Only, No % Sign!)
+    const [livePowerStr, setLivePowerStr] = useState("0");
     const [isTremblingAt8012, setIsTremblingAt8012] = useState(false);
 
     const [audioTier, setAudioTier] = useState(1);
-    const [lastVelocityStr, setLastVelocityStr] = useState("0.0");
 
     // Initial Preloader State
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
@@ -392,12 +378,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // HUMAN WALKING CADENCE FOOTSTEP TRIGGER (Enforces min 340ms between steps)
-    const triggerRhythmicFootstep = (speedVelocity = 1) => {
+    // STRICT 450MS HARD LOCKOUT BETWEEN FOOTSTEPS (PERFECT ELIMINATION OF MACHINE-GUN SOUND ON MOBILE TOUCH)
+    const triggerRhythmicFootstep = () => {
         const now = Date.now();
-        const minCadenceInterval = Math.max(300, 360 - Math.min(speedVelocity * 30, 60));
-        
-        if (now - lastStepTime.current >= minCadenceInterval) {
+        // Hard lockout: Minimum 450ms between footsteps no matter how fast mobile touch scrolls!
+        if (now - lastStepTime.current >= 450) {
             lastStepTime.current = now;
             playSingleFootstep();
             setIsHeadBobbing(true);
@@ -405,26 +390,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         }
     };
 
-    // PLAY 3-SECOND REALISTIC WALKING FOOTSTEP AMBIENCE SEQUENCE
-    const trigger3SecFootstepSequence = () => {
-        playSingleFootstep();
-        setTimeout(() => playSingleFootstep(), 500);
-        setTimeout(() => playSingleFootstep(), 1150);
-        setTimeout(() => playSingleFootstep(), 1750);
-        setTimeout(() => playSingleFootstep(), 2400);
-    };
-
-    // GUARANTEED SOUND ENGINE UNLOCKER WITH KINETIC SHOCKWAVE EFFECT
-    const forceUnlockAudio = (clickEvent = null) => {
-        if (!isAudioUnlocked && clickEvent) {
-            const clientX = clickEvent.clientX || (clickEvent.touches && clickEvent.touches[0] ? clickEvent.touches[0].clientX : window.innerWidth / 2);
-            const clientY = clickEvent.clientY || (clickEvent.touches && clickEvent.touches[0] ? clickEvent.touches[0].clientY : window.innerHeight / 2);
-            setShockwavePos({ x: clientX, y: clientY, id: Date.now() });
-            trigger3SecFootstepSequence();
-        }
-
-        setIsAudioUnlocked(true);
-
+    // GUARANTEED SOUND ENGINE UNLOCKER
+    const forceUnlockAudio = () => {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) {
@@ -487,7 +454,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // DECAY ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12% 1S TREMBLING EASTER EGG
+    // DECAY ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12 TREMBLING EASTER EGG (NUMBER ONLY)
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
@@ -521,12 +488,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             const rawPower = currentPower.current;
             const powerInt = Math.round(rawPower);
-            setLivePower(powerInt);
 
             if (isHoldingAt8012.current && rawPower === 80.12) {
-                setPowerDisplayStr("80.12%");
+                setLivePowerStr("80.12");
             } else {
-                setPowerDisplayStr(`${powerInt}%`);
+                setLivePowerStr(`${powerInt}`);
             }
 
             let tier = 1;
@@ -585,14 +551,14 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(volumeEngineInterval);
     }, []);
 
-    // Initial Buffering Sequence & Seamless Event Sound Unlockers
+    // Initial Buffering Sequence
     useEffect(() => {
         const t5 = setTimeout(() => {
             setIsInitialBuffering(false);
             forceUnlockAudio();
         }, 1000);
 
-        const handleGlobalUnlock = (e) => forceUnlockAudio(e);
+        const handleGlobalUnlock = () => forceUnlockAudio();
 
         window.addEventListener('click', handleGlobalUnlock);
         window.addEventListener('pointerdown', handleGlobalUnlock);
@@ -608,7 +574,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             window.removeEventListener('wheel', handleGlobalUnlock);
             window.removeEventListener('keydown', handleGlobalUnlock);
         };
-    }, [isAudioUnlocked]);
+    }, []);
 
     // 5-SECOND EXTENDED WALKING PACING TIMELINE
     useEffect(() => {
@@ -624,20 +590,18 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // PROGRESSIVE TIER DIFFICULTY SCROLL ENGINE WITH CADENCE THROTTLING
+    // PROGRESSIVE TIER DIFFICULTY SCROLL ENGINE WITH STRICT 450MS FOOTSTEP LOCKOUT
     useEffect(() => {
         const handleWheel = (e) => {
             const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
             if (!isScrollableChild && e.cancelable && window.scrollY === 0 && e.deltaY < 0) {
                 e.preventDefault();
             }
-            forceUnlockAudio(e);
+            forceUnlockAudio();
 
             if (e.deltaY <= 0) return;
 
             const rawDelta = e.deltaY;
-            setLastVelocityStr(rawDelta.toFixed(0) + " delta");
-
             const cPower = currentPower.current;
             let tierMult = 0.7;
             if (cPower < 20) tierMult = 3.2;
@@ -654,11 +618,12 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            triggerRhythmicFootstep(rawDelta * 0.01);
+            // Strict 450ms locked footstep call
+            triggerRhythmicFootstep();
         };
 
         const handleTouchStart = (e) => {
-            forceUnlockAudio(e);
+            forceUnlockAudio();
             if (e.touches && e.touches[0]) {
                 touchStartY.current = e.touches[0].clientY;
                 touchStartTime.current = Date.now();
@@ -676,7 +641,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 }
             }
 
-            forceUnlockAudio(e);
+            forceUnlockAudio();
             if (!e.touches || !e.touches[0]) return;
 
             const currentY = e.touches[0].clientY;
@@ -686,7 +651,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             if (deltaY > 0) {
                 const velocity = deltaY / timeDiff;
-                setLastVelocityStr(velocity.toFixed(2) + " px/ms");
 
                 const cPower = currentPower.current;
                 let tierMult = 0.7;
@@ -704,7 +668,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                triggerRhythmicFootstep(velocity);
+                // Strict 450ms locked footstep call for touch move
+                triggerRhythmicFootstep();
             }
 
             touchStartY.current = currentY;
@@ -741,8 +706,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     return (
         <div 
-            onClick={(e) => forceUnlockAudio(e)}
-            onTouchStart={(e) => forceUnlockAudio(e)}
+            onClick={() => forceUnlockAudio()}
+            onTouchStart={() => forceUnlockAudio()}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none flex items-center justify-center"
         >
             {/* Ambient Background Blur for Desktop */}
@@ -759,54 +724,33 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
             <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
 
-            {/* FULLSCREEN KINETIC SOUNDWAVE SHOCKWAVE TRIGGERED ON FIRST TOUCH/CLICK */}
-            <AnimatePresence>
-                {shockwavePos && (
-                    <motion.div
-                        key={shockwavePos.id}
-                        initial={{ opacity: 1, scale: 0.1 }}
-                        animate={{ opacity: 0, scale: 4.5 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                        style={{
-                            left: shockwavePos.x - 150,
-                            top: shockwavePos.y - 150,
-                        }}
-                        className="fixed w-[300px] h-[300px] rounded-full border-2 border-[#E7FF00] shadow-[0_0_80px_#E7FF00,0_0_150px_#00F0FF] pointer-events-none z-50 mix-blend-screen"
-                    />
-                )}
-            </AnimatePresence>
-
-            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE (RESPONSIVE FULLSCREEN / CENTERED STAGE) */}
+            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE (CLEAN 9:16 RESPONSIVE STAGE) */}
             <div 
                 className="relative w-full h-full md:w-[430px] md:h-[90vh] md:max-h-[920px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.15)] overflow-hidden transition-all duration-700 bg-black"
                 style={{
                     filter: isInitialBuffering ? 'blur(22px) brightness(35%) saturate(50%)' : 'none'
                 }}
             >
-                {FRAMES.map((f, idx) => {
-                    const isTargetBuildingFrame = (idx === 1 || idx === 3);
-                    return (
-                        <motion.div
-                            key={f.id}
-                            initial={false}
-                            animate={{
-                                opacity: activeFrameIdx === idx ? 1 : 0,
-                                scale: activeFrameIdx === idx ? (isHeadBobbing ? 1.02 : 1.0) : 1.05,
-                                y: activeFrameIdx === idx ? (isHeadBobbing ? -5 : 0) : 0,
-                            }}
-                            transition={{ duration: 0.5, ease: 'easeOut' }}
-                            className="absolute inset-0 w-full h-full"
-                        >
-                            <img
-                                src={f.src}
-                                alt={f.titleMain}
-                                className="w-full h-full object-cover transition-transform duration-700 scale-100"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/60" />
-                        </motion.div>
-                    );
-                })}
+                {FRAMES.map((f, idx) => (
+                    <motion.div
+                        key={f.id}
+                        initial={false}
+                        animate={{
+                            opacity: activeFrameIdx === idx ? 1 : 0,
+                            scale: activeFrameIdx === idx ? (isHeadBobbing ? 1.02 : 1.0) : 1.05,
+                            y: activeFrameIdx === idx ? (isHeadBobbing ? -5 : 0) : 0,
+                        }}
+                        transition={{ duration: 0.5, ease: 'easeOut' }}
+                        className="absolute inset-0 w-full h-full"
+                    >
+                        <img
+                            src={f.src}
+                            alt={f.titleMain}
+                            className="w-full h-full object-cover transition-transform duration-700 scale-100"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/60" />
+                    </motion.div>
+                ))}
 
                 {/* 2. DIRECT CLICKABLE ATELIER DOOR ZONE (FRAME 1 & 3) */}
                 <AnimatePresence>
@@ -833,89 +777,25 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     )}
                 </AnimatePresence>
 
-                {/* 3. EXACT PHYSICAL SIGN MATCHING OVERLAY BADGE (ON FRAME 1 & 3) */}
-                {currentFrame.buildingSign && (
-                    <div className="absolute right-[6%] top-[48%] z-30 pointer-events-none">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8, x: 20 }}
-                            animate={{ opacity: 1, scale: 1, x: 0 }}
-                            transition={{ duration: 0.6 }}
-                            className="relative px-3 py-1.5 rounded-xl bg-black/90 border border-[#C5A059] shadow-[0_0_25px_rgba(197,160,89,0.5)] backdrop-blur-xl flex flex-col items-center text-center"
-                        >
-                            <span className="font-mono text-[7.5px] text-[#C5A059] font-black tracking-[0.2em] uppercase block">
-                                @just.sean.flows
-                            </span>
-                            <span className="font-sans text-[10px] font-black text-white tracking-widest uppercase mt-0.5">
-                                J.S.F ATELIER SONORE
-                            </span>
-                            <span className="font-mono text-[7px] text-[#E7FF00] tracking-wider mt-0.5">
-                                FRANKFURT AM MAIN
-                            </span>
-                        </motion.div>
-                    </div>
-                )}
-
-                {/* 4. Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
+                {/* 3. Floating Spatial HUD & Pure Minimalist Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
-                    {/* LIVE DEV KINETICS ACCUMULATIVE POWER GAUGE HUD WITH 80.12% TREMBLING */}
+                    {/* ULTRA-MINIMALIST POWER NUMBER DISPLAY (RAW NUMBER ONLY, NO POWER:, NO TIER:, NO %) */}
                     <div className="flex flex-col items-center gap-1.5 pt-4">
                         <button
-                            onClick={(e) => forceUnlockAudio(e)}
-                            className={`pointer-events-auto inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl font-mono text-[10px] font-bold transition-all ${
+                            onClick={() => forceUnlockAudio()}
+                            className={`pointer-events-auto inline-flex items-center justify-center px-4 py-1 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl font-mono text-xs font-black tracking-widest transition-all ${
                                 isTremblingAt8012 
                                     ? 'border-[#FF0055] text-[#FF0055] animate-bounce shadow-[0_0_25px_#FF0055]' 
-                                    : 'border-white/20 hover:border-[#E7FF00]'
+                                    : 'border-white/20 hover:border-[#E7FF00] text-[#E7FF00]'
                             }`}
                         >
-                            <div className="flex items-center gap-1.5">
-                                <Zap className={`w-3 h-3 ${isTremblingAt8012 ? 'text-[#FF0055] animate-ping' : livePower >= 80 ? 'text-[#FF0055] animate-bounce' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`} />
-                                <span className="text-white/60">POWER:</span>
-                                <span className={`text-xs font-black ${isTremblingAt8012 ? 'text-[#FF0055] animate-pulse' : livePower >= 80 ? 'text-[#FF0055]' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`}>
-                                    {powerDisplayStr}
-                                </span>
-                            </div>
-
-                            <span className="w-1 h-3 bg-white/20" />
-
-                            <div className="flex items-center gap-1 text-[9px]">
-                                <span className="text-white/50">TIER:</span>
-                                <span className="text-white font-bold">
-                                    {audioTier === 4 && '⚡ LV.4 VOCAL'}
-                                    {audioTier === 3 && '🔥 LV.3 TUTTI'}
-                                    {audioTier === 2 && '🎸 LV.2 GUITAR'}
-                                    {audioTier === 1 && '🌙 LV.1 BASS'}
-                                </span>
-                            </div>
-
-                            <span className="w-1 h-3 bg-white/20" />
-
-                            <span className="text-[8px] text-white/40 font-mono">
-                                FLOOR: {unlockedLevelFloor.current}%
+                            <span className="text-sm font-black tracking-wider">
+                                {livePowerStr}
                             </span>
                         </button>
-
-                        {/* Visual Live Power Bar with Tremble Shake */}
-                        <motion.div 
-                            animate={isTremblingAt8012 ? { x: [-3, 3, -3, 3, 0] } : {}}
-                            transition={isTremblingAt8012 ? { repeat: Infinity, duration: 0.1 } : {}}
-                            className="w-44 h-1.5 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/15"
-                        >
-                            <div 
-                                className={`h-full rounded-full transition-all duration-75 ${
-                                    isTremblingAt8012 
-                                        ? 'bg-[#FF0055] shadow-[0_0_15px_#FF0055]'
-                                        : livePower >= 80 
-                                        ? 'bg-[#FF0055] shadow-[0_0_10px_#FF0055]' 
-                                        : livePower >= 50 
-                                        ? 'bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]' 
-                                        : 'bg-[#00F0FF]'
-                                }`}
-                                style={{ width: `${isTremblingAt8012 ? 80.12 : livePower}%` }}
-                            />
-                        </motion.div>
                     </div>
 
-                    {/* True 3D Letter-by-Letter Assembled Typography Dynamic Per Step */}
+                    {/* True 3D Letter-by-Letter Assembled Typography (Middle Text Only!) */}
                     <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -948,20 +828,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Progress Track & Dynamic Sound Pulse Visualizer */}
+                    {/* Bottom Progress Track */}
                     <div className="pointer-events-auto flex flex-col items-center gap-2.5">
-                        {/* Minimalist Ambient Soundwave Visualizer Bar */}
-                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/80 border border-white/15 backdrop-blur-xl">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-pulse" />
-                            <div className="flex items-center gap-1 h-2.5">
-                                <span className="w-0.5 h-full bg-[#E7FF00] animate-bounce" style={{ animationDelay: '0ms' }} />
-                                <span className="w-0.5 h-1.5 bg-[#E7FF00] animate-bounce" style={{ animationDelay: '150ms' }} />
-                                <span className="w-0.5 h-2.5 bg-[#00F0FF] animate-bounce" style={{ animationDelay: '300ms' }} />
-                                <span className="w-0.5 h-1 bg-[#00F0FF] animate-bounce" style={{ animationDelay: '450ms' }} />
-                                <span className="w-0.5 h-2 bg-[#E7FF00] animate-bounce" style={{ animationDelay: '600ms' }} />
-                            </div>
-                        </div>
-
                         {progress >= 88 && (
                             <button
                                 onClick={onEnterMixer}
@@ -982,7 +850,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* 5. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
+            {/* 4. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
             <div className="fixed inset-x-0 bottom-0 h-48 pointer-events-none z-30 overflow-hidden">
                 <motion.div
                     animate={{
