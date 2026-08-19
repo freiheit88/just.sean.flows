@@ -3,19 +3,27 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, MapPin
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
-const MR_AUDIO_SRC = "/assets/manual_upload/A twelve-alibi_MR_master.wav";
-const VOCAL_AUDIO_SRC = "/assets/manual_upload/A Twelve-minute Alibi/0 Lead Vocals.mp3";
 const ATELIER_IMG = "/assets/frankfurt_sound_atelier.jpg";
+
+// 5 Multi-Stems Synchronized Audio Assets
+const STEM_SRCS = {
+    bass: "/assets/manual_upload/A Twelve-minute Alibi/2 Bass.mp3",
+    guitar: "/assets/manual_upload/A Twelve-minute Alibi/3 Guitar.mp3",
+    drums: "/assets/manual_upload/A Twelve-minute Alibi/1 Drums.mp3",
+    perc: "/assets/manual_upload/A Twelve-minute Alibi/4 Percussion.mp3",
+    synth: "/assets/manual_upload/A Twelve-minute Alibi/5 Synth.mp3",
+    vocal: "/assets/manual_upload/A Twelve-minute Alibi/0 Lead Vocals.mp3",
+};
 
 const FRAMES = [
     { id: 0, src: "/assets/walk_01.jpg", titleTop: "THE MIDNIGHT", titleMain: "PALACE", sub: "Distant View Across the Square" },
     { id: 1, src: "/assets/walk_02.jpg", titleTop: "APPROACHING", titleMain: "STONE ARCHES", sub: "Crossing the Wet Cobblestones" },
-    { id: 2, src: "/assets/walk_03.jpg", titleTop: "MONUMENTAL", titleMain: "FACADE", sub: "Warm Amber Lanterns Glowing" },
-    { id: 3, src: "/assets/walk_04.jpg", titleTop: "FOOT OF", titleMain: "STAIRWAY", sub: "Looking up at Central Portal" },
+    { id: 2, src: "/assets/walk_03.jpg", titleTop: "MONUMENTAL", titleMain: "FACADE", sub: "Warm Amber Lanterns Glowing", hasBuildingTarget: true },
+    { id: 3, src: "/assets/walk_04.jpg", titleTop: "FOOT OF", titleMain: "STAIRWAY", sub: "Looking up at Central Portal", hasBuildingTarget: true },
     { id: 4, src: "/assets/walk_05.jpg", titleTop: "ASCENDING", titleMain: "TO PORTAL", sub: "Climbing Stone Steps" },
     { id: 5, src: "/assets/walk_06.jpg", titleTop: "THE BRASS", titleMain: "HANDLES", sub: "Standing Before Massive Double Doors" },
     { id: 6, src: "/assets/walk_07.jpg", titleTop: "THE DOORS", titleMain: "OPEN", sub: "Golden Opera Hall Revealed" }
@@ -113,7 +121,7 @@ export default function App() {
             onTouchMove={handleTouchMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden"
         >
-            {/* 1. Precision Musical Custom Cursor (Desktop Musical Note + Waveform Frequency Ring) */}
+            {/* 1. Precision Musical Custom Cursor */}
             <div className="hidden md:block pointer-events-none fixed inset-0 z-50">
                 <motion.div
                     animate={{
@@ -145,7 +153,7 @@ export default function App() {
                 </motion.div>
             </div>
 
-            {/* 2. Mobile Crisp Touch Pulse */}
+            {/* 2. Mobile Touch Pulse */}
             <div className="md:hidden pointer-events-none fixed inset-0 z-40 overflow-hidden">
                 {touchRipples.map((r) => (
                     <motion.div
@@ -220,34 +228,43 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH ZERO-TEXT VISUAL UPWARD ENERGY & SOFT SHIMMER 30% LOCK
+// 1. FLIPBOOK ENGINE WITH 4-TIER MULTI-STEM MAESTRO & GAME-LIKE BUILDING TARGETING
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
-    const [vocalVolumePercent, setVocalVolumePercent] = useState(0);
+    
+    // 4-Tier Stem Velocity State
+    const [audioTier, setAudioTier] = useState(1); // 1: Bass(50%), 2: +Guitar, 3: +All Inst, 4: +Lead Vocal
 
-    // Initial 2.0s + 1.5s Breathing Preloader State
+    // Initial Preloader State
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
     const [simulatedVolume, setSimulatedVolume] = useState(12);
     const [isLocked30Glitter, setIsLocked30Glitter] = useState(false);
     const [showSwipeCue, setShowSwipeCue] = useState(true);
 
     const audioCtxRef = useRef(null);
-    const bgmRef = useRef(null);
+    const bassRef = useRef(null);
+    const guitarRef = useRef(null);
+    const drumsRef = useRef(null);
+    const percRef = useRef(null);
+    const synthRef = useRef(null);
     const vocalRef = useRef(null);
+
     const lastStepTime = useRef(0);
     const isLeftFoot = useRef(true);
     const touchStartY = useRef(0);
 
     const progressRef = useRef(0);
-    const scrollCount = useRef(0);
-    const isBgmStarted = useRef(false);
-    const lastHardScrollTime = useRef(0);
+    const isAudioStarted = useRef(false);
+    const lastScrollVelocity = useRef(0);
+    const lastScrollTime = useRef(Date.now());
 
+    // Play all stems simultaneously in perfect sync
     const attemptPlayAudio = () => {
-        if (!bgmRef.current || !vocalRef.current) return;
+        const audioRefs = [bassRef, guitarRef, drumsRef, percRef, synthRef, vocalRef];
+        if (!bassRef.current) return;
 
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -257,62 +274,133 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             }
         } catch (e) {}
 
-        const bgm = bgmRef.current;
-        const vocal = vocalRef.current;
+        const masterTime = bassRef.current.currentTime || 0;
 
-        bgm.volume = 0.65;
-        vocal.volume = 0;
-
-        if (Math.abs(bgm.currentTime - vocal.currentTime) > 0.05) {
-            vocal.currentTime = bgm.currentTime;
-        }
-
-        const p1 = bgm.play();
-        const p2 = vocal.play();
-
-        if (p1 !== undefined) {
-            p1.then(() => {
-                isBgmStarted.current = true;
-            }).catch(() => {});
-        }
-        if (p2 !== undefined) {
-            p2.catch(() => {});
-        }
-    };
-
-    useEffect(() => {
-        const syncInterval = setInterval(() => {
-            if (bgmRef.current && vocalRef.current && isBgmStarted.current) {
-                const diff = Math.abs(bgmRef.current.currentTime - vocalRef.current.currentTime);
-                if (diff > 0.04) {
-                    vocalRef.current.currentTime = bgmRef.current.currentTime;
+        audioRefs.forEach((r) => {
+            if (r.current) {
+                if (Math.abs(r.current.currentTime - masterTime) > 0.05) {
+                    r.current.currentTime = masterTime;
+                }
+                const p = r.current.play();
+                if (p !== undefined) {
+                    p.catch(() => {});
                 }
             }
-        }, 250);
+        });
+
+        isAudioStarted.current = true;
+    };
+
+    // Keep all 6 audio stems in sample-accurate time sync
+    useEffect(() => {
+        const syncInterval = setInterval(() => {
+            if (bassRef.current && isAudioStarted.current) {
+                const masterTime = bassRef.current.currentTime;
+                [guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
+                    if (r.current) {
+                        const diff = Math.abs(r.current.currentTime - masterTime);
+                        if (diff > 0.04) {
+                            r.current.currentTime = masterTime;
+                        }
+                    }
+                });
+            }
+        }, 200);
 
         return () => clearInterval(syncInterval);
     }, []);
 
-    // 1. Initial Sequence: Soft Hunting -> Lock 30% & Soft Breathing Shimmer -> Smooth Dissolve
+    // 4-Tier Dynamic Stem Volume Cross-Fade Engine (Every 50ms)
+    useEffect(() => {
+        const volumeEngineInterval = setInterval(() => {
+            const now = Date.now();
+            const timeSinceScroll = now - lastScrollTime.current;
+            
+            // Calculate current velocity decay
+            let currentV = 0;
+            if (timeSinceScroll < 300) {
+                currentV = lastScrollVelocity.current;
+            } else if (timeSinceScroll < 1400) {
+                currentV = Math.max(0, lastScrollVelocity.current * (1 - (timeSinceScroll - 300) / 1100));
+            } else {
+                currentV = 0;
+                lastScrollVelocity.current = 0;
+            }
+
+            // Determine active Tier based on Sean's exact design:
+            // 1. 가만히 있을 때: Bass 50%, 기타/나머지 0%
+            // 2. Level 2 (보통 스크롤): Bass 80% + Guitar 80%
+            // 3. Level 3 (빠른 스크롤): Bass + Guitar + Drums + Perc + Synth 100% (보컬 제외 전 악기)
+            // 4. Level 4 (초고속 스크롤): 전 악기 + Lead Vocal 100%
+            let tier = 1;
+            let targetBass = 0.50; // 기본 50%
+            let targetGuitar = 0.0;
+            let targetOtherInst = 0.0;
+            let targetVocal = 0.0;
+
+            if (currentV >= 0.70) {
+                // Tier 4: Overdrive
+                tier = 4;
+                targetBass = 1.0;
+                targetGuitar = 1.0;
+                targetOtherInst = 1.0;
+                targetVocal = 0.95;
+            } else if (currentV >= 0.35) {
+                // Tier 3: All instruments except vocal
+                tier = 3;
+                targetBass = 0.90;
+                targetGuitar = 0.90;
+                targetOtherInst = 0.85;
+                targetVocal = 0.0;
+            } else if (currentV >= 0.08) {
+                // Tier 2: Bass + Guitar
+                tier = 2;
+                targetBass = 0.75;
+                targetGuitar = 0.70;
+                targetOtherInst = 0.0;
+                targetVocal = 0.0;
+            } else {
+                // Tier 1: Idle
+                tier = 1;
+                targetBass = 0.50;
+                targetGuitar = 0.0;
+                targetOtherInst = 0.0;
+                targetVocal = 0.0;
+            }
+
+            setAudioTier(tier);
+
+            // Apply volume ramp
+            if (bassRef.current) bassRef.current.volume = targetBass;
+            if (guitarRef.current) guitarRef.current.volume = targetGuitar;
+            if (drumsRef.current) drumsRef.current.volume = targetOtherInst;
+            if (percRef.current) percRef.current.volume = targetOtherInst;
+            if (synthRef.current) synthRef.current.volume = targetOtherInst;
+            if (vocalRef.current) vocalRef.current.volume = targetVocal;
+
+        }, 50);
+
+        return () => clearInterval(volumeEngineInterval);
+    }, []);
+
+    // Initial Buffering Sequence
     useEffect(() => {
         const t1 = setTimeout(() => setSimulatedVolume(36), 300);
         const t2 = setTimeout(() => setSimulatedVolume(16), 650);
         const t3 = setTimeout(() => setSimulatedVolume(42), 1000);
         
-        // At 1.3s, snap to 30% and begin 1.5s soft breathing pulse
         const t4 = setTimeout(() => {
             setSimulatedVolume(30);
             setIsLocked30Glitter(true);
         }, 1300);
 
-        // At 2.8s (1.5s soft breathing completed), dissolve blur and play audio
         const t5 = setTimeout(() => {
             setIsInitialBuffering(false);
             attemptPlayAudio();
         }, 2800);
 
         const t6 = setTimeout(() => {
-            if (!isBgmStarted.current) attemptPlayAudio();
+            if (!isAudioStarted.current) attemptPlayAudio();
         }, 3800);
 
         return () => {
@@ -326,27 +414,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearTimeout(timer);
     }, []);
 
-    useEffect(() => {
-        const decayInterval = setInterval(() => {
-            const timeSinceHardScroll = Date.now() - lastHardScrollTime.current;
-            if (vocalRef.current) {
-                if (timeSinceHardScroll < 700) {
-                    vocalRef.current.volume = 0.95;
-                    setVocalVolumePercent(95);
-                } else if (timeSinceHardScroll < 1800) {
-                    const decay = Math.max(0, 0.95 - (timeSinceHardScroll - 700) / 1100);
-                    vocalRef.current.volume = decay;
-                    setVocalVolumePercent(Math.round(decay * 100));
-                } else {
-                    vocalRef.current.volume = 0;
-                    setVocalVolumePercent(0);
-                }
-            }
-        }, 50);
-
-        return () => clearInterval(decayInterval);
-    }, []);
-
     const playStereoFootstep = () => {
         const now = Date.now();
         if (now - lastStepTime.current < 260) return;
@@ -356,9 +423,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return;
 
-            if (!audioCtxRef.current) {
-                audioCtxRef.current = new AudioCtx();
-            }
+            if (!audioCtxRef.current) audioCtxRef.current = new AudioCtx();
             const ctx = audioCtxRef.current;
             if (ctx.state === 'suspended') ctx.resume();
 
@@ -400,6 +465,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
+    // Autopilot timeline
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress((prev) => {
@@ -413,21 +479,19 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
+    // Active Scroll Handlers
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
             setShowSwipeCue(false);
-            if (!isBgmStarted.current) attemptPlayAudio();
+            if (!isAudioStarted.current) attemptPlayAudio();
 
-            scrollCount.current += 1;
             const rawDelta = Math.abs(e.deltaY);
+            const normalizedVelocity = Math.min(rawDelta / 60, 1.0);
+            lastScrollVelocity.current = Math.max(lastScrollVelocity.current, normalizedVelocity);
+            lastScrollTime.current = Date.now();
+
             const clampedDelta = Math.min(rawDelta * 0.0028, 1.2);
-
-            if (rawDelta > 15) {
-                lastHardScrollTime.current = Date.now();
-                attemptPlayAudio();
-            }
-
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
@@ -442,25 +506,24 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         const handleTouchStart = (e) => {
             if (e.touches && e.touches[0]) {
                 touchStartY.current = e.touches[0].clientY;
-                if (!isBgmStarted.current) attemptPlayAudio();
+                if (!isAudioStarted.current) attemptPlayAudio();
             }
         };
 
         const handleTouchMove = (e) => {
             if (!e.touches || !e.touches[0]) return;
             setShowSwipeCue(false);
-            if (!isBgmStarted.current) attemptPlayAudio();
+            if (!isAudioStarted.current) attemptPlayAudio();
 
-            scrollCount.current += 1;
             const currentY = e.touches[0].clientY;
             const rawDelta = Math.max(0, (touchStartY.current - currentY) * 0.013);
             touchStartY.current = currentY;
+
+            const normalizedVelocity = Math.min(rawDelta * 1.5, 1.0);
+            lastScrollVelocity.current = Math.max(lastScrollVelocity.current, normalizedVelocity);
+            lastScrollTime.current = Date.now();
+
             const clampedDelta = Math.min(rawDelta, 1.1);
-
-            if (rawDelta > 0.15) {
-                lastHardScrollTime.current = Date.now();
-            }
-
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
@@ -498,54 +561,124 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     return (
         <div 
-            onClick={() => { if (!isBgmStarted.current) attemptPlayAudio(); }}
+            onClick={() => { if (!isAudioStarted.current) attemptPlayAudio(); }}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none"
         >
-            <audio ref={bgmRef} src={MR_AUDIO_SRC} loop preload="auto" />
-            <audio ref={vocalRef} src={VOCAL_AUDIO_SRC} loop preload="auto" />
+            {/* 6 Synchronized Multi-Stem Audio Elements */}
+            <audio ref={bassRef} src={STEM_SRCS.bass} loop preload="auto" />
+            <audio ref={guitarRef} src={STEM_SRCS.guitar} loop preload="auto" />
+            <audio ref={drumsRef} src={STEM_SRCS.drums} loop preload="auto" />
+            <audio ref={percRef} src={STEM_SRCS.perc} loop preload="auto" />
+            <audio ref={synthRef} src={STEM_SRCS.synth} loop preload="auto" />
+            <audio ref={vocalRef} src={STEM_SRCS.vocal} loop preload="auto" />
 
-            {/* 1. LAYER BEHIND BLUR: 100vh 7-Frame Visual Stack + Spatial UI */}
+            {/* 1. LAYER BEHIND BLUR: 100vh 7-Frame Visual Stack with Game-Like Building Target Highlight */}
             <div 
                 className="relative w-full h-full transition-all duration-700"
                 style={{
                     filter: isInitialBuffering ? 'blur(22px) brightness(35%) saturate(50%)' : 'none'
                 }}
             >
-                {FRAMES.map((f, idx) => (
-                    <motion.div
-                        key={f.id}
-                        initial={false}
-                        animate={{
-                            opacity: activeFrameIdx === idx ? 1 : 0,
-                            scale: activeFrameIdx === idx ? (isHeadBobbing ? 1.025 : 1.0) : 1.06,
-                            y: activeFrameIdx === idx ? (isHeadBobbing ? -6 : 0) : 0,
-                            filter: vocalVolumePercent > 50 ? 'contrast(115%) brightness(108%)' : 'none'
-                        }}
-                        transition={{ duration: 0.5, ease: 'easeOut' }}
-                        className="absolute inset-0 w-full h-full"
-                    >
-                        <img
-                            src={f.src}
-                            alt={f.titleMain}
-                            className="w-full h-full object-cover brightness-95 contrast-110"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-black/60" />
-                    </motion.div>
-                ))}
+                {FRAMES.map((f, idx) => {
+                    const isTargetBuildingFrame = (idx === 2 || idx === 3);
+                    return (
+                        <motion.div
+                            key={f.id}
+                            initial={false}
+                            animate={{
+                                opacity: activeFrameIdx === idx ? 1 : 0,
+                                scale: activeFrameIdx === idx ? (isHeadBobbing ? 1.025 : 1.0) : 1.06,
+                                y: activeFrameIdx === idx ? (isHeadBobbing ? -6 : 0) : 0,
+                                filter: isTargetBuildingFrame && activeFrameIdx === idx
+                                    ? 'contrast(115%) brightness(105%)'
+                                    : (audioTier >= 3 ? 'contrast(112%) brightness(106%)' : 'none')
+                            }}
+                            transition={{ duration: 0.5, ease: 'easeOut' }}
+                            className="absolute inset-0 w-full h-full"
+                        >
+                            <img
+                                src={f.src}
+                                alt={f.titleMain}
+                                className={`w-full h-full object-cover transition-transform duration-700 ${
+                                    isTargetBuildingFrame && activeFrameIdx === idx ? 'scale-105' : 'scale-100'
+                                }`}
+                            />
+                            {/* Selective Vignette mask to make central building pop like a game selection */}
+                            <div className={`absolute inset-0 transition-opacity duration-700 ${
+                                isTargetBuildingFrame && activeFrameIdx === idx
+                                    ? 'bg-[radial-gradient(circle_at_50%_48%,rgba(0,240,255,0.08)_0%,rgba(0,0,0,0.85)_75%)]'
+                                    : 'bg-gradient-to-t from-black/95 via-black/25 to-black/60'
+                            }`} />
+                        </motion.div>
+                    );
+                })}
+
+                {/* 2. GAME-STYLE BUILDING SELECTION CONTOUR & 3D ISOMETRIC RETICLE (Frames 2 & 3) */}
+                <AnimatePresence>
+                    {isAtelierOptionVisible && !isInitialBuffering && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.6 }}
+                            className="absolute inset-0 pointer-events-none z-15 flex items-center justify-center"
+                        >
+                            {/* Precision Architectural Bounding Frame directly over the building */}
+                            <div className="relative w-[300px] sm:w-[460px] h-[280px] sm:h-[380px] -mt-10 sm:-mt-16 flex items-center justify-center">
+                                {/* Neon Emerald/Volt Isometric Ground Ring */}
+                                <motion.div
+                                    animate={{ rotate: 360, scale: [0.98, 1.03, 0.98] }}
+                                    transition={{ rotate: { repeat: Infinity, duration: 24, ease: "linear" }, scale: { repeat: Infinity, duration: 3, ease: "easeInOut" } }}
+                                    className="absolute -bottom-8 w-full h-24 rounded-[100%] border border-[#00F0FF]/50 border-dashed shadow-[0_0_30px_rgba(0,240,255,0.35)]"
+                                    style={{ transform: 'rotateX(72deg)' }}
+                                />
+
+                                {/* Precise Corner Bracket Reticles */}
+                                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
+                                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
+                                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
+                                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
+
+                                {/* Floating 3D Holographic Target Pin */}
+                                <motion.div
+                                    initial={{ y: -20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    className="absolute -top-12 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#00F0FF] text-[#00F0FF] font-mono text-[9px] sm:text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 shadow-[0_0_20px_rgba(0,240,255,0.5)]"
+                                >
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-ping" />
+                                    <span>TARGET LOCKED // FRANKFURT ATELIER</span>
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-20 pb-8 px-4 sm:px-12 text-center z-20">
+                    {/* Live 4-Tier Stem Dynamic HUD Tag */}
                     <div className="h-6 flex items-center justify-center">
-                        {vocalVolumePercent > 5 && (
-                            <motion.div 
-                                initial={{ scale: 0.8, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#E7FF00]/15 border border-[#E7FF00]/60 text-[#E7FF00] font-mono text-[9px] font-bold tracking-widest animate-pulse"
-                            >
-                                <Mic className="w-3 h-3" />
-                                <span>VOCAL PULSE: {vocalVolumePercent}%</span>
-                            </motion.div>
-                        )}
+                        <motion.div 
+                            key={`tier-${audioTier}`}
+                            initial={{ scale: 0.85, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className={`inline-flex items-center gap-2 px-3 py-0.5 rounded-full border font-mono text-[9px] font-bold tracking-widest uppercase transition-all duration-300 ${
+                                audioTier === 4 
+                                    ? 'bg-[#FF0055]/20 border-[#FF0055] text-[#FF0055] shadow-[0_0_20px_#FF0055] animate-pulse'
+                                    : audioTier === 3
+                                    ? 'bg-[#E7FF00]/20 border-[#E7FF00] text-[#E7FF00] shadow-[0_0_15px_#E7FF00]'
+                                    : audioTier === 2
+                                    ? 'bg-[#00F0FF]/15 border-[#00F0FF] text-[#00F0FF]'
+                                    : 'bg-white/5 border-white/20 text-white/60'
+                            }`}
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-current animate-ping" />
+                            <span>
+                                {audioTier === 4 && '⚡ OVERDRIVE · FULL BAND & LEAD VOCAL'}
+                                {audioTier === 3 && '🔥 RUSH · ALL INSTRUMENTS TUTTI'}
+                                {audioTier === 2 && '🎸 GROOVE · BASS & ELECTRIC GUITAR'}
+                                {audioTier === 1 && '🌙 AMBIENT · DEEP BASS PULSE (50%)'}
+                            </span>
+                        </motion.div>
                     </div>
 
                     {/* True 3D Letter-by-Letter Assembled Kinetic Typography */}
@@ -619,7 +752,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Interactive Area */}
+                    {/* Bottom Interactive Area & Atelier Option Button */}
                     <div className="pointer-events-auto flex flex-col items-center gap-3">
                         <AnimatePresence>
                             {isAtelierOptionVisible && (
@@ -656,7 +789,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* 2. LAYER ABOVE BLUR: 30% SOFTENED SUBTLE BREATHING SHIMMER (30% Reduced Intensity) */}
+            {/* 2. LAYER ABOVE BLUR: 30% SOFTENED SUBTLE BREATHING SHIMMER */}
             <AnimatePresence>
                 {isInitialBuffering && (
                     <motion.div
@@ -703,7 +836,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 )}
             </AnimatePresence>
 
-            {/* 3. ZERO-TEXT VISUAL UPWARD ENERGY CUE (Pure Light Pearl & Fluid Rising Track) */}
+            {/* 3. ZERO-TEXT VISUAL UPWARD ENERGY CUE */}
             <AnimatePresence>
                 {showSwipeCue && !isInitialBuffering && (
                     <motion.div
@@ -712,7 +845,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         exit={{ opacity: 0, y: -20, transition: { duration: 0.6 } }}
                         className="fixed inset-x-0 bottom-24 pointer-events-none z-30 flex flex-col items-center justify-center"
                     >
-                        {/* Minimalist Glass Energy Capsule with Smooth Rising Light Pearl */}
                         <div className="w-7 h-14 rounded-full border border-white/20 bg-black/60 backdrop-blur-xl p-1 flex flex-col items-center justify-end overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.6)]">
                             <motion.div
                                 animate={{ y: [0, -32, 0], opacity: [0.2, 1, 0], scale: [0.8, 1.1, 0.6] }}
