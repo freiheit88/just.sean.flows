@@ -249,15 +249,15 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FIXED SINGLE HERO PHOTO (STAINED GLASS TRANSOM) & EXACT SIGN ALIGNMENT
+// 1. ZERO-BOX KINETIC SOUNDWAVE SHOCKWAVE UNLOCKER ENGINE (AWWARDS / APPLE STYLE)
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
-    // 10-Second Splash Sound Unlocker Overlay State
-    const [show10sSplashOverlay, setShow10sSplashOverlay] = useState(true);
-    const [splashCountdown, setSplashCountdown] = useState(10);
+    // Zero-Box Sound Unlocker Shockwave State
+    const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
+    const [shockwavePos, setShockwavePos] = useState(null);
     
     // Live Dev Kinetics Power Meter State & 80.12% Trembling Easter Egg
     const [livePower, setLivePower] = useState(0);
@@ -266,11 +266,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     const [audioTier, setAudioTier] = useState(1);
     const [lastVelocityStr, setLastVelocityStr] = useState("0.0");
-    const [hasUserUnlockedAudio, setHasUserUnlockedAudio] = useState(false);
 
     // Initial Preloader State
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
-    const [simulatedVolume, setSimulatedVolume] = useState(12);
 
     const audioCtxRef = useRef(null);
     const bassRef = useRef(null);
@@ -377,12 +375,16 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         setTimeout(() => playSingleFootstep(), 2400);
     };
 
-    // GUARANTEED SOUND ENGINE UNLOCKER
-    const forceUnlockAudio = (isExplicitTap = false) => {
-        if (isExplicitTap) {
-            setShow10sSplashOverlay(false);
+    // GUARANTEED SOUND ENGINE UNLOCKER WITH KINETIC SHOCKWAVE EFFECT
+    const forceUnlockAudio = (clickEvent = null) => {
+        if (!isAudioUnlocked && clickEvent) {
+            const clientX = clickEvent.clientX || (clickEvent.touches && clickEvent.touches[0] ? clickEvent.touches[0].clientX : window.innerWidth / 2);
+            const clientY = clickEvent.clientY || (clickEvent.touches && clickEvent.touches[0] ? clickEvent.touches[0].clientY : window.innerHeight / 2);
+            setShockwavePos({ x: clientX, y: clientY, id: Date.now() });
             trigger3SecFootstepSequence();
         }
+
+        setIsAudioUnlocked(true);
 
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -412,32 +414,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 }
 
                 if (r.current.paused) {
-                    const p = r.current.play();
-                    if (p !== undefined) {
-                        p.then(() => setHasUserUnlockedAudio(true)).catch(() => {});
-                    } else {
-                        setHasUserUnlockedAudio(true);
-                    }
+                    r.current.play().catch(() => {});
                 }
             }
         });
     };
-
-    // 10-Second Countdown & Auto-Dismiss Timer
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setSplashCountdown((prev) => {
-                if (prev <= 1) {
-                    setShow10sSplashOverlay(false);
-                    clearInterval(timer);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, []);
 
     // CHECKPOINT-ONLY SYNC
     const performCheckpointSync = () => {
@@ -565,18 +546,14 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(volumeEngineInterval);
     }, []);
 
-    // Initial Buffering Sequence + Global Event Sound Unlockers
+    // Initial Buffering Sequence & Seamless Event Sound Unlockers
     useEffect(() => {
-        const t1 = setTimeout(() => setSimulatedVolume(36), 300);
-        const t2 = setTimeout(() => setSimulatedVolume(16), 650);
-        const t3 = setTimeout(() => setSimulatedVolume(42), 1000);
-
         const t5 = setTimeout(() => {
             setIsInitialBuffering(false);
             forceUnlockAudio();
-        }, 1200);
+        }, 1000);
 
-        const handleGlobalUnlock = () => forceUnlockAudio();
+        const handleGlobalUnlock = (e) => forceUnlockAudio(e);
 
         window.addEventListener('click', handleGlobalUnlock);
         window.addEventListener('pointerdown', handleGlobalUnlock);
@@ -585,14 +562,14 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         window.addEventListener('keydown', handleGlobalUnlock);
 
         return () => {
-            clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
+            clearTimeout(t5);
             window.removeEventListener('click', handleGlobalUnlock);
             window.removeEventListener('pointerdown', handleGlobalUnlock);
             window.removeEventListener('touchstart', handleGlobalUnlock);
             window.removeEventListener('wheel', handleGlobalUnlock);
             window.removeEventListener('keydown', handleGlobalUnlock);
         };
-    }, []);
+    }, [isAudioUnlocked]);
 
     // 5-SECOND EXTENDED WALKING PACING TIMELINE
     useEffect(() => {
@@ -615,7 +592,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (!isScrollableChild && e.cancelable && window.scrollY === 0 && e.deltaY < 0) {
                 e.preventDefault();
             }
-            forceUnlockAudio();
+            forceUnlockAudio(e);
 
             if (e.deltaY <= 0) return;
 
@@ -642,7 +619,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
 
         const handleTouchStart = (e) => {
-            forceUnlockAudio();
+            forceUnlockAudio(e);
             if (e.touches && e.touches[0]) {
                 touchStartY.current = e.touches[0].clientY;
                 touchStartTime.current = Date.now();
@@ -660,7 +637,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 }
             }
 
-            forceUnlockAudio();
+            forceUnlockAudio(e);
             if (!e.touches || !e.touches[0]) return;
 
             const currentY = e.touches[0].clientY;
@@ -717,8 +694,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     return (
         <div 
-            onClick={() => forceUnlockAudio()}
-            onTouchStart={() => forceUnlockAudio()}
+            onClick={(e) => forceUnlockAudio(e)}
+            onTouchStart={(e) => forceUnlockAudio(e)}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none"
         >
             {/* 6 Synchronized Multi-Stem Audio Elements */}
@@ -728,6 +705,24 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <audio ref={percRef} src={STEM_SRCS.perc} loop playsInline preload="auto" />
             <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
             <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
+
+            {/* FULLSCREEN KINETIC SOUNDWAVE SHOCKWAVE TRIGGERED ON FIRST TOUCH/CLICK */}
+            <AnimatePresence>
+                {shockwavePos && (
+                    <motion.div
+                        key={shockwavePos.id}
+                        initial={{ opacity: 1, scale: 0.1 }}
+                        animate={{ opacity: 0, scale: 4.5 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                        style={{
+                            left: shockwavePos.x - 150,
+                            top: shockwavePos.y - 150,
+                        }}
+                        className="fixed w-[300px] h-[300px] rounded-full border-2 border-[#E7FF00] shadow-[0_0_80px_#E7FF00,0_0_150px_#00F0FF] pointer-events-none z-50 mix-blend-screen"
+                    />
+                )}
+            </AnimatePresence>
 
             {/* 1. FIXED SINGLE HERO MAIN PICTURE (STAINED GLASS TRANSOM) */}
             <div 
@@ -768,7 +763,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     </motion.button>
                 </div>
 
-                {/* 3. EXACT PHYSICAL SIGN MATCHING OVERLAY BADGE (MATCHING THE DOOR PLAQUE IN PHOTO) */}
+                {/* 3. EXACT PHYSICAL SIGN MATCHING OVERLAY BADGE */}
                 <div className="absolute right-[8%] sm:right-[15%] top-[46%] sm:top-[48%] z-30 pointer-events-none">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8, x: 20 }}
@@ -793,7 +788,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     {/* LIVE DEV KINETICS ACCUMULATIVE POWER GAUGE HUD WITH 80.12% TREMBLING */}
                     <div className="flex flex-col items-center gap-1.5">
                         <button
-                            onClick={() => forceUnlockAudio(true)}
+                            onClick={(e) => forceUnlockAudio(e)}
                             className={`pointer-events-auto inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl font-mono text-[11px] font-bold transition-all ${
                                 isTremblingAt8012 
                                     ? 'border-[#FF0055] text-[#FF0055] animate-bounce shadow-[0_0_25px_#FF0055]' 
@@ -896,8 +891,20 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </motion.div>
                     </div>
 
-                    {/* Bottom Progress Track */}
+                    {/* Bottom Progress Track & Dynamic Sound Pulse Visualizer */}
                     <div className="pointer-events-auto flex flex-col items-center gap-3">
+                        {/* Minimalist Ambient Soundwave Visualizer Bar (Zero-Text) */}
+                        <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-black/80 border border-white/15 backdrop-blur-xl">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-pulse" />
+                            <div className="flex items-center gap-1 h-3">
+                                <span className="w-0.5 h-full bg-[#E7FF00] animate-bounce" style={{ animationDelay: '0ms' }} />
+                                <span className="w-0.5 h-2 bg-[#E7FF00] animate-bounce" style={{ animationDelay: '150ms' }} />
+                                <span className="w-0.5 h-3 bg-[#00F0FF] animate-bounce" style={{ animationDelay: '300ms' }} />
+                                <span className="w-0.5 h-1.5 bg-[#00F0FF] animate-bounce" style={{ animationDelay: '450ms' }} />
+                                <span className="w-0.5 h-2.5 bg-[#E7FF00] animate-bounce" style={{ animationDelay: '600ms' }} />
+                            </div>
+                        </div>
+
                         {progress >= 88 && (
                             <button
                                 onClick={onEnterMixer}
@@ -918,55 +925,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* 5. 10-SECOND INITIAL SOUND UNLOCKER SPLASH OVERLAY CARD */}
-            <AnimatePresence>
-                {show10sSplashOverlay && !isInitialBuffering && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.4 } }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm pointer-events-auto"
-                        onClick={() => forceUnlockAudio(true)}
-                    >
-                        <motion.button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                forceUnlockAudio(true);
-                            }}
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
-                            className="relative w-full max-w-md p-6 rounded-3xl bg-black/90 border border-[#E7FF00]/80 shadow-[0_0_50px_rgba(231,255,0,0.4)] text-center flex flex-col items-center gap-4 cursor-pointer outline-none"
-                        >
-                            <div className="w-12 h-12 rounded-2xl bg-[#E7FF00]/10 border border-[#E7FF00]/40 flex items-center justify-center text-[#E7FF00]">
-                                <Volume2 className="w-6 h-6 animate-pulse" />
-                            </div>
-
-                            <div>
-                                <span className="font-mono text-[10px] text-[#E7FF00] font-bold tracking-[0.25em] uppercase block mb-1">
-                                    JUST SEAN FLOWS // AUDIO EXPERIENCE
-                                </span>
-                                <h3 className="font-sans text-lg sm:text-xl font-black text-white uppercase tracking-tight">
-                                    TAP TO START MIDNIGHT SOUND
-                                </h3>
-                                <p className="font-mono text-[10px] text-white/60 mt-1">
-                                    Triggers immediate footstep &amp; 3-second walking ambience
-                                </p>
-                            </div>
-
-                            <div className="w-full py-3.5 rounded-full bg-[#E7FF00] text-black font-mono text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(231,255,0,0.5)]">
-                                <Play className="w-4 h-4 fill-current" />
-                                <span>TAP TO START ({splashCountdown}s)</span>
-                            </div>
-
-                            <span className="font-mono text-[9px] text-white/40">
-                                Auto-dismisses in {splashCountdown} seconds
-                            </span>
-                        </motion.button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* 6. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
+            {/* 5. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
             <div className="fixed inset-x-0 bottom-0 h-48 pointer-events-none z-30 overflow-hidden">
                 <motion.div
                     animate={{
