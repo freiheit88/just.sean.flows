@@ -52,7 +52,7 @@ export default function App() {
         rawY: -100, 
         isHovered: false, 
         isOverTitle: false,
-        cursorMode: 'default', // 'default', 'explore', 'listen', 'interactive'
+        cursorMode: 'default',
         speed: 0
     });
     const [touchRipples, setTouchRipples] = useState([]);
@@ -108,7 +108,7 @@ export default function App() {
         const dx = e.clientX - lastMousePos.current.x;
         const dy = e.clientY - lastMousePos.current.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const speed = Math.min(dist / dt, 2.5); // 0 ~ 2.5
+        const speed = Math.min(dist / dt, 2.5);
 
         lastMousePos.current = { x: e.clientX, y: e.clientY, time: now };
 
@@ -144,11 +144,8 @@ export default function App() {
             onTouchMove={handleTouchMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden"
         >
-            {/* ========================================================================= */}
-            {/* 1. AWWWARDS-WINNING 'MAGNETIC DIFFERENCE LENS' CURSOR (Fluid Jelly Physics) */}
-            {/* ========================================================================= */}
+            {/* 1. Awwwards Magnetic Difference Jelly Lens */}
             <div className="hidden md:block pointer-events-none fixed inset-0 z-50 mix-blend-difference">
-                {/* Center Sharp White Point */}
                 <motion.div
                     animate={{
                         x: cursorPos.rawX - 3,
@@ -159,7 +156,6 @@ export default function App() {
                     className="w-1.5 h-1.5 rounded-full bg-white fixed top-0 left-0"
                 />
 
-                {/* Outer Inverted Fluid Lens Bubble with Elastic Squish & Micro-Badge */}
                 <motion.div
                     animate={{
                         x: cursorPos.rawX - (cursorPos.cursorMode === 'explore' ? 36 : (18 + cursorPos.speed * 4)),
@@ -173,7 +169,6 @@ export default function App() {
                     transition={{ type: "spring", damping: 25, stiffness: 260, mass: 0.3 }}
                     className="fixed top-0 left-0 border border-white bg-white/10 backdrop-blur-[2px] flex items-center justify-center pointer-events-none shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                 >
-                    {/* Monospace Micro-Label inside cursor when hovering title/interactive elements */}
                     <AnimatePresence>
                         {cursorPos.cursorMode === 'explore' && (
                             <motion.span
@@ -189,7 +184,7 @@ export default function App() {
                 </motion.div>
             </div>
 
-            {/* 2. Mobile Clean Touch Pulse */}
+            {/* 2. Mobile Touch Pulse */}
             <div className="md:hidden pointer-events-none fixed inset-0 z-40 overflow-hidden">
                 {touchRipples.map((r) => (
                     <motion.div
@@ -262,7 +257,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH 4-TIER MULTI-STEM MAESTRO & GAME-LIKE BUILDING TARGETING
+// 1. FLIPBOOK ENGINE WITH 5X HARDER 4-TIER MULTI-STEM MAESTRO ENGINE
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -270,7 +265,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
     // 4-Tier Stem Velocity State
-    const [audioTier, setAudioTier] = useState(1); // 1: Bass(50%), 2: +Guitar, 3: +All Inst, 4: +Lead Vocal
+    const [audioTier, setAudioTier] = useState(1);
 
     // Initial Preloader State
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
@@ -292,8 +287,10 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     const progressRef = useRef(0);
     const isAudioStarted = useRef(false);
-    const lastScrollVelocity = useRef(0);
-    const lastScrollTime = useRef(Date.now());
+
+    // Energy / Combo Reservoir for 5x Difficulty
+    const currentEnergy = useRef(0); // 0.0 ~ 100.0
+    const lastEnergyPumpTime = useRef(Date.now());
 
     // Play all stems simultaneously in perfect sync
     const attemptPlayAudio = () => {
@@ -344,41 +341,44 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
-    // 4-Tier Dynamic Stem Volume Cross-Fade Engine (Every 50ms)
+    // 5X HARDER Dynamic Energy Decay & Stem Volume Engine (Every 50ms)
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
-            const timeSinceScroll = now - lastScrollTime.current;
-            
-            let currentV = 0;
-            if (timeSinceScroll < 300) {
-                currentV = lastScrollVelocity.current;
-            } else if (timeSinceScroll < 1400) {
-                currentV = Math.max(0, lastScrollVelocity.current * (1 - (timeSinceScroll - 300) / 1100));
-            } else {
-                currentV = 0;
-                lastScrollVelocity.current = 0;
+            const timeSincePump = now - lastEnergyPumpTime.current;
+
+            // Swift exponential decay if user pauses or slows down
+            if (timeSincePump > 120) {
+                const decayAmount = (timeSincePump - 120) * 0.08;
+                currentEnergy.current = Math.max(0, currentEnergy.current - decayAmount);
             }
 
+            const energy = currentEnergy.current; // 0 to 100
+
+            // 5X Harder Calibration:
+            // Level 1 (Idle / Slow, Energy < 18): Bass 50%, Others 0%
+            // Level 2 (Active Pace, Energy 18 ~ 48): Bass 75%, Guitar 70%
+            // Level 3 (Hard Rush, Energy 48 ~ 82): Bass/Guitar 90%, Drums/Perc/Synth 85%
+            // Level 4 (5X HARDER HYPER OVERDRIVE, Energy >= 82): Requires furious continuous strokes! Full Band + Lead Vocals 95%
             let tier = 1;
-            let targetBass = 0.50; // 기본 50%
+            let targetBass = 0.50;
             let targetGuitar = 0.0;
             let targetOtherInst = 0.0;
             let targetVocal = 0.0;
 
-            if (currentV >= 0.70) {
+            if (energy >= 82) {
                 tier = 4;
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
-            } else if (currentV >= 0.35) {
+            } else if (energy >= 48) {
                 tier = 3;
                 targetBass = 0.90;
                 targetGuitar = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
-            } else if (currentV >= 0.08) {
+            } else if (energy >= 18) {
                 tier = 2;
                 targetBass = 0.75;
                 targetGuitar = 0.70;
@@ -502,7 +502,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // Active Scroll Handlers
+    // 5x Harder Active Scroll Handlers (Energy Accumulator)
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
@@ -510,9 +510,10 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (!isAudioStarted.current) attemptPlayAudio();
 
             const rawDelta = Math.abs(e.deltaY);
-            const normalizedVelocity = Math.min(rawDelta / 60, 1.0);
-            lastScrollVelocity.current = Math.max(lastScrollVelocity.current, normalizedVelocity);
-            lastScrollTime.current = Date.now();
+            // 5x harder: small wheel adds ~5 energy, rapid intense strokes pump it up to 85+
+            const energyAdd = Math.min(rawDelta * 0.14, 18);
+            currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
+            lastEnergyPumpTime.current = Date.now();
 
             const clampedDelta = Math.min(rawDelta * 0.0028, 1.2);
             setProgress((prev) => {
@@ -542,9 +543,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const rawDelta = Math.max(0, (touchStartY.current - currentY) * 0.013);
             touchStartY.current = currentY;
 
-            const normalizedVelocity = Math.min(rawDelta * 1.5, 1.0);
-            lastScrollVelocity.current = Math.max(lastScrollVelocity.current, normalizedVelocity);
-            lastScrollTime.current = Date.now();
+            // 5x harder touch pumping: single casual swipe only adds ~10-15 energy.
+            // Level 4 (82+) requires 4~5 frantic consecutive rhythmic flicks!
+            const energyAdd = Math.min(rawDelta * 18, 22);
+            currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
+            lastEnergyPumpTime.current = Date.now();
 
             const clampedDelta = Math.min(rawDelta, 1.1);
             setProgress((prev) => {
@@ -595,7 +598,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <audio ref={synthRef} src={STEM_SRCS.synth} loop preload="auto" />
             <audio ref={vocalRef} src={STEM_SRCS.vocal} loop preload="auto" />
 
-            {/* 1. LAYER BEHIND BLUR: 100vh 7-Frame Visual Stack with Game-Like Building Target Highlight */}
+            {/* 1. LAYER BEHIND BLUR: 100vh 7-Frame Visual Stack */}
             <div 
                 className="relative w-full h-full transition-all duration-700"
                 style={{
