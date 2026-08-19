@@ -27,14 +27,12 @@ const FRAMES = [
         src: "/assets/wine_atelier_04_neon_wisteria_1787173906304.jpg", 
         titleTop: "JUST SEAN FLOWS", 
         titleMain: "WALK WITH MUSIC?", 
-        sub: "Private Midnight Sound Sketch"
     },
     { 
         id: 1, 
         src: "/assets/wine_atelier_01_stained_glass_1787173882749.jpg", 
         titleTop: "GUILD ATELIER", 
         titleMain: "WANT A QUICK LOOK?", 
-        sub: "Hybrid Sound Lab in Formation",
         hasBuildingTarget: true
     },
     { 
@@ -42,14 +40,12 @@ const FRAMES = [
         src: "/assets/wine_atelier_02_poster_brick_1787173891199.jpg", 
         titleTop: "02:00 AM", 
         titleMain: "STILL AWAKE HERE.", 
-        sub: "24/7 Letterpress Concert Poster Lab"
     },
     { 
         id: 3, 
         src: "/assets/wine_atelier_03_tapestry_piano_1787173899303.jpg", 
         titleTop: "CANAL ALLEY", 
         titleMain: "PEEK INSIDE?", 
-        sub: "Steinway Piano & Woven Tapestry",
         hasBuildingTarget: true
     },
     { 
@@ -57,21 +53,18 @@ const FRAMES = [
         src: "/assets/logo_v09_no65_door_knocker_1787173209628.jpg", 
         titleTop: "SECRET HIDEAWAY", 
         titleMain: "MY PRIVATE HAVEN.", 
-        sub: "Cast Bronze Emblem"
     },
     { 
         id: 5, 
         src: "/assets/logo_v11_no65_amp_1787173235884.jpg", 
         titleTop: "NEARLY THERE", 
         titleMain: "ALMOST AT THE DOOR.", 
-        sub: "Custom Tube Amplifier Faceplate"
     },
     { 
         id: 6, 
         src: "/assets/logo_v17_no65_glass_decal_1787173294923.jpg", 
         titleTop: "STAGE READY", 
         titleMain: "THE DOORS OPEN.", 
-        sub: "Flagship Gold Leaf Glass Decal Atelier"
     }
 ];
 
@@ -140,7 +133,6 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
     const isLarge = i % 3 === 0;
     const isMedium = i % 3 === 1;
 
-    // 3X AMPLIFIED 3D Z-DEPTH & PARALLAX TILT MULTIPLIERS
     const zDepth = isLarge ? -180 : isMedium ? 20 : 140;
     const tiltMult = isLarge ? 0.6 : isMedium ? 1.4 : 2.8;
 
@@ -363,6 +355,56 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     // 80.12% Trembling Hold Ref
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
+
+    // =========================================================================
+    // PAGE-LEVEL BACKGROUND AUDIO PAUSE SAFEGUARD (COMPLETELY SEPARATE FROM STEM LOGIC!)
+    // =========================================================================
+    useEffect(() => {
+        const pauseAllAudioSafeguard = () => {
+            const allAudioRefs = [guitarRef, bassRef, drumsRef, percRef, synthRef, vocalRef];
+            allAudioRefs.forEach((r) => {
+                if (r.current && !r.current.paused) {
+                    try { r.current.pause(); } catch(e) {}
+                }
+            });
+            if (audioCtxRef.current && audioCtxRef.current.state === 'running') {
+                try { audioCtxRef.current.suspend(); } catch(e) {}
+            }
+        };
+
+        const resumeAudioIfUnlocked = () => {
+            if (isAudioUnlocked) {
+                if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
+                    try { audioCtxRef.current.resume(); } catch(e) {}
+                }
+                if (guitarRef.current && guitarRef.current.paused) {
+                    try { guitarRef.current.play().catch(() => {}); } catch(e) {}
+                }
+            }
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                pauseAllAudioSafeguard();
+            } else {
+                resumeAudioIfUnlocked();
+            }
+        };
+
+        const handlePageHide = () => {
+            pauseAllAudioSafeguard();
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('pagehide', handlePageHide);
+        window.addEventListener('blur', handlePageHide);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('pagehide', handlePageHide);
+            window.removeEventListener('blur', handlePageHide);
+        };
+    }, [isAudioUnlocked]);
 
     // UNIFIED WEB AUDIO FOOTSTEP SYNTHESIZER
     const playSingleFootstepSound = () => {
@@ -772,11 +814,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     const isAtelierOptionVisible = (activeFrameIdx === 1 || activeFrameIdx === 3);
 
     // 3X AMPLIFIED 3D GYRO TILT & RGB CHROMATIC SHIFT (100% UNMISSABLE & LOUD)
-    const tiltX = tilt.x * 55; // 3x Amplified Tilt Angle X
-    const tiltY = tilt.y * 45; // 3x Amplified Tilt Angle Y
+    const tiltX = tilt.x * 55;
+    const tiltY = tilt.y * 45;
 
-    const ghostOffsetX = tilt.x * 65; // 3x LOUD RGB Ghost Offset X (up to 65px!)
-    const ghostOffsetY = tilt.y * 45; // 3x LOUD RGB Ghost Offset Y (up to 45px!)
+    const ghostOffsetX = tilt.x * 65;
+    const ghostOffsetY = tilt.y * 45;
 
     return (
         <div 
@@ -850,7 +892,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                     )}
                 </AnimatePresence>
 
-                {/* 3. Floating Spatial HUD & Pure Minimalist Typography */}
+                {/* 3. Floating Spatial HUD & Cleaned-up Signature Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
                     {/* ULTRA-MINIMALIST POWER NUMBER DISPLAY */}
                     <div className="flex flex-col items-center gap-1.5 pt-4">
@@ -868,7 +910,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         </button>
                     </div>
 
-                    {/* True 3D Letter-by-Letter Assembled Typography (Middle Text Only!) */}
+                    {/* True 3D Assembled Typography with Signature just.sean.flows Text Effect (NO SUB-TEXT PILL!) */}
                     <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -894,25 +936,19 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                     {currentFrame.titleMain}
                                 </h1>
 
-                                <p className="mt-3 font-mono text-[10px] tracking-[0.2em] uppercase text-white/90 max-w-xs bg-black/60 px-3 py-1 rounded-full border border-white/10 backdrop-blur-sm">
-                                    {currentFrame.sub}
-                                </p>
+                                {/* SIGNATURE SOUND just.sean.flows TEXT EFFECT */}
+                                <div className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-black/80 border border-[#E7FF00]/40 shadow-[0_0_25px_rgba(231,255,0,0.35)] backdrop-blur-md">
+                                    <span className="w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_10px_#E7FF00] animate-pulse" />
+                                    <span className="font-mono text-xs font-black tracking-[0.35em] text-[#E7FF00] uppercase drop-shadow-[0_0_12px_#E7FF00]">
+                                        just.sean.flows
+                                    </span>
+                                </div>
                             </motion.div>
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Progress Track */}
+                    {/* Bottom Progress Track (NO ENTER STEM MIXER BUTTON!) */}
                     <div className="pointer-events-auto flex flex-col items-center gap-2.5">
-                        {progress >= 88 && (
-                            <button
-                                onClick={onEnterMixer}
-                                className="w-full max-w-xs py-3 rounded-full bg-[#E7FF00] text-black font-mono text-[11px] font-black tracking-[0.2em] uppercase hover:scale-105 transition-all shadow-[0_0_50px_rgba(231,255,0,0.6)] flex items-center justify-center gap-2 animate-pulse"
-                            >
-                                <span>ENTER STEM MIXER</span>
-                                <ArrowRight className="w-3.5 h-3.5" />
-                            </button>
-                        )}
-
                         <div className="w-40 sm:w-60 h-1 bg-white/20 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-[#E7FF00] transition-all duration-75"
@@ -939,7 +975,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* CLEAN DARK OVERLAY & BLUR FILTER LAYER (FAVORED BY SEAN!) */}
+                        {/* CLEAN DARK OVERLAY & BLUR FILTER LAYER */}
                         <div className="absolute inset-0 bg-black/55 backdrop-blur-[3.5px] pointer-events-none z-10" />
 
                         {/* 100-ITEM 3D PARALLAX DEBRIS LAYER (Z-0) */}
@@ -1068,7 +1104,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             }}
                             className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20"
                         >
-                            {/* 3X LOUD NEON RED/MAGENTA GHOST LAYER (65PX SHIFT!) */}
+                            {/* 3X LOUD NEON RED/MAGENTA GHOST LAYER */}
                             <div 
                                 className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-90 transition-transform duration-75 ease-out"
                                 style={{
@@ -1081,7 +1117,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_25px_#FF0055]">!</span>
                             </div>
 
-                            {/* 3X LOUD NEON CYAN/BLUE GHOST LAYER (65PX SHIFT!) */}
+                            {/* 3X LOUD NEON CYAN/BLUE GHOST LAYER */}
                             <div 
                                 className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-90 transition-transform duration-75 ease-out"
                                 style={{
