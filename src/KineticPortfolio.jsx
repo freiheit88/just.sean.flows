@@ -279,7 +279,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH FLOATING GHOST OUTLINE (L E T ' S   G O) INITIAL BLUR SPLASH
+// 1. ULTRA-CLEAN 1.0-SECOND COOLDOWN SINGLE FOOTSTEP ENGINE (ZERO OVERLAP GUARANTEED)
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -303,8 +303,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const synthRef = useRef(null);
     const vocalRef = useRef(null);
 
-    const lastStepTime = useRef(0);
-    const isLeftFoot = useRef(true);
+    // Footstep Timestamp Guard: Absolute minimum 1000ms (1.0 sec) between footsteps!
+    const lastFootstepTimeRef = useRef(0);
+    const isLeftFootRef = useRef(true);
     const touchStartY = useRef(0);
     const touchStartTime = useRef(0);
 
@@ -320,8 +321,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
 
-    // AUDIBLE CRISP LEATHER SHOE IMPACT
-    const playSingleFootstep = () => {
+    // SINGLE CLEAN FOOTSTEP SOUND GENERATOR
+    const playSingleFootstepSound = () => {
         try {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (!AudioCtx) return;
@@ -330,8 +331,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const ctx = audioCtxRef.current;
             if (ctx.state === 'suspended') ctx.resume();
 
-            const isLeft = isLeftFoot.current;
-            isLeftFoot.current = !isLeft;
+            const isLeft = isLeftFootRef.current;
+            isLeftFootRef.current = !isLeft;
 
             const osc = ctx.createOscillator();
             const oscGain = ctx.createGain();
@@ -378,31 +379,23 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // STRICT 450MS HARD LOCKOUT BETWEEN FOOTSTEPS
-    const triggerRhythmicFootstep = () => {
+    // ABSOLUTE 1.0-SECOND COOLDOWN FOOTSTEP TRIGGER (ZERO OVERLAP GUARANTEED!)
+    const triggerCleanFootstep = () => {
         const now = Date.now();
-        if (now - lastStepTime.current >= 450) {
-            lastStepTime.current = now;
-            playSingleFootstep();
+        // Strict 1000ms (1.0 sec) cooldown rule: Absolute maximum 1 footstep per second!
+        if (now - lastFootstepTimeRef.current >= 1000) {
+            lastFootstepTimeRef.current = now;
+            playSingleFootstepSound();
             setIsHeadBobbing(true);
             setTimeout(() => setIsHeadBobbing(false), 160);
         }
-    };
-
-    // PLAY 3-SECOND WALKING FOOTSTEP AMBIENCE SEQUENCE
-    const trigger3SecFootstepSequence = () => {
-        playSingleFootstep();
-        setTimeout(() => playSingleFootstep(), 500);
-        setTimeout(() => playSingleFootstep(), 1150);
-        setTimeout(() => playSingleFootstep(), 1750);
-        setTimeout(() => playSingleFootstep(), 2400);
     };
 
     // GUARANTEED SOUND ENGINE UNLOCKER
     const forceUnlockAudio = () => {
         if (!isAudioUnlocked) {
             setIsAudioUnlocked(true);
-            trigger3SecFootstepSequence();
+            triggerCleanFootstep();
         }
 
         try {
@@ -578,7 +571,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // PROGRESSIVE TIER DIFFICULTY SCROLL ENGINE WITH STRICT 450MS FOOTSTEP LOCKOUT
+    // PROGRESSIVE SCROLL & TOUCH ENGINE WITH 1.0-SEC CLEAN FOOTSTEP TRIGGER
     useEffect(() => {
         const handleWheel = (e) => {
             const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
@@ -606,7 +599,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 return next;
             });
 
-            triggerRhythmicFootstep();
+            // Clean single footstep attempt (gated by strict 1.0 sec rule)
+            triggerCleanFootstep();
         };
 
         const handleTouchStart = (e) => {
@@ -655,7 +649,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                     return next;
                 });
 
-                triggerRhythmicFootstep();
+                // Clean single footstep attempt (gated by strict 1.0 sec rule)
+                triggerCleanFootstep();
             }
 
             touchStartY.current = currentY;
@@ -765,7 +760,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                 {/* 3. Floating Spatial HUD & Pure Minimalist Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
-                    {/* ULTRA-MINIMALIST POWER NUMBER DISPLAY (RAW NUMBER ONLY, NO POWER:, NO TIER:, NO %) */}
+                    {/* ULTRA-MINIMALIST POWER NUMBER DISPLAY */}
                     <div className="flex flex-col items-center gap-1.5 pt-4">
                         <button
                             onClick={() => forceUnlockAudio()}
