@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, MapPin
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
@@ -52,6 +52,7 @@ export default function App() {
         rawY: -100, 
         isHovered: false, 
         isOverTitle: false,
+        isOverBuilding: false,
         cursorMode: 'default',
         speed: 0
     });
@@ -115,11 +116,13 @@ export default function App() {
         const x = e.clientX / window.innerWidth;
         const y = e.clientY / window.innerHeight;
         const isOverTitle = Math.abs(x - 0.5) < 0.28 && Math.abs(y - 0.5) < 0.22;
+        const isOverBuilding = Math.abs(x - 0.5) < 0.22 && Math.abs(y - 0.45) < 0.22;
         
         let cursorMode = 'default';
         if (isOverTitle) cursorMode = 'explore';
+        if (isOverBuilding) cursorMode = 'building';
 
-        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true, isOverTitle, cursorMode, speed });
+        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true, isOverTitle, isOverBuilding, cursorMode, speed });
     };
 
     const handleTouchMove = (e) => {
@@ -129,7 +132,7 @@ export default function App() {
             const x = tx / window.innerWidth;
             const y = ty / window.innerHeight;
             const isOverTitle = Math.abs(x - 0.5) < 0.3 && Math.abs(y - 0.5) < 0.25;
-            setCursorPos({ x, y, rawX: tx, rawY: ty, isHovered: true, isOverTitle, cursorMode: isOverTitle ? 'explore' : 'default', speed: 0 });
+            setCursorPos({ x, y, rawX: tx, rawY: ty, isHovered: true, isOverTitle, isOverBuilding: false, cursorMode: isOverTitle ? 'explore' : 'default', speed: 0 });
 
             setTouchRipples((prev) => [
                 ...prev.slice(-3),
@@ -158,10 +161,10 @@ export default function App() {
 
                 <motion.div
                     animate={{
-                        x: cursorPos.rawX - (cursorPos.cursorMode === 'explore' ? 36 : (18 + cursorPos.speed * 4)),
-                        y: cursorPos.rawY - (cursorPos.cursorMode === 'explore' ? 36 : 18),
-                        width: cursorPos.cursorMode === 'explore' ? 72 : (36 + cursorPos.speed * 8),
-                        height: cursorPos.cursorMode === 'explore' ? 72 : 36,
+                        x: cursorPos.rawX - (cursorPos.cursorMode === 'explore' || cursorPos.cursorMode === 'building' ? 36 : (18 + cursorPos.speed * 4)),
+                        y: cursorPos.rawY - (cursorPos.cursorMode === 'explore' || cursorPos.cursorMode === 'building' ? 36 : 18),
+                        width: cursorPos.cursorMode === 'explore' || cursorPos.cursorMode === 'building' ? 72 : (36 + cursorPos.speed * 8),
+                        height: cursorPos.cursorMode === 'explore' || cursorPos.cursorMode === 'building' ? 72 : 36,
                         borderRadius: '9999px',
                         scale: cursorPos.isHovered ? 1 : 0,
                         opacity: cursorPos.isHovered ? 0.95 : 0
@@ -178,6 +181,16 @@ export default function App() {
                                 className="font-mono text-[8px] font-black tracking-widest uppercase text-white"
                             >
                                 EXPLORE
+                            </motion.span>
+                        )}
+                        {cursorPos.cursorMode === 'building' && (
+                            <motion.span
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.5 }}
+                                className="font-mono text-[8px] font-black tracking-widest uppercase text-white text-center leading-tight"
+                            >
+                                ATELIER
                             </motion.span>
                         )}
                     </AnimatePresence>
@@ -257,16 +270,13 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH PROVEN MOBILE AUDIO STACK & TRUE 5X LEVEL 4 CALIBRATION
+// 1. FLIPBOOK ENGINE WITH DIRECT IN-PICTURE BUILDING CLICK ZONE (No Text Boxes)
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
-    // 4-Tier Stem Velocity State
-    const [audioTier, setAudioTier] = useState(1);
-
     // Initial Preloader State
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
     const [simulatedVolume, setSimulatedVolume] = useState(12);
@@ -348,51 +358,38 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const now = Date.now();
             const timeSincePump = now - lastEnergyPumpTime.current;
 
-            // Fast decay: drops 4.5 energy every 50ms (90 energy/sec) when user is not actively pumping!
             if (timeSincePump > 100) {
                 currentEnergy.current = Math.max(0, currentEnergy.current - 4.5);
             }
 
-            const energy = currentEnergy.current; // 0 ~ 100
+            const energy = currentEnergy.current;
 
-            // 5X Harder Calibration:
-            // Level 1: Idle (Energy < 20) -> Bass 50%
-            // Level 2: Active Walk (Energy 20 ~ 55) -> Bass 75%, Guitar 70%
-            // Level 3: Fast Sprint (Energy 55 ~ 88) -> All inst except vocal 85%
-            // Level 4: 5X HARDER HYPER OVERDRIVE (Energy >= 88) -> Needs continuous multi-swipe frenzy! Full Band + Vocals 95%
-            let tier = 1;
             let targetBass = 0.50;
             let targetGuitar = 0.0;
             let targetOtherInst = 0.0;
             let targetVocal = 0.0;
 
             if (energy >= 88) {
-                tier = 4;
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
             } else if (energy >= 55) {
-                tier = 3;
                 targetBass = 0.90;
                 targetGuitar = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
             } else if (energy >= 20) {
-                tier = 2;
                 targetBass = 0.75;
                 targetGuitar = 0.70;
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
             } else {
-                tier = 1;
                 targetBass = 0.50;
                 targetGuitar = 0.0;
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
             }
-
-            setAudioTier(tier);
 
             if (bassRef.current) bassRef.current.volume = targetBass;
             if (guitarRef.current) guitarRef.current.volume = targetGuitar;
@@ -502,7 +499,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // 5x Harder True Gesture-Velocity Handlers
+    // Active Gesture Velocity Handlers
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
@@ -510,7 +507,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (!isAudioStarted.current) unlockAllStems();
 
             const rawDelta = Math.abs(e.deltaY);
-            // Wheel energy pump: modest addition per tick
             const energyAdd = Math.min(rawDelta * 0.08, 12);
             currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
             lastEnergyPumpTime.current = Date.now();
@@ -545,10 +541,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const now = Date.now();
             const timeDiff = Math.max(16, now - touchStartTime.current);
 
-            // Calculate true physical swipe velocity (px per ms)
             if (deltaY > 0) {
-                const velocity = deltaY / timeDiff; // Typically 0.2 to 2.5
-                // Only fast flicks (> 0.6 px/ms) generate high energy!
+                const velocity = deltaY / timeDiff;
                 if (velocity > 0.4) {
                     const energyAdd = Math.min(velocity * 12, 16);
                     currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
@@ -617,7 +611,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
             <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
 
-            {/* 1. LAYER BEHIND BLUR: 100vh 7-Frame Visual Stack */}
+            {/* 1. 100vh Fullscreen 7-Frame Visual Stack with Direct In-Picture Building Highlight */}
             <div 
                 className="relative w-full h-full transition-all duration-700"
                 style={{
@@ -636,7 +630,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                 y: activeFrameIdx === idx ? (isHeadBobbing ? -6 : 0) : 0,
                                 filter: isTargetBuildingFrame && activeFrameIdx === idx
                                     ? 'contrast(115%) brightness(105%)'
-                                    : (audioTier >= 3 ? 'contrast(112%) brightness(106%)' : 'none')
+                                    : 'none'
                             }}
                             transition={{ duration: 0.5, ease: 'easeOut' }}
                             className="absolute inset-0 w-full h-full"
@@ -648,78 +642,44 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                     isTargetBuildingFrame && activeFrameIdx === idx ? 'scale-105' : 'scale-100'
                                 }`}
                             />
-                            <div className={`absolute inset-0 transition-opacity duration-700 ${
-                                isTargetBuildingFrame && activeFrameIdx === idx
-                                    ? 'bg-[radial-gradient(circle_at_50%_48%,rgba(0,240,255,0.08)_0%,rgba(0,0,0,0.85)_75%)]'
-                                    : 'bg-gradient-to-t from-black/95 via-black/25 to-black/60'
-                            }`} />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/25 to-black/60" />
                         </motion.div>
                     );
                 })}
 
-                {/* 2. GAME-STYLE BUILDING SELECTION CONTOUR & 3D ISOMETRIC RETICLE (Frames 2 & 3) */}
+                {/* 2. DIRECT IN-PICTURE BUILDING CLICK ZONE & ORGANIC CONTOUR (Frames 2 & 3 - Zero Text Boxes) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && !isInitialBuffering && (
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             transition={{ duration: 0.6 }}
-                            className="absolute inset-0 pointer-events-none z-15 flex items-center justify-center"
+                            className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none"
                         >
-                            <div className="relative w-[300px] sm:w-[460px] h-[280px] sm:h-[380px] -mt-10 sm:-mt-16 flex items-center justify-center">
-                                <motion.div
-                                    animate={{ rotate: 360, scale: [0.98, 1.03, 0.98] }}
-                                    transition={{ rotate: { repeat: Infinity, duration: 24, ease: "linear" }, scale: { repeat: Infinity, duration: 3, ease: "easeInOut" } }}
-                                    className="absolute -bottom-8 w-full h-24 rounded-[100%] border border-[#00F0FF]/50 border-dashed shadow-[0_0_30px_rgba(0,240,255,0.35)]"
-                                    style={{ transform: 'rotateX(72deg)' }}
-                                />
+                            {/* The Actual In-Picture Clickable Building Zone */}
+                            <motion.button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenAtelier();
+                                }}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="pointer-events-auto relative w-[280px] sm:w-[420px] h-[260px] sm:h-[360px] -mt-8 sm:-mt-12 rounded-3xl cursor-pointer group outline-none"
+                            >
+                                {/* Organic Neon Architectural Contour Highlight */}
+                                <div className="absolute inset-0 rounded-3xl border-2 border-[#00F0FF]/40 group-hover:border-[#00F0FF] transition-all duration-300 shadow-[0_0_30px_rgba(0,240,255,0.25)] group-hover:shadow-[0_0_50px_rgba(0,240,255,0.6)]" />
 
-                                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
-                                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
-                                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
-                                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
-
-                                <motion.div
-                                    initial={{ y: -20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    className="absolute -top-12 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#00F0FF] text-[#00F0FF] font-mono text-[9px] sm:text-[10px] font-bold tracking-widest uppercase flex items-center gap-1.5 shadow-[0_0_20px_rgba(0,240,255,0.5)]"
-                                >
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-ping" />
-                                    <span>TARGET LOCKED // FRANKFURT ATELIER</span>
-                                </motion.div>
-                            </div>
+                                {/* Glowing Light Sweep within Building Window Frame */}
+                                <div className="absolute inset-0 rounded-3xl bg-[#00F0FF]/[0.03] group-hover:bg-[#00F0FF]/[0.08] transition-colors duration-300" />
+                            </motion.button>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-20 pb-8 px-4 sm:px-12 text-center z-20">
-                    {/* Live 4-Tier Stem Dynamic HUD Tag */}
-                    <div className="h-6 flex items-center justify-center">
-                        <motion.div 
-                            key={`tier-${audioTier}`}
-                            initial={{ scale: 0.85, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className={`inline-flex items-center gap-2 px-3 py-0.5 rounded-full border font-mono text-[9px] font-bold tracking-widest uppercase transition-all duration-300 ${
-                                audioTier === 4 
-                                    ? 'bg-[#FF0055]/20 border-[#FF0055] text-[#FF0055] shadow-[0_0_20px_#FF0055] animate-pulse'
-                                    : audioTier === 3
-                                    ? 'bg-[#E7FF00]/20 border-[#E7FF00] text-[#E7FF00] shadow-[0_0_15px_#E7FF00]'
-                                    : audioTier === 2
-                                    ? 'bg-[#00F0FF]/15 border-[#00F0FF] text-[#00F0FF]'
-                                    : 'bg-white/5 border-white/20 text-white/60'
-                            }`}
-                        >
-                            <span className="w-1.5 h-1.5 rounded-full bg-current animate-ping" />
-                            <span>
-                                {audioTier === 4 && '⚡ OVERDRIVE · FULL BAND & LEAD VOCAL'}
-                                {audioTier === 3 && '🔥 RUSH · ALL INSTRUMENTS TUTTI'}
-                                {audioTier === 2 && '🎸 GROOVE · BASS & ELECTRIC GUITAR'}
-                                {audioTier === 1 && '🌙 AMBIENT · DEEP BASS PULSE (50%)'}
-                            </span>
-                        </motion.div>
-                    </div>
+                    <div className="h-6" />
 
                     {/* True 3D Letter-by-Letter Assembled Kinetic Typography */}
                     <div className="max-w-4xl mx-auto my-auto px-2">
@@ -792,23 +752,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Interactive Area */}
+                    {/* Bottom Progress Track Only (No Artificial Button Boxes) */}
                     <div className="pointer-events-auto flex flex-col items-center gap-3">
-                        <AnimatePresence>
-                            {isAtelierOptionVisible && (
-                                <motion.button
-                                    initial={{ opacity: 0, scale: 0.85, y: 10 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.85, y: 10 }}
-                                    onClick={onOpenAtelier}
-                                    className="px-5 py-2.5 rounded-full bg-black/80 backdrop-blur-xl border border-[#00F0FF] text-[#00F0FF] hover:bg-[#00F0FF] hover:text-black font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_25px_rgba(0,240,255,0.4)] flex items-center gap-2"
-                                >
-                                    <Building2 className="w-3.5 h-3.5" />
-                                    <span>360° ATELIER INTEL // 프랑크푸르트 사운드 아틀리에 둘러보기</span>
-                                </motion.button>
-                            )}
-                        </AnimatePresence>
-
                         {progress >= 88 && (
                             <button
                                 onClick={onEnterMixer}
