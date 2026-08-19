@@ -19,64 +19,64 @@ const STEM_SRCS = {
     vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
-// 7 Urban Rustic Pick Logo Atelier Frames with Witty Conversational Copy & 1:1 Text-Picture Alignment
+// 7 Urban Rustic Frames with Half-Length Concise English Text & 1:1 Pick Logo Matching
 const FRAMES = [
     { 
         id: 0, 
         src: "/assets/urban_rustic_01_courtyard_1787172615555.jpg", 
         titleTop: "JUST SEAN FLOWS", 
-        titleMain: "노래 들으면서 갈래?", 
-        sub: "골목 가로수 길 걸으며 함께 듣는 프라이빗 음향 스케치",
+        titleMain: "WALK WITH MUSIC?", 
+        sub: "Private Midnight Sound Sketch",
         buildingSign: "@JUST.SEAN.FLOWS // BURGUNDY PICK EMBLEM"
     },
     { 
         id: 1, 
         src: "/assets/urban_rustic_02_stone_alley_1787172632085.jpg", 
-        titleTop: "GUILD ATELIER IN FORMATION", 
-        titleMain: "나 법인 냈는데, 보고 갈래?", 
-        sub: "유럽 라벤더 & 석조 아치 속 1인 하이브리드 사운드 랩",
+        titleTop: "GUILD ATELIER", 
+        titleMain: "WANT A QUICK LOOK?", 
+        sub: "Hybrid Sound Lab in Formation",
         buildingSign: "@JUST.SEAN.FLOWS // GLASS EMBLEM",
         hasBuildingTarget: true
     },
     { 
         id: 2, 
         src: "/assets/urban_rustic_05_curved_bakery_1787172686912.jpg", 
-        titleTop: "MIDNIGHT 02:00 AM", 
-        titleMain: "새벽 2시, 여기만 안 자네.", 
-        sub: "붉은 벽돌 모퉁이 & 버건디 피크 네온 조명 사운드 랩",
+        titleTop: "02:00 AM", 
+        titleMain: "STILL AWAKE HERE.", 
+        sub: "24/7 Burgundy Pick Lab",
         buildingSign: "@JUST.SEAN.FLOWS // BURGUNDY NEON PICK"
     },
     { 
         id: 3, 
         src: "/assets/urban_rustic_03_canal_signboard_1787172648703.jpg", 
-        titleTop: "CANAL SIDE ROTUNDA", 
-        titleMain: "살짝 들여다볼까?", 
-        sub: "운하 물가 옆 보라색 등나무 & 단조 아이언 피크 간판",
+        titleTop: "CANAL ALLEY", 
+        titleMain: "PEEK INSIDE?", 
+        sub: "Wisteria & Vintage Piano",
         buildingSign: "@JUST.SEAN.FLOWS // WROUGHT IRON PICK",
         hasBuildingTarget: true
     },
     { 
         id: 4, 
         src: "/assets/urban_rustic_04_passageway_1787172669011.jpg", 
-        titleTop: "BEHIND THE CURTAIN", 
-        titleMain: "여기 내 비밀 아지트야.", 
-        sub: "자작나무 화분 & 황동 피크 현판이 맞이하는 석조 아지트",
+        titleTop: "SECRET HIDEAWAY", 
+        titleMain: "MY PRIVATE HAVEN.", 
+        sub: "Analog Gear & Brass Pick",
         buildingSign: "@JUST.SEAN.FLOWS // BRASS PICK PLAQUE"
     },
     { 
         id: 5, 
         src: "/assets/urban_rustic_07_yellow_brick_1787172741769.jpg", 
-        titleTop: "ACOUSTIC SANCTUARY", 
-        titleMain: "거의 다 왔다.", 
-        sub: "올리브 나무 화분 & 옐로우 브릭 속 어쿠스틱 앰프 스튜디오",
+        titleTop: "NEARLY THERE", 
+        titleMain: "ALMOST AT THE DOOR.", 
+        sub: "Olive Tree & Tube Amps",
         buildingSign: "@JUST.SEAN.FLOWS // SOUND STUDIO PLAQUE"
     },
     { 
         id: 6, 
         src: "/assets/walk_07.jpg", 
-        titleTop: "THE DOORS OPEN", 
-        titleMain: "이제 문 열린다.", 
-        sub: "골든 콘서트 홀의 문이 열리고 VIP 스테이지 도착",
+        titleTop: "STAGE READY", 
+        titleMain: "THE DOORS OPEN.", 
+        sub: "Golden Concert Sanctuary",
         buildingSign: null
     }
 ];
@@ -85,9 +85,9 @@ const DEFAULT_ENDING = {
     id: 'virtuoso',
     title: 'THE MIDNIGHT VIRTUOSO',
     subtitle: '02:00 AM Violin Cadenza Solitude',
-    desc: '현의 44.1초 초절기교 카덴차에 깊이 매료된 영혼. 고요함 속에서 가장 날카로운 전율을 쫓는 고독한 탐미주의자.',
+    desc: 'Deeply enchanted by 44.1s Paganini cadenza. A nocturnal aesthete pursuing sharp thrills in silence.',
     accent: '#E7FF00',
-    quote: '당신은 차가운 마티니를 쥐고 바이올린의 독주에 영혼을 파는 타입입니다.'
+    quote: 'Holding a cold martini, captivated by solo violin at midnight.'
 };
 
 export default function App() {
@@ -116,27 +116,27 @@ export default function App() {
                 id: 'rebel',
                 title: 'THE ELECTRIC REBEL',
                 subtitle: 'Velvet Distortion & Sheffield Grit',
-                desc: '규칙을 파괴하는 일렉트릭 디스토션과 로우(Raw)한 인디 록 에너지의 정점. 밤의 무법자.',
+                desc: 'Raw indie rock energy breaking all rules. Sovereign of night velocity.',
                 accent: '#FF0055',
-                quote: '정제된 클래식의 껍질을 깨부수고 날 것의 기타 앰프 피드백에 열광합니다.'
+                quote: 'Shattering classical decorum with raw guitar feedback.'
             };
         } else if (bass > violin && bass > orchestra) {
             ending = {
                 id: 'nocturne',
                 title: 'THE CHAMPAGNE NOCTURNE',
                 subtitle: 'Midnight Salon & Crystal Flute',
-                desc: '심야 프라이빗 살롱의 관능적인 베이스 그루브와 샴페인의 기포를 닮은 황홀경.',
+                desc: 'Sensual bass pulse in a private 3 AM salon with champagne euphoria.',
                 accent: '#00F0FF',
-                quote: '모두가 잠든 새벽 3시, 은밀한 사교 살롱의 묵직한 베이스라인을 지배합니다.'
+                quote: 'Ruling the heavy noir bassline while the world sleeps.'
             };
         } else if (orchestra >= 85) {
             ending = {
                 id: 'architect',
                 title: 'THE SOVEREIGN ARCHITECT',
                 subtitle: 'Frankfurt Grand Symphony Tutti',
-                desc: '알테 오퍼의 모든 악기가 일제히 폭발하는 그랜드 튜티. 시스템과 소리의 완벽한 수학적 군주.',
+                desc: 'Grand orchestra tutti exploding at Alte Oper. Mathematical master of sound.',
                 accent: '#C5A059',
-                quote: '낮에는 시스템을 통제하고, 밤에는 오케스트라의 모든 주파수를 장악합니다.'
+                quote: 'Controlling systems by day, governing frequencies by night.'
             };
         }
 
@@ -315,7 +315,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH URBAN RUSTIC FRAMES, BURGUNDY PICK LOGO & WITTY COPY
+// 1. FLIPBOOK ENGINE WITH CONCISE ENGLISH TEXT & BURGUNDY PICK LOGO
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -1092,7 +1092,7 @@ function FrankfurtAtelierModal({ onClose }) {
                     JUST SEAN FLOWS // GUILD ATELIER
                 </h2>
                 <p className="font-mono text-xs text-white/60 mb-6">
-                    독일 프랑크푸르트 암 마인(Frankfurt am Main)에 설립 진행 중인 1인 하이브리드 사운드 프로덕션 길드 본부입니다.
+                    Sole-proprietor hybrid sound production guild headquarters in formation at Frankfurt am Main, Germany.
                 </p>
 
                 <div className="relative rounded-2xl overflow-hidden mb-6 border border-white/15 aspect-video">
@@ -1113,7 +1113,7 @@ function FrankfurtAtelierModal({ onClose }) {
                     <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
                         <span className="text-[#E7FF00] font-bold block mb-1">LEGAL STRUCTURE</span>
                         <p className="text-white/80 text-[11px]">
-                            1인 하이브리드 길드 법인 (UG / GmbH in Formation)
+                            Hybrid Guild Corporation (UG / GmbH in Formation)
                         </p>
                     </div>
 
@@ -1127,14 +1127,14 @@ function FrankfurtAtelierModal({ onClose }) {
                     <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 sm:col-span-2">
                         <span className="text-white font-bold block mb-1">CORE MISSION</span>
                         <p className="text-white/70 text-[11px] leading-relaxed">
-                            클래식 오케스트라와 인디 록, 첨단 AI 오디오 DSP를 융합하는 독자적 사운드스케이프 제작 및 글로벌 아티스트 라이선싱.
+                            Fusing classical orchestra, indie rock, and AI audio DSP for proprietary soundscapes and global licensing.
                         </p>
                     </div>
                 </div>
 
                 <button
                     onClick={onClose}
-                    className="w-full py-4 rounded-full bg-[#00F0FF] text-black font-mono text-xs font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)] my-2"
+                    className="w-full py-4 rounded-full bg-[#00F0FF] text-[#000000] font-mono text-xs font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)] my-2"
                 >
                     RESUME WALKING TOWARDS CONCERT PALACE →
                 </button>
@@ -1158,14 +1158,14 @@ function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, 
                     CRAFT YOUR HARMONY
                 </h2>
                 <p className="font-mono text-xs text-white/60 mt-2 max-w-md mx-auto">
-                    4가지 음원 스템을 조절하여 당신만의 비밀 엔딩을 완성하세요.
+                    Sculpt the 4 audio stems to reveal your personalized VIP ending pass.
                 </p>
             </div>
 
             <div className="p-4 sm:p-6 rounded-2xl border border-white/15 bg-white/[0.03] backdrop-blur-xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="font-mono text-xs text-center sm:text-left">
                     <span className="text-[#E7FF00] font-bold block mb-0.5">ARTIST NICKNAME</span>
-                    <span className="text-white/50 text-[10px]">티켓에 각인될 서명입니다.</span>
+                    <span className="text-white/50 text-[10px]">Your signature printed on ticket.</span>
                 </div>
                 <input
                     type="text"
@@ -1178,14 +1178,14 @@ function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, 
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 {[
-                    { id: 'violin', label: '01. SOLO VIOLIN', desc: '파가니니 솔로 카덴차', color: '#E7FF00' },
-                    { id: 'electric', label: '02. ELECTRIC DISTORTION', desc: '인디 록 앰프 피드백', color: '#FF0055' },
-                    { id: 'bass', label: '03. NOIR BASS', desc: '02:00 AM 심야 살롱 펄스', color: '#00F0FF' },
-                    { id: 'orchestra', label: '04. GRAND SYMPHONY', desc: '전단 오케스트라 튜티', color: '#C5A059' },
+                    { id: 'violin', label: '01. SOLO VIOLIN', desc: 'Paganini Solo Cadenza', color: '#E7FF00' },
+                    { id: 'electric', label: '02. ELECTRIC DISTORTION', desc: 'Indie Rock Amp Feedback', color: '#FF0055' },
+                    { id: 'bass', label: '03. NOIR BASS', desc: '02:00 AM Midnight Salon Pulse', color: '#00F0FF' },
+                    { id: 'orchestra', label: '04. GRAND SYMPHONY', desc: 'Full Orchestra Tutti', color: '#C5A059' },
                 ].map((s) => (
                     <div key={s.id} className="p-4 sm:p-5 rounded-2xl border border-white/15 bg-white/[0.02] flex flex-col justify-between">
                         <div className="flex justify-between items-center font-mono text-xs mb-2">
-                            <span className="font-bold text-[#E7FF00] font-bold text-[11px]">{s.label}</span>
+                            <span className="font-bold text-white text-[11px]">{s.label}</span>
                             <span style={{ color: s.color }} className="font-bold">{stems[s.id]}%</span>
                         </div>
                         <input
@@ -1336,7 +1336,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
                 9:16 VIP PASS READY
             </h2>
             <p className="font-mono text-[11px] text-white/60 max-w-xs mb-6">
-                인스타그램 스토리에 바로 공유할 수 있는 9:16 고화질 패스입니다.
+                Ready for Instagram Story sharing in 9:16 vertical high resolution.
             </p>
 
             <div className="w-full rounded-3xl border border-white/20 bg-black/90 p-5 shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden mb-6">
