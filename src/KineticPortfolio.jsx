@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity,
+    Key, Lock, Tag, Ticket, Shield
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
@@ -83,69 +84,35 @@ const DEFAULT_ENDING = {
     quote: 'Holding a cold martini, captivated by solo violin at midnight.'
 };
 
-// SOFT AMBIENT ASTRONOMICAL VECTOR STARS (Softer, Distant, Non-Glaring)
-function AstronomicalSpikeStar({ color, size }) {
-    return (
-        <svg viewBox="0 0 60 60" width={size * 2.2} height={size * 2.2} className="overflow-visible pointer-events-none drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]">
-            <circle cx="30" cy="30" r="16" fill={color} opacity="0.3" filter="blur(3px)" />
-            <path d="M 30,4 L 32,28 L 56,30 L 32,32 L 30,56 L 28,32 L 4,30 L 28,28 Z" fill={color} opacity="0.8" />
-            <circle cx="30" cy="30" r="2.5" fill="#FFFFFF" opacity="0.9" />
-        </svg>
-    );
-}
-
-function AstronomicalOrbStar({ color, size }) {
-    return (
-        <svg viewBox="0 0 40 40" width={size * 1.8} height={size * 1.8} className="overflow-visible pointer-events-none">
-            <circle cx="20" cy="20" r="14" fill={color} opacity="0.25" filter="blur(3px)" />
-            <circle cx="20" cy="20" r="6" fill={color} opacity="0.75" />
-            <circle cx="20" cy="20" r="2" fill="#FFFFFF" opacity="0.8" />
-        </svg>
-    );
-}
-
-function AstronomicalFlareStar({ color, size }) {
-    return (
-        <svg viewBox="0 0 80 40" width={size * 2.6} height={size * 1.3} className="overflow-visible pointer-events-none">
-            <path d="M 0,20 Q 40,17 80,20 Q 40,23 0,20 Z" fill={color} opacity="0.7" filter="blur(1px)" />
-            <path d="M 40,6 Q 38.5,20 40,34 Q 41.5,20 40,6 Z" fill={color} opacity="0.5" />
-            <circle cx="40" cy="20" r="2" fill="#FFFFFF" opacity="0.8" />
-        </svg>
-    );
-}
-
-// FULL SCREEN DISTRIBUTED STARFIELD DATABASE (5vw to 95vw Across Entire Screen!)
-const STARS_DATABASE = Array.from({ length: 36 }).map((_, i) => {
-    const size = 5 + (i * 7) % 11; // 5px to 15px
-    const isLarge = size > 10;
-    const isMedium = size >= 7 && size <= 10;
-
-    const colors = ['#E7FF00', '#00F0FF', '#FF0055', '#FFFFFF', '#C5A059'];
-    const color = colors[i % colors.length];
-
-    const type = i % 3;
-
-    const zDepth = isLarge ? -120 : isMedium ? 10 : 90;
-    const tiltMult = isLarge ? 0.35 : isMedium ? 0.8 : 1.5;
-
-    // Guaranteed wide distribution across entire screen (4vw to 94vw)
-    const leftPercent = 4 + ((i * 17 + (i % 5) * 23) % 90);
-    const distFromCenter = leftPercent - 50;
-    const pullX = Math.abs(distFromCenter) < 36 ? (distFromCenter * -0.22) : 0;
+// VINTAGE HOTEL KEYS & CAST BRONZE EMBLEM DATA
+const VINTAGE_KEYS_DATABASE = [
+    { text: "ROOM #65", type: "brass_tag", color: "#C5A059", left: "8vw", zDepth: -110, duration: 7.2, opacityMax: 0.75, tiltMult: 0.35, isLarge: true },
+    { text: "🔑", type: "key_icon", color: "#E7FF00", left: "22vw", zDepth: 80, duration: 2.5, opacityMax: 0.65, tiltMult: 1.4, isLarge: false },
+    { text: "02:00 AM", type: "time_tag", color: "#00F0FF", left: "38vw", zDepth: 20, duration: 4.2, opacityMax: 0.8, tiltMult: 0.8, isLarge: false },
+    { text: "🗝️", type: "key_icon", color: "#C5A059", left: "54vw", zDepth: -80, duration: 6.8, opacityMax: 0.7, tiltMult: 0.4, isLarge: true },
+    { text: "FRANKFURT", type: "badge", color: "#FFFFFF", left: "70vw", zDepth: 60, duration: 3.1, opacityMax: 0.7, tiltMult: 1.2, isLarge: false },
+    { text: "[ATELIER 65]", type: "brass_tag", color: "#FF0055", left: "86vw", zDepth: -100, duration: 7.5, opacityMax: 0.75, tiltMult: 0.3, isLarge: true },
+    
+    { text: "⚜", type: "wax_seal", color: "#C5A059", left: "14vw", zDepth: 40, duration: 3.8, opacityMax: 0.6, tiltMult: 1.0, isLarge: false },
+    { text: "GUILD #065", type: "badge", color: "#E7FF00", left: "30vw", zDepth: -90, duration: 6.5, opacityMax: 0.8, tiltMult: 0.4, isLarge: true },
+    { text: "KEY TO VAULT", type: "brass_tag", color: "#00F0FF", left: "48vw", zDepth: 90, duration: 2.2, opacityMax: 0.85, tiltMult: 1.5, isLarge: false },
+    { text: "🔒", type: "lock_icon", color: "#C5A059", left: "64vw", zDepth: 10, duration: 4.6, opacityMax: 0.65, tiltMult: 0.7, isLarge: false },
+    { text: "VIP PASS", type: "badge", color: "#FF0055", left: "80vw", zDepth: -60, duration: 5.8, opacityMax: 0.7, tiltMult: 0.5, isLarge: true },
+    
+    { text: "CADENZA", type: "time_tag", color: "#FFFFFF", left: "18vw", zDepth: -120, duration: 8.0, opacityMax: 0.65, tiltMult: 0.25, isLarge: true },
+    { text: "🗝️", type: "key_icon", color: "#E7FF00", left: "42vw", zDepth: 70, duration: 2.8, opacityMax: 0.7, tiltMult: 1.3, isLarge: false },
+    { text: "#065 WINE", type: "brass_tag", color: "#C5A059", left: "58vw", zDepth: -70, duration: 6.2, opacityMax: 0.8, tiltMult: 0.45, isLarge: true },
+    { text: "§ 02:00", type: "wax_seal", color: "#00F0FF", left: "76vw", zDepth: 30, duration: 3.5, opacityMax: 0.75, tiltMult: 0.9, isLarge: false },
+    { text: "SECRET DOOR", type: "badge", color: "#FF0055", left: "92vw", zDepth: -110, duration: 7.4, opacityMax: 0.65, tiltMult: 0.3, isLarge: true }
+].map((item, i) => {
+    const leftNum = parseFloat(item.left);
+    const distFromCenter = leftNum - 50;
+    const pullX = Math.abs(distFromCenter) < 38 ? (distFromCenter * -0.20) : 0;
 
     return {
+        ...item,
         id: i,
-        size,
-        color,
-        type,
-        left: `${leftPercent}vw`,
-        pullXPx: pullX * 4, // Shift relative to left position
-        delay: (i * 0.22) % 3.0,
-        duration: isLarge ? 7.2 : isMedium ? 4.5 : 2.4, // Diverse speeds
-        opacityMax: 0.35 + (i % 5) * 0.12,
-        zDepth,
-        tiltMult,
-        isLarge
+        pullXPx: pullX * 4
     };
 });
 
@@ -246,7 +213,7 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. Editorial 3D Star Title Header */}
+            {/* 2. Editorial 3D Title Header */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-6 flex items-center justify-between pointer-events-none">
                 <motion.div 
                     style={{
@@ -307,7 +274,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & FULL-SCREEN STARFIELD
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & VINTAGE HOTEL KEYS & EMBLEMS
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -905,7 +872,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: FULL SCREEN UNCOVERED DYNAMIC STARFIELD */}
+            {/* 2. INITIAL UNLOCK SPLASH: VINTAGE HOTEL KEYS & CAST BRONZE EMBLEMS (STARS 100% GONE!) */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -921,46 +888,78 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* UNCOVERED FULL-SCREEN STARFIELD LAYER */}
+                        {/* 3D PARALLAX VINTAGE HOTEL KEYS & BRASS BADGE LAYER */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ transformStyle: 'preserve-3d' }}>
-                            {STARS_DATABASE.map((s) => {
-                                const starTiltX = tilt.x * 24 * s.tiltMult;
-                                const starTiltY = tilt.y * 24 * s.tiltMult;
+                            {VINTAGE_KEYS_DATABASE.map((item) => {
+                                const tiltXVal = tilt.x * 24 * item.tiltMult;
+                                const tiltYVal = tilt.y * 24 * item.tiltMult;
 
-                                const startY = s.isLarge ? '85vh' : '105vh';
-                                const endY = s.isLarge ? '12vh' : '-25vh';
+                                const startY = item.isLarge ? '85vh' : '105vh';
+                                const endY = item.isLarge ? '12vh' : '-25vh';
 
                                 return (
                                     <motion.div
-                                        key={s.id}
+                                        key={item.id}
                                         initial={{
                                             y: startY,
                                             x: 0,
                                             opacity: 0,
-                                            scale: 0.4
+                                            scale: 0.6
                                         }}
                                         animate={{
                                             y: [startY, endY],
-                                            x: [0, s.pullXPx],
-                                            opacity: [0, s.opacityMax, 0],
-                                            scale: [0.4, 1.2, 0.3]
+                                            x: [0, item.pullXPx],
+                                            opacity: [0, item.opacityMax, 0],
+                                            scale: [0.6, 1.1, 0.5]
                                         }}
                                         transition={{
-                                            duration: s.duration,
+                                            duration: item.duration,
                                             repeat: Infinity,
-                                            delay: s.delay,
+                                            delay: item.delay,
                                             ease: 'easeInOut'
                                         }}
                                         style={{
-                                            left: s.left,
+                                            left: item.left,
                                             top: 0,
-                                            transform: `translate3d(${starTiltX}px, ${starTiltY}px, ${s.zDepth}px)`
+                                            transform: `translate3d(${tiltXVal}px, ${tiltYVal}px, ${item.zDepth}px)`
                                         }}
                                         className="absolute select-none transition-transform duration-150 ease-out flex items-center justify-center pointer-events-none"
                                     >
-                                        {s.type === 0 && <AstronomicalSpikeStar color={s.color} size={s.size} />}
-                                        {s.type === 1 && <AstronomicalOrbStar color={s.color} size={s.size} />}
-                                        {s.type === 2 && <AstronomicalFlareStar color={s.color} size={s.size} />}
+                                        {item.type === "brass_tag" && (
+                                            <div 
+                                                className="px-3 py-1 rounded-lg border border-amber-500/40 bg-amber-950/40 backdrop-blur-md font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase shadow-[0_0_15px_rgba(197,160,89,0.3)]"
+                                                style={{ color: item.color, borderColor: `${item.color}60` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.type === "badge" && (
+                                            <div 
+                                                className="px-2.5 py-0.5 rounded-full border bg-black/60 font-mono text-[9px] sm:text-[10px] font-black tracking-widest uppercase shadow-md"
+                                                style={{ color: item.color, borderColor: `${item.color}50` }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {item.type === "time_tag" && (
+                                            <div 
+                                                className="font-mono text-xs font-bold tracking-widest uppercase drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                                                style={{ color: item.color }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
+
+                                        {(item.type === "key_icon" || item.type === "lock_icon" || item.type === "wax_seal") && (
+                                            <div 
+                                                className="text-lg sm:text-2xl drop-shadow-[0_0_12px_rgba(231,255,0,0.5)] leading-none"
+                                                style={{ color: item.color }}
+                                            >
+                                                {item.text}
+                                            </div>
+                                        )}
                                     </motion.div>
                                 );
                             })}
@@ -1062,7 +1061,7 @@ function FrankfurtAtelierModal({ onClose }) {
             <motion.div
                 initial={{ scale: 0.9, y: 20 }}
                 animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
+                exit={{ scale: 0.9, y: 0 }}
                 className="w-full max-w-2xl max-h-[85vh] sm:max-h-[90vh] overflow-y-auto bg-[#09090D] border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative custom-scrollbar touch-pan-y"
                 style={{ touchAction: 'pan-y' }}
             >
