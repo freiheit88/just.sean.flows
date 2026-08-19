@@ -155,8 +155,8 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
         left: `${leftPercent}vw`,
         pullXPx: pullX * 4,
         delay: (i * 0.08) % 3.2,
-        duration: isLarge ? 7.8 : isMedium ? 4.6 : 2.4,
-        opacityMax: 0.35 + (i % 6) * 0.10,
+        baseDuration: isLarge ? 7.2 : isMedium ? 4.2 : 2.2, // Base speed
+        opacityMax: 0.40 + (i % 6) * 0.10,
         zDepth,
         tiltMult,
         isLarge
@@ -173,6 +173,11 @@ export default function App() {
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false });
     
+    // Dynamic Gyro Acceleration & Movement Speed Scalar (0.0 to 3.5)
+    const [gyroAccel, setGyroAccel] = useState(0);
+    const prevTiltRef = useRef({ x: 0, y: 0 });
+    const lastPointerMoveTimeRef = useRef(Date.now());
+
     const spotlightRef = useRef(null);
 
     const [stems, setStems] = useState({
@@ -216,13 +221,27 @@ export default function App() {
         setCurrentStep('ticket');
     };
 
+    // REAL-TIME GYROSCOPE ACCELERATION CALCULATOR & DECAY LOOP
+    useEffect(() => {
+        const accelDecayInterval = setInterval(() => {
+            setGyroAccel((prev) => Math.max(0, prev * 0.88 - 0.02));
+        }, 40);
+
+        return () => clearInterval(accelDecayInterval);
+    }, []);
+
     // Mobile Gyroscope Device Orientation Event Listener
     useEffect(() => {
         const handleDeviceOrientation = (e) => {
             if (e.beta !== null && e.gamma !== null) {
-                const normX = Math.max(-1, Math.min(1, e.gamma / 22));
-                const normY = Math.max(-1, Math.min(1, e.beta / 22));
+                const normX = Math.max(-1, Math.min(1, e.gamma / 18));
+                const normY = Math.max(-1, Math.min(1, e.beta / 18));
+                
+                const delta = Math.hypot(normX - prevTiltRef.current.x, normY - prevTiltRef.current.y);
+                prevTiltRef.current = { x: normX, y: normY };
+
                 setTilt({ x: normX, y: normY });
+                setGyroAccel((prev) => Math.min(3.5, prev + delta * 4.5));
             }
         };
 
@@ -234,8 +253,12 @@ export default function App() {
         const normX = (e.clientX / window.innerWidth - 0.5) * 2;
         const normY = (e.clientY / window.innerHeight - 0.5) * 2;
 
+        const delta = Math.hypot(normX - prevTiltRef.current.x, normY - prevTiltRef.current.y);
+        prevTiltRef.current = { x: normX, y: normY };
+
         setCursorPos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight, rawX: e.clientX, rawY: e.clientY, isHovered: true });
         setTilt({ x: normX, y: normY });
+        setGyroAccel((prev) => Math.min(3.5, prev + delta * 3.8));
 
         if (spotlightRef.current) {
             spotlightRef.current.style.transform = `translate3d(${e.clientX - 100}px, ${e.clientY - 100}px, 0)`;
@@ -280,6 +303,7 @@ export default function App() {
                 {currentStep === 'flipbook' && (
                     <FlipbookWalkingEngine 
                         tilt={tilt}
+                        gyroAccel={gyroAccel}
                         cursorPos={cursorPos}
                         onEnterMixer={() => setCurrentStep('mixer_ending')} 
                         onOpenAtelier={() => setShowAtelierModal(true)}
@@ -321,9 +345,9 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. DYNAMIC GYROSCOPE FILTER DISSOLVE & HIGH-IMPACT RGB CHROMATIC ABERRATION
+// 1. DYNAMIC GYROSCOPE WARP SPEED & 80PX RGB CHROMATIC SHATTER STAGE
 // ==============================================================================
-function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
+function FlipbookWalkingEngine({ tilt, gyroAccel, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     
@@ -774,17 +798,20 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     const tiltX = tilt.x * 20;
     const tiltY = tilt.y * 15;
 
-    // 1. CALCULATE TILT MOTION MAGNITUDE (0.0 to 1.0) FOR GYROSCOPE DISSOLVE
-    const tiltMagnitude = Math.min(1.0, Math.hypot(tilt.x, tilt.y) * 1.4);
+    // 1. HIGH-ACCELERATION GYRO SPEED SCALAR (1.0x at rest -> 3.5x warp acceleration!)
+    const speedMult = 1.0 + Math.min(2.5, gyroAccel * 1.2);
 
-    // 2. DYNAMIC FILTER DISSOLVE VALUES (Dark opacity: 0.52 -> 0.12, Blur: 3px -> 0.3px)
-    const dynamicDarkOpacity = Math.max(0.12, 0.52 * (1.0 - tiltMagnitude * 0.78));
-    const dynamicBlurPx = Math.max(0.3, 3.0 * (1.0 - tiltMagnitude * 0.85)).toFixed(1);
+    // 2. COMPLETE FILTER BLOWOUT & CLEAR OUT (70% Dark / 6px Blur at rest -> 0% Dark / 0px Blur when fast!)
+    const dynamicDarkOpacity = Math.max(0.0, 0.70 - gyroAccel * 0.35);
+    const dynamicBlurPx = Math.max(0.0, 6.0 - gyroAccel * 3.0).toFixed(1);
 
-    // 3. AMPLIFIED RGB CHROMATIC ABERRATION SPLIT DISTANCE ("TANG! 💥" PUNCH)
-    const chromSplitX = tilt.x * 24;
-    const chromSplitY = tilt.y * 16;
-    const chromGlitchFlash = Math.min(1.0, Math.hypot(tilt.x, tilt.y) * 1.8);
+    // 3. MASSIVE 80PX RGB CHROMATIC SHATTER ("TANG! 💥" SUPER PUNCH)
+    const chromSplitX = (tilt.x * 35) + (Math.sin(Date.now() * 0.01) * gyroAccel * 15);
+    const chromSplitY = (tilt.y * 22) + (Math.cos(Date.now() * 0.01) * gyroAccel * 15);
+    const chromGlitchIntensity = Math.min(1.0, gyroAccel * 0.8 + Math.hypot(tilt.x, tilt.y) * 1.2);
+
+    // 4. 3D HYPERSPACE CAMERA ZOOM IN (+140px Z-Plane Warp)
+    const warpZDepth = gyroAccel * 55;
 
     return (
         <div 
@@ -931,7 +958,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: DYNAMIC GYRO DISSOLVING FILTER & HIGH-IMPACT RGB SPLIT */}
+            {/* 2. INITIAL UNLOCK SPLASH: GYRO ACCELERATION WARP DRIVE & 80PX RGB SHATTER */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -947,26 +974,35 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* DYNAMIC GYRO DISSOLVING FILTER LAYER (BEHIND LET'S GO ! Z-10) */}
+                        {/* DYNAMIC GYRO BLOWOUT FILTER LAYER (BEHIND LET'S GO ! Z-10) */}
                         <div 
-                            className="absolute inset-0 pointer-events-none z-10 transition-all duration-150 ease-out"
+                            className="absolute inset-0 pointer-events-none z-10 transition-all duration-75 ease-out"
                             style={{
                                 backgroundColor: `rgba(0, 0, 0, ${dynamicDarkOpacity})`,
                                 backdropFilter: `blur(${dynamicBlurPx}px)`
                             }}
                         />
 
-                        {/* 100-ITEM 3D PARALLAX DICTIONARY DEBRIS LAYER WITH DYNAMIC RGB SHADOWS (Z-0) */}
-                        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
+                        {/* 100-ITEM 3D PARALLAX WARP DRIVE DEBRIS LAYER (Z-0) */}
+                        <div 
+                            className="absolute inset-0 pointer-events-none overflow-hidden z-0 transition-transform duration-100 ease-out" 
+                            style={{ 
+                                transformStyle: 'preserve-3d',
+                                transform: `translateZ(${warpZDepth}px)`
+                            }}
+                        >
                             {ATELIER_DEBRIS_100.map((item) => {
-                                const tiltXVal = tilt.x * 26 * item.tiltMult;
-                                const tiltYVal = tilt.y * 26 * item.tiltMult;
+                                const tiltXVal = tilt.x * 28 * item.tiltMult;
+                                const tiltYVal = tilt.y * 28 * item.tiltMult;
 
                                 const startY = item.isLarge ? '85vh' : '108vh';
                                 const endY = item.isLarge ? '10vh' : '-28vh';
 
-                                // Dynamic High-Impact RGB Chromatic Shadow for Debris
-                                const rgbShadow = `${chromSplitX * 0.9}px ${chromSplitY * 0.9}px 12px rgba(255,0,85,${0.35 + chromGlitchFlash * 0.45}), ${-chromSplitX * 0.9}px ${-chromSplitY * 0.9}px 12px rgba(0,240,255,${0.35 + chromGlitchFlash * 0.45})`;
+                                // Dynamic Speed Multiplier driven by Gyro Acceleration (Base Duration divided by speedMult!)
+                                const currentDuration = Math.max(0.6, item.baseDuration / speedMult);
+
+                                // Dynamic Hyper-Vibrant RGB Chromatic Shadow for Debris
+                                const rgbShadow = `${chromSplitX * 0.9}px ${chromSplitY * 0.9}px 14px rgba(255,0,85,${0.4 + chromGlitchIntensity * 0.6}), ${-chromSplitX * 0.9}px ${-chromSplitY * 0.9}px 14px rgba(0,240,255,${0.4 + chromGlitchIntensity * 0.6})`;
 
                                 return (
                                     <motion.div
@@ -981,12 +1017,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                         animate={{
                                             y: [startY, endY],
                                             x: [0, item.pullXPx],
-                                            opacity: [0, item.opacityMax, 0],
-                                            scale: [0.6, 1.15, 0.5],
+                                            opacity: [0, item.opacityMax + (gyroAccel * 0.15), 0],
+                                            scale: [0.6, 1.15 + (gyroAccel * 0.12), 0.5],
                                             rotate: [item.rotation, item.rotation * -0.5, item.rotation]
                                         }}
                                         transition={{
-                                            duration: item.duration,
+                                            duration: currentDuration,
                                             repeat: Infinity,
                                             delay: item.delay,
                                             ease: 'easeInOut'
@@ -1081,7 +1117,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                                 className={`${item.sizeClass} leading-none`}
                                                 style={{ 
                                                     color: item.color,
-                                                    filter: `drop-shadow(${chromSplitX * 1.2}px ${chromSplitY * 1.2}px 6px rgba(255,0,85,0.7)) drop-shadow(${-chromSplitX * 1.2}px ${-chromSplitY * 1.2}px 6px rgba(0,240,255,0.7))`
+                                                    filter: `drop-shadow(${chromSplitX * 1.5}px ${chromSplitY * 1.5}px 8px rgba(255,0,85,0.85)) drop-shadow(${-chromSplitX * 1.5}px ${-chromSplitY * 1.5}px 8px rgba(0,240,255,0.85))`
                                                 }}
                                             >
                                                 {item.text}
@@ -1092,7 +1128,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH HIGH-IMPACT "TANG! 💥" RGB CHROMATIC SPLIT (Z-20) */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH MASSIVE 80PX "TANG! 💥" RGB SHATTER (Z-20) */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -1109,15 +1145,15 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 transform: `perspective(600px) rotateX(${tilt.y * -32}deg) rotateY(${tilt.x * 32}deg) translateZ(40px)`,
                                 transformStyle: 'preserve-3d'
                             }}
-                            className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20 transition-transform duration-100 ease-out"
+                            className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20 transition-transform duration-75 ease-out"
                         >
-                            {/* RED/MAGENTA RGB GHOST SPLIT LAYER - HIGH-IMPACT "TANG! 💥" PUNCH */}
+                            {/* RED/MAGENTA RGB GHOST LAYER - MASSIVE 80PX "TANG! 💥" SHATTER */}
                             <div 
                                 className="absolute inset-0 flex flex-col items-center text-center pointer-events-none mix-blend-screen transition-transform duration-75 ease-out"
                                 style={{
-                                    transform: `translate3d(${-chromSplitX * 1.6}px, ${-chromSplitY * 1.6}px, 10px)`,
-                                    opacity: 0.35 + chromGlitchFlash * 0.65,
-                                    filter: `drop-shadow(0 0 15px rgba(255,0,85,${0.4 + chromGlitchFlash * 0.6}))`
+                                    transform: `translate3d(${-chromSplitX * 1.8}px, ${-chromSplitY * 1.8}px, 15px)`,
+                                    opacity: 0.40 + chromGlitchIntensity * 0.60,
+                                    filter: `drop-shadow(0 0 25px rgba(255,0,85,${0.5 + chromGlitchIntensity * 0.5}))`
                                 }}
                             >
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">LET</span>
@@ -1126,13 +1162,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055]">!</span>
                             </div>
 
-                            {/* CYAN/NEON BLUE RGB GHOST SPLIT LAYER - HIGH-IMPACT "TANG! 💥" PUNCH */}
+                            {/* CYAN/NEON BLUE RGB GHOST LAYER - MASSIVE 80PX "TANG! 💥" SHATTER */}
                             <div 
                                 className="absolute inset-0 flex flex-col items-center text-center pointer-events-none mix-blend-screen transition-transform duration-75 ease-out"
                                 style={{
-                                    transform: `translate3d(${chromSplitX * 1.6}px, ${chromSplitY * 1.6}px, 10px)`,
-                                    opacity: 0.35 + chromGlitchFlash * 0.65,
-                                    filter: `drop-shadow(0 0 15px rgba(0,240,255,${0.4 + chromGlitchFlash * 0.6}))`
+                                    transform: `translate3d(${chromSplitX * 1.8}px, ${chromSplitY * 1.8}px, 15px)`,
+                                    opacity: 0.40 + chromGlitchIntensity * 0.60,
+                                    filter: `drop-shadow(0 0 25px rgba(0,240,255,${0.5 + chromGlitchIntensity * 0.5}))`
                                 }}
                             >
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF]">LET</span>
