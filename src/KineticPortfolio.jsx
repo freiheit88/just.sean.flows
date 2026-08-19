@@ -20,13 +20,13 @@ const STEM_SRCS = {
 };
 
 const FRAMES = [
-    { id: 0, src: "/assets/walk_01.jpg", titleTop: "THE MIDNIGHT", titleMain: "PALACE", sub: "Distant View Across the Square" },
-    { id: 1, src: "/assets/walk_02.jpg", titleTop: "APPROACHING", titleMain: "STONE ARCHES", sub: "Crossing the Wet Cobblestones" },
-    { id: 2, src: "/assets/walk_03.jpg", titleTop: "MONUMENTAL", titleMain: "FACADE", sub: "Warm Amber Lanterns Glowing", hasBuildingTarget: true },
-    { id: 3, src: "/assets/walk_04.jpg", titleTop: "FOOT OF", titleMain: "STAIRWAY", sub: "Looking up at Central Portal", hasBuildingTarget: true },
+    { id: 0, src: "/assets/reboot_01_glasshouse_villa_1787170296925.jpg", titleTop: "THE MIDNIGHT", titleMain: "ORANGERY", sub: "Secluded Sound Glasshouse in the Mist" },
+    { id: 1, src: "/assets/reboot_03_vinyl_speakeasy_1787170350161.jpg", titleTop: "APPROACHING", titleMain: "VINYL ATELIER", sub: "Glowing Leaded Windows at the Alley Bend" },
+    { id: 2, src: "/assets/reboot_02_canal_boathouse_1787170323161.jpg", titleTop: "CANAL-SIDE", titleMain: "SOUND LAB", sub: "Analog Synths by the Water", hasBuildingTarget: true },
+    { id: 3, src: "/assets/vert_intricate_02_bronze_colonnade_1787169970894.jpg", titleTop: "GRAND ROTUNDA", titleMain: "PHILHARMONIE", sub: "Spiral Chandelier Tower", hasBuildingTarget: true },
     { id: 4, src: "/assets/walk_05.jpg", titleTop: "ASCENDING", titleMain: "TO PORTAL", sub: "Climbing Stone Steps" },
     { id: 5, src: "/assets/walk_06.jpg", titleTop: "THE BRASS", titleMain: "HANDLES", sub: "Standing Before Massive Double Doors" },
-    { id: 6, src: "/assets/walk_07.jpg", titleTop: "THE DOORS", titleMain: "OPEN", sub: "Golden Opera Hall Revealed" }
+    { id: 6, src: "/assets/walk_07.jpg", titleTop: "THE DOORS", titleMain: "OPEN", sub: "Golden Acoustic Sanctuary Revealed" }
 ];
 
 const DEFAULT_ENDING = {
@@ -271,14 +271,14 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH STRICT PULL-TO-REFRESH DEFENSE & UPWARD AURORA WAVE
+// 1. FLIPBOOK ENGINE WITH CONTINUOUS STEADY BASS + MONOTONIC HARD POWER ACCUMULATOR
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
-    // Live Dev Kinetics Power Meter (0 ~ 100)
+    // Live Dev Kinetics Power Meter (0 ~ 100) - NEVER DECAYS, ONLY ASCENDS
     const [livePower, setLivePower] = useState(0);
     const [audioTier, setAudioTier] = useState(1);
     const [lastVelocityStr, setLastVelocityStr] = useState("0.0");
@@ -304,11 +304,10 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const progressRef = useRef(0);
     const isAudioStarted = useRef(false);
 
-    // Live Scroll Power Reservoir
-    const currentEnergy = useRef(0);
-    const lastEnergyPumpTime = useRef(Date.now());
+    // Monotonically Ascending Cumulative Power (No Decay)
+    const cumulativePower = useRef(0);
 
-    // Guaranteed Mobile Audio Unlocker
+    // 100% Guaranteed Mobile Audio Unlocker - BASS ALWAYS RUNS STEADILY
     const forceUnlockMobileAudio = () => {
         if (isAudioStarted.current) return;
 
@@ -329,6 +328,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (r.current) {
                 r.current.muted = false;
                 r.current.playsInline = true;
+                // Bass is ALWAYS 50% baseline steady volume regardless of scroll
                 if (idx === 0) {
                     r.current.volume = 0.50;
                 } else {
@@ -368,66 +368,60 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
-    // Power Decay Engine & Live HUD Sync
-    useEffect(() => {
-        const volumeEngineInterval = setInterval(() => {
-            const now = Date.now();
-            const timeSincePump = now - lastEnergyPumpTime.current;
+    // LIVE POWER TIER & STEM VOLUME SYNC (NO DECAY - ONLY ASCENDS ON SCROLL)
+    const updatePowerAndAudio = (newPower) => {
+        const power = Math.min(100, Math.max(0, newPower));
+        cumulativePower.current = power;
+        setLivePower(Math.round(power));
 
-            if (timeSincePump > 140) {
-                currentEnergy.current = Math.max(0, currentEnergy.current - 2.0);
-            }
+        // Hard Calibration Tier Thresholds:
+        // Level 1 (0 ~ 20%): Bass 50% (Steady)
+        // Level 2 (20 ~ 50%): Bass 75% + Guitar 70%
+        // Level 3 (50 ~ 80%): Bass/Guitar 90% + Tutti Drums/Perc/Synth 85%
+        // Level 4 (80 ~ 100%): Full Band 100% + Sean's Lead Vocal 95%
+        let tier = 1;
+        let targetBass = 0.50;
+        let targetGuitar = 0.0;
+        let targetOtherInst = 0.0;
+        let targetVocal = 0.0;
 
-            const energy = Math.round(currentEnergy.current);
-            setLivePower(energy);
+        if (power >= 80) {
+            tier = 4;
+            targetBass = 1.0;
+            targetGuitar = 1.0;
+            targetOtherInst = 1.0;
+            targetVocal = 0.95;
+        } else if (power >= 50) {
+            tier = 3;
+            targetBass = 0.90;
+            targetGuitar = 0.90;
+            targetOtherInst = 0.85;
+            targetVocal = 0.0;
+        } else if (power >= 20) {
+            tier = 2;
+            targetBass = 0.75;
+            targetGuitar = 0.70;
+            targetOtherInst = 0.0;
+            targetVocal = 0.0;
+        } else {
+            tier = 1;
+            targetBass = 0.50; // Continuous steady bass!
+            targetGuitar = 0.0;
+            targetOtherInst = 0.0;
+            targetVocal = 0.0;
+        }
 
-            let tier = 1;
-            let targetBass = 0.50;
-            let targetGuitar = 0.0;
-            let targetOtherInst = 0.0;
-            let targetVocal = 0.0;
+        setAudioTier(tier);
 
-            if (energy >= 76) {
-                tier = 4;
-                targetBass = 1.0;
-                targetGuitar = 1.0;
-                targetOtherInst = 1.0;
-                targetVocal = 0.95;
-            } else if (energy >= 46) {
-                tier = 3;
-                targetBass = 0.90;
-                targetGuitar = 0.90;
-                targetOtherInst = 0.85;
-                targetVocal = 0.0;
-            } else if (energy >= 16) {
-                tier = 2;
-                targetBass = 0.75;
-                targetGuitar = 0.70;
-                targetOtherInst = 0.0;
-                targetVocal = 0.0;
-            } else {
-                tier = 1;
-                targetBass = 0.50;
-                targetGuitar = 0.0;
-                targetOtherInst = 0.0;
-                targetVocal = 0.0;
-            }
+        if (bassRef.current) bassRef.current.volume = targetBass;
+        if (guitarRef.current) guitarRef.current.volume = targetGuitar;
+        if (drumsRef.current) drumsRef.current.volume = targetOtherInst;
+        if (percRef.current) percRef.current.volume = targetOtherInst;
+        if (synthRef.current) synthRef.current.volume = targetOtherInst;
+        if (vocalRef.current) vocalRef.current.volume = targetVocal;
+    };
 
-            setAudioTier(tier);
-
-            if (bassRef.current) bassRef.current.volume = targetBass;
-            if (guitarRef.current) guitarRef.current.volume = targetGuitar;
-            if (drumsRef.current) drumsRef.current.volume = targetOtherInst;
-            if (percRef.current) percRef.current.volume = targetOtherInst;
-            if (synthRef.current) synthRef.current.volume = targetOtherInst;
-            if (vocalRef.current) vocalRef.current.volume = targetVocal;
-
-        }, 50);
-
-        return () => clearInterval(volumeEngineInterval);
-    }, []);
-
-    // Initial Buffering Sequence
+    // Initial Buffering Sequence - Auto-starts Bass immediately
     useEffect(() => {
         const t1 = setTimeout(() => setSimulatedVolume(36), 300);
         const t2 = setTimeout(() => setSimulatedVolume(16), 650);
@@ -441,14 +435,14 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         const t5 = setTimeout(() => {
             setIsInitialBuffering(false);
             forceUnlockMobileAudio();
-        }, 2800);
+        }, 2400);
 
         return () => {
             clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5);
         };
     }, []);
 
-    // Audible Crisp Footsteps (ONLY on forward progress)
+    // Audible Crisp Footsteps
     const playAudibleFootstep = () => {
         const now = Date.now();
         if (now - lastStepTime.current < 220) return;
@@ -518,38 +512,23 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // Autopilot timeline
+    // HARD ACCUMULATIVE SCROLL HANDLERS (No decay, user can barely hit 50%)
     useEffect(() => {
-        const interval = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 100) return 100;
-                const next = Math.min(100, prev + 0.12);
-                progressRef.current = next;
-                return next;
-            });
-        }, 50);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    // STRICT PULL-TO-REFRESH DEFENSE & UPWARD-ONLY KINETICS
-    useEffect(() => {
-        // Prevent all browser overscroll & pull-to-refresh
         const handleWheel = (e) => {
             if (e.cancelable) e.preventDefault();
             forceUnlockMobileAudio();
 
-            // ONLY process downward wheel / forward scroll (e.deltaY > 0)
-            if (e.deltaY <= 0) return; // Strict ignore reverse scroll
+            // Strictly ignore reverse wheel
+            if (e.deltaY <= 0) return;
 
             const rawDelta = e.deltaY;
             setLastVelocityStr(rawDelta.toFixed(0) + " delta");
 
-            const energyAdd = Math.min(rawDelta * 0.28, 38);
-            currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
-            lastEnergyPumpTime.current = Date.now();
+            // Hard Cumulative Wheel Power (Each notch adds only ~0.35% to 0.7%)
+            const powerIncrement = Math.min(rawDelta * 0.006, 0.9);
+            updatePowerAndAudio(cumulativePower.current + powerIncrement);
 
-            const clampedDelta = Math.min(rawDelta * 0.004, 2.2);
+            const clampedDelta = Math.min(rawDelta * 0.0035, 1.8);
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
@@ -570,7 +549,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
 
         const handleTouchMove = (e) => {
-            // STRICT DEFENSE: Block pull-to-refresh on mobile
             if (e.cancelable) e.preventDefault();
             forceUnlockMobileAudio();
             if (!e.touches || !e.touches[0]) return;
@@ -580,17 +558,18 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const now = Date.now();
             const timeDiff = Math.max(16, now - touchStartTime.current);
 
-            // ONLY process UPWARD swipe gestures (deltaY > 0)
-            // Downward gestures (deltaY <= 0) are completely blocked!
+            // Strictly ignore downward gestures (deltaY <= 0)
             if (deltaY > 0) {
-                const velocity = deltaY / timeDiff; // px per ms
+                const velocity = deltaY / timeDiff;
                 setLastVelocityStr(velocity.toFixed(2) + " px/ms");
 
-                const energyAdd = Math.min(velocity * 28 + deltaY * 0.12, 45);
-                currentEnergy.current = Math.min(100, currentEnergy.current + energyAdd);
-                lastEnergyPumpTime.current = now;
+                // HARD MOBILE POWER ACCUMULATION:
+                // A normal swipe adds only ~0.4% ~ 1.1% power.
+                // Reaching 50% requires ~50 deliberate full upward strokes!
+                const powerIncrement = Math.min(velocity * 0.35 + deltaY * 0.006, 1.4);
+                updatePowerAndAudio(cumulativePower.current + powerIncrement);
 
-                const strokeProgress = Math.min(deltaY * 0.022, 4.0);
+                const strokeProgress = Math.min(deltaY * 0.016, 3.2);
                 setProgress((prev) => {
                     const next = Math.min(100, prev + strokeProgress);
                     progressRef.current = next;
@@ -651,7 +630,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
             <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
 
-            {/* 1. 100vh Fullscreen 7-Frame Visual Stack */}
+            {/* 1. 100vh Fullscreen 7-Frame Visual Stack with Re-booted Intimate Imagery */}
             <div 
                 className="relative w-full h-full transition-all duration-700"
                 style={{
@@ -715,13 +694,13 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                 {/* 3. Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-20 pb-8 px-4 sm:px-12 text-center z-20">
-                    {/* LIVE DEV KINETICS POWER GAUGE HUD */}
+                    {/* LIVE DEV KINETICS ACCUMULATIVE POWER GAUGE HUD */}
                     <div className="flex flex-col items-center gap-1.5">
                         <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-white/20 shadow-2xl font-mono text-[11px] font-bold">
                             <div className="flex items-center gap-1.5">
-                                <Zap className={`w-3.5 h-3.5 ${livePower >= 76 ? 'text-[#FF0055] animate-bounce' : livePower >= 46 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`} />
+                                <Zap className={`w-3.5 h-3.5 ${livePower >= 80 ? 'text-[#FF0055] animate-bounce' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`} />
                                 <span className="text-white/60">POWER:</span>
-                                <span className={`text-sm ${livePower >= 76 ? 'text-[#FF0055]' : livePower >= 46 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`}>
+                                <span className={`text-sm ${livePower >= 80 ? 'text-[#FF0055]' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`}>
                                     {livePower}%
                                 </span>
                             </div>
@@ -749,9 +728,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         <div className="w-36 sm:w-56 h-1.5 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/15">
                             <div 
                                 className={`h-full rounded-full transition-all duration-75 ${
-                                    livePower >= 76 
+                                    livePower >= 80 
                                         ? 'bg-[#FF0055] shadow-[0_0_10px_#FF0055]' 
-                                        : livePower >= 46 
+                                        : livePower >= 50 
                                         ? 'bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]' 
                                         : 'bg-[#00F0FF]'
                                 }`}
@@ -900,7 +879,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 )}
             </AnimatePresence>
 
-            {/* 3. ULTRA-CHIC RISING AURORA LIGHT WAVE (Below to Above Shimmer Effect) */}
+            {/* 3. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
             <div className="fixed inset-x-0 bottom-0 h-48 pointer-events-none z-30 overflow-hidden">
                 <motion.div
                     animate={{
