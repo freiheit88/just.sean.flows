@@ -19,7 +19,7 @@ const STEM_SRCS = {
     vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
-// 7 Frames featuring Logo No. 65 (Wine x Treble) & Logo No. 67 (Pick Face) with Concise English Text
+// 7 Frames featuring Logo No. 65 (Wine x Treble) & Logo No. 67 (Pick Face)
 const FRAMES = [
     { 
         id: 0, 
@@ -96,10 +96,13 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // High Precision Cursor Tracking
+    // High Precision Cursor Tracking with 16-Node Ribbon Trail Physics
     const [cursorPos, setCursorPos] = useState({ 
         x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false, isOverTitle: false, isOverBuilding: false, cursorMode: 'default', speed: 0
     });
+    const [trailNodes, setTrailNodes] = useState(
+        Array.from({ length: 16 }, () => ({ x: -100, y: -100 }))
+    );
     const [touchRipples, setTouchRipples] = useState([]);
     const lastMousePos = useRef({ x: 0, y: 0, time: Date.now() });
 
@@ -164,6 +167,21 @@ export default function App() {
         if (isOverBuilding) cursorMode = 'building';
 
         setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true, isOverTitle, isOverBuilding, cursorMode, speed });
+
+        // Update 16-node spring ribbon trail
+        setTrailNodes((prev) => {
+            const next = [{ x: e.clientX, y: e.clientY }];
+            for (let i = 1; i < prev.length; i++) {
+                const prevNode = next[i - 1];
+                const currNode = prev[i];
+                const ease = 0.45 - i * 0.02;
+                next.push({
+                    x: currNode.x + (prevNode.x - currNode.x) * ease,
+                    y: currNode.y + (prevNode.y - currNode.y) * ease
+                });
+            }
+            return next;
+        });
     };
 
     const handleTouchMove = (e) => {
@@ -188,54 +206,29 @@ export default function App() {
             onTouchMove={handleTouchMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0"
         >
-            {/* 1. Awwwards Magnetic Difference Jelly Lens */}
-            <div className="hidden md:block pointer-events-none fixed inset-0 z-50 mix-blend-difference">
-                <motion.div
-                    animate={{
-                        x: cursorPos.rawX - 3,
-                        y: cursorPos.rawY - 3,
-                        opacity: cursorPos.isHovered ? 1 : 0
-                    }}
-                    transition={{ type: "spring", damping: 45, stiffness: 750, mass: 0.05 }}
-                    className="w-1.5 h-1.5 rounded-full bg-white fixed top-0 left-0"
-                />
-
-                <motion.div
-                    animate={{
-                        x: cursorPos.rawX - (cursorPos.cursorMode === 'explore' || cursorPos.cursorMode === 'building' ? 36 : (18 + cursorPos.speed * 4)),
-                        y: cursorPos.rawY - (cursorPos.cursorMode === 'explore' || cursorPos.cursorMode === 'building' ? 36 : 18),
-                        width: cursorPos.cursorMode === 'explore' || cursorPos.cursorMode === 'building' ? 72 : (36 + cursorPos.speed * 8),
-                        height: cursorPos.cursorMode === 'explore' || cursorPos.cursorMode === 'building' ? 72 : 36,
-                        borderRadius: '9999px',
-                        scale: cursorPos.isHovered ? 1 : 0,
-                        opacity: cursorPos.isHovered ? 0.95 : 0
-                    }}
-                    transition={{ type: "spring", damping: 25, stiffness: 260, mass: 0.3 }}
-                    className="fixed top-0 left-0 border border-white bg-white/10 backdrop-blur-[2px] flex items-center justify-center pointer-events-none shadow-[0_0_20px_rgba(255,255,255,0.4)]"
-                >
-                    <AnimatePresence>
-                        {cursorPos.cursorMode === 'explore' && (
-                            <motion.span
-                                initial={{ opacity: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.5 }}
-                                className="font-mono text-[8px] font-black tracking-widest uppercase text-white"
-                            >
-                                EXPLORE
-                            </motion.span>
-                        )}
-                        {cursorPos.cursorMode === 'building' && (
-                            <motion.span
-                                initial={{ opacity: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.5 }}
-                                className="font-mono text-[8px] font-black tracking-widest uppercase text-white text-center leading-tight"
-                            >
-                                ATELIER
-                            </motion.span>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
+            {/* 1. RESTORED LONG LIQUID RIBBON TAIL CUSTOM CURSOR */}
+            <div className="hidden md:block pointer-events-none fixed inset-0 z-50 overflow-hidden">
+                {/* 16 Spring Trail Nodes */}
+                {trailNodes.map((node, i) => {
+                    const size = Math.max(3, 24 - i * 1.3);
+                    const opacity = Math.max(0.08, 0.95 - i * 0.055);
+                    const color = i % 2 === 0 ? '#E7FF00' : '#00F0FF';
+                    return (
+                        <motion.div
+                            key={i}
+                            style={{
+                                left: node.x - size / 2,
+                                top: node.y - size / 2,
+                                width: size,
+                                height: size,
+                                backgroundColor: color,
+                                opacity: cursorPos.isHovered ? opacity : 0,
+                                boxShadow: i === 0 ? '0 0 20px #E7FF00, 0 0 35px #00F0FF' : 'none'
+                            }}
+                            className="fixed rounded-full pointer-events-none transition-all duration-75 mix-blend-screen"
+                        />
+                    );
+                })}
             </div>
 
             {/* 2. Mobile Touch Pulse */}
@@ -315,7 +308,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH LOGO NO.65 & NO.67 MARKS & 10S TAP UNLOCKER
+// 1. FLIPBOOK ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12% 1S TREMBLING EASTER EGG
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -326,8 +319,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [show10sSplashOverlay, setShow10sSplashOverlay] = useState(true);
     const [splashCountdown, setSplashCountdown] = useState(10);
     
-    // Live Dev Kinetics Power Meter (0 ~ 100)
+    // Live Dev Kinetics Power Meter State & 80.12% Trembling Easter Egg
     const [livePower, setLivePower] = useState(0);
+    const [powerDisplayStr, setPowerDisplayStr] = useState("0%");
+    const [isTremblingAt8012, setIsTremblingAt8012] = useState(false);
+
     const [audioTier, setAudioTier] = useState(1);
     const [lastVelocityStr, setLastVelocityStr] = useState("0.0");
     const [hasUserUnlockedAudio, setHasUserUnlockedAudio] = useState(false);
@@ -352,11 +348,15 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
     const progressRef = useRef(0);
 
-    // Power Reservoir & Level Floor (Checkpoints: 0%, 20%, 50%, 80%)
+    // Power Reservoir & Level Floor (Checkpoints: 0%, 20%, 50%, NOT permanent 80%)
     const currentPower = useRef(0);
     const unlockedLevelFloor = useRef(0);
     const lastScrollPumpTime = useRef(Date.now());
     const lastSyncTier = useRef(1);
+
+    // 80.12% Trembling Hold Ref
+    const tremblingStartTime = useRef(0);
+    const isHoldingAt8012 = useRef(false);
 
     // AUDIBLE CRISP SINGLE FOOTSTEP
     const playSingleFootstep = () => {
@@ -514,7 +514,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         });
     };
 
-    // LEVEL FLOOR & POWER DECAY ENGINE
+    // DECAY ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12% 1S TREMBLING EASTER EGG
     useEffect(() => {
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
@@ -522,11 +522,42 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             if (timeSinceScroll > 180) {
                 const minFloor = unlockedLevelFloor.current;
-                currentPower.current = Math.max(minFloor, currentPower.current - 1.2);
+
+                // Check if decaying from Level 4 (>80) down into Level 3
+                if (currentPower.current > 80 && currentPower.current <= 81.5) {
+                    if (!isHoldingAt8012.current) {
+                        isHoldingAt8012.current = true;
+                        tremblingStartTime.current = now;
+                        setIsTremblingAt8012(true);
+                    }
+
+                    const timeHolding = now - tremblingStartTime.current;
+                    if (timeHolding < 1000) {
+                        // Hold at 80.12% and tremble for 1 full second (1000ms)!
+                        currentPower.current = 80.12;
+                    } else {
+                        // Tremble finished after 1s, allow decay down to Level 3 floor (50%)
+                        setIsTremblingAt8012(false);
+                        currentPower.current = Math.max(minFloor, currentPower.current - 1.2);
+                    }
+                } else {
+                    if (currentPower.current <= 80) {
+                        isHoldingAt8012.current = false;
+                        setIsTremblingAt8012(false);
+                    }
+                    currentPower.current = Math.max(minFloor, currentPower.current - 1.2);
+                }
             }
 
-            const power = Math.round(currentPower.current);
-            setLivePower(power);
+            const rawPower = currentPower.current;
+            const powerInt = Math.round(rawPower);
+            setLivePower(powerInt);
+
+            if (isHoldingAt8012.current && rawPower === 80.12) {
+                setPowerDisplayStr("80.12%");
+            } else {
+                setPowerDisplayStr(`${powerInt}%`);
+            }
 
             let tier = 1;
             let targetBass = 0.50;
@@ -534,21 +565,21 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             let targetOtherInst = 0.0;
             let targetVocal = 0.0;
 
-            if (power >= 80) {
+            if (rawPower >= 80) {
                 tier = 4;
-                if (unlockedLevelFloor.current < 80) unlockedLevelFloor.current = 80;
+                // Note: Level 4 does NOT lock floor permanently, so it can decay to Level 3 (50% floor)!
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
-            } else if (power >= 50) {
+            } else if (rawPower >= 50) {
                 tier = 3;
                 if (unlockedLevelFloor.current < 50) unlockedLevelFloor.current = 50;
                 targetBass = 0.90;
                 targetGuitar = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
-            } else if (power >= 20) {
+            } else if (rawPower >= 20) {
                 tier = 2;
                 if (unlockedLevelFloor.current < 20) unlockedLevelFloor.current = 20;
                 targetBass = 0.75;
@@ -833,17 +864,21 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                 {/* 3. Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-20 pb-8 px-4 sm:px-12 text-center z-20">
-                    {/* LIVE DEV KINETICS ACCUMULATIVE POWER GAUGE HUD */}
+                    {/* LIVE DEV KINETICS ACCUMULATIVE POWER GAUGE HUD WITH 80.12% TREMBLING */}
                     <div className="flex flex-col items-center gap-1.5">
                         <button
                             onClick={() => forceUnlockAudio(true)}
-                            className="pointer-events-auto inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-white/20 shadow-2xl font-mono text-[11px] font-bold hover:border-[#E7FF00] transition-colors"
+                            className={`pointer-events-auto inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl font-mono text-[11px] font-bold transition-all ${
+                                isTremblingAt8012 
+                                    ? 'border-[#FF0055] text-[#FF0055] animate-bounce shadow-[0_0_25px_#FF0055]' 
+                                    : 'border-white/20 hover:border-[#E7FF00]'
+                            }`}
                         >
                             <div className="flex items-center gap-1.5">
-                                <Zap className={`w-3.5 h-3.5 ${livePower >= 80 ? 'text-[#FF0055] animate-bounce' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`} />
+                                <Zap className={`w-3.5 h-3.5 ${isTremblingAt8012 ? 'text-[#FF0055] animate-ping' : livePower >= 80 ? 'text-[#FF0055] animate-bounce' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`} />
                                 <span className="text-white/60">POWER:</span>
-                                <span className={`text-sm ${livePower >= 80 ? 'text-[#FF0055]' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`}>
-                                    {livePower}%
+                                <span className={`text-sm font-black ${isTremblingAt8012 ? 'text-[#FF0055] animate-pulse' : livePower >= 80 ? 'text-[#FF0055]' : livePower >= 50 ? 'text-[#E7FF00]' : 'text-[#00F0FF]'}`}>
+                                    {powerDisplayStr}
                                 </span>
                             </div>
 
@@ -866,19 +901,25 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                             </span>
                         </button>
 
-                        {/* Visual Live Power Bar */}
-                        <div className="w-36 sm:w-56 h-1.5 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/15">
+                        {/* Visual Live Power Bar with Tremble Shake */}
+                        <motion.div 
+                            animate={isTremblingAt8012 ? { x: [-3, 3, -3, 3, 0] } : {}}
+                            transition={isTremblingAt8012 ? { repeat: Infinity, duration: 0.1 } : {}}
+                            className="w-36 sm:w-56 h-1.5 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/15"
+                        >
                             <div 
                                 className={`h-full rounded-full transition-all duration-75 ${
-                                    livePower >= 80 
+                                    isTremblingAt8012 
+                                        ? 'bg-[#FF0055] shadow-[0_0_15px_#FF0055]'
+                                        : livePower >= 80 
                                         ? 'bg-[#FF0055] shadow-[0_0_10px_#FF0055]' 
                                         : livePower >= 50 
                                         ? 'bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]' 
                                         : 'bg-[#00F0FF]'
                                 }`}
-                                style={{ width: `${livePower}%` }}
+                                style={{ width: `${isTremblingAt8012 ? 80.12 : livePower}%` }}
                             />
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* True 3D Letter-by-Letter Assembled Typography & Building Sign Overlay */}
