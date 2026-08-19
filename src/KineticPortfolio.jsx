@@ -241,7 +241,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. UNIFIED SINGLE AudioContext DSP ENGINE & 100% ZERO-FLASH ASCENDING LET'S GO
+// 1. UNIFIED SINGLE AudioContext DSP ENGINE & EXTENDED BOTTOM-TO-UPPER-MIDDLE LOOP
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -839,7 +839,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: 100% ZERO-FLASH ASCENDING FADE LOOP (Fades in from bottom, fades out to 0 opacity at center, resets invisibly) */}
+            {/* 2. INITIAL UNLOCK SPLASH: EXTENDED BOTTOM-TO-UPPER-MIDDLE (y: 260 -> -120) FADE LOOP */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -890,17 +890,17 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             })}
                         </div>
 
-                        {/* 100% ZERO-FLASH ASCENDING FADE LOOP (Fades in at bottom y: 220, fades out to opacity: 0 at center y: 0, resets silently at opacity 0) */}
+                        {/* EXTENDED BOTTOM-TO-UPPER-MIDDLE ASCENDING FADE LOOP (y: 260 -> 180 -> 0 -> -120) */}
                         <motion.div
-                            initial={{ y: 220, opacity: 0 }}
+                            initial={{ y: 260, opacity: 0 }}
                             animate={{ 
-                                y: [220, 160, 30, 0],
-                                opacity: [0, 1, 0.7, 0]
+                                y: [260, 180, 0, -120],
+                                opacity: [0, 1, 0.9, 0]
                             }}
                             transition={{
-                                duration: 3.4,
+                                duration: 3.8,
                                 repeat: Infinity,
-                                times: [0, 0.2, 0.85, 1],
+                                times: [0, 0.18, 0.65, 1],
                                 ease: 'easeInOut'
                             }}
                             style={{
