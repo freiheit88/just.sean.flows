@@ -19,65 +19,65 @@ const STEM_SRCS = {
     vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
-// 7 Frames featuring Logo No. 65 (Wine x Treble) & Logo No. 67 (Pick Face)
+// 7 European Sound Atelier Frames featuring 100% Logo No. 65 (Wine × Treble - J.S.F)
 const FRAMES = [
     { 
         id: 0, 
-        src: "/assets/logo_v01_no65_neon_1787173132242.jpg", 
+        src: "/assets/wine_atelier_04_neon_wisteria_1787173906304.jpg", 
         titleTop: "JUST SEAN FLOWS", 
         titleMain: "WALK WITH MUSIC?", 
         sub: "Private Midnight Sound Sketch",
-        buildingSign: "BRAND MARK NO. 65 // WINE × TREBLE"
+        buildingSign: "BRAND MARK NO. 65 // BURGUNDY NEON WISTERIA"
     },
     { 
         id: 1, 
-        src: "/assets/logo_v02_no67_brass_1787173140129.jpg", 
+        src: "/assets/wine_atelier_01_stained_glass_1787173882749.jpg", 
         titleTop: "GUILD ATELIER", 
         titleMain: "WANT A QUICK LOOK?", 
         sub: "Hybrid Sound Lab in Formation",
-        buildingSign: "BRAND MARK NO. 67 // BRASS PICK FACE",
+        buildingSign: "BRAND MARK NO. 65 // STAINED GLASS TRANSOM",
         hasBuildingTarget: true
     },
     { 
         id: 2, 
-        src: "/assets/logo_v08_no67_neon_window_1787173201900.jpg", 
+        src: "/assets/wine_atelier_02_poster_brick_1787173891199.jpg", 
         titleTop: "02:00 AM", 
         titleMain: "STILL AWAKE HERE.", 
-        sub: "24/7 White Neon Pick Studio",
-        buildingSign: "BRAND MARK NO. 67 // NEON PICK FACE"
+        sub: "24/7 Letterpress Concert Poster Lab",
+        buildingSign: "BRAND MARK NO. 65 // LETTERPRESS POSTER"
     },
     { 
         id: 3, 
-        src: "/assets/logo_v13_no65_stained_glass_1787173253587.jpg", 
+        src: "/assets/wine_atelier_03_tapestry_piano_1787173899303.jpg", 
         titleTop: "CANAL ALLEY", 
         titleMain: "PEEK INSIDE?", 
-        sub: "Stained Glass Transom & Piano",
-        buildingSign: "BRAND MARK NO. 65 // STAINED GLASS",
+        sub: "Steinway Piano & Woven Tapestry",
+        buildingSign: "BRAND MARK NO. 65 // ACOUSTIC TAPESTRY",
         hasBuildingTarget: true
     },
     { 
         id: 4, 
-        src: "/assets/logo_v14_no67_hanging_wood_1787173261681.jpg", 
+        src: "/assets/logo_v09_no65_door_knocker_1787173209628.jpg", 
         titleTop: "SECRET HIDEAWAY", 
         titleMain: "MY PRIVATE HAVEN.", 
-        sub: "Mahogany Carved Pick Sign",
-        buildingSign: "BRAND MARK NO. 67 // MAHOGANY PICK"
+        sub: "Cast Bronze Door Emblem",
+        buildingSign: "BRAND MARK NO. 65 // BRONZE EMBLEM"
     },
     { 
         id: 5, 
-        src: "/assets/logo_v17_no65_glass_decal_1787173294923.jpg", 
+        src: "/assets/logo_v11_no65_amp_1787173235884.jpg", 
         titleTop: "NEARLY THERE", 
         titleMain: "ALMOST AT THE DOOR.", 
-        sub: "Gold Leaf Glass Decal Atelier",
-        buildingSign: "BRAND MARK NO. 65 // GOLD LEAF DECAL"
+        sub: "Custom Tube Amplifier Faceplate",
+        buildingSign: "BRAND MARK NO. 65 // TUBE AMP FACEPLATE"
     },
     { 
         id: 6, 
-        src: "/assets/logo_v20_no67_flagship_1787173320136.jpg", 
+        src: "/assets/logo_v17_no65_glass_decal_1787173294923.jpg", 
         titleTop: "STAGE READY", 
         titleMain: "THE DOORS OPEN.", 
-        sub: "Flagship Backlit Sound Sanctuary",
-        buildingSign: "BRAND MARK NO. 67 // FLAGSHIP BACKLIGHT"
+        sub: "Flagship Gold Leaf Glass Decal Atelier",
+        buildingSign: "BRAND MARK NO. 65 // GOLD LEAF DECAL"
     }
 ];
 
@@ -308,7 +308,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH LEVEL 4 -> LEVEL 3 DECAY & 80.12% 1S TREMBLING EASTER EGG
+// 1. FLIPBOOK ENGINE WITH 100% WINE × TREBLE LOGO NO. 65 SOUND ATELIER FRAMES
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -523,7 +523,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (timeSinceScroll > 180) {
                 const minFloor = unlockedLevelFloor.current;
 
-                // Check if decaying from Level 4 (>80) down into Level 3
                 if (currentPower.current > 80 && currentPower.current <= 81.5) {
                     if (!isHoldingAt8012.current) {
                         isHoldingAt8012.current = true;
@@ -533,10 +532,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                     const timeHolding = now - tremblingStartTime.current;
                     if (timeHolding < 1000) {
-                        // Hold at 80.12% and tremble for 1 full second (1000ms)!
                         currentPower.current = 80.12;
                     } else {
-                        // Tremble finished after 1s, allow decay down to Level 3 floor (50%)
                         setIsTremblingAt8012(false);
                         currentPower.current = Math.max(minFloor, currentPower.current - 1.2);
                     }
@@ -567,7 +564,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             if (rawPower >= 80) {
                 tier = 4;
-                // Note: Level 4 does NOT lock floor permanently, so it can decay to Level 3 (50% floor)!
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
