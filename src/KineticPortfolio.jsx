@@ -36,8 +36,9 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // Subtle Cursor Position Tracking for Magnetic Typography
-    const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: 0, rawY: 0, isHovered: false });
+    // Precise Cursor Position for Magnetic Typography
+    const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false });
+    const [touchRipples, setTouchRipples] = useState([]);
 
     const [stems, setStems] = useState({
         violin: 85,
@@ -91,9 +92,17 @@ export default function App() {
 
     const handleTouchMove = (e) => {
         if (e.touches && e.touches[0]) {
-            const x = e.touches[0].clientX / window.innerWidth;
-            const y = e.touches[0].clientY / window.innerHeight;
-            setCursorPos({ x, y, rawX: e.touches[0].clientX, rawY: e.touches[0].clientY, isHovered: true });
+            const tx = e.touches[0].clientX;
+            const ty = e.touches[0].clientY;
+            const x = tx / window.innerWidth;
+            const y = ty / window.innerHeight;
+            setCursorPos({ x, y, rawX: tx, rawY: ty, isHovered: true });
+
+            // Add subtle tactile ripple under finger
+            setTouchRipples((prev) => [
+                ...prev.slice(-4),
+                { id: Date.now() + Math.random(), x: tx, y: ty }
+            ]);
         }
     };
 
@@ -103,15 +112,43 @@ export default function App() {
             onTouchMove={handleTouchMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden"
         >
-            {/* Subtle Ethereal Ambient Glow Layer */}
-            <div 
-                className="fixed inset-0 pointer-events-none z-10 transition-opacity duration-700"
-                style={{
-                    background: cursorPos.isHovered 
-                        ? `radial-gradient(600px circle at ${cursorPos.rawX}px ${cursorPos.rawY}px, rgba(231, 255, 0, 0.05), rgba(0, 240, 255, 0.02), transparent 70%)`
-                        : 'none'
-                }}
-            />
+            {/* 1. Precision Dual Cursor (Desktop Spring Ring + Dot) */}
+            <div className="hidden md:block pointer-events-none fixed inset-0 z-50">
+                {/* Center Sharp Dot */}
+                <motion.div
+                    animate={{
+                        x: cursorPos.rawX - 3,
+                        y: cursorPos.rawY - 3,
+                        opacity: cursorPos.isHovered ? 1 : 0
+                    }}
+                    transition={{ type: "spring", damping: 40, stiffness: 600, mass: 0.1 }}
+                    className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_8px_#E7FF00] fixed top-0 left-0"
+                />
+                {/* Outer Lagging Precision Ring */}
+                <motion.div
+                    animate={{
+                        x: cursorPos.rawX - 16,
+                        y: cursorPos.rawY - 16,
+                        opacity: cursorPos.isHovered ? 0.75 : 0
+                    }}
+                    transition={{ type: "spring", damping: 25, stiffness: 200, mass: 0.4 }}
+                    className="w-8 h-8 rounded-full border border-[#E7FF00]/60 fixed top-0 left-0"
+                />
+            </div>
+
+            {/* 2. Mobile Crisp Touch Ripple Pulse */}
+            <div className="md:hidden pointer-events-none fixed inset-0 z-40 overflow-hidden">
+                {touchRipples.map((r) => (
+                    <motion.div
+                        key={r.id}
+                        initial={{ opacity: 0.8, scale: 0.4 }}
+                        animate={{ opacity: 0, scale: 1.4 }}
+                        transition={{ duration: 0.45, ease: 'easeOut' }}
+                        style={{ left: r.x - 14, top: r.y - 14 }}
+                        className="absolute w-7 h-7 rounded-full border border-[#E7FF00] shadow-[0_0_12px_#E7FF00]"
+                    />
+                ))}
+            </div>
 
             {/* Ultra-Clean Floating Dynamic Island Header */}
             <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-3 flex items-center justify-between pointer-events-none">
@@ -180,7 +217,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     const [vocalVolumePercent, setVocalVolumePercent] = useState(0);
 
-    // 2-Second Phone-Style Floating Volume HUD Preloader State
     const [isInitialBuffering, setIsInitialBuffering] = useState(true);
     const [simulatedVolume, setSimulatedVolume] = useState(15);
     const [showVisualBeam, setShowVisualBeam] = useState(true);
@@ -197,7 +233,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const isBgmStarted = useRef(false);
     const lastHardScrollTime = useRef(0);
 
-    // Perfect Sample-Accurate Dual Audio Playback (MR + Silent Vocals from 0.00s)
     const attemptPlayAudio = () => {
         if (!bgmRef.current || !vocalRef.current) return;
 
@@ -213,9 +248,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         const vocal = vocalRef.current;
 
         bgm.volume = 0.65;
-        vocal.volume = 0; // Starts playing silently in 100% exact timestamp sync!
+        vocal.volume = 0;
 
-        // Ensure both tracks start at the exact same second
         if (Math.abs(bgm.currentTime - vocal.currentTime) > 0.05) {
             vocal.currentTime = bgm.currentTime;
         }
@@ -233,7 +267,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         }
     };
 
-    // Continuous Sync Lock: Enforce 0 drift between MR and Vocal track
     useEffect(() => {
         const syncInterval = setInterval(() => {
             if (bgmRef.current && vocalRef.current && isBgmStarted.current) {
@@ -247,7 +280,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
-    // 1. Initial 2.0s Phone Volume HUD sequence
     useEffect(() => {
         const t1 = setTimeout(() => setSimulatedVolume(30), 400);
         const t2 = setTimeout(() => setSimulatedVolume(50), 900);
@@ -272,13 +304,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         };
     }, []);
 
-    // Fade visual beam after 6 seconds
     useEffect(() => {
         const timer = setTimeout(() => setShowVisualBeam(false), 6000);
         return () => clearTimeout(timer);
     }, []);
 
-    // Vocal Volume Ramp & Decay Loop (Instant sync, smooth fade)
     useEffect(() => {
         const decayInterval = setInterval(() => {
             const timeSinceHardScroll = Date.now() - lastHardScrollTime.current;
@@ -446,8 +476,8 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const isAtelierOptionVisible = activeFrameIdx === 2 || activeFrameIdx === 3;
 
     // Magnetic Parallax Tilt calculations for central title
-    const tiltX = (cursorPos.x - 0.5) * -18; // Degrees
-    const tiltY = (cursorPos.y - 0.5) * 14;
+    const tiltX = (cursorPos.x - 0.5) * -16;
+    const tiltY = (cursorPos.y - 0.5) * 12;
 
     return (
         <div 
@@ -524,13 +554,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         exit={{ opacity: 0, transition: { duration: 0.8 } }}
                         className="absolute inset-x-0 bottom-0 h-44 pointer-events-none z-25 flex flex-col items-center justify-end overflow-hidden"
                     >
-                        {/* Ethereal Upward Light Beam Pulse */}
                         <motion.div
                             animate={{ y: [40, -120], opacity: [0, 0.8, 0], scaleY: [0.6, 1.4, 0.4] }}
                             transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
                             className="w-32 sm:w-48 h-32 bg-gradient-to-t from-transparent via-[#E7FF00]/25 to-transparent blur-xl rounded-full"
                         />
-                        {/* Minimalist Floating Neon Accent Wave */}
                         <motion.div
                             animate={{ y: [0, -16, 0], opacity: [0.4, 0.9, 0.4] }}
                             transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
