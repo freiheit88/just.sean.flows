@@ -20,12 +20,12 @@ const STEM_SRCS = {
 };
 
 const FRAMES = [
-    { id: 0, src: "/assets/reboot_01_glasshouse_villa_1787170296925.jpg", titleTop: "THE MIDNIGHT", titleMain: "ORANGERY", sub: "Secluded Sound Glasshouse in the Mist" },
-    { id: 1, src: "/assets/reboot_03_vinyl_speakeasy_1787170350161.jpg", titleTop: "APPROACHING", titleMain: "VINYL ATELIER", sub: "Glowing Leaded Windows at the Alley Bend" },
-    { id: 2, src: "/assets/reboot_02_canal_boathouse_1787170323161.jpg", titleTop: "CANAL-SIDE", titleMain: "SOUND LAB", sub: "Analog Synths by the Water", hasBuildingTarget: true },
-    { id: 3, src: "/assets/vert_intricate_02_bronze_colonnade_1787169970894.jpg", titleTop: "GRAND ROTUNDA", titleMain: "PHILHARMONIE", sub: "Spiral Chandelier Tower", hasBuildingTarget: true },
-    { id: 4, src: "/assets/walk_05.jpg", titleTop: "ASCENDING", titleMain: "TO PORTAL", sub: "Climbing Stone Steps" },
-    { id: 5, src: "/assets/walk_06.jpg", titleTop: "THE BRASS", titleMain: "HANDLES", sub: "Standing Before Massive Double Doors" },
+    { id: 0, src: "/assets/atelier_repurpose_01_textile_mill_1787170844815.jpg", titleTop: "THE REPURPOSED", titleMain: "TEXTILE MILL", sub: "Red-Brick Sound Atelier by the Alley" },
+    { id: 1, src: "/assets/atelier_repurpose_03_brewery_vault_1787170913627.jpg", titleTop: "THE MALT HOUSE", titleMain: "BREWERY VAULT", sub: "Mastering Studio in Historic Brick Arches" },
+    { id: 2, src: "/assets/atelier_repurpose_04_locomotive_shed_1787170933904.jpg", titleTop: "LOCOMOTIVE", titleMain: "ENGINE WORKS", sub: "Modular Synth & Guitar Sound Lab", hasBuildingTarget: true },
+    { id: 3, src: "/assets/atelier_repurpose_06_paper_mill_1787170976926.jpg", titleTop: "ATELIER RIVIÈRE", titleMain: "WATERMILL", sub: "Riverside Glass Concert Studio", hasBuildingTarget: true },
+    { id: 4, src: "/assets/atelier_repurpose_08_apothecary_lab_1787171020026.jpg", titleTop: "BOTANICAL", titleMain: "GLASS LAB", sub: "Greenhouse Skylight Acoustic Studio" },
+    { id: 5, src: "/assets/atelier_repurpose_10_dockside_loft_1787171102298.jpg", titleTop: "DOCKSIDE GRAIN", titleMain: "WAREHOUSE LOFT", sub: "Spiral Staircase & Tube Amplifiers" },
     { id: 6, src: "/assets/walk_07.jpg", titleTop: "THE DOORS", titleMain: "OPEN", sub: "Golden Acoustic Sanctuary Revealed" }
 ];
 
@@ -271,14 +271,14 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1. FLIPBOOK ENGINE WITH CONTINUOUS STEADY BASS + MONOTONIC HARD POWER ACCUMULATOR
+// 1. FLIPBOOK ENGINE WITH CHECKPOINT SYNC & LEVEL FLOOR SYSTEM (0%, 20%, 50%, 80%)
 // ==============================================================================
 function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
     
-    // Live Dev Kinetics Power Meter (0 ~ 100) - NEVER DECAYS, ONLY ASCENDS
+    // Live Dev Kinetics Power Meter (0 ~ 100)
     const [livePower, setLivePower] = useState(0);
     const [audioTier, setAudioTier] = useState(1);
     const [lastVelocityStr, setLastVelocityStr] = useState("0.0");
@@ -304,10 +304,13 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const progressRef = useRef(0);
     const isAudioStarted = useRef(false);
 
-    // Monotonically Ascending Cumulative Power (No Decay)
-    const cumulativePower = useRef(0);
+    // Power Reservoir & Level Floor (Checkpoints: 0%, 20%, 50%, 80%)
+    const currentPower = useRef(0);
+    const unlockedLevelFloor = useRef(0); // Holds the highest unlocked tier floor!
+    const lastScrollPumpTime = useRef(Date.now());
+    const lastSyncTier = useRef(1);
 
-    // 100% Guaranteed Mobile Audio Unlocker - BASS ALWAYS RUNS STEADILY
+    // Guaranteed Mobile Audio Unlocker (No 200ms seeking loop -> buttery smooth audio)
     const forceUnlockMobileAudio = () => {
         if (isAudioStarted.current) return;
 
@@ -328,14 +331,14 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             if (r.current) {
                 r.current.muted = false;
                 r.current.playsInline = true;
-                // Bass is ALWAYS 50% baseline steady volume regardless of scroll
+                // Bass is ALWAYS 50% steady baseline
                 if (idx === 0) {
                     r.current.volume = 0.50;
                 } else {
                     r.current.volume = 0.0;
                 }
 
-                if (Math.abs(r.current.currentTime - masterTime) > 0.06) {
+                if (Math.abs(r.current.currentTime - masterTime) > 0.08) {
                     r.current.currentTime = masterTime;
                 }
 
@@ -349,79 +352,103 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         });
     };
 
-    // Auto-sync intervals for all stems
-    useEffect(() => {
-        const syncInterval = setInterval(() => {
-            if (bassRef.current && isAudioStarted.current) {
-                const masterTime = bassRef.current.currentTime;
-                [guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
-                    if (r.current) {
-                        const diff = Math.abs(r.current.currentTime - masterTime);
-                        if (diff > 0.05) {
-                            r.current.currentTime = masterTime;
-                        }
-                    }
-                });
+    // CHECKPOINT-ONLY SYNC (Fires strictly when unlocking a new Level checkpoint)
+    const performCheckpointSync = () => {
+        if (!bassRef.current || !isAudioStarted.current) return;
+        const masterTime = bassRef.current.currentTime;
+
+        [guitarRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
+            if (r.current) {
+                const diff = Math.abs(r.current.currentTime - masterTime);
+                if (diff > 0.08) {
+                    r.current.currentTime = masterTime;
+                }
             }
-        }, 200);
-
-        return () => clearInterval(syncInterval);
-    }, []);
-
-    // LIVE POWER TIER & STEM VOLUME SYNC (NO DECAY - ONLY ASCENDS ON SCROLL)
-    const updatePowerAndAudio = (newPower) => {
-        const power = Math.min(100, Math.max(0, newPower));
-        cumulativePower.current = power;
-        setLivePower(Math.round(power));
-
-        // Hard Calibration Tier Thresholds:
-        // Level 1 (0 ~ 20%): Bass 50% (Steady)
-        // Level 2 (20 ~ 50%): Bass 75% + Guitar 70%
-        // Level 3 (50 ~ 80%): Bass/Guitar 90% + Tutti Drums/Perc/Synth 85%
-        // Level 4 (80 ~ 100%): Full Band 100% + Sean's Lead Vocal 95%
-        let tier = 1;
-        let targetBass = 0.50;
-        let targetGuitar = 0.0;
-        let targetOtherInst = 0.0;
-        let targetVocal = 0.0;
-
-        if (power >= 80) {
-            tier = 4;
-            targetBass = 1.0;
-            targetGuitar = 1.0;
-            targetOtherInst = 1.0;
-            targetVocal = 0.95;
-        } else if (power >= 50) {
-            tier = 3;
-            targetBass = 0.90;
-            targetGuitar = 0.90;
-            targetOtherInst = 0.85;
-            targetVocal = 0.0;
-        } else if (power >= 20) {
-            tier = 2;
-            targetBass = 0.75;
-            targetGuitar = 0.70;
-            targetOtherInst = 0.0;
-            targetVocal = 0.0;
-        } else {
-            tier = 1;
-            targetBass = 0.50; // Continuous steady bass!
-            targetGuitar = 0.0;
-            targetOtherInst = 0.0;
-            targetVocal = 0.0;
-        }
-
-        setAudioTier(tier);
-
-        if (bassRef.current) bassRef.current.volume = targetBass;
-        if (guitarRef.current) guitarRef.current.volume = targetGuitar;
-        if (drumsRef.current) drumsRef.current.volume = targetOtherInst;
-        if (percRef.current) percRef.current.volume = targetOtherInst;
-        if (synthRef.current) synthRef.current.volume = targetOtherInst;
-        if (vocalRef.current) vocalRef.current.volume = targetVocal;
+        });
     };
 
-    // Initial Buffering Sequence - Auto-starts Bass immediately
+    // LEVEL FLOOR & POWER DECAY ENGINE (Runs smoothly every 50ms)
+    useEffect(() => {
+        const volumeEngineInterval = setInterval(() => {
+            const now = Date.now();
+            const timeSinceScroll = now - lastScrollPumpTime.current;
+
+            // When idle for >180ms, power gently decays down to the UNLOCKED LEVEL FLOOR
+            if (timeSinceScroll > 180) {
+                const minFloor = unlockedLevelFloor.current;
+                currentPower.current = Math.max(minFloor, currentPower.current - 1.2);
+            }
+
+            const power = Math.round(currentPower.current);
+            setLivePower(power);
+
+            // Tier Calculation & Floor Lock:
+            // Level 1 (0% ~ 20%): Bass 50% steady
+            // Level 2 (20% ~ 50%): Floor locks to 20% (Bass 75% + Guitar 70%)
+            // Level 3 (50% ~ 80%): Floor locks to 50% (Tutti Drums/Perc/Synth 85%)
+            // Level 4 (80% ~ 100%): Floor locks to 80% (Full Band + Lead Vocals 95%)
+            let tier = 1;
+            let targetBass = 0.50;
+            let targetGuitar = 0.0;
+            let targetOtherInst = 0.0;
+            let targetVocal = 0.0;
+
+            if (power >= 80) {
+                tier = 4;
+                if (unlockedLevelFloor.current < 80) {
+                    unlockedLevelFloor.current = 80;
+                }
+                targetBass = 1.0;
+                targetGuitar = 1.0;
+                targetOtherInst = 1.0;
+                targetVocal = 0.95;
+            } else if (power >= 50) {
+                tier = 3;
+                if (unlockedLevelFloor.current < 50) {
+                    unlockedLevelFloor.current = 50;
+                }
+                targetBass = 0.90;
+                targetGuitar = 0.90;
+                targetOtherInst = 0.85;
+                targetVocal = 0.0;
+            } else if (power >= 20) {
+                tier = 2;
+                if (unlockedLevelFloor.current < 20) {
+                    unlockedLevelFloor.current = 20;
+                }
+                targetBass = 0.75;
+                targetGuitar = 0.70;
+                targetOtherInst = 0.0;
+                targetVocal = 0.0;
+            } else {
+                tier = 1;
+                targetBass = 0.50;
+                targetGuitar = 0.0;
+                targetOtherInst = 0.0;
+                targetVocal = 0.0;
+            }
+
+            // Perform checkpoint audio sync ONLY when a new Tier is unlocked!
+            if (tier !== lastSyncTier.current) {
+                lastSyncTier.current = tier;
+                performCheckpointSync();
+            }
+
+            setAudioTier(tier);
+
+            if (bassRef.current) bassRef.current.volume = targetBass;
+            if (guitarRef.current) guitarRef.current.volume = targetGuitar;
+            if (drumsRef.current) drumsRef.current.volume = targetOtherInst;
+            if (percRef.current) percRef.current.volume = targetOtherInst;
+            if (synthRef.current) synthRef.current.volume = targetOtherInst;
+            if (vocalRef.current) vocalRef.current.volume = targetVocal;
+
+        }, 50);
+
+        return () => clearInterval(volumeEngineInterval);
+    }, []);
+
+    // Initial Buffering Sequence
     useEffect(() => {
         const t1 = setTimeout(() => setSimulatedVolume(36), 300);
         const t2 = setTimeout(() => setSimulatedVolume(16), 650);
@@ -512,21 +539,34 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // HARD ACCUMULATIVE SCROLL HANDLERS (No decay, user can barely hit 50%)
+    // Autopilot timeline
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setProgress((prev) => {
+                if (prev >= 100) return 100;
+                const next = Math.min(100, prev + 0.12);
+                progressRef.current = next;
+                return next;
+            });
+        }, 50);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    // HARD SCROLL ENGINE WITH LEVEL FLOOR CHECKPOINTS
     useEffect(() => {
         const handleWheel = (e) => {
             if (e.cancelable) e.preventDefault();
             forceUnlockMobileAudio();
 
-            // Strictly ignore reverse wheel
             if (e.deltaY <= 0) return;
 
             const rawDelta = e.deltaY;
             setLastVelocityStr(rawDelta.toFixed(0) + " delta");
 
-            // Hard Cumulative Wheel Power (Each notch adds only ~0.35% to 0.7%)
-            const powerIncrement = Math.min(rawDelta * 0.006, 0.9);
-            updatePowerAndAudio(cumulativePower.current + powerIncrement);
+            const powerIncrement = Math.min(rawDelta * 0.008, 1.2);
+            currentPower.current = Math.min(100, currentPower.current + powerIncrement);
+            lastScrollPumpTime.current = Date.now();
 
             const clampedDelta = Math.min(rawDelta * 0.0035, 1.8);
             setProgress((prev) => {
@@ -558,16 +598,13 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const now = Date.now();
             const timeDiff = Math.max(16, now - touchStartTime.current);
 
-            // Strictly ignore downward gestures (deltaY <= 0)
             if (deltaY > 0) {
                 const velocity = deltaY / timeDiff;
                 setLastVelocityStr(velocity.toFixed(2) + " px/ms");
 
-                // HARD MOBILE POWER ACCUMULATION:
-                // A normal swipe adds only ~0.4% ~ 1.1% power.
-                // Reaching 50% requires ~50 deliberate full upward strokes!
-                const powerIncrement = Math.min(velocity * 0.35 + deltaY * 0.006, 1.4);
-                updatePowerAndAudio(cumulativePower.current + powerIncrement);
+                const powerIncrement = Math.min(velocity * 0.45 + deltaY * 0.008, 1.8);
+                currentPower.current = Math.min(100, currentPower.current + powerIncrement);
+                lastScrollPumpTime.current = now;
 
                 const strokeProgress = Math.min(deltaY * 0.016, 3.2);
                 setProgress((prev) => {
@@ -630,7 +667,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
             <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
 
-            {/* 1. 100vh Fullscreen 7-Frame Visual Stack with Re-booted Intimate Imagery */}
+            {/* 1. 100vh Fullscreen 7-Frame Visual Stack with Repurposed Factory/Lab Ateliers */}
             <div 
                 className="relative w-full h-full transition-all duration-700"
                 style={{
@@ -720,7 +757,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                             <span className="w-1 h-3 bg-white/20 hidden sm:inline-block" />
 
                             <span className="text-[9px] text-white/40 font-mono hidden sm:inline-block">
-                                SPD: {lastVelocityStr}
+                                FLOOR: {unlockedLevelFloor.current}%
                             </span>
                         </div>
 
