@@ -44,9 +44,19 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // High Precision Cursor Position
-    const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false, isOverTitle: false });
+    // High Precision Cursor Position & Velocity Tracking
+    const [cursorPos, setCursorPos] = useState({ 
+        x: 0.5, 
+        y: 0.5, 
+        rawX: -100, 
+        rawY: -100, 
+        isHovered: false, 
+        isOverTitle: false,
+        cursorMode: 'default', // 'default', 'explore', 'listen', 'interactive'
+        speed: 0
+    });
     const [touchRipples, setTouchRipples] = useState([]);
+    const lastMousePos = useRef({ x: 0, y: 0, time: Date.now() });
 
     const [stems, setStems] = useState({
         violin: 85,
@@ -93,10 +103,23 @@ export default function App() {
     };
 
     const handlePointerMove = (e) => {
+        const now = Date.now();
+        const dt = Math.max(1, now - lastMousePos.current.time);
+        const dx = e.clientX - lastMousePos.current.x;
+        const dy = e.clientY - lastMousePos.current.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const speed = Math.min(dist / dt, 2.5); // 0 ~ 2.5
+
+        lastMousePos.current = { x: e.clientX, y: e.clientY, time: now };
+
         const x = e.clientX / window.innerWidth;
         const y = e.clientY / window.innerHeight;
-        const isOverTitle = Math.abs(x - 0.5) < 0.25 && Math.abs(y - 0.5) < 0.2;
-        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true, isOverTitle });
+        const isOverTitle = Math.abs(x - 0.5) < 0.28 && Math.abs(y - 0.5) < 0.22;
+        
+        let cursorMode = 'default';
+        if (isOverTitle) cursorMode = 'explore';
+
+        setCursorPos({ x, y, rawX: e.clientX, rawY: e.clientY, isHovered: true, isOverTitle, cursorMode, speed });
     };
 
     const handleTouchMove = (e) => {
@@ -106,7 +129,7 @@ export default function App() {
             const x = tx / window.innerWidth;
             const y = ty / window.innerHeight;
             const isOverTitle = Math.abs(x - 0.5) < 0.3 && Math.abs(y - 0.5) < 0.25;
-            setCursorPos({ x, y, rawX: tx, rawY: ty, isHovered: true, isOverTitle });
+            setCursorPos({ x, y, rawX: tx, rawY: ty, isHovered: true, isOverTitle, cursorMode: isOverTitle ? 'explore' : 'default', speed: 0 });
 
             setTouchRipples((prev) => [
                 ...prev.slice(-3),
@@ -121,39 +144,52 @@ export default function App() {
             onTouchMove={handleTouchMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden"
         >
-            {/* 1. Precision Musical Custom Cursor */}
-            <div className="hidden md:block pointer-events-none fixed inset-0 z-50">
+            {/* ========================================================================= */}
+            {/* 1. AWWWARDS-WINNING 'MAGNETIC DIFFERENCE LENS' CURSOR (Fluid Jelly Physics) */}
+            {/* ========================================================================= */}
+            <div className="hidden md:block pointer-events-none fixed inset-0 z-50 mix-blend-difference">
+                {/* Center Sharp White Point */}
                 <motion.div
                     animate={{
-                        x: cursorPos.rawX - 6,
-                        y: cursorPos.rawY - 6,
-                        scale: cursorPos.isOverTitle ? 1.4 : 1,
+                        x: cursorPos.rawX - 3,
+                        y: cursorPos.rawY - 3,
                         opacity: cursorPos.isHovered ? 1 : 0
                     }}
-                    transition={{ type: "spring", damping: 40, stiffness: 650, mass: 0.08 }}
-                    className="fixed top-0 left-0 text-[#E7FF00] drop-shadow-[0_0_8px_#E7FF00]"
-                >
-                    <Music className="w-3.5 h-3.5 fill-current" />
-                </motion.div>
+                    transition={{ type: "spring", damping: 45, stiffness: 750, mass: 0.05 }}
+                    className="w-1.5 h-1.5 rounded-full bg-white fixed top-0 left-0"
+                />
 
+                {/* Outer Inverted Fluid Lens Bubble with Elastic Squish & Micro-Badge */}
                 <motion.div
                     animate={{
-                        x: cursorPos.rawX - (cursorPos.isOverTitle ? 25 : 18),
-                        y: cursorPos.rawY - (cursorPos.isOverTitle ? 25 : 18),
-                        width: cursorPos.isOverTitle ? 50 : 36,
-                        height: cursorPos.isOverTitle ? 50 : 36,
-                        borderColor: cursorPos.isOverTitle ? '#E7FF00' : 'rgba(231, 255, 0, 0.4)',
-                        rotate: cursorPos.rawX * 0.5,
-                        opacity: cursorPos.isHovered ? 0.85 : 0
+                        x: cursorPos.rawX - (cursorPos.cursorMode === 'explore' ? 36 : (18 + cursorPos.speed * 4)),
+                        y: cursorPos.rawY - (cursorPos.cursorMode === 'explore' ? 36 : 18),
+                        width: cursorPos.cursorMode === 'explore' ? 72 : (36 + cursorPos.speed * 8),
+                        height: cursorPos.cursorMode === 'explore' ? 72 : 36,
+                        borderRadius: '9999px',
+                        scale: cursorPos.isHovered ? 1 : 0,
+                        opacity: cursorPos.isHovered ? 0.95 : 0
                     }}
-                    transition={{ type: "spring", damping: 26, stiffness: 200, mass: 0.35 }}
-                    className="rounded-full border border-dashed fixed top-0 left-0 flex items-center justify-center pointer-events-none"
+                    transition={{ type: "spring", damping: 25, stiffness: 260, mass: 0.3 }}
+                    className="fixed top-0 left-0 border border-white bg-white/10 backdrop-blur-[2px] flex items-center justify-center pointer-events-none shadow-[0_0_20px_rgba(255,255,255,0.4)]"
                 >
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#E7FF00]/40 animate-ping" />
+                    {/* Monospace Micro-Label inside cursor when hovering title/interactive elements */}
+                    <AnimatePresence>
+                        {cursorPos.cursorMode === 'explore' && (
+                            <motion.span
+                                initial={{ opacity: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.5 }}
+                                className="font-mono text-[8px] font-black tracking-widest uppercase text-white"
+                            >
+                                EXPLORE
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
             </div>
 
-            {/* 2. Mobile Touch Pulse */}
+            {/* 2. Mobile Clean Touch Pulse */}
             <div className="md:hidden pointer-events-none fixed inset-0 z-40 overflow-hidden">
                 {touchRipples.map((r) => (
                     <motion.div
@@ -162,10 +198,8 @@ export default function App() {
                         animate={{ opacity: 0, scale: 1.5 }}
                         transition={{ duration: 0.4, ease: 'easeOut' }}
                         style={{ left: r.x - 14, top: r.y - 14 }}
-                        className="absolute w-7 h-7 rounded-full border border-[#E7FF00] shadow-[0_0_12px_#E7FF00] flex items-center justify-center"
-                    >
-                        <Music className="w-2.5 h-2.5 text-[#E7FF00] opacity-60" />
-                    </motion.div>
+                        className="absolute w-7 h-7 rounded-full border border-white/80 shadow-[0_0_15px_rgba(255,255,255,0.6)]"
+                    />
                 ))}
             </div>
 
@@ -316,7 +350,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             const now = Date.now();
             const timeSinceScroll = now - lastScrollTime.current;
             
-            // Calculate current velocity decay
             let currentV = 0;
             if (timeSinceScroll < 300) {
                 currentV = lastScrollVelocity.current;
@@ -327,11 +360,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 lastScrollVelocity.current = 0;
             }
 
-            // Determine active Tier based on Sean's exact design:
-            // 1. 가만히 있을 때: Bass 50%, 기타/나머지 0%
-            // 2. Level 2 (보통 스크롤): Bass 80% + Guitar 80%
-            // 3. Level 3 (빠른 스크롤): Bass + Guitar + Drums + Perc + Synth 100% (보컬 제외 전 악기)
-            // 4. Level 4 (초고속 스크롤): 전 악기 + Lead Vocal 100%
             let tier = 1;
             let targetBass = 0.50; // 기본 50%
             let targetGuitar = 0.0;
@@ -339,28 +367,24 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             let targetVocal = 0.0;
 
             if (currentV >= 0.70) {
-                // Tier 4: Overdrive
                 tier = 4;
                 targetBass = 1.0;
                 targetGuitar = 1.0;
                 targetOtherInst = 1.0;
                 targetVocal = 0.95;
             } else if (currentV >= 0.35) {
-                // Tier 3: All instruments except vocal
                 tier = 3;
                 targetBass = 0.90;
                 targetGuitar = 0.90;
                 targetOtherInst = 0.85;
                 targetVocal = 0.0;
             } else if (currentV >= 0.08) {
-                // Tier 2: Bass + Guitar
                 tier = 2;
                 targetBass = 0.75;
                 targetGuitar = 0.70;
                 targetOtherInst = 0.0;
                 targetVocal = 0.0;
             } else {
-                // Tier 1: Idle
                 tier = 1;
                 targetBass = 0.50;
                 targetGuitar = 0.0;
@@ -370,7 +394,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
             setAudioTier(tier);
 
-            // Apply volume ramp
             if (bassRef.current) bassRef.current.volume = targetBass;
             if (guitarRef.current) guitarRef.current.volume = targetGuitar;
             if (drumsRef.current) drumsRef.current.volume = targetOtherInst;
@@ -603,7 +626,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                     isTargetBuildingFrame && activeFrameIdx === idx ? 'scale-105' : 'scale-100'
                                 }`}
                             />
-                            {/* Selective Vignette mask to make central building pop like a game selection */}
                             <div className={`absolute inset-0 transition-opacity duration-700 ${
                                 isTargetBuildingFrame && activeFrameIdx === idx
                                     ? 'bg-[radial-gradient(circle_at_50%_48%,rgba(0,240,255,0.08)_0%,rgba(0,0,0,0.85)_75%)]'
@@ -623,9 +645,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                             transition={{ duration: 0.6 }}
                             className="absolute inset-0 pointer-events-none z-15 flex items-center justify-center"
                         >
-                            {/* Precision Architectural Bounding Frame directly over the building */}
                             <div className="relative w-[300px] sm:w-[460px] h-[280px] sm:h-[380px] -mt-10 sm:-mt-16 flex items-center justify-center">
-                                {/* Neon Emerald/Volt Isometric Ground Ring */}
                                 <motion.div
                                     animate={{ rotate: 360, scale: [0.98, 1.03, 0.98] }}
                                     transition={{ rotate: { repeat: Infinity, duration: 24, ease: "linear" }, scale: { repeat: Infinity, duration: 3, ease: "easeInOut" } }}
@@ -633,13 +653,11 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                     style={{ transform: 'rotateX(72deg)' }}
                                 />
 
-                                {/* Precise Corner Bracket Reticles */}
                                 <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
                                 <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
                                 <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
                                 <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-[#00F0FF] shadow-[0_0_10px_#00F0FF]" />
 
-                                {/* Floating 3D Holographic Target Pin */}
                                 <motion.div
                                     initial={{ y: -20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
@@ -752,7 +770,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Interactive Area & Atelier Option Button */}
+                    {/* Bottom Interactive Area */}
                     <div className="pointer-events-auto flex flex-col items-center gap-3">
                         <AnimatePresence>
                             {isAtelierOptionVisible && (
