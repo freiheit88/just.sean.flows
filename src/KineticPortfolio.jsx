@@ -252,17 +252,22 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. Editorial 3D Title Header */}
-            <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-6 flex items-center justify-between pointer-events-none">
+            {/* 2. CENTERED ULTRA-3D EMBOSSED TITLE HEADER */}
+            <header className="fixed top-0 left-0 right-0 z-40 px-6 py-6 flex items-center justify-center pointer-events-none">
                 <motion.div 
                     style={{
-                        transform: `perspective(500px) rotateX(${tilt.y * -28}deg) rotateY(${tilt.x * 28}deg) translateZ(25px)`,
+                        transform: `perspective(600px) rotateX(${tilt.y * -35}deg) rotateY(${tilt.x * 35}deg) translateZ(40px)`,
                         transformStyle: 'preserve-3d'
                     }}
-                    className="pointer-events-auto flex items-center gap-3 transition-transform duration-100 ease-out"
+                    className="pointer-events-auto flex items-center justify-center gap-3 px-6 py-2 rounded-full bg-black/80 border-2 border-[#E7FF00]/60 shadow-[0_12px_40px_rgba(231,255,0,0.35)] backdrop-blur-2xl transition-transform duration-100 ease-out"
                 >
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_16px_#E7FF00] animate-pulse"></span>
-                    <span className="font-mono font-black text-sm sm:text-base tracking-[0.32em] text-white uppercase drop-shadow-[0_4px_16px_rgba(231,255,0,0.5)]">
+                    <span className="w-3 h-3 rounded-full bg-[#E7FF00] shadow-[0_0_20px_#E7FF00] animate-pulse"></span>
+                    <span 
+                        className="font-mono font-black text-sm sm:text-lg tracking-[0.38em] text-[#E7FF00] uppercase"
+                        style={{
+                            textShadow: '0 2px 0 #C5A059, 0 4px 0 #000000, 0 6px 20px rgba(231,255,0,0.85)'
+                        }}
+                    >
                         @just.sean.flows
                     </span>
                 </motion.div>
