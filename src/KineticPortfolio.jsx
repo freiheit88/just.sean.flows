@@ -252,19 +252,14 @@ export default function App() {
                 <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
             </div>
 
-            {/* 2. DRAMATIC KINETIC NEON GLITCH HEADER (NO BOX TILT!) */}
+            {/* 2. REFINED SUBTLE GOLD/BLACK 3D HEADER (NO HEAVY GLITCH OVERKILL!) */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 py-6 flex items-center justify-center pointer-events-none">
                 <div className="pointer-events-auto flex items-center justify-center gap-3 py-1">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_20px_#E7FF00] animate-pulse"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_15px_#E7FF00] animate-pulse"></span>
                     <h1 
-                        className="font-mono font-black text-lg sm:text-2xl tracking-[0.38em] uppercase text-white relative select-none"
+                        className="font-mono font-black text-base sm:text-xl tracking-[0.38em] uppercase text-[#E7FF00] relative select-none"
                         style={{
-                            textShadow: `
-                                2.5px 2.5px 0px #FF0055,
-                                -2.5px -2.5px 0px #00F0FF,
-                                0 0 25px rgba(231,255,0,0.85),
-                                0 0 50px rgba(231,255,0,0.5)
-                            `
+                            textShadow: '0 2px 0 #C5A059, 0 4px 0 #000000, 0 6px 18px rgba(231,255,0,0.65)'
                         }}
                     >
                         JUST.SEAN.FLOWS
