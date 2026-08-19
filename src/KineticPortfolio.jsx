@@ -313,7 +313,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 3X MORE LOUD & UNMISSABLE 3D PARALLAX & RGB SHIFT STAGE WITH SEAN'S FAVORED FILTER
+// PRE-LOADED SPLASH STATE: MAIN ENGINE & MUSIC HELD FROZEN UNTIL USER CLICKS LET'S GO !
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -356,9 +356,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
 
-    // =========================================================================
-    // PAGE-LEVEL BACKGROUND AUDIO PAUSE SAFEGUARD (COMPLETELY SEPARATE FROM STEM LOGIC!)
-    // =========================================================================
+    // PAGE-LEVEL BACKGROUND AUDIO PAUSE SAFEGUARD
     useEffect(() => {
         const pauseAllAudioSafeguard = () => {
             const allAudioRefs = [guitarRef, bassRef, drumsRef, percRef, synthRef, vocalRef];
@@ -570,8 +568,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         };
     }, []);
 
-    // REAL-TIME VOLUME DECAY & GUITAR-FIRST STEM UNMUTE ENGINE
+    // REAL-TIME VOLUME DECAY & GUITAR-FIRST STEM UNMUTE ENGINE (FROZEN UNTIL UNLOCKED!)
     useEffect(() => {
+        if (!isAudioUnlocked) return;
+
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
             const timeSinceScroll = now - lastScrollPumpTime.current;
@@ -688,10 +688,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         }, 50);
 
         return () => clearInterval(volumeEngineInterval);
-    }, []);
+    }, [isAudioUnlocked]);
 
-    // 5-SECOND EXTENDED WALKING PACING TIMELINE
+    // 5-SECOND EXTENDED WALKING PACING TIMELINE (FROZEN UNTIL UNLOCKED!)
     useEffect(() => {
+        if (!isAudioUnlocked) return;
+
         const interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 100) return 100;
@@ -702,7 +704,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         }, 50);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [isAudioUnlocked]);
 
     // PROGRESSIVE SCROLL & TOUCH ENGINE WITH DYNAMIC PACING FOOTSTEP TRIGGER
     useEffect(() => {
@@ -712,6 +714,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 e.preventDefault();
             }
             forceUnlockAudio(e);
+            if (!isAudioUnlocked) return;
 
             if (e.deltaY <= 0) return;
 
@@ -755,6 +758,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
             }
 
             forceUnlockAudio(e);
+            if (!isAudioUnlocked) return;
             if (!e.touches || !e.touches[0]) return;
 
             const currentY = e.touches[0].clientY;
@@ -803,7 +807,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
         };
-    }, []);
+    }, [isAudioUnlocked]);
 
     useEffect(() => {
         const frameIdx = Math.min(FRAMES.length - 1, Math.max(0, Math.floor((progress / 100) * FRAMES.length)));
@@ -832,7 +836,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 style={{ backgroundImage: `url(${currentFrame.src})` }}
             />
 
-            {/* 6 Synchronized Multi-Stem Audio Elements */}
+            {/* 6 Synchronized Multi-Stem Audio Elements (PRE-LOADED IN MEMORY, WAITING FOR UNLOCK) */}
             <audio ref={guitarRef} src={STEM_SRCS.guitar} loop playsInline preload="auto" />
             <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
             <audio ref={drumsRef} src={STEM_SRCS.drums} loop playsInline preload="auto" />
@@ -947,7 +951,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Progress Track (NO ENTER STEM MIXER BUTTON!) */}
+                    {/* Bottom Progress Track */}
                     <div className="pointer-events-auto flex flex-col items-center gap-2.5">
                         <div className="w-40 sm:w-60 h-1 bg-white/20 rounded-full overflow-hidden">
                             <div
@@ -1472,7 +1476,7 @@ function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
                     <div className="flex items-center gap-2.5 text-left">
                         <QrCode className="w-5 h-5 text-[#E7FF00]" />
                         <div>
-                            <span className="font-mono text-[9px] text-white font-bold block">SECRET YOUTUBE VAULT</span>
+                            <span className="font-mono text-[9px] text-[#FFFFFF] font-bold block">SECRET YOUTUBE VAULT</span>
                             <span className="font-mono text-[7px] text-white/40">CLICK TO UNLOCK UNLISTED VIDEO</span>
                         </div>
                     </div>
