@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Sparkles, Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
-    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic
+    Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
 const MR_AUDIO_SRC = "/assets/manual_upload/A twelve-alibi_MR_master.wav";
 const VOCAL_AUDIO_SRC = "/assets/manual_upload/A Twelve-minute Alibi/0 Lead Vocals.mp3";
+const ATELIER_IMG = "/assets/frankfurt_sound_atelier.jpg";
+const BLUEPRINT_IMG = "/assets/atelier_blueprint_night.jpg";
 
 const FRAMES = [
     { id: 0, src: "/assets/walk_01.jpg", tag: "01/07", label: "MIDNIGHT PLAZA", sub: "Distant View Across the Square" },
@@ -33,6 +35,7 @@ export default function App() {
     const [currentStep, setCurrentStep] = useState('flipbook'); // 'flipbook', 'mixer_ending', 'ticket'
     const [userNickname, setUserNickname] = useState("SEAN");
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
+    const [showAtelierModal, setShowAtelierModal] = useState(false);
 
     const [stems, setStems] = useState({
         violin: 85,
@@ -80,6 +83,10 @@ export default function App() {
 
     return (
         <div className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden">
+            {/* Interactive Particle Trail Layer */}
+            <NeonParticleTrail />
+
+            {/* Ultra-Clean Floating Dynamic Island Header */}
             <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-3 flex items-center justify-between pointer-events-none">
                 <div className="pointer-events-auto flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/15 shadow-2xl">
                     <span className="w-2 h-2 rounded-full bg-[#E7FF00] animate-pulse"></span>
@@ -100,7 +107,10 @@ export default function App() {
 
             <main>
                 {currentStep === 'flipbook' && (
-                    <FlipbookWalkingEngine onEnterMixer={() => setCurrentStep('mixer_ending')} />
+                    <FlipbookWalkingEngine 
+                        onEnterMixer={() => setCurrentStep('mixer_ending')} 
+                        onOpenAtelier={() => setShowAtelierModal(true)}
+                    />
                 )}
 
                 {currentStep === 'mixer_ending' && (
@@ -122,20 +132,120 @@ export default function App() {
                     />
                 )}
             </main>
+
+            {/* Frankfurt Sound Atelier & Corporation Intel Modal */}
+            <AnimatePresence>
+                {showAtelierModal && (
+                    <FrankfurtAtelierModal onClose={() => setShowAtelierModal(false)} />
+                )}
+            </AnimatePresence>
         </div>
     );
 }
 
 // ==============================================================================
-// 1. MOBILE-FIRST 3D KINETIC FLIPBOOK WALKING ENGINE WITH BEAT-SYNC VOCAL BURST
+// 1. NEON FLUID PARTICLE TRAIL (Touch & Scroll Gesture Trail)
 // ==============================================================================
-function FlipbookWalkingEngine({ onEnterMixer }) {
+function NeonParticleTrail() {
+    const canvasRef = useRef(null);
+    const pointsRef = useRef([]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+        resize();
+        window.addEventListener('resize', resize);
+
+        const addPoint = (x, y) => {
+            pointsRef.current.push({
+                x, y,
+                age: 0,
+                maxAge: 32,
+                size: Math.random() * 4 + 2,
+                color: Math.random() > 0.3 ? '#E7FF00' : '#00F0FF'
+            });
+        };
+
+        const handlePointerMove = (e) => {
+            addPoint(e.clientX, e.clientY);
+        };
+
+        const handleTouchMove = (e) => {
+            if (e.touches && e.touches[0]) {
+                addPoint(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        };
+
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('touchmove', handleTouchMove);
+
+        let animId;
+        const render = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const points = pointsRef.current;
+
+            for (let i = 0; i < points.length; i++) {
+                const p = points[i];
+                p.age += 1;
+                const alpha = Math.max(0, 1 - p.age / p.maxAge);
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = alpha * 0.7;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.color;
+                ctx.fill();
+
+                if (i > 0 && points[i - 1]) {
+                    const prev = points[i - 1];
+                    ctx.beginPath();
+                    ctx.moveTo(prev.x, prev.y);
+                    ctx.lineTo(p.x, p.y);
+                    ctx.strokeStyle = p.color;
+                    ctx.lineWidth = 2.5 * alpha;
+                    ctx.stroke();
+                }
+            }
+
+            pointsRef.current = points.filter(p => p.age < p.maxAge);
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            animId = requestAnimationFrame(render);
+        };
+        render();
+
+        return () => {
+            window.removeEventListener('resize', resize);
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('touchmove', handleTouchMove);
+            cancelAnimationFrame(animId);
+        };
+    }, []);
+
+    return (
+        <canvas
+            ref={canvasRef}
+            className="fixed inset-0 pointer-events-none z-30"
+        />
+    );
+}
+
+// ==============================================================================
+// 2. FLIPBOOK ENGINE WITH ATELIER INTEL OPTION & 5-SEC CHIC GESTURE TUTORIAL
+// ==============================================================================
+function FlipbookWalkingEngine({ onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     const [isHeadBobbing, setIsHeadBobbing] = useState(false);
-    const [isWarping, setIsWarping] = useState(false);
-    const [warpSpeedMessage, setWarpSpeedMessage] = useState("");
     const [vocalVolumePercent, setVocalVolumePercent] = useState(0);
+    const [showGestureTutorial, setShowGestureTutorial] = useState(true);
 
     const audioCtxRef = useRef(null);
     const bgmRef = useRef(null);
@@ -148,16 +258,21 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
     const scrollCount = useRef(0);
     const isBgmStarted = useRef(false);
     const lastHardScrollTime = useRef(0);
-    const checkPointPassed = useRef({ cp1: false, cp2: false });
 
-    // Start MR Background Music smoothly
+    // 5-Second Chic Minimalist Gesture Tutorial
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowGestureTutorial(false);
+        }, 5000);
+        return () => clearTimeout(timer);
+    }, []);
+
     const startMRPlayback = () => {
         if (isBgmStarted.current || !bgmRef.current) return;
         isBgmStarted.current = true;
         bgmRef.current.volume = 0.65;
         bgmRef.current.play().catch(() => {});
 
-        // Start Vocal in sync at 0 volume
         if (vocalRef.current) {
             vocalRef.current.volume = 0;
             vocalRef.current.currentTime = bgmRef.current.currentTime;
@@ -165,7 +280,6 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
         }
     };
 
-    // Auto MR start: After 2 seconds OR 10 scrolls
     useEffect(() => {
         const timer = setTimeout(() => {
             startMRPlayback();
@@ -173,17 +287,14 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Vocal Volume Decay Loop (Fades out rapidly if user stops scrolling hard)
     useEffect(() => {
         const decayInterval = setInterval(() => {
             const timeSinceHardScroll = Date.now() - lastHardScrollTime.current;
             if (vocalRef.current) {
                 if (timeSinceHardScroll < 700) {
-                    // Maintain high vocal volume
                     vocalRef.current.volume = 0.95;
                     setVocalVolumePercent(95);
                 } else if (timeSinceHardScroll < 1800) {
-                    // Exponential decay
                     const decay = Math.max(0, 0.95 - (timeSinceHardScroll - 700) / 1100);
                     vocalRef.current.volume = decay;
                     setVocalVolumePercent(Math.round(decay * 100));
@@ -197,7 +308,6 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
         return () => clearInterval(decayInterval);
     }, []);
 
-    // Binaural Stereo Left/Right Panned Procedural Footsteps
     const playStereoFootstep = () => {
         const now = Date.now();
         if (now - lastStepTime.current < 260) return;
@@ -251,34 +361,7 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
         } catch (e) {}
     };
 
-    const playSonicWarpSound = () => {
-        try {
-            if (!audioCtxRef.current) return;
-            const ctx = audioCtxRef.current;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(140, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.9);
-
-            gain.gain.setValueAtTime(0.35, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
-
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.9);
-        } catch (e) {}
-    };
-
-    const triggerWarpBoost = (msg) => {
-        setIsWarping(true);
-        setWarpSpeedMessage(msg);
-        playSonicWarpSound();
-        setTimeout(() => setIsWarping(false), 1500);
-    };
-
-    // 1. Autopilot: 20% Longer (~25s total journey, +0.16% per 50ms)
+    // Autopilot timeline
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress((prev) => {
@@ -292,17 +375,17 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
         return () => clearInterval(interval);
     }, []);
 
-    // 2. Active Scroll: Trigger Lead Vocal Burst on hard scroll
+    // Active Scroll
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
+            setShowGestureTutorial(false);
             scrollCount.current += 1;
             if (scrollCount.current >= 10) startMRPlayback();
 
             const rawDelta = Math.abs(e.deltaY);
             const clampedDelta = Math.min(rawDelta * 0.0028, 1.2);
 
-            // Hard scroll rhythm trigger for Lead Vocals
             if (rawDelta > 15) {
                 lastHardScrollTime.current = Date.now();
                 startMRPlayback();
@@ -311,16 +394,6 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
-
-                if (next >= 35 && !checkPointPassed.current.cp1 && clampedDelta > 0.6) {
-                    checkPointPassed.current.cp1 = true;
-                    triggerWarpBoost("HYPER-VELOCITY // PLAZA WARP");
-                }
-                if (next >= 72 && !checkPointPassed.current.cp2 && clampedDelta > 0.6) {
-                    checkPointPassed.current.cp2 = true;
-                    triggerWarpBoost("SONIC SPEED // PORTAL REACHED");
-                }
-
                 return next;
             });
 
@@ -337,6 +410,7 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
 
         const handleTouchMove = (e) => {
             if (!e.touches || !e.touches[0]) return;
+            setShowGestureTutorial(false);
             scrollCount.current += 1;
             if (scrollCount.current >= 10) startMRPlayback();
 
@@ -345,7 +419,6 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
             touchStartY.current = currentY;
             const clampedDelta = Math.min(rawDelta, 1.1);
 
-            // Hard mobile swipe trigger for Lead Vocals
             if (rawDelta > 0.15) {
                 lastHardScrollTime.current = Date.now();
                 startMRPlayback();
@@ -354,10 +427,6 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
-                if (next >= 35 && !checkPointPassed.current.cp1 && clampedDelta > 0.45) {
-                    checkPointPassed.current.cp1 = true;
-                    triggerWarpBoost("HYPER-VELOCITY // PLAZA WARP");
-                }
                 return next;
             });
             playStereoFootstep();
@@ -376,17 +445,16 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
         };
     }, []);
 
-    // Frame mapping
     useEffect(() => {
         const frameIdx = Math.min(FRAMES.length - 1, Math.max(0, Math.floor((progress / 100) * FRAMES.length)));
         setActiveFrameIdx(frameIdx);
     }, [progress]);
 
     const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
+    const isAtelierOptionVisible = activeFrameIdx === 2 || activeFrameIdx === 3; // Frames 3 & 4
 
     return (
         <div className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none">
-            {/* Audio Elements */}
             <audio ref={bgmRef} src={MR_AUDIO_SRC} loop preload="metadata" />
             <audio ref={vocalRef} src={VOCAL_AUDIO_SRC} loop preload="metadata" />
 
@@ -398,13 +466,11 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
                         initial={false}
                         animate={{
                             opacity: activeFrameIdx === idx ? 1 : 0,
-                            scale: activeFrameIdx === idx 
-                                ? (isWarping ? 1.08 : (isHeadBobbing ? 1.025 : 1.0)) 
-                                : 1.06,
+                            scale: activeFrameIdx === idx ? (isHeadBobbing ? 1.025 : 1.0) : 1.06,
                             y: activeFrameIdx === idx ? (isHeadBobbing ? -6 : 0) : 0,
-                            filter: isWarping ? 'contrast(130%) brightness(120%)' : 'none'
+                            filter: vocalVolumePercent > 50 ? 'contrast(115%) brightness(108%)' : 'none'
                         }}
-                        transition={{ duration: isWarping ? 0.2 : 0.45, ease: 'easeOut' }}
+                        transition={{ duration: 0.45, ease: 'easeOut' }}
                         className="absolute inset-0 w-full h-full"
                     >
                         <img
@@ -417,29 +483,34 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
                 ))}
             </div>
 
-            {/* 2. 1.5s High-Velocity Chromatic Warp Burst Overlay */}
+            {/* 2. 5-Second Chic Minimalist Gesture Tutorial Overlay */}
             <AnimatePresence>
-                {isWarping && (
+                {showGestureTutorial && (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.05 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center justify-center bg-gradient-to-r from-[#E7FF00]/15 via-transparent to-[#00F0FF]/15 backdrop-blur-[2px]"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20, transition: { duration: 0.5 } }}
+                        className="absolute inset-x-0 bottom-24 pointer-events-none z-30 flex flex-col items-center justify-center gap-2"
                     >
-                        <div className="px-6 py-4 rounded-2xl border-2 border-[#E7FF00] bg-black/85 backdrop-blur-xl text-center shadow-[0_0_60px_rgba(231,255,0,0.8)] animate-pulse mx-4">
-                            <div className="inline-flex items-center gap-2 font-mono text-xs font-black text-[#E7FF00] tracking-widest uppercase">
-                                <Zap className="w-4 h-4 fill-current" />
-                                <span>{warpSpeedMessage}</span>
+                        <div className="px-5 py-2 rounded-full bg-black/80 backdrop-blur-xl border border-[#E7FF00]/40 flex items-center gap-3 shadow-[0_0_30px_rgba(231,255,0,0.3)]">
+                            <div className="w-4 h-7 rounded-full border-2 border-[#E7FF00] p-1 flex justify-center">
+                                <motion.div 
+                                    animate={{ y: [0, -6, 0] }}
+                                    transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+                                    className="w-1.5 h-1.5 rounded-full bg-[#E7FF00]"
+                                />
                             </div>
+                            <span className="font-mono text-[10px] sm:text-xs font-bold text-[#E7FF00] tracking-widest uppercase">
+                                SWIPE UP TO EXPLORE
+                            </span>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* 3. Mobile-First 3D Kinetic Text & Spatial HUD */}
+            {/* 3. Floating Spatial HUD */}
             <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-8 px-4 sm:px-12 text-center z-20">
-                {/* Top Location Pill & Vocal Rhythm EQ Indicator */}
+                {/* Top Pill & Live Lead Vocal Pulse Tag */}
                 <div className="flex flex-col items-center gap-2 mx-auto">
                     <motion.div 
                         key={`tag-${activeFrameIdx}`}
@@ -451,7 +522,6 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
                         <span>{currentFrame.tag} · {currentFrame.label}</span>
                     </motion.div>
 
-                    {/* Live Lead Vocal Pulse Tag */}
                     {vocalVolumePercent > 5 && (
                         <motion.div 
                             initial={{ scale: 0.8, opacity: 0 }}
@@ -459,7 +529,7 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
                             className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#E7FF00]/20 border border-[#E7FF00] text-[#E7FF00] font-mono text-[9px] font-bold tracking-wider animate-pulse"
                         >
                             <Mic className="w-3 h-3" />
-                            <span>VOCAL HARMONY: {vocalVolumePercent}%</span>
+                            <span>VOCAL ENERGY: {vocalVolumePercent}%</span>
                         </motion.div>
                     )}
                 </div>
@@ -492,8 +562,24 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
                     </AnimatePresence>
                 </div>
 
-                {/* Bottom Interactive Area */}
+                {/* Bottom Interactive Area & Atelier Option Button */}
                 <div className="pointer-events-auto flex flex-col items-center gap-3">
+                    {/* Interactive 360 Atelier Option Button (Frames 3 & 4 Only) */}
+                    <AnimatePresence>
+                        {isAtelierOptionVisible && (
+                            <motion.button
+                                initial={{ opacity: 0, scale: 0.85, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.85, y: 10 }}
+                                onClick={onOpenAtelier}
+                                className="px-5 py-2.5 rounded-full bg-black/80 backdrop-blur-xl border border-[#00F0FF] text-[#00F0FF] hover:bg-[#00F0FF] hover:text-black font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_25px_rgba(0,240,255,0.4)] flex items-center gap-2"
+                            >
+                                <Building2 className="w-3.5 h-3.5" />
+                                <span>360° ATELIER INTEL // 프랑크푸르트 사운드 아틀리에 둘러보기</span>
+                            </motion.button>
+                        )}
+                    </AnimatePresence>
+
                     {progress >= 88 ? (
                         <button
                             onClick={onEnterMixer}
@@ -525,7 +611,91 @@ function FlipbookWalkingEngine({ onEnterMixer }) {
 }
 
 // ==============================================================================
-// 2. STEM MIXER & MULTI-ENDING CONSOLE
+// 3. FRANKFURT SOUND ATELIER & GUILD INTEL MODAL (360 Real-World Corporate Intel)
+// ==============================================================================
+function FrankfurtAtelierModal({ onClose }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl p-4 sm:p-8 flex items-center justify-center overflow-y-auto"
+        >
+            <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="w-full max-w-2xl bg-[#09090D] border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl relative"
+            >
+                <button
+                    onClick={onClose}
+                    className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+
+                <div className="inline-flex items-center gap-2 font-mono text-[10px] text-[#00F0FF] tracking-widest uppercase mb-3">
+                    <Building2 className="w-4 h-4" />
+                    <span>CORPORATE INTEL &amp; SOUND ATELIER</span>
+                </div>
+
+                <h2 className="font-sans text-2xl sm:text-4xl font-black text-white uppercase mb-2">
+                    JUST SEAN FLOWS // GUILD ATELIER
+                </h2>
+                <p className="font-mono text-xs text-white/60 mb-6">
+                    독일 프랑크푸르트 암 마인(Frankfurt am Main)에 설립 진행 중인 1인 하이브리드 사운드 프로덕션 길드 본부입니다.
+                </p>
+
+                <div className="relative rounded-2xl overflow-hidden mb-6 border border-white/15 aspect-video">
+                    <img
+                        src={ATELIER_IMG}
+                        alt="Frankfurt Atelier Facade"
+                        className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
+                        <div className="font-mono text-[10px] text-[#00F0FF] flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+                            <span>FRANKFURT AM MAIN · 24/7 SOUND ATELIER FACADE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs mb-6">
+                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+                        <span className="text-[#E7FF00] font-bold block mb-1">LEGAL STRUCTURE</span>
+                        <p className="text-white/80 text-[11px]">
+                            1인 하이브리드 길드 법인 (UG / GmbH in Formation)
+                        </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10">
+                        <span className="text-[#00F0FF] font-bold block mb-1">HEADQUARTERS</span>
+                        <p className="text-white/80 text-[11px]">
+                            Frankfurt am Main, Hessen, Germany
+                        </p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 sm:col-span-2">
+                        <span className="text-white font-bold block mb-1">CORE MISSION</span>
+                        <p className="text-white/70 text-[11px] leading-relaxed">
+                            클래식 오케스트라와 인디 록, 첨단 AI 오디오 DSP를 융합하는 독자적 사운드스케이프 제작 및 글로벌 아티스트 라이선싱.
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    onClick={onClose}
+                    className="w-full py-4 rounded-full bg-[#00F0FF] text-black font-mono text-xs font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)]"
+                >
+                    RESUME WALKING TOWARDS CONCERT PALACE →
+                </button>
+            </motion.div>
+        </motion.div>
+    );
+}
+
+// ==============================================================================
+// 4. STEM MIXER & MULTI-ENDING CONSOLE
 // ==============================================================================
 function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, onGenerateTicket }) {
     return (
@@ -596,7 +766,7 @@ function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, 
 }
 
 // ==============================================================================
-// 3. INSTAGRAM STORY 9:16 VIP TICKET MODAL & CANVAS GENERATOR
+// 5. INSTAGRAM STORY 9:16 VIP TICKET MODAL & CANVAS GENERATOR
 // ==============================================================================
 function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
     const canvasRef = useRef(null);
