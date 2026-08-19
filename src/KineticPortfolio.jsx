@@ -113,34 +113,37 @@ export default function App() {
             onTouchMove={handleTouchMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-x-hidden"
         >
-            {/* 1. Precision Crosshair Cursor */}
+            {/* 1. Precision Musical Custom Cursor (Desktop Musical Note + Waveform Frequency Ring) */}
             <div className="hidden md:block pointer-events-none fixed inset-0 z-50">
+                {/* Center Sharp Musical Eighth Note */}
                 <motion.div
                     animate={{
-                        x: cursorPos.rawX - 3,
-                        y: cursorPos.rawY - 3,
-                        scale: cursorPos.isOverTitle ? 1.5 : 1,
+                        x: cursorPos.rawX - 6,
+                        y: cursorPos.rawY - 6,
+                        scale: cursorPos.isOverTitle ? 1.4 : 1,
                         opacity: cursorPos.isHovered ? 1 : 0
                     }}
-                    transition={{ type: "spring", damping: 45, stiffness: 700, mass: 0.08 }}
-                    className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_10px_#E7FF00] fixed top-0 left-0"
-                />
+                    transition={{ type: "spring", damping: 40, stiffness: 650, mass: 0.08 }}
+                    className="fixed top-0 left-0 text-[#E7FF00] drop-shadow-[0_0_8px_#E7FF00]"
+                >
+                    <Music className="w-3.5 h-3.5 fill-current" />
+                </motion.div>
+
+                {/* Outer Soundwave / Vinyl Groove Frequency Ring */}
                 <motion.div
                     animate={{
-                        x: cursorPos.rawX - (cursorPos.isOverTitle ? 26 : 18),
-                        y: cursorPos.rawY - (cursorPos.isOverTitle ? 26 : 18),
-                        width: cursorPos.isOverTitle ? 52 : 36,
-                        height: cursorPos.isOverTitle ? 52 : 36,
-                        borderColor: cursorPos.isOverTitle ? '#E7FF00' : 'rgba(231, 255, 0, 0.45)',
-                        opacity: cursorPos.isHovered ? 0.9 : 0
+                        x: cursorPos.rawX - (cursorPos.isOverTitle ? 25 : 18),
+                        y: cursorPos.rawY - (cursorPos.isOverTitle ? 25 : 18),
+                        width: cursorPos.isOverTitle ? 50 : 36,
+                        height: cursorPos.isOverTitle ? 50 : 36,
+                        borderColor: cursorPos.isOverTitle ? '#E7FF00' : 'rgba(231, 255, 0, 0.4)',
+                        rotate: cursorPos.rawX * 0.5,
+                        opacity: cursorPos.isHovered ? 0.85 : 0
                     }}
-                    transition={{ type: "spring", damping: 28, stiffness: 220, mass: 0.35 }}
-                    className="rounded-full border fixed top-0 left-0 flex items-center justify-center pointer-events-none"
+                    transition={{ type: "spring", damping: 26, stiffness: 200, mass: 0.35 }}
+                    className="rounded-full border border-dashed fixed top-0 left-0 flex items-center justify-center pointer-events-none"
                 >
-                    <div className="absolute top-0 w-1 h-0.5 bg-[#E7FF00]" />
-                    <div className="absolute bottom-0 w-1 h-0.5 bg-[#E7FF00]" />
-                    <div className="absolute left-0 h-1 w-0.5 bg-[#E7FF00]" />
-                    <div className="absolute right-0 h-1 w-0.5 bg-[#E7FF00]" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#E7FF00]/40 animate-ping" />
                 </motion.div>
             </div>
 
@@ -153,12 +156,14 @@ export default function App() {
                         animate={{ opacity: 0, scale: 1.5 }}
                         transition={{ duration: 0.4, ease: 'easeOut' }}
                         style={{ left: r.x - 14, top: r.y - 14 }}
-                        className="absolute w-7 h-7 rounded-full border border-[#E7FF00] shadow-[0_0_12px_#E7FF00]"
-                    />
+                        className="absolute w-7 h-7 rounded-full border border-[#E7FF00] shadow-[0_0_12px_#E7FF00] flex items-center justify-center"
+                    >
+                        <Music className="w-2.5 h-2.5 text-[#E7FF00] opacity-60" />
+                    </motion.div>
                 ))}
             </div>
 
-            {/* 3. Ultra-Chic Single Editorial Brand Header (Zero AI Clutter) */}
+            {/* 3. Ultra-Chic Single Editorial Brand Header */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 sm:px-12 py-5 flex items-center justify-between pointer-events-none">
                 <div className="pointer-events-auto flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-pulse"></span>
@@ -290,19 +295,16 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(syncInterval);
     }, []);
 
-    // 1. Initial Sequence: Hunt 0~40% -> Lock 30% & BREATHE for 1.5s -> Dissolve!
     useEffect(() => {
         const t1 = setTimeout(() => setSimulatedVolume(36), 300);
         const t2 = setTimeout(() => setSimulatedVolume(16), 650);
         const t3 = setTimeout(() => setSimulatedVolume(42), 1000);
         
-        // At 1.3s, snap to 30% and begin 1.5-second breathing glow
         const t4 = setTimeout(() => {
             setSimulatedVolume(30);
             setIsLocked30Glitter(true);
         }, 1300);
 
-        // At 2.8s (1.5s after breathing lock), smoothly dissolve blur and play audio!
         const t5 = setTimeout(() => {
             setIsInitialBuffering(false);
             attemptPlayAudio();
@@ -397,7 +399,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         } catch (e) {}
     };
 
-    // Autopilot timeline
     useEffect(() => {
         const interval = setInterval(() => {
             setProgress((prev) => {
@@ -411,7 +412,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
         return () => clearInterval(interval);
     }, []);
 
-    // Active Scroll Handlers
     useEffect(() => {
         const handleWheel = (e) => {
             e.preventDefault();
@@ -489,11 +489,9 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
     const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
     const isAtelierOptionVisible = activeFrameIdx === 2 || activeFrameIdx === 3;
 
-    // High Impact 3D Magnetic Calculations for Central Title
     const tiltX = (cursorPos.x - 0.5) * -22;
     const tiltY = (cursorPos.y - 0.5) * 16;
 
-    // Split text into individual letters for real 3D assembly animation
     const titleTopChars = currentFrame.titleTop.split("");
     const titleMainChars = currentFrame.titleMain.split("");
 
@@ -502,13 +500,10 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
             onClick={() => { if (!isBgmStarted.current) attemptPlayAudio(); }}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none"
         >
-            {/* Audio Elements */}
             <audio ref={bgmRef} src={MR_AUDIO_SRC} loop preload="auto" />
             <audio ref={vocalRef} src={VOCAL_AUDIO_SRC} loop preload="auto" />
 
-            {/* ========================================================================= */}
             {/* 1. LAYER BEHIND BLUR: 100vh 7-Frame Visual Stack + Spatial UI */}
-            {/* ========================================================================= */}
             <div 
                 className="relative w-full h-full transition-all duration-700"
                 style={{
@@ -539,7 +534,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 
                 {/* Floating Spatial HUD & Real Letter-by-Letter Assembled Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-20 pb-8 px-4 sm:px-12 text-center z-20">
-                    {/* Live Lead Vocal Pulse Indicator (Ultra Minimal) */}
                     <div className="h-6 flex items-center justify-center">
                         {vocalVolumePercent > 5 && (
                             <motion.div 
@@ -567,7 +561,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                 style={{ transformPerspective: 1200, transformStyle: 'preserve-3d' }}
                                 className="flex flex-col items-center"
                             >
-                                {/* Top Line Stagger Assembly */}
                                 <h2 className="font-sans text-3xl sm:text-5xl md:text-6xl font-light tracking-tight text-white/90 uppercase leading-none mb-2 overflow-hidden flex justify-center flex-wrap">
                                     {titleTopChars.map((char, i) => (
                                         <motion.span
@@ -586,7 +579,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                                     ))}
                                 </h2>
 
-                                {/* Main Big Headline Stagger Assembly */}
                                 <h1 
                                     className="font-sans text-5xl sm:text-7xl md:text-8xl font-black tracking-tight text-white uppercase leading-none overflow-hidden flex justify-center flex-wrap"
                                     style={{
@@ -626,7 +618,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Interactive Area & Atelier Option Button */}
+                    {/* Bottom Interactive Area */}
                     <div className="pointer-events-auto flex flex-col items-center gap-3">
                         <AnimatePresence>
                             {isAtelierOptionVisible && (
@@ -653,7 +645,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                             </button>
                         )}
 
-                        {/* Progress Track */}
                         <div className="w-48 sm:w-80 h-1 bg-white/20 rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-[#E7FF00] transition-all duration-75"
@@ -664,9 +655,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 </div>
             </div>
 
-            {/* ========================================================================= */}
             {/* 2. LAYER ABOVE BLUR: ONLY PHONE VOLUME HUD WITH 1.5s BREATHING GLITTER LOCK */}
-            {/* ========================================================================= */}
             <AnimatePresence>
                 {isInitialBuffering && (
                     <motion.div
@@ -675,7 +664,6 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                         exit={{ opacity: 0, transition: { duration: 0.6 } }}
                         className="fixed inset-0 pointer-events-none z-50 flex items-center justify-end pr-5 sm:pr-10"
                     >
-                        {/* Floating Phone Volume Slider with 1.5s Breathing Pulse */}
                         <motion.div
                             initial={{ x: 40, opacity: 0 }}
                             animate={{ 
@@ -710,9 +698,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
                 )}
             </AnimatePresence>
 
-            {/* ========================================================================= */}
             {/* 3. BIG-TECH STYLE 'SWIPE UP' CINEMATIC GESTURE PROMPT */}
-            {/* ========================================================================= */}
             <AnimatePresence>
                 {showSwipeGuide && !isInitialBuffering && (
                     <motion.div
@@ -747,7 +733,7 @@ function FlipbookWalkingEngine({ cursorPos, onEnterMixer, onOpenAtelier }) {
 }
 
 // ==============================================================================
-// 2. FRANKFURT SOUND ATELIER & GUILD INTEL MODAL (360 Real-World Corporate Intel)
+// 2. FRANKFURT SOUND ATELIER & GUILD INTEL MODAL
 // ==============================================================================
 function FrankfurtAtelierModal({ onClose }) {
     return (
