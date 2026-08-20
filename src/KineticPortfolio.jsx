@@ -1156,30 +1156,81 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                         </span>
                     </div>
 
-                    {/* True 3D Assembled Typography */}
+                    {/* True 3D Assembled Typography (단어별 대화형 블룸 & 스크롤/파워 레벨 연동 속도) */}
                     <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={`assembled-title-${activeFrameIdx}`}
-                                initial={{ opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -15 }}
-                                transition={{ duration: 0.3 }}
+                                initial="hidden"
+                                animate="visible"
+                                exit={{ opacity: 0, y: -15, filter: "blur(6px)", transition: { duration: 0.2 } }}
+                                variants={{
+                                    hidden: { opacity: 0 },
+                                    visible: {
+                                        opacity: 1,
+                                        transition: {
+                                            staggerChildren: audioTier === 4 ? 0.05 : audioTier === 3 ? 0.12 : audioTier === 2 ? 0.22 : 0.36,
+                                            delayChildren: 0.04
+                                        }
+                                    }
+                                }}
                                 className="flex flex-col items-center text-center"
                             >
-                                <h2 className="font-sans text-xl sm:text-2xl font-light tracking-tight text-[#E7FF00] uppercase leading-none mb-2">
-                                    {currentFrame.titleTop}
+                                {/* SUBTITLE / TOP PHRASE (WORD BY WORD) */}
+                                <h2 className="font-sans text-xl sm:text-2xl font-light tracking-tight text-[#E7FF00] uppercase leading-none mb-2 flex flex-wrap items-center justify-center gap-x-2">
+                                    {currentFrame.titleTop.split(" ").map((word, wIdx) => (
+                                        <motion.span
+                                            key={`top-${wIdx}`}
+                                            variants={{
+                                                hidden: { opacity: 0, y: 12, filter: "blur(8px)", scale: 0.85 },
+                                                visible: { 
+                                                    opacity: 1, 
+                                                    y: 0, 
+                                                    filter: "blur(0px)", 
+                                                    scale: 1,
+                                                    transition: { 
+                                                        duration: audioTier === 4 ? 0.18 : audioTier === 3 ? 0.28 : audioTier === 2 ? 0.42 : 0.60,
+                                                        ease: [0.22, 1, 0.36, 1] 
+                                                    } 
+                                                }
+                                            }}
+                                            className="inline-block"
+                                        >
+                                            {word}
+                                        </motion.span>
+                                    ))}
                                 </h2>
 
+                                {/* MAIN TITLE / CONVERSATIONAL PHRASE (WORD BY WORD SPOKEN BLOOM) */}
                                 <h1 
-                                    className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs"
+                                    className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5"
                                     style={{
                                         textShadow: cursorPos.isHovered 
                                             ? `${tiltX * 0.5}px ${tiltY * 0.5}px 35px rgba(231,255,0,0.4)` 
                                             : '0 0 35px rgba(0,0,0,0.9)'
                                     }}
                                 >
-                                    {currentFrame.titleMain}
+                                    {currentFrame.titleMain.split(" ").map((word, wIdx) => (
+                                        <motion.span
+                                            key={`main-${wIdx}`}
+                                            variants={{
+                                                hidden: { opacity: 0, y: 18, filter: "blur(10px)", scale: 0.80 },
+                                                visible: { 
+                                                    opacity: 1, 
+                                                    y: 0, 
+                                                    filter: "blur(0px)", 
+                                                    scale: 1,
+                                                    transition: { 
+                                                        duration: audioTier === 4 ? 0.20 : audioTier === 3 ? 0.32 : audioTier === 2 ? 0.48 : 0.68,
+                                                        ease: [0.22, 1, 0.36, 1] 
+                                                    } 
+                                                }
+                                            }}
+                                            className="inline-block"
+                                        >
+                                            {word}
+                                        </motion.span>
+                                    ))}
                                 </h1>
                             </motion.div>
                         </AnimatePresence>
