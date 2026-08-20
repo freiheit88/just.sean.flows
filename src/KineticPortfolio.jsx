@@ -161,12 +161,54 @@ export default function App() {
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
     const [showAtelierModal, setShowAtelierModal] = useState(false);
 
-    // 3D Gyroscope & Mouse Parallax Orientation
+    // 3D Gyroscope & Mouse/Touch Parallax Orientation
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false });
     const [isScrollingUp, setIsScrollingUp] = useState(false);
     
+    // 4 Musical Trailing Nodes for Smooth Afterimages
+    const [trails, setTrails] = useState([
+        { x: -100, y: -100 },
+        { x: -100, y: -100 },
+        { x: -100, y: -100 },
+        { x: -100, y: -100 }
+    ]);
+    
+    const targetPos = useRef({ x: -100, y: -100 });
+    const currentTrails = useRef([
+        { x: -100, y: -100 },
+        { x: -100, y: -100 },
+        { x: -100, y: -100 },
+        { x: -100, y: -100 }
+    ]);
+    
     const spotlightRef = useRef(null);
+
+    // 60FPS SMOOTH TRAIL LERP LOOP
+    useEffect(() => {
+        let animId;
+        const lerpFactors = [0.32, 0.22, 0.16, 0.11]; // Different lag per trail node
+
+        const updateTrails = () => {
+            let prevX = targetPos.current.x;
+            let prevY = targetPos.current.y;
+
+            const updated = currentTrails.current.map((t, idx) => {
+                const factor = lerpFactors[idx];
+                t.x += (prevX - t.x) * factor;
+                t.y += (prevY - t.y) * factor;
+                prevX = t.x;
+                prevY = t.y;
+                return { x: t.x, y: t.y };
+            });
+
+            setTrails([...updated]);
+            animId = requestAnimationFrame(updateTrails);
+        };
+
+        animId = requestAnimationFrame(updateTrails);
+        return () => cancelAnimationFrame(animId);
+    }, []);
 
     const [stems, setStems] = useState({
         violin: 85, electric: 60, bass: 75, orchestra: 90
@@ -223,59 +265,121 @@ export default function App() {
         return () => window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
     }, []);
 
-    const handlePointerMove = (e) => {
-        const normX = (e.clientX / window.innerWidth - 0.5) * 2;
-        const normY = (e.clientY / window.innerHeight - 0.5) * 2;
+    const updatePointerPos = (clientX, clientY) => {
+        const normX = (clientX / window.innerWidth - 0.5) * 2;
+        const normY = (clientY / window.innerHeight - 0.5) * 2;
 
-        setCursorPos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight, rawX: e.clientX, rawY: e.clientY, isHovered: true });
+        targetPos.current = { x: clientX, y: clientY };
+        setCursorPos({ x: clientX / window.innerWidth, y: clientY / window.innerHeight, rawX: clientX, rawY: clientY, isHovered: true });
         setTilt({ x: normX, y: normY });
 
         if (spotlightRef.current) {
-            spotlightRef.current.style.transform = `translate3d(${e.clientX - 100}px, ${e.clientY - 100}px, 0)`;
+            // 240px cursor centered: -120px offset
+            spotlightRef.current.style.transform = `translate3d(${clientX - 120}px, ${clientY - 120}px, 0)`;
+        }
+    };
+
+    const handlePointerMove = (e) => {
+        updatePointerPos(e.clientX, e.clientY);
+    };
+
+    const handleTouchMoveUnified = (e) => {
+        if (e.touches && e.touches[0]) {
+            updatePointerPos(e.touches[0].clientX, e.touches[0].clientY);
         }
     };
 
     return (
         <div 
             onPointerMove={handlePointerMove}
+            onTouchMove={handleTouchMoveUnified}
+            onTouchStart={handleTouchMoveUnified}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0 flex items-center justify-center"
         >
-            {/* 1. DYNAMIC DOPAMINE FLASHLIGHT CURSOR (VIVID GLOW & PULSE ON UPWARD SCROLL) */}
+            {/* 1. UNIFIED MOBILE & PC GLOW CURSOR (20% LARGER + SOFTENED CORE + 4 MUSICAL AFTERIMAGES) */}
+            
+            {/* 4 TRAILING MUSICAL GLYPH AFTERIMAGES */}
+            {cursorPos.isHovered && trails.map((t, idx) => {
+                const scales = [0.85, 0.65, 0.48, 0.32];
+                const opacities = isScrollingUp ? [0.90, 0.75, 0.55, 0.38] : [0.65, 0.45, 0.28, 0.16];
+                const colors = ['#E7FF00', '#00F0FF', '#E7FF00', '#C5A059'];
+                
+                return (
+                    <div
+                        key={`trail-${idx}`}
+                        style={{
+                            transform: `translate3d(${t.x - 14}px, ${t.y - 14}px, 0) scale(${scales[idx]})`,
+                            opacity: opacities[idx],
+                            willChange: 'transform, opacity'
+                        }}
+                        className="fixed top-0 left-0 pointer-events-none z-50 transition-opacity duration-150 flex items-center justify-center"
+                    >
+                        {/* Trail 0: Beamed Notes ♫ */}
+                        {idx === 0 && (
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill={colors[0]} className="filter drop-shadow-[0_0_8px_#E7FF00]">
+                                <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                            </svg>
+                        )}
+                        {/* Trail 1: Eighth Note ♪ */}
+                        {idx === 1 && (
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill={colors[1]} className="filter drop-shadow-[0_0_8px_#00F0FF]">
+                                <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/>
+                            </svg>
+                        )}
+                        {/* Trail 2: Treble / Cadenza Symbol 𝄞 */}
+                        {idx === 2 && (
+                            <div className="font-serif font-black text-xl text-[#E7FF00] drop-shadow-[0_0_8px_#E7FF00]">
+                                𝄞
+                            </div>
+                        )}
+                        {/* Trail 3: Sharp & Fermata Dot ♯ */}
+                        {idx === 3 && (
+                            <div className="font-mono font-black text-base text-[#C5A059] drop-shadow-[0_0_6px_#C5A059]">
+                                ♯
+                            </div>
+                        )}
+                    </div>
+                );
+            })}
+
+            {/* MAIN FLASHLIGHT SPOTLIGHT (+20% SIZE: 240px / 312px on scroll) */}
             <div 
                 ref={spotlightRef}
                 style={{
                     willChange: 'transform',
                     opacity: cursorPos.isHovered ? 1 : 0
                 }}
-                className={`hidden md:block fixed top-0 left-0 rounded-full pointer-events-none z-50 transition-all duration-200 mix-blend-screen ${
+                className={`fixed top-0 left-0 rounded-full pointer-events-none z-50 transition-all duration-200 mix-blend-screen ${
                     isScrollingUp 
-                        ? 'w-[260px] h-[260px] -ml-[30px] -mt-[30px]' 
-                        : 'w-[200px] h-[200px]'
+                        ? 'w-[312px] h-[312px] -ml-[36px] -mt-[36px]' 
+                        : 'w-[240px] h-[240px]'
                 }`}
             >
-                {/* Outer Glow Wave */}
+                {/* Outer Glow Wave (20% Softer Brightness, Enhanced Rich Atmospheric Glow) */}
                 <div 
-                    className={`w-full h-full rounded-full transition-all duration-300 filter blur-md ${
+                    className={`w-full h-full rounded-full transition-all duration-300 filter blur-xl ${
                         isScrollingUp 
-                            ? 'bg-radial from-[#E7FF00]/40 via-[#00F0FF]/25 to-transparent scale-110' 
-                            : 'bg-radial from-[#E7FF00]/15 via-white/[0.04] to-transparent'
+                            ? 'bg-radial from-[#E7FF00]/30 via-[#00F0FF]/18 to-transparent scale-110' 
+                            : 'bg-radial from-[#E7FF00]/12 via-white/[0.03] to-transparent'
                     }`} 
                 />
 
-                {/* Center Core Spark */}
+                {/* Center Core Spark with Music Glyph */}
                 <div 
-                    className={`absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-200 ${
+                    className={`absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-200 flex items-center justify-center ${
                         isScrollingUp 
-                            ? 'w-4 h-4 bg-[#E7FF00] shadow-[0_0_25px_#E7FF00,0_0_45px_#00F0FF] scale-125' 
-                            : 'w-2 h-2 bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]'
+                            ? 'w-7 h-7 bg-[#E7FF00]/80 shadow-[0_0_25px_#E7FF00,0_0_40px_#00F0FF] scale-110' 
+                            : 'w-4 h-4 bg-[#E7FF00]/60 shadow-[0_0_14px_#E7FF00]'
                     }`} 
-                />
+                >
+                    <Music className={`w-3 h-3 text-black transition-transform ${isScrollingUp ? 'scale-125' : 'scale-90'}`} />
+                </div>
 
                 {/* Dynamic Upward Dopamine Kinetic Badge */}
                 {isScrollingUp && (
                     <motion.div 
                         initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                        animate={{ opacity: 1, y: -25, scale: 1 }}
+                        animate={{ opacity: 1, y: -30, scale: 1 }}
                         exit={{ opacity: 0 }}
                         className="absolute -top-4 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-black/90 border border-[#E7FF00] shadow-[0_0_15px_#E7FF00] flex items-center gap-1 font-mono text-[9px] font-black text-[#E7FF00] whitespace-nowrap tracking-wider"
                     >
