@@ -734,14 +734,14 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </motion.div>
                 ))}
 
-                {/* 2. PRECISE STAINED-GLASS SIGNBOARD CLICKABLE HOTSPOT (FRAME 4 & 5 / INDEX 3 & 4) */}
+                {/* 2. PERFECTLY ALIGNED STAINED-GLASS GOTHIC ARCH WITH DRAMATIC NEON SHIMMER (FRAME 4 & 5) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && isAudioUnlocked && (
                         <motion.div 
-                            initial={{ opacity: 0, scale: 0.95 }}
+                            initial={{ opacity: 0, scale: 0.92 }}
                             animate={{ opacity: 1, scale: 1.0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ duration: 0.35 }}
+                            exit={{ opacity: 0, scale: 0.92 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
                             className="absolute inset-0 z-30 pointer-events-none"
                         >
                             <motion.button
@@ -749,15 +749,33 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                     e.stopPropagation();
                                     onOpenAtelier();
                                 }}
-                                whileHover={{ scale: 1.04 }}
-                                whileTap={{ scale: 0.96 }}
-                                className="pointer-events-auto absolute top-[18%] md:top-[24%] left-1/2 -translate-x-1/2 w-[220px] sm:w-[260px] h-[125px] sm:h-[155px] rounded-t-[100px] rounded-b-2xl cursor-pointer group outline-none flex flex-col items-center justify-end pb-2.5"
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.97 }}
+                                className="pointer-events-auto absolute top-[10.5%] left-1/2 -translate-x-1/2 w-[240px] sm:w-[270px] h-[230px] sm:h-[260px] rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg cursor-pointer group outline-none flex flex-col items-center justify-end pb-3"
                             >
-                                <div className="absolute inset-0 rounded-t-[100px] rounded-b-2xl border-2 border-[#E7FF00]/60 group-hover:border-[#E7FF00] transition-all duration-300 shadow-[0_0_25px_rgba(231,255,0,0.35)] group-hover:shadow-[0_0_45px_rgba(231,255,0,0.85)] animate-pulse" />
-                                <div className="absolute inset-0 rounded-t-[100px] rounded-b-2xl bg-[#E7FF00]/[0.05] group-hover:bg-[#E7FF00]/[0.14] backdrop-blur-[1px] transition-colors duration-300" />
+                                {/* Exaggerated Multi-Layer Neon Arch Glow & Shimmer */}
+                                <div className="absolute inset-0 rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg border-2 border-[#E7FF00] group-hover:border-white transition-all duration-300 shadow-[0_0_35px_#E7FF00,0_0_70px_rgba(231,255,0,0.5),inset_0_0_30px_rgba(231,255,0,0.3)] group-hover:shadow-[0_0_60px_#E7FF00,0_0_100px_rgba(231,255,0,0.8),inset_0_0_40px_rgba(231,255,0,0.5)] animate-pulse" />
+                                
+                                {/* Inner Stained-Glass Ambient Amber/Cyan Wash */}
+                                <div className="absolute inset-0 rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg bg-gradient-to-b from-[#E7FF00]/20 via-[#00F0FF]/10 to-transparent group-hover:from-[#E7FF00]/30 transition-all duration-300 backdrop-blur-[1.5px]" />
 
-                                <div className="relative z-10 px-3 py-1 rounded-full bg-black/85 border border-[#E7FF00] shadow-[0_0_15px_#E7FF00] flex items-center gap-1.5 font-mono text-[9px] sm:text-[10px] font-black text-[#E7FF00] tracking-widest uppercase">
-                                    <Building2 className="w-3 h-3 text-[#E7FF00] animate-bounce" />
+                                {/* Diagonal Light Sweep / Shimmer */}
+                                <motion.div
+                                    animate={{
+                                        x: ['-120%', '160%'],
+                                        opacity: [0, 0.75, 0]
+                                    }}
+                                    transition={{
+                                        repeat: Infinity,
+                                        duration: 2.2,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-white/35 to-transparent -skew-x-12 pointer-events-none"
+                                />
+
+                                {/* High-Tech Floating Neon Callout Badge */}
+                                <div className="relative z-10 px-3.5 py-1.5 rounded-full bg-black/90 border-2 border-[#E7FF00] shadow-[0_0_20px_#E7FF00] flex items-center gap-2 font-mono text-[9.5px] sm:text-[11px] font-black text-[#E7FF00] tracking-widest uppercase transition-transform group-hover:scale-105">
+                                    <Building2 className="w-3.5 h-3.5 text-[#E7FF00] animate-bounce" />
                                     <span>⚜ J.S.F 간판 터치 (설립 정보)</span>
                                 </div>
                             </motion.button>
