@@ -753,7 +753,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         return () => clearInterval(volumeEngineInterval);
     }, [isAudioUnlocked, gracePeriodSec]);
 
-    // WALKING PACING TIMELINE (처음 3초간은 자동 흐름 일시 정지)
+    // WALKING PACING TIMELINE (체류 시간 2배 확장 & 처음 3초간 자동 흐름 일시 정지)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -763,7 +763,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
             setProgress((prev) => {
                 if (prev >= 100) return 100;
-                const next = Math.min(100, prev + 0.08);
+                const next = Math.min(100, prev + 0.04);
                 progressRef.current = next;
                 return next;
             });
@@ -772,7 +772,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         return () => clearInterval(interval);
     }, [isAudioUnlocked, gracePeriodSec]);
 
-    // PROGRESSIVE SCROLL & TOUCH ENGINE (상향 스크롤 감지 및 도파민 활성화)
+    // PROGRESSIVE SCROLL & TOUCH ENGINE (상향 스크롤 감지 및 도파민 활성화, 2배 체류 감도)
     useEffect(() => {
         const triggerDopamineScrollUp = () => {
             hasUserStartedScroll.current = true;
@@ -808,7 +808,8 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             currentPower.current = Math.min(100, currentPower.current + powerIncrement);
             lastScrollPumpTime.current = Date.now();
 
-            const clampedDelta = Math.min(rawDelta * 0.0045, 2.5);
+            // 체류 시간 2배 확장을 위해 진행도 증가량 절반으로 조정
+            const clampedDelta = Math.min(rawDelta * 0.00225, 1.25);
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
@@ -861,7 +862,8 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 currentPower.current = Math.min(100, currentPower.current + powerIncrement);
                 lastScrollPumpTime.current = now;
 
-                const strokeProgress = Math.min(deltaY * 0.022, 3.8);
+                // 체류 시간 2배 확장을 위해 터치 진행도 증가량 절반으로 조정
+                const strokeProgress = Math.min(deltaY * 0.011, 1.9);
                 setProgress((prev) => {
                     const next = Math.min(100, prev + strokeProgress);
                     progressRef.current = next;
@@ -982,20 +984,19 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
                 {/* 3. Floating Spatial HUD & Cleaned-up Signature Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
-                    {/* ULTRA-MINIMALIST POWER NUMBER DISPLAY */}
-                    <div className="flex flex-col items-center gap-1.5 pt-4">
-                        <button
-                            onClick={(e) => forceUnlockAudio(e)}
-                            className={`pointer-events-auto inline-flex items-center justify-center px-4 py-1 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl font-mono text-xs font-black tracking-widest transition-all ${
+                    {/* PURE TRANSLUCENT ETHEREAL POWER NUMBER */}
+                    <div className="flex flex-col items-center justify-center pt-2 select-none pointer-events-none">
+                        <span 
+                            className={`font-mono text-sm sm:text-base font-black tracking-[0.25em] transition-all duration-300 ${
                                 isTremblingAt8012 
-                                    ? 'border-[#FF0055] text-[#FF0055] animate-bounce shadow-[0_0_25px_#FF0055]' 
-                                    : 'border-white/20 hover:border-[#E7FF00] text-[#E7FF00]'
+                                    ? 'text-[#FF0055] animate-pulse drop-shadow-[0_0_20px_#FF0055] opacity-90' 
+                                    : isScrollingUp
+                                        ? 'text-[#E7FF00] drop-shadow-[0_0_15px_#E7FF00] opacity-80 scale-110'
+                                        : 'text-white/30 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] opacity-40'
                             }`}
                         >
-                            <span className="text-sm font-black tracking-wider">
-                                {livePowerStr}
-                            </span>
-                        </button>
+                            {livePowerStr}
+                        </span>
                     </div>
 
                     {/* True 3D Assembled Typography */}
