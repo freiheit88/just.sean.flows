@@ -768,26 +768,34 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </motion.div>
                 ))}
 
-                {/* 2. DIRECT CLICKABLE ATELIER DOOR ZONE (FRAME 3 & 4) */}
+                {/* 2. PRECISE STAINED-GLASS SIGNBOARD CLICKABLE HOTSPOT (FRAME 4 & 5 / INDEX 3 & 4) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && isAudioUnlocked && (
                         <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 z-25 flex items-center justify-center pointer-events-none"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1.0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.35 }}
+                            className="absolute inset-0 z-30 pointer-events-none"
                         >
                             <motion.button
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onOpenAtelier();
                                 }}
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.97 }}
-                                className="pointer-events-auto relative w-[200px] h-[360px] ml-[-20px] mt-[50px] rounded-2xl cursor-pointer group outline-none"
+                                whileHover={{ scale: 1.04 }}
+                                whileTap={{ scale: 0.96 }}
+                                className="pointer-events-auto absolute top-[24%] left-1/2 -translate-x-1/2 w-[230px] sm:w-[260px] h-[130px] sm:h-[155px] rounded-t-[100px] rounded-b-2xl cursor-pointer group outline-none flex flex-col items-center justify-end pb-2.5"
                             >
-                                <div className="absolute inset-0 rounded-2xl border-2 border-[#E7FF00]/40 group-hover:border-[#E7FF00] transition-all duration-300 shadow-[0_0_30px_rgba(231,255,0,0.25)] group-hover:shadow-[0_0_50px_rgba(231,255,0,0.7)]" />
-                                <div className="absolute inset-0 rounded-2xl bg-[#E7FF00]/[0.03] group-hover:bg-[#E7FF00]/[0.08] transition-colors duration-300" />
+                                {/* Stained-Glass Arch Neon Contour */}
+                                <div className="absolute inset-0 rounded-t-[100px] rounded-b-2xl border-2 border-[#E7FF00]/60 group-hover:border-[#E7FF00] transition-all duration-300 shadow-[0_0_25px_rgba(231,255,0,0.35)] group-hover:shadow-[0_0_45px_rgba(231,255,0,0.85)] animate-pulse" />
+                                <div className="absolute inset-0 rounded-t-[100px] rounded-b-2xl bg-[#E7FF00]/[0.05] group-hover:bg-[#E7FF00]/[0.14] backdrop-blur-[1px] transition-colors duration-300" />
+
+                                {/* Micro Neon Callout Badge */}
+                                <div className="relative z-10 px-3 py-1 rounded-full bg-black/85 border border-[#E7FF00] shadow-[0_0_15px_#E7FF00] flex items-center gap-1.5 font-mono text-[9px] sm:text-[10px] font-black text-[#E7FF00] tracking-widest uppercase">
+                                    <Building2 className="w-3 h-3 text-[#E7FF00] animate-bounce" />
+                                    <span>⚜ J.S.F 간판 터치 (설립 정보)</span>
+                                </div>
                             </motion.button>
                         </motion.div>
                     )}
