@@ -286,11 +286,11 @@ export default function App() {
             </div>
 
             {/* 2. REFINED SUBTLE GOLD/BLACK 3D HEADER */}
-            <header className="fixed top-0 left-0 right-0 z-40 px-6 py-6 flex items-center justify-center pointer-events-none">
+            <header className="fixed top-0 left-0 right-0 z-40 px-6 py-4 md:py-4 flex items-center justify-center pointer-events-none">
                 <div className="pointer-events-auto flex items-center justify-center gap-3 py-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_15px_#E7FF00] animate-pulse"></span>
                     <h1 
-                        className="font-mono font-black text-base sm:text-xl tracking-[0.38em] uppercase text-[#E7FF00] relative select-none"
+                        className="font-mono font-black text-base sm:text-lg tracking-[0.38em] uppercase text-[#E7FF00] relative select-none"
                         style={{
                             textShadow: '0 2px 0 #C5A059, 0 4px 0 #000000, 0 6px 18px rgba(231,255,0,0.65)'
                         }}
@@ -300,7 +300,7 @@ export default function App() {
                 </div>
             </header>
 
-            <main className="relative z-10 w-full h-full flex items-center justify-center">
+            <main className="relative z-10 w-full h-full flex items-center justify-center md:pt-10">
                 {currentStep === 'flipbook' && (
                     <FlipbookWalkingEngine 
                         tilt={tilt}
@@ -930,7 +930,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
             {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE (CLEAN 9:16 RESPONSIVE STAGE) */}
             <div 
-                className="relative w-full h-full md:w-[430px] md:h-[90vh] md:max-h-[920px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.15)] overflow-hidden transition-all duration-700 bg-black"
+                className="relative w-full h-full md:w-[410px] md:h-[82vh] md:max-h-[820px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.15)] overflow-hidden transition-all duration-700 bg-black"
                 style={{
                     filter: !isAudioUnlocked ? 'blur(20px) brightness(40%)' : 'none'
                 }}
