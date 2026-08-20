@@ -4,7 +4,7 @@ import {
     Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
     Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity,
-    Key, Lock, Tag, Ticket, Shield
+    Key, Lock, Tag, Ticket, Shield, Sparkles, ChevronUp
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
@@ -20,7 +20,7 @@ const STEM_SRCS = {
     vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
 };
 
-// Full 7-Step Flipbook Story Timeline (100% Logo No. 65 Wine × Treble Atelier Collection)
+// Full 7-Step 1st-Person Walkthrough Story Sequence (100% Architecture & Lighting Consistency)
 const FRAMES = [
     { 
         id: 0, 
@@ -164,6 +164,7 @@ export default function App() {
     // 3D Gyroscope & Mouse Parallax Orientation
     const [tilt, setTilt] = useState({ x: 0, y: 0 });
     const [cursorPos, setCursorPos] = useState({ x: 0.5, y: 0.5, rawX: -100, rawY: -100, isHovered: false });
+    const [isScrollingUp, setIsScrollingUp] = useState(false);
     
     const spotlightRef = useRef(null);
 
@@ -239,20 +240,52 @@ export default function App() {
             onPointerMove={handlePointerMove}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0 flex items-center justify-center"
         >
-            {/* 1. MINIMALIST NIGHT ALLEY FLASHLIGHT SPOTLIGHT CURSOR */}
+            {/* 1. DYNAMIC DOPAMINE FLASHLIGHT CURSOR (VIVID GLOW & PULSE ON UPWARD SCROLL) */}
             <div 
                 ref={spotlightRef}
                 style={{
                     willChange: 'transform',
                     opacity: cursorPos.isHovered ? 1 : 0
                 }}
-                className="hidden md:block fixed top-0 left-0 w-[200px] h-[200px] rounded-full pointer-events-none z-50 transition-opacity duration-300 mix-blend-screen"
+                className={`hidden md:block fixed top-0 left-0 rounded-full pointer-events-none z-50 transition-all duration-200 mix-blend-screen ${
+                    isScrollingUp 
+                        ? 'w-[260px] h-[260px] -ml-[30px] -mt-[30px]' 
+                        : 'w-[200px] h-[200px]'
+                }`}
             >
-                <div className="w-full h-full rounded-full bg-radial from-[#E7FF00]/15 via-white/[0.04] to-transparent filter blur-md" />
-                <div className="absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]" />
+                {/* Outer Glow Wave */}
+                <div 
+                    className={`w-full h-full rounded-full transition-all duration-300 filter blur-md ${
+                        isScrollingUp 
+                            ? 'bg-radial from-[#E7FF00]/40 via-[#00F0FF]/25 to-transparent scale-110' 
+                            : 'bg-radial from-[#E7FF00]/15 via-white/[0.04] to-transparent'
+                    }`} 
+                />
+
+                {/* Center Core Spark */}
+                <div 
+                    className={`absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-200 ${
+                        isScrollingUp 
+                            ? 'w-4 h-4 bg-[#E7FF00] shadow-[0_0_25px_#E7FF00,0_0_45px_#00F0FF] scale-125' 
+                            : 'w-2 h-2 bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]'
+                    }`} 
+                />
+
+                {/* Dynamic Upward Dopamine Kinetic Badge */}
+                {isScrollingUp && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                        animate={{ opacity: 1, y: -25, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute -top-4 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-black/90 border border-[#E7FF00] shadow-[0_0_15px_#E7FF00] flex items-center gap-1 font-mono text-[9px] font-black text-[#E7FF00] whitespace-nowrap tracking-wider"
+                    >
+                        <ChevronUp className="w-3 h-3 animate-bounce" />
+                        <span>WALK FORWARD</span>
+                    </motion.div>
+                )}
             </div>
 
-            {/* 2. REFINED SUBTLE GOLD/BLACK 3D HEADER (NO HEAVY GLITCH OVERKILL!) */}
+            {/* 2. REFINED SUBTLE GOLD/BLACK 3D HEADER */}
             <header className="fixed top-0 left-0 right-0 z-40 px-6 py-6 flex items-center justify-center pointer-events-none">
                 <div className="pointer-events-auto flex items-center justify-center gap-3 py-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_15px_#E7FF00] animate-pulse"></span>
@@ -272,6 +305,8 @@ export default function App() {
                     <FlipbookWalkingEngine 
                         tilt={tilt}
                         cursorPos={cursorPos}
+                        isScrollingUp={isScrollingUp}
+                        setIsScrollingUp={setIsScrollingUp}
                         onEnterMixer={() => setCurrentStep('mixer_ending')} 
                         onOpenAtelier={() => setShowAtelierModal(true)}
                     />
@@ -312,14 +347,18 @@ export default function App() {
 }
 
 // ==============================================================================
-// PRE-LOADED SPLASH STATE WITH FOOTSTEP OFF-SWITCH AFTER LEVEL 1 (TIER 2+)
+// 1인칭 보행 엔진 (초기 3초 탐색 일시정지 + 상향 스크롤 도파민 연출)
 // ==============================================================================
-function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier }) {
+function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingUp, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     
     // Initial Audio Unlock & Blur Overlay State
     const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
+
+    // Initial 3-Second Exploration Grace Period (자동 진행 일시 정지)
+    const [gracePeriodSec, setGracePeriodSec] = useState(3);
+    const hasUserStartedScroll = useRef(false);
 
     // Live Dev Kinetics Power Meter State (Raw Number Only, No % Sign!)
     const [livePowerStr, setLivePowerStr] = useState("0");
@@ -345,6 +384,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     const touchStartTime = useRef(0);
 
     const progressRef = useRef(0);
+    const scrollUpTimerRef = useRef(null);
 
     // Power Reservoir & Level Floor
     const currentPower = useRef(0);
@@ -354,6 +394,23 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     // 80.12% Trembling Hold Ref
     const tremblingStartTime = useRef(0);
     const isHoldingAt8012 = useRef(false);
+
+    // 3-SECOND INITIAL EXPLORATION COUNTDOWN
+    useEffect(() => {
+        if (!isAudioUnlocked) return;
+
+        const graceTimer = setInterval(() => {
+            setGracePeriodSec((prev) => {
+                if (prev <= 1) {
+                    clearInterval(graceTimer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(graceTimer);
+    }, [isAudioUnlocked]);
 
     // PAGE-LEVEL BACKGROUND AUDIO PAUSE SAFEGUARD
     useEffect(() => {
@@ -542,7 +599,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
             }
         }
 
-        const masterTime = (guitarRef.current && guitarRef.current.currentTime) ? guitarRef.current.currentTime : 0;
         const otherRefs = [bassRef, drumsRef, percRef, synthRef, vocalRef];
 
         otherRefs.forEach((r) => {
@@ -572,7 +628,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         };
     }, []);
 
-    // REAL-TIME VOLUME DECAY & GUITAR-FIRST STEM UNMUTE ENGINE (FROZEN UNTIL UNLOCKED!)
+    // REAL-TIME VOLUME DECAY & GUITAR-FIRST STEM UNMUTE ENGINE
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -580,7 +636,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
             const now = Date.now();
             const timeSinceScroll = now - lastScrollPumpTime.current;
 
-            if (timeSinceScroll > 180) {
+            // 3초 탐색 기간 동안에는 파워 감소 일시정지
+            const isGraceActive = (gracePeriodSec > 0 && !hasUserStartedScroll.current);
+
+            if (timeSinceScroll > 180 && !isGraceActive) {
                 const minFloor = unlockedLevelFloor.current;
 
                 if (currentPower.current > 80 && currentPower.current <= 81.5) {
@@ -692,13 +751,16 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         }, 50);
 
         return () => clearInterval(volumeEngineInterval);
-    }, [isAudioUnlocked]);
+    }, [isAudioUnlocked, gracePeriodSec]);
 
-    // 5-SECOND EXTENDED WALKING PACING TIMELINE (FROZEN UNTIL UNLOCKED!)
+    // WALKING PACING TIMELINE (처음 3초간은 자동 흐름 일시 정지)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
         const interval = setInterval(() => {
+            // 3초 탐색 기간 동안에는 자동 흐름 일시 정지
+            if (gracePeriodSec > 0 && !hasUserStartedScroll.current) return;
+
             setProgress((prev) => {
                 if (prev >= 100) return 100;
                 const next = Math.min(100, prev + 0.08);
@@ -708,10 +770,19 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
         }, 50);
 
         return () => clearInterval(interval);
-    }, [isAudioUnlocked]);
+    }, [isAudioUnlocked, gracePeriodSec]);
 
-    // PROGRESSIVE SCROLL & TOUCH ENGINE WITH EASY SENSITIVITY & CLEAN FOOTSTEP RATE LIMITING
+    // PROGRESSIVE SCROLL & TOUCH ENGINE (상향 스크롤 감지 및 도파민 활성화)
     useEffect(() => {
+        const triggerDopamineScrollUp = () => {
+            hasUserStartedScroll.current = true;
+            setIsScrollingUp(true);
+            if (scrollUpTimerRef.current) clearTimeout(scrollUpTimerRef.current);
+            scrollUpTimerRef.current = setTimeout(() => {
+                setIsScrollingUp(false);
+            }, 400);
+        };
+
         const handleWheel = (e) => {
             const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
             if (!isScrollableChild && e.cancelable && window.scrollY === 0 && e.deltaY < 0) {
@@ -720,7 +791,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
             forceUnlockAudio(e);
             if (!isAudioUnlocked) return;
 
-            if (e.deltaY <= 0) return;
+            // 오직 밑에서 위로(화면 전진 방향) 스크롤할 때만 도파민 활성화!
+            if (e.deltaY > 0) {
+                triggerDopamineScrollUp();
+            } else {
+                return;
+            }
 
             const rawDelta = e.deltaY;
             const cPower = currentPower.current;
@@ -770,7 +846,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
             const now = Date.now();
             const timeDiff = Math.max(16, now - touchStartTime.current);
 
+            // 오직 위로 스와이프(전진)할 때만 도파민 활성화!
             if (deltaY > 0) {
+                triggerDopamineScrollUp();
+
                 const velocity = deltaY / timeDiff;
 
                 const cPower = currentPower.current;
@@ -810,6 +889,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
             window.removeEventListener('touchstart', handleTouchStart);
             window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
+            if (scrollUpTimerRef.current) clearTimeout(scrollUpTimerRef.current);
         };
     }, [isAudioUnlocked]);
 
@@ -819,9 +899,9 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
     }, [progress]);
 
     const currentFrame = FRAMES[activeFrameIdx] || FRAMES[0];
-    const isAtelierOptionVisible = (activeFrameIdx === 1 || activeFrameIdx === 3);
+    const isAtelierOptionVisible = (activeFrameIdx === 3 || activeFrameIdx === 4);
 
-    // 3X AMPLIFIED 3D GYRO TILT & RGB CHROMATIC SHIFT (100% UNMISSABLE & LOUD)
+    // 3D GYRO TILT
     const tiltX = tilt.x * 55;
     const tiltY = tilt.y * 45;
 
@@ -875,7 +955,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                     </motion.div>
                 ))}
 
-                {/* 2. DIRECT CLICKABLE ATELIER DOOR ZONE (FRAME 1 & 3) */}
+                {/* 2. DIRECT CLICKABLE ATELIER DOOR ZONE (FRAME 3 & 4) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && isAudioUnlocked && (
                         <motion.div 
@@ -918,7 +998,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         </button>
                     </div>
 
-                    {/* True 3D Assembled Typography (NO DUPLICATE BOTTOM PILL!) */}
+                    {/* True 3D Assembled Typography */}
                     <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -947,11 +1027,15 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                         </AnimatePresence>
                     </div>
 
-                    {/* Bottom Progress Track */}
+                    {/* Bottom Progress Track with Dynamic Dopamine Glow */}
                     <div className="pointer-events-auto flex flex-col items-center gap-2.5">
-                        <div className="w-40 sm:w-60 h-1 bg-white/20 rounded-full overflow-hidden">
+                        <div className={`w-40 sm:w-60 h-1 bg-white/20 rounded-full overflow-hidden transition-all duration-300 ${
+                            isScrollingUp ? 'ring-2 ring-[#E7FF00] shadow-[0_0_15px_#E7FF00]' : ''
+                        }`}>
                             <div
-                                className="h-full bg-[#E7FF00] transition-all duration-75"
+                                className={`h-full bg-[#E7FF00] transition-all duration-75 ${
+                                    isScrollingUp ? 'shadow-[0_0_10px_#E7FF00]' : ''
+                                }`}
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
@@ -959,7 +1043,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 </div>
             </div>
 
-            {/* 2. INITIAL UNLOCK SPLASH: 100 DEBRIS + DARK FILTER/BLUR + 3X LOUD 3D RGB SHIFT */}
+            {/* 2. INITIAL UNLOCK SPLASH */}
             <AnimatePresence>
                 {!isAudioUnlocked && (
                     <motion.div
@@ -1017,7 +1101,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                                         }}
                                         className="absolute select-none flex items-center justify-center pointer-events-none"
                                     >
-                                        {/* 7 CLEAN SHAPE CATEGORIES */}
                                         {item.shapeCategory === 0 && (
                                             <div 
                                                 className={`${item.fontFamily} ${item.sizeClass} tracking-wider`}
@@ -1085,7 +1168,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER WITH 3X LOUD 65PX RGB SHIFT (Z-20) */}
+                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -1150,19 +1233,24 @@ function FlipbookWalkingEngine({ tilt, cursorPos, onEnterMixer, onOpenAtelier })
                 )}
             </AnimatePresence>
 
-            {/* 4. ULTRA-CHIC RISING AURORA LIGHT WAVE */}
+            {/* 4. ULTRA-CHIC RISING AURORA LIGHT WAVE (상향 스크롤 시 극적인 네온 파동 분출) */}
             <div className="fixed inset-x-0 bottom-0 h-48 pointer-events-none z-30 overflow-hidden">
                 <motion.div
                     animate={{
-                        y: ['100%', '-80%'],
-                        opacity: [0, 0.6, 0]
+                        y: isScrollingUp ? ['100%', '-120%'] : ['100%', '-80%'],
+                        opacity: isScrollingUp ? [0, 0.9, 0] : [0, 0.4, 0],
+                        scaleY: isScrollingUp ? 1.6 : 1.0
                     }}
                     transition={{
                         repeat: Infinity,
-                        duration: 3.2,
+                        duration: isScrollingUp ? 1.6 : 3.2,
                         ease: [0.25, 0.1, 0.25, 1.0]
                     }}
-                    className="w-full h-24 bg-gradient-to-t from-[#E7FF00]/0 via-[#E7FF00]/15 to-[#E7FF00]/0 blur-xl"
+                    className={`w-full h-28 blur-xl transition-all duration-300 ${
+                        isScrollingUp 
+                            ? 'bg-gradient-to-t from-[#E7FF00]/0 via-[#E7FF00]/35 to-[#00F0FF]/20' 
+                            : 'bg-gradient-to-t from-[#E7FF00]/0 via-[#E7FF00]/15 to-[#E7FF00]/0'
+                    }`}
                 />
             </div>
         </div>
