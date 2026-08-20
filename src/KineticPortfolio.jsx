@@ -707,9 +707,9 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             {/* SINGLE PURE HIGH-QUALITY MR AUDIO ELEMENT */}
             <audio ref={mrAudioRef} src={MR_AUDIO_SRC} loop playsInline preload="auto" />
 
-            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE (모바일 100% 무손실 1:1 원본 비율 보존) */}
+            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE (모바일 100% 풀스크린 엣지-투-엣지 몰입감) */}
             <div 
-                className="relative w-[92vw] max-w-[420px] aspect-square md:aspect-auto md:w-[410px] md:h-[82vh] md:max-h-[820px] rounded-[32px] md:rounded-[36px] border-2 border-white/20 shadow-[0_0_70px_rgba(0,0,0,0.95)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between"
+                className="relative w-full h-full md:w-[410px] md:h-[82vh] md:max-h-[820px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.2)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between"
                 style={{
                     filter: !isAudioUnlocked ? 'blur(20px) brightness(40%)' : 'none'
                 }}
@@ -751,7 +751,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 }}
                                 whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.97 }}
-                                className="pointer-events-auto absolute top-[10.5%] left-1/2 -translate-x-1/2 w-[240px] sm:w-[270px] h-[230px] sm:h-[260px] rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg cursor-pointer group outline-none flex flex-col items-center justify-end pb-3"
+                                className="pointer-events-auto absolute top-[11%] left-1/2 -translate-x-1/2 w-[240px] sm:w-[270px] h-[220px] sm:h-[250px] rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg cursor-pointer group outline-none flex flex-col items-center justify-end pb-3"
                             >
                                 {/* Exaggerated Multi-Layer Neon Arch Glow & Shimmer */}
                                 <div className="absolute inset-0 rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg border-2 border-[#E7FF00] group-hover:border-white transition-all duration-300 shadow-[0_0_35px_#E7FF00,0_0_70px_rgba(231,255,0,0.5),inset_0_0_30px_rgba(231,255,0,0.3)] group-hover:shadow-[0_0_60px_#E7FF00,0_0_100px_rgba(231,255,0,0.8),inset_0_0_40px_rgba(231,255,0,0.5)] animate-pulse" />
