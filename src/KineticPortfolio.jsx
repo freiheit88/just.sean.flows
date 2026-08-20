@@ -10,10 +10,10 @@ import {
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
 const ATELIER_IMG = "/assets/frankfurt_sound_atelier.jpg";
 
-// Single Master High-Fidelity Audio Track (Zero Sync Issues)
-const MASTER_AUDIO_SRC = "/assets/manual_upload/A%20Twelve-minute%20Alibi_classic/J_SEAN_F_Capriccio_in_A_minor_Op1_FINAL_MASTER.wav";
+// Single Dedicated Pure MR Audio Track (Zero Distortion, Zero Sync Lag)
+const MR_AUDIO_SRC = "/assets/a_twelve_minute_alibi_mr.wav";
 
-// Full 7-Step 1st-Person Walkthrough Story Sequence (100% Architecture & Lighting Consistency)
+// Full 7-Step 1st-Person Walkthrough Story Sequence
 const FRAMES = [
     { 
         id: 0, 
@@ -433,35 +433,27 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1인칭 보행 엔진 (단일 마스터 음원 3D DSP + 5배 대형 중앙 파워 & 발자국)
+// 1인칭 보행 엔진 (단독 A Twelve-minute Alibi MR 전용 + 완전 분리된 독립 스크롤 엔진)
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingUp, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     
-    // Initial Audio Unlock & Blur Overlay State
+    // Audio Unlock State
     const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
 
     // Initial 3-Second Exploration Grace Period
     const [gracePeriodSec, setGracePeriodSec] = useState(3);
     const hasUserStartedScroll = useRef(false);
 
-    // Live Dev Kinetics Power Meter State
+    // Live Power State (Pure UI Value)
     const [livePowerStr, setLivePowerStr] = useState("0");
     const [isTremblingAt8012, setIsTremblingAt8012] = useState(false);
-
     const [audioTier, setAudioTier] = useState(1);
 
-    // SINGLE MASTER AUDIO GRAPH REFS
-    const audioCtxRef = useRef(null);
-    const masterAudioRef = useRef(null);
-    const lowpassFilterRef = useRef(null);
-    const stereoPannerRef = useRef(null);
-    const masterGainRef = useRef(null);
+    // SINGLE PURE MR AUDIO ELEMENT REF
+    const mrAudioRef = useRef(null);
 
-    // Dynamic Footstep Timestamp Guard & Alternating Foot State
-    const lastFootstepTimeRef = useRef(0);
-    const isLeftFootRef = useRef(true);
     const touchStartY = useRef(0);
     const touchStartTime = useRef(0);
 
@@ -494,192 +486,47 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         return () => clearInterval(graceTimer);
     }, [isAudioUnlocked]);
 
-    // PAGE-LEVEL BACKGROUND AUDIO PAUSE SAFEGUARD
+    // PAGE VISIBILITY: PAUSE/RESUME SINGLE MR AUDIO CLEANLY
     useEffect(() => {
-        const pauseAudioSafeguard = () => {
-            if (masterAudioRef.current && !masterAudioRef.current.paused) {
-                try { masterAudioRef.current.pause(); } catch(e) {}
-            }
-            if (audioCtxRef.current && audioCtxRef.current.state === 'running') {
-                try { audioCtxRef.current.suspend(); } catch(e) {}
-            }
-        };
-
-        const resumeAudioIfUnlocked = () => {
-            if (isAudioUnlocked) {
-                if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
-                    try { audioCtxRef.current.resume(); } catch(e) {}
-                }
-                if (masterAudioRef.current && masterAudioRef.current.paused) {
-                    try { masterAudioRef.current.play().catch(() => {}); } catch(e) {}
-                }
-            }
-        };
-
         const handleVisibilityChange = () => {
-            if (document.hidden) pauseAudioSafeguard();
-            else resumeAudioIfUnlocked();
+            if (document.hidden) {
+                if (mrAudioRef.current && !mrAudioRef.current.paused) {
+                    try { mrAudioRef.current.pause(); } catch(e) {}
+                }
+            } else {
+                if (isAudioUnlocked && mrAudioRef.current && mrAudioRef.current.paused) {
+                    try { mrAudioRef.current.play().catch(() => {}); } catch(e) {}
+                }
+            }
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('pagehide', pauseAudioSafeguard);
-        window.addEventListener('blur', pauseAudioSafeguard);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('pagehide', pauseAudioSafeguard);
-            window.removeEventListener('blur', pauseAudioSafeguard);
-        };
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [isAudioUnlocked]);
 
-    // UNIFIED WEB AUDIO FOOTSTEP SYNTHESIZER
-    const playSingleFootstepSound = () => {
-        try {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (!AudioCtx) return;
-
-            if (!audioCtxRef.current) audioCtxRef.current = new AudioCtx();
-            const ctx = audioCtxRef.current;
-            if (ctx.state === 'suspended') ctx.resume();
-
-            const isLeft = isLeftFootRef.current;
-            isLeftFootRef.current = !isLeft;
-
-            const osc = ctx.createOscillator();
-            const oscGain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(isLeft ? 165 : 190, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(75, ctx.currentTime + 0.05);
-
-            oscGain.gain.setValueAtTime(0.12, ctx.currentTime);
-            oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-
-            const bufferSize = Math.floor(ctx.sampleRate * 0.05);
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.01));
-            }
-
-            const noise = ctx.createBufferSource();
-            noise.buffer = buffer;
-
-            const noiseFilter = ctx.createBiquadFilter();
-            noiseFilter.type = 'bandpass';
-            noiseFilter.frequency.value = isLeft ? 1400 : 1600;
-            noiseFilter.Q.value = 2.4;
-
-            const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.18, ctx.currentTime);
-            noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-
-            const mainGain = ctx.createGain();
-            mainGain.gain.value = 0.95;
-
-            osc.connect(oscGain);
-            noise.connect(noiseFilter);
-            noiseFilter.connect(noiseGain);
-
-            oscGain.connect(mainGain);
-            noiseGain.connect(mainGain);
-
-            mainGain.connect(ctx.destination);
-
-            osc.start(); noise.start();
-            osc.stop(ctx.currentTime + 0.06);
-            noise.stop(ctx.currentTime + 0.06);
-        } catch (e) {}
-    };
-
-    const MIN_FOOTSTEP_INTERVAL_MS = 280;
-
-    const triggerCleanFootstep = (speedVelocity = 1) => {
-        if (currentPower.current >= 20 || audioTier > 1) return;
-
-        const now = Date.now();
-        const dynamicInterval = Math.max(MIN_FOOTSTEP_INTERVAL_MS, 750 - Math.min(speedVelocity * 80, 480));
-        
-        if (now - lastFootstepTimeRef.current >= dynamicInterval) {
-            lastFootstepTimeRef.current = now;
-            playSingleFootstepSound();
-        }
-    };
-
-    // SETUP UNIFIED SINGLE MASTER AUDIO DSP GRAPH
-    const setupSingleMasterAudioGraph = (ctx) => {
-        if (lowpassFilterRef.current || !masterAudioRef.current) return;
-
-        try {
-            const sourceNode = ctx.createMediaElementSource(masterAudioRef.current);
-            
-            // 1. Distance Low-pass Filter (거리감에 따른 먹먹함 -> 청량함 스위프)
-            const lowpass = ctx.createBiquadFilter();
-            lowpass.type = 'lowpass';
-            lowpass.frequency.value = 400; // 출발 지점: 벽 너머로 은은하게 들리는 먹먹한 튜닝 소리
-            lowpass.Q.value = 1.0;
-            lowpassFilterRef.current = lowpass;
-
-            // 2. 3D Spatial Stereo Panner (자이로/마우스 좌우 틸트 반응)
-            let panner = null;
-            if (ctx.createStereoPanner) {
-                panner = ctx.createStereoPanner();
-                panner.pan.value = 0;
-                stereoPannerRef.current = panner;
-            }
-
-            // 3. Dynamic Distance & Power Master Gain
-            const gain = ctx.createGain();
-            gain.gain.value = 0.25;
-            masterGainRef.current = gain;
-
-            // Connect DSP Chain: Source -> Lowpass -> (Panner) -> Gain -> Destination
-            if (panner) {
-                sourceNode.connect(lowpass);
-                lowpass.connect(panner);
-                panner.connect(gain);
-            } else {
-                sourceNode.connect(lowpass);
-                lowpass.connect(gain);
-            }
-            gain.connect(ctx.destination);
-
-        } catch (e) {}
-    };
-
-    // GUARANTEED INSTANT SOUND UNLOCKER
+    // GUARANTEED INSTANT AUDIO UNLOCKER (CLEAN MR AUDIO ONLY)
     const forceUnlockAudio = (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
 
         if (!isAudioUnlocked) {
             setIsAudioUnlocked(true);
-            triggerCleanFootstep(1.5);
         }
 
-        try {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (AudioCtx) {
-                if (!audioCtxRef.current) audioCtxRef.current = new AudioCtx();
-                const ctx = audioCtxRef.current;
-                if (ctx.state === 'suspended') ctx.resume();
-
-                setupSingleMasterAudioGraph(ctx);
-            }
-        } catch (err) {}
-
-        if (masterAudioRef.current) {
-            masterAudioRef.current.muted = false;
-            masterAudioRef.current.playsInline = true;
-            if (masterAudioRef.current.paused) {
-                masterAudioRef.current.play().catch(() => {});
+        if (mrAudioRef.current) {
+            mrAudioRef.current.muted = false;
+            mrAudioRef.current.playsInline = true;
+            mrAudioRef.current.volume = 0.85; // Clean, pure constant volume
+            if (mrAudioRef.current.paused) {
+                mrAudioRef.current.play().catch(() => {});
             }
         }
     };
 
-    // REAL-TIME 3D SPATIAL DSP & POWER ENGINE
+    // INDEPENDENT KINETIC POWER & TIER ENGINE (음원과 완전 분리된 순수 UI 로직)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
-        const volumeEngineInterval = setInterval(() => {
+        const powerInterval = setInterval(() => {
             const now = Date.now();
             const timeSinceScroll = now - lastScrollPumpTime.current;
             const isGraceActive = (gracePeriodSec > 0 && !hasUserStartedScroll.current);
@@ -726,37 +573,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             else tier = 1;
 
             setAudioTier(tier);
-
-            // REAL-TIME DSP PARAMETER UPDATES:
-            const curProg = progressRef.current;
-            const progRatio = curProg / 100;
-
-            // 1. Cutoff frequency: 400Hz (far) -> 20,000Hz (at the door)
-            if (lowpassFilterRef.current && audioCtxRef.current) {
-                const targetCutoff = 400 + Math.pow(progRatio, 1.8) * 19600;
-                lowpassFilterRef.current.frequency.setTargetAtTime(targetCutoff, audioCtxRef.current.currentTime, 0.1);
-            }
-
-            // 2. 3D Stereo Pan based on Gyro/Mouse Tilt X
-            if (stereoPannerRef.current && audioCtxRef.current) {
-                const panVal = Math.max(-0.6, Math.min(0.6, tilt.x * 0.45));
-                stereoPannerRef.current.pan.setTargetAtTime(panVal, audioCtxRef.current.currentTime, 0.1);
-            }
-
-            // 3. Dynamic Distance Volume & Power Swell
-            if (masterGainRef.current && audioCtxRef.current) {
-                const baseDistGain = 0.20 + Math.pow(progRatio, 1.6) * 0.75;
-                const powerBoost = 0.85 + (rawPower / 100) * 0.35;
-                const finalGain = Math.min(1.0, baseDistGain * powerBoost);
-                masterGainRef.current.gain.setTargetAtTime(finalGain, audioCtxRef.current.currentTime, 0.1);
-            }
-
         }, 50);
 
-        return () => clearInterval(volumeEngineInterval);
-    }, [isAudioUnlocked, gracePeriodSec, tilt]);
+        return () => clearInterval(powerInterval);
+    }, [isAudioUnlocked, gracePeriodSec]);
 
-    // WALKING PACING TIMELINE (체류 시간 2배 확장)
+    // WALKING PACING TIMELINE (2배 체류 시간)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -774,7 +596,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         return () => clearInterval(interval);
     }, [isAudioUnlocked, gracePeriodSec]);
 
-    // PROGRESSIVE SCROLL & TOUCH ENGINE (2배 체류 감도 & 상향 스크롤 도파민)
+    // INDEPENDENT SCROLL & TOUCH ENGINE (순수 시각 진행 & 도파민 피드백)
     useEffect(() => {
         const triggerDopamineScrollUp = () => {
             hasUserStartedScroll.current = true;
@@ -815,8 +637,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 progressRef.current = next;
                 return next;
             });
-
-            triggerCleanFootstep(rawDelta * 0.02);
         };
 
         const handleTouchStart = (e) => {
@@ -867,8 +687,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     progressRef.current = next;
                     return next;
                 });
-
-                triggerCleanFootstep(velocity * 2.2);
             }
 
             touchStartY.current = currentY;
@@ -920,8 +738,8 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 style={{ backgroundImage: `url(${currentFrame.src})` }}
             />
 
-            {/* SINGLE HIGH-FIDELITY MASTER AUDIO ELEMENT */}
-            <audio ref={masterAudioRef} src={MASTER_AUDIO_SRC} loop playsInline preload="auto" />
+            {/* SINGLE PURE HIGH-QUALITY MR AUDIO ELEMENT */}
+            <audio ref={mrAudioRef} src={MR_AUDIO_SRC} loop playsInline preload="auto" />
 
             {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE */}
             <div 
@@ -1039,12 +857,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                             transform: `perspective(600px) translate3d(${tiltX * 0.3}px, ${tiltY * 0.3}px, 0)`
                         }}
                     >
-                        {/* Custom Glowing Footprints Icon */}
                         <Footprints className={`w-10 h-10 sm:w-14 sm:h-14 transition-transform duration-200 ${
                             isScrollingUp ? 'scale-125 animate-bounce' : 'scale-100'
                         }`} />
 
-                        {/* 5X Massive Center Number */}
                         <span className="font-mono text-6xl sm:text-8xl font-black tracking-tight leading-none">
                             {livePowerStr}
                         </span>
