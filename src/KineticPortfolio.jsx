@@ -982,6 +982,59 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     )}
                 </AnimatePresence>
 
+                                {/* 2.5 NARROW AUDIO-REACTIVE KINETIC SONIC BEAM (상단 레이어 z-25, 좁고 세련된 음악 매칭 빔) */}
+                <div className="absolute inset-x-0 bottom-0 h-64 pointer-events-none z-25 flex flex-col items-center justify-end overflow-hidden">
+                    <AnimatePresence>
+                        {isScrollingUp && (
+                            <motion.div
+                                initial={{ opacity: 0, scaleY: 0.2, y: 40 }}
+                                animate={{ opacity: 1, scaleY: 1.0, y: 0 }}
+                                exit={{ opacity: 0, scaleY: 0.4, y: 20 }}
+                                transition={{ duration: 0.25, ease: "easeOut" }}
+                                className="relative w-40 sm:w-52 h-52 flex flex-col items-center justify-end"
+                            >
+                                {/* Core Upward Neon Light Beam */}
+                                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#E7FF00]/30 via-[#00F0FF]/25 to-transparent rounded-full filter blur-lg" />
+                                <div className="absolute w-1.5 h-44 bottom-0 bg-gradient-to-t from-[#E7FF00] via-[#00F0FF] to-transparent rounded-full shadow-[0_0_20px_#E7FF00,0_0_35px_#00F0FF] animate-pulse" />
+
+                                {/* 5-Pillar Rhythmic Audio EQ Kinetic Bars */}
+                                <div className="relative z-10 flex items-end gap-1.5 mb-8">
+                                    {[0.4, 0.8, 1.0, 0.75, 0.45].map((h, i) => (
+                                        <motion.div
+                                            key={i}
+                                            animate={{
+                                                height: [12 * h, 36 * h, 8 * h, 42 * h],
+                                                opacity: [0.6, 1, 0.7, 1]
+                                            }}
+                                            transition={{
+                                                repeat: Infinity,
+                                                duration: 0.4 + i * 0.08,
+                                                ease: "easeInOut"
+                                            }}
+                                            className="w-1 rounded-full bg-gradient-to-t from-[#E7FF00] to-[#00F0FF] shadow-[0_0_10px_#E7FF00]"
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Micro Kinetic Sonic Ripples */}
+                                <motion.div
+                                    animate={{
+                                        scale: [0.8, 1.4],
+                                        opacity: [0.8, 0],
+                                        y: [0, -60]
+                                    }}
+                                    transition={{
+                                        repeat: Infinity,
+                                        duration: 0.7,
+                                        ease: "easeOut"
+                                    }}
+                                    className="absolute bottom-6 w-24 h-6 rounded-full border border-[#E7FF00]/60 shadow-[0_0_15px_#E7FF00]"
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
                 {/* 3. Floating Spatial HUD & Cleaned-up Signature Typography */}
                 <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
                     {/* PURE TRANSLUCENT ETHEREAL POWER NUMBER */}
@@ -1234,26 +1287,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 )}
             </AnimatePresence>
 
-            {/* 4. ULTRA-CHIC RISING AURORA LIGHT WAVE (상향 스크롤 시 극적인 네온 파동 분출) */}
-            <div className="fixed inset-x-0 bottom-0 h-48 pointer-events-none z-30 overflow-hidden">
-                <motion.div
-                    animate={{
-                        y: isScrollingUp ? ['100%', '-120%'] : ['100%', '-80%'],
-                        opacity: isScrollingUp ? [0, 0.9, 0] : [0, 0.4, 0],
-                        scaleY: isScrollingUp ? 1.6 : 1.0
-                    }}
-                    transition={{
-                        repeat: Infinity,
-                        duration: isScrollingUp ? 1.6 : 3.2,
-                        ease: [0.25, 0.1, 0.25, 1.0]
-                    }}
-                    className={`w-full h-28 blur-xl transition-all duration-300 ${
-                        isScrollingUp 
-                            ? 'bg-gradient-to-t from-[#E7FF00]/0 via-[#E7FF00]/35 to-[#00F0FF]/20' 
-                            : 'bg-gradient-to-t from-[#E7FF00]/0 via-[#E7FF00]/15 to-[#E7FF00]/0'
-                    }`}
-                />
-            </div>
+
         </div>
     );
 }
