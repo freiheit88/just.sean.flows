@@ -24,45 +24,45 @@ const STEM_SRCS = {
 const FRAMES = [
     { 
         id: 0, 
-        src: "/assets/wine_atelier_04_neon_wisteria_1787173906304.jpg", 
+        src: "/assets/walk_story_01_far_alley.jpg", 
         titleTop: "JUST SEAN FLOWS", 
         titleMain: "WALK WITH MUSIC?", 
     },
     { 
         id: 1, 
-        src: "/assets/wine_atelier_01_stained_glass_1787173882749.jpg", 
+        src: "/assets/walk_story_02_mid_alley.jpg", 
         titleTop: "GUILD ATELIER", 
-        titleMain: "WANT A QUICK LOOK?", 
-        hasBuildingTarget: true
+        titleMain: "HEAR THE TUNING?", 
     },
     { 
         id: 2, 
-        src: "/assets/wine_atelier_02_poster_brick_1787173891199.jpg", 
+        src: "/assets/walk_story_03_corner_turn.jpg", 
         titleTop: "02:00 AM", 
         titleMain: "STILL AWAKE HERE.", 
     },
     { 
         id: 3, 
-        src: "/assets/wine_atelier_03_tapestry_piano_1787173899303.jpg", 
-        titleTop: "CANAL ALLEY", 
-        titleMain: "PEEK INSIDE?", 
+        src: "/assets/walk_story_04_look_up_logo.jpg", 
+        titleTop: "LOOK UP", 
+        titleMain: "PEEK AT THE LOGO?", 
         hasBuildingTarget: true
     },
     { 
         id: 4, 
-        src: "/assets/logo_v09_no65_door_knocker_1787173209628.jpg", 
-        titleTop: "SECRET HIDEAWAY", 
-        titleMain: "MY PRIVATE HAVEN.", 
+        src: "/assets/walk_story_05_amber_glow_shift.jpg", 
+        titleTop: "GLOWING AMBER", 
+        titleMain: "THE LIGHTS AWAKEN.", 
+        hasBuildingTarget: true
     },
     { 
         id: 5, 
-        src: "/assets/logo_v11_no65_amp_1787173235884.jpg", 
-        titleTop: "NEARLY THERE", 
-        titleMain: "ALMOST AT THE DOOR.", 
+        src: "/assets/walk_story_06_door_handle_view.jpg", 
+        titleTop: "REACH THE DOOR", 
+        titleMain: "TOUCH THE HANDLE.", 
     },
     { 
         id: 6, 
-        src: "/assets/logo_v17_no65_glass_decal_1787173294923.jpg", 
+        src: "/assets/walk_story_07_grand_piano_salon.jpg", 
         titleTop: "STAGE READY", 
         titleMain: "THE DOORS OPEN.", 
     }
