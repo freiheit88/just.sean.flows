@@ -4,13 +4,11 @@ import {
     Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
     Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity,
-    Key, Lock, Tag, Ticket, Shield, Sparkles, ChevronUp, Footprints
+    Key, Lock, Tag, Ticket, Shield, Sparkles, ChevronUp, Footprints, RefreshCw, Disc, Radio, Terminal, Cpu, Layers
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
 const ATELIER_IMG = "/assets/frankfurt_sound_atelier.jpg";
-
-// Single Dedicated Pure MR Audio Track (Zero Distortion, Zero Sync Lag)
 const MR_AUDIO_SRC = "/assets/a_twelve_minute_alibi_mr.wav";
 
 // Full 7-Step 1st-Person Walkthrough Story Sequence
@@ -70,7 +68,7 @@ const DEFAULT_ENDING = {
     quote: 'Holding a cold martini, captivated by solo violin at midnight.'
 };
 
-// 100 DISTINCT ATELIER CONCEPT FRAGMENTS
+// 120 INTERACTIVE ATELIER 3D FRAGMENTS & SOUND SCULPTURES
 const ATELIER_100_WORDS = [
     "CADENZA", "ALLEGRO", "TUTTI", "FORTE", "TEMPO 128", 
     "44.1 kHz", "24-BIT STEREO", "VIBRATO", "OVERTONE", "REVERB 85%",
@@ -148,6 +146,7 @@ const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
 });
 
 export default function App() {
+    // Current Step: 'flipbook' -> 'grand_showcase_2026' (Locked)
     const [currentStep, setCurrentStep] = useState('flipbook');
     const [userNickname, setUserNickname] = useState("SEAN");
     const [activeEnding, setActiveEnding] = useState(DEFAULT_ENDING);
@@ -206,43 +205,6 @@ export default function App() {
         violin: 85, electric: 60, bass: 75, orchestra: 90
     });
 
-    const calculateEnding = () => {
-        const { violin, electric, bass, orchestra } = stems;
-        let ending = { ...DEFAULT_ENDING };
-
-        if (electric > violin && electric > bass) {
-            ending = {
-                id: 'rebel',
-                title: 'THE ELECTRIC REBEL',
-                subtitle: 'Velvet Distortion & Sheffield Grit',
-                desc: 'Raw indie rock energy breaking all rules. Sovereign of night velocity.',
-                accent: '#FF0055',
-                quote: 'Shattering classical decorum with raw guitar feedback.'
-            };
-        } else if (bass > violin && bass > orchestra) {
-            ending = {
-                id: 'nocturne',
-                title: 'THE CHAMPAGNE NOCTURNE',
-                subtitle: 'Midnight Salon & Crystal Flute',
-                desc: 'Sensual bass pulse in a private 3 AM salon with champagne euphoria.',
-                accent: '#00F0FF',
-                quote: 'Ruling the heavy noir bassline while the world sleeps.'
-            };
-        } else if (orchestra >= 85) {
-            ending = {
-                id: 'architect',
-                title: 'THE SOVEREIGN ARCHITECT',
-                subtitle: 'Frankfurt Grand Symphony Tutti',
-                desc: 'Grand orchestra tutti exploding at Alte Oper. Mathematical master of sound.',
-                accent: '#C5A059',
-                quote: 'Controlling systems by day, governing frequencies by night.'
-            };
-        }
-
-        setActiveEnding(ending);
-        setCurrentStep('ticket');
-    };
-
     // Mobile Gyroscope Device Orientation Listener
     useEffect(() => {
         const handleDeviceOrientation = (e) => {
@@ -287,7 +249,7 @@ export default function App() {
             onTouchStart={handleTouchMoveUnified}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0 flex items-center justify-center"
         >
-            {/* 1. UNIFIED MOBILE & PC GLOW CURSOR (+20% SIZE + 4 MUSICAL AFTERIMAGES) */}
+            {/* 1. UNIFIED MOBILE & PC GLOW CURSOR */}
             {cursorPos.isHovered && trails.map((t, idx) => {
                 const scales = [0.85, 0.65, 0.48, 0.32];
                 const opacities = isScrollingUp ? [0.90, 0.75, 0.55, 0.38] : [0.65, 0.45, 0.28, 0.16];
@@ -386,39 +348,27 @@ export default function App() {
                 </div>
             </header>
 
-            <main className="relative z-10 w-full h-full flex items-center justify-center md:pt-10">
+            <main className="relative z-10 w-full h-full flex items-center justify-center">
                 {currentStep === 'flipbook' && (
                     <FlipbookWalkingEngine 
                         tilt={tilt}
                         cursorPos={cursorPos}
                         isScrollingUp={isScrollingUp}
                         setIsScrollingUp={setIsScrollingUp}
-                        onEnterMixer={() => setCurrentStep('mixer_ending')} 
+                        onFinishWalk={() => setCurrentStep('grand_showcase_2026')} 
                         onOpenAtelier={() => setShowAtelierModal(true)}
                     />
                 )}
 
-                {currentStep === 'mixer_ending' && (
-                    <div className="w-full h-full overflow-y-auto pt-16 pb-24 touch-pan-y" style={{ touchAction: 'pan-y' }}>
-                        <StemMixerEndingStage
-                            userNickname={userNickname}
-                            setUserNickname={setUserNickname}
-                            stems={stems}
-                            setStems={setStems}
-                            onGenerateTicket={calculateEnding}
-                        />
-                    </div>
-                )}
-
-                {currentStep === 'ticket' && (
-                    <div className="w-full h-full overflow-y-auto pt-16 pb-24 touch-pan-y" style={{ touchAction: 'pan-y' }}>
-                        <InstagramStoryTicketModal
-                            userNickname={userNickname || "SEAN"}
-                            ending={activeEnding || DEFAULT_ENDING}
-                            stems={stems}
-                            onBack={() => setCurrentStep('mixer_ending')}
-                        />
-                    </div>
+                {currentStep === 'grand_showcase_2026' && (
+                    <Grand2026InteractiveCyberSalon 
+                        tilt={tilt}
+                        userNickname={userNickname}
+                        setUserNickname={setUserNickname}
+                        stems={stems}
+                        setStems={setStems}
+                        onOpenAtelier={() => setShowAtelierModal(true)}
+                    />
                 )}
             </main>
 
@@ -433,9 +383,9 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1인칭 보행 엔진 (단독 A Twelve-minute Alibi MR 전용 + 완전 분리된 독립 스크롤 엔진)
+// 1인칭 보행 엔진 (100% 도달 시 영구 고정 2026 쇼케이스 화면으로 전환)
 // ==============================================================================
-function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingUp, onEnterMixer, onOpenAtelier }) {
+function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingUp, onFinishWalk, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
     
@@ -504,7 +454,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [isAudioUnlocked]);
 
-    // GUARANTEED INSTANT AUDIO UNLOCKER (CLEAN MR AUDIO ONLY)
+    // GUARANTEED INSTANT AUDIO UNLOCKER
     const forceUnlockAudio = (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
 
@@ -515,14 +465,14 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         if (mrAudioRef.current) {
             mrAudioRef.current.muted = false;
             mrAudioRef.current.playsInline = true;
-            mrAudioRef.current.volume = 0.85; // Clean, pure constant volume
+            mrAudioRef.current.volume = 0.85;
             if (mrAudioRef.current.paused) {
                 mrAudioRef.current.play().catch(() => {});
             }
         }
     };
 
-    // INDEPENDENT KINETIC POWER & TIER ENGINE (음원과 완전 분리된 순수 UI 로직)
+    // INDEPENDENT KINETIC POWER & TIER ENGINE
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -586,7 +536,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             if (gracePeriodSec > 0 && !hasUserStartedScroll.current) return;
 
             setProgress((prev) => {
-                if (prev >= 100) return 100;
+                if (prev >= 100) {
+                    // Trigger finish transition when reaching 100%
+                    setTimeout(() => {
+                        onFinishWalk();
+                    }, 800);
+                    return 100;
+                }
                 const next = Math.min(100, prev + 0.04);
                 progressRef.current = next;
                 return next;
@@ -596,7 +552,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         return () => clearInterval(interval);
     }, [isAudioUnlocked, gracePeriodSec]);
 
-    // INDEPENDENT SCROLL & TOUCH ENGINE (순수 시각 진행 & 도파민 피드백)
+    // INDEPENDENT SCROLL & TOUCH ENGINE
     useEffect(() => {
         const triggerDopamineScrollUp = () => {
             hasUserStartedScroll.current = true;
@@ -635,6 +591,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
+                if (next >= 100) {
+                    setTimeout(() => {
+                        onFinishWalk();
+                    }, 800);
+                }
                 return next;
             });
         };
@@ -685,6 +646,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 setProgress((prev) => {
                     const next = Math.min(100, prev + strokeProgress);
                     progressRef.current = next;
+                    if (next >= 100) {
+                        setTimeout(() => {
+                            onFinishWalk();
+                        }, 800);
+                    }
                     return next;
                 });
             }
@@ -787,11 +753,9 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 whileTap={{ scale: 0.96 }}
                                 className="pointer-events-auto absolute top-[24%] left-1/2 -translate-x-1/2 w-[230px] sm:w-[260px] h-[130px] sm:h-[155px] rounded-t-[100px] rounded-b-2xl cursor-pointer group outline-none flex flex-col items-center justify-end pb-2.5"
                             >
-                                {/* Stained-Glass Arch Neon Contour */}
                                 <div className="absolute inset-0 rounded-t-[100px] rounded-b-2xl border-2 border-[#E7FF00]/60 group-hover:border-[#E7FF00] transition-all duration-300 shadow-[0_0_25px_rgba(231,255,0,0.35)] group-hover:shadow-[0_0_45px_rgba(231,255,0,0.85)] animate-pulse" />
                                 <div className="absolute inset-0 rounded-t-[100px] rounded-b-2xl bg-[#E7FF00]/[0.05] group-hover:bg-[#E7FF00]/[0.14] backdrop-blur-[1px] transition-colors duration-300" />
 
-                                {/* Micro Neon Callout Badge */}
                                 <div className="relative z-10 px-3 py-1 rounded-full bg-black/85 border border-[#E7FF00] shadow-[0_0_15px_#E7FF00] flex items-center gap-1.5 font-mono text-[9px] sm:text-[10px] font-black text-[#E7FF00] tracking-widest uppercase">
                                     <Building2 className="w-3 h-3 text-[#E7FF00] animate-bounce" />
                                     <span>⚜ J.S.F 간판 터치 (설립 정보)</span>
@@ -1160,6 +1124,284 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
     );
 }
 
+// ==============================================================================
+// 🌟 2026 INTERACTIVE 3D CYBER-SALON SHOWCASE (영구 고정 에필로그 스테이지)
+// ==============================================================================
+function Grand2026InteractiveCyberSalon({ tilt, userNickname, setUserNickname, stems, setStems, onOpenAtelier }) {
+    const [soundNotes, setSoundNotes] = useState([]);
+    const [activeTab, setActiveTab] = useState('stage'); // 'stage', 'mixer', 'intel'
+    const [vinylSpeed, setVinylSpeed] = useState(1);
+    const synthCtxRef = useRef(null);
+
+    const tiltX = tilt.x * 45;
+    const tiltY = tilt.y * 35;
+
+    // Interactive Pentatonic Chime Synthesizer on Fragment Tap
+    const playChimeNote = (freq = 440) => {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            if (!synthCtxRef.current) synthCtxRef.current = new AudioCtx();
+            const ctx = synthCtxRef.current;
+            if (ctx.state === 'suspended') ctx.resume();
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.12);
+
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 0.36);
+        } catch (e) {}
+    };
+
+    const handleFragmentClick = (item) => {
+        const pentatonicScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+        const randomFreq = pentatonicScale[item.id % pentatonicScale.length];
+        playChimeNote(randomFreq);
+
+        setSoundNotes(prev => [...prev.slice(-12), {
+            id: Date.now() + Math.random(),
+            text: item.text,
+            color: item.color,
+            x: Math.random() * 80 + 10,
+            y: Math.random() * 70 + 15
+        }]);
+    };
+
+    return (
+        <div 
+            className="fixed inset-0 w-full h-full bg-[#050507] overflow-hidden flex flex-col items-center justify-between text-center select-none"
+            style={{ perspective: '1000px' }}
+        >
+            {/* 1. 3D FLOATING BACKGROUND DEBRIS WITH REAL-TIME GYRO TILT & CLICK-CHIME */}
+            <div className="absolute inset-0 pointer-events-auto overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
+                {ATELIER_DEBRIS_100.map((item) => {
+                    const tiltXVal = tilt.x * 40 * item.tiltMult;
+                    const tiltYVal = tilt.y * 40 * item.tiltMult;
+
+                    return (
+                        <motion.div
+                            key={item.id}
+                            onClick={() => handleFragmentClick(item)}
+                            initial={{
+                                y: `${(item.id * 17) % 90}vh`,
+                                x: 0,
+                                opacity: item.opacityMax * 0.7,
+                                scale: 0.85
+                            }}
+                            animate={{
+                                y: [`${(item.id * 17) % 90}vh`, `${((item.id * 17) % 90) - 20}vh`, `${(item.id * 17) % 90}vh`],
+                                rotate: [item.rotation, item.rotation + 10, item.rotation],
+                                scale: [0.85, 1.05, 0.85]
+                            }}
+                            transition={{
+                                duration: item.duration * 1.5,
+                                repeat: Infinity,
+                                delay: item.delay,
+                                ease: 'easeInOut'
+                            }}
+                            style={{
+                                left: item.left,
+                                transform: `translate3d(${tiltXVal}px, ${tiltYVal}px, ${item.zDepth}px)`
+                            }}
+                            className="absolute cursor-pointer hover:scale-125 transition-transform p-2 pointer-events-auto"
+                        >
+                            <div 
+                                className={`px-3 py-1 rounded-full border bg-black/80 backdrop-blur-md font-mono text-[10px] font-black tracking-widest shadow-xl transition-colors hover:border-[#E7FF00] hover:text-[#E7FF00]`}
+                                style={{ color: item.color, borderColor: `${item.color}50` }}
+                            >
+                                {item.text}
+                            </div>
+                        </motion.div>
+                    );
+                })}
+            </div>
+
+            {/* SOUND BURST PARTICLES */}
+            <AnimatePresence>
+                {soundNotes.map(sn => (
+                    <motion.div
+                        key={sn.id}
+                        initial={{ opacity: 1, scale: 0.5, y: 0 }}
+                        animate={{ opacity: 0, scale: 1.8, y: -80 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        style={{ left: `${sn.x}%`, top: `${sn.y}%`, color: sn.color }}
+                        className="fixed z-40 font-mono text-sm font-black pointer-events-none drop-shadow-[0_0_15px_currentColor]"
+                    >
+                        ✦ {sn.text} ♫
+                    </motion.div>
+                ))}
+            </AnimatePresence>
+
+            {/* 2. TOP CYBERNETIC DEV STATUS BANNER */}
+            <div className="relative z-20 pt-16 px-4 flex flex-col items-center">
+                <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/90 border border-[#E7FF00] shadow-[0_0_25px_rgba(231,255,0,0.4)] mb-3"
+                >
+                    <span className="w-2 h-2 rounded-full bg-[#E7FF00] animate-ping" />
+                    <span className="font-mono text-[10px] sm:text-xs font-black tracking-widest text-[#E7FF00] uppercase">
+                        [DEV PROTOTYPE V1 COMPLETED · 여기까지 개발 완료]
+                    </span>
+                </motion.div>
+
+                <h1 
+                    className="font-sans text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white uppercase"
+                    style={{
+                        textShadow: `${tiltX * 0.4}px ${tiltY * 0.4}px 40px rgba(231,255,0,0.5)`
+                    }}
+                >
+                    FRANKFURT SOUND ATELIER
+                </h1>
+                <p className="font-mono text-xs sm:text-sm text-white/60 mt-1 max-w-lg">
+                    1인칭 3D 공간 오디오 &amp; 키네틱 보행 시퀀스 프로토타입 완결
+                </p>
+            </div>
+
+            {/* 3. CENTER 3D INTERACTIVE HERO STAGE */}
+            <div className="relative z-20 w-full max-w-xl px-4 my-auto flex flex-col items-center">
+                {activeTab === 'stage' && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1.0 }}
+                        className="w-full bg-[#0B0B10]/85 border border-white/20 rounded-3xl p-6 backdrop-blur-2xl shadow-[0_0_60px_rgba(0,0,0,0.9)] relative flex flex-col items-center"
+                        style={{
+                            transform: `perspective(800px) rotateX(${tiltY * -0.6}deg) rotateY(${tiltX * 0.6}deg)`,
+                            transformStyle: 'preserve-3d'
+                        }}
+                    >
+                        {/* 3D VINYL TURNTABLE */}
+                        <div 
+                            onClick={() => {
+                                setVinylSpeed(v => v === 1 ? 2.5 : 1);
+                                playChimeNote(659.25);
+                            }}
+                            className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full border-4 border-white/20 bg-neutral-950 flex items-center justify-center cursor-pointer shadow-[0_0_40px_rgba(231,255,0,0.25)] hover:scale-105 transition-all mb-4 group"
+                        >
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ repeat: Infinity, duration: 4 / vinylSpeed, ease: "linear" }}
+                                className="w-full h-full rounded-full flex items-center justify-center border-2 border-white/10"
+                            >
+                                <div className="w-16 h-16 rounded-full bg-[#E7FF00] flex flex-col items-center justify-center text-black font-mono font-black text-[9px]">
+                                    <Disc className="w-6 h-6 animate-spin" />
+                                    <span>MR MASTER</span>
+                                </div>
+                            </motion.div>
+                            <div className="absolute inset-0 rounded-full bg-[#E7FF00]/0 group-hover:bg-[#E7FF00]/10 transition-colors" />
+                        </div>
+
+                        <h2 className="font-mono text-lg font-black text-[#E7FF00] tracking-wider uppercase mb-1">
+                            A TWELVE-MINUTE ALIBI (MR)
+                        </h2>
+                        <p className="font-mono text-[11px] text-white/50 mb-4">
+                            클릭하여 부유 파편들의 화음을 연주하거나 믹서/설립 정보를 확인하세요.
+                        </p>
+
+                        {/* ACTION BUTTON GRID */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 w-full">
+                            <button
+                                onClick={() => setActiveTab('mixer')}
+                                className="py-3 px-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-mono text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all"
+                            >
+                                <Sliders className="w-3.5 h-3.5 text-[#E7FF00]" />
+                                <span>STEM 믹서</span>
+                            </button>
+
+                            <button
+                                onClick={onOpenAtelier}
+                                className="py-3 px-3 rounded-2xl bg-[#00F0FF]/15 hover:bg-[#00F0FF]/25 border border-[#00F0FF]/40 text-[#00F0FF] font-mono text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all"
+                            >
+                                <Building2 className="w-3.5 h-3.5" />
+                                <span>회사 설립 정보</span>
+                            </button>
+
+                            <a
+                                href={SECRET_YOUTUBE_URL}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="col-span-2 sm:col-span-1 py-3 px-3 rounded-2xl bg-[#FF0055]/15 hover:bg-[#FF0055]/25 border border-[#FF0055]/40 text-[#FF0055] font-mono text-[11px] font-bold tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all"
+                            >
+                                <Play className="w-3.5 h-3.5 fill-current" />
+                                <span>시크릿 영상</span>
+                            </a>
+                        </div>
+                    </motion.div>
+                )}
+
+                {activeTab === 'mixer' && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1.0 }}
+                        className="w-full bg-[#0B0B10]/95 border border-white/20 rounded-3xl p-5 backdrop-blur-2xl shadow-2xl flex flex-col items-center"
+                    >
+                        <div className="flex justify-between items-center w-full mb-3 pb-2 border-b border-white/10 font-mono text-xs text-[#E7FF00]">
+                            <span className="font-bold">STEM HARMONY SANDBOX</span>
+                            <button onClick={() => setActiveTab('stage')} className="text-white/60 hover:text-white">✕ CLOSE</button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2.5 w-full mb-4">
+                            {[
+                                { id: 'violin', label: '01. SOLO VIOLIN', color: '#E7FF00' },
+                                { id: 'electric', label: '02. ELECTRIC DIST', color: '#FF0055' },
+                                { id: 'bass', label: '03. NOIR BASS', color: '#00F0FF' },
+                                { id: 'orchestra', label: '04. GRAND SYMPHONY', color: '#C5A059' },
+                            ].map((s) => (
+                                <div key={s.id} className="p-2.5 rounded-xl border border-white/10 bg-black/40">
+                                    <div className="flex justify-between font-mono text-[10px] mb-1">
+                                        <span className="text-white font-bold">{s.label}</span>
+                                        <span style={{ color: s.color }}>{stems[s.id]}%</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={stems[s.id]}
+                                        onChange={(e) => setStems({ ...stems, [s.id]: Number(e.target.value) })}
+                                        className="w-full accent-white h-1 bg-white/20 rounded cursor-pointer"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={() => setActiveTab('stage')}
+                            className="w-full py-2.5 rounded-xl bg-[#E7FF00] text-black font-mono text-xs font-black tracking-widest uppercase shadow-[0_0_25px_rgba(231,255,0,0.4)]"
+                        >
+                            ✓ SAVE &amp; RETURN
+                        </button>
+                    </motion.div>
+                )}
+            </div>
+
+            {/* 4. BOTTOM PERSISTENT RELOAD/RESTART CONTROLLER */}
+            <div className="relative z-20 pb-8 px-4 flex flex-col items-center gap-2">
+                <button
+                    onClick={() => window.location.reload()}
+                    className="group px-8 py-3.5 rounded-full bg-white/10 hover:bg-[#E7FF00] text-white hover:text-black border border-white/20 hover:border-[#E7FF00] font-mono text-xs font-black tracking-[0.25em] uppercase transition-all duration-300 shadow-xl flex items-center gap-2.5"
+                >
+                    <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
+                    <span>↻ WALK AGAIN (새로고침하여 처음부터 다시 걷기)</span>
+                </button>
+                <span className="font-mono text-[9px] text-white/40 tracking-wider">
+                    ※ 현재 화면에 영구 고정되어 있으며, 새로고침 시에만 1번 골목길로 복귀합니다.
+                </span>
+            </div>
+        </div>
+    );
+}
+
 // FRANKFURT SOUND ATELIER MODAL
 function FrankfurtAtelierModal({ onClose }) {
     return (
@@ -1237,270 +1479,9 @@ function FrankfurtAtelierModal({ onClose }) {
                     onClick={onClose}
                     className="w-full py-4 rounded-full bg-[#00F0FF] text-[#000000] font-mono text-xs font-black tracking-widest uppercase hover:scale-105 transition-all shadow-[0_0_30px_rgba(0,240,255,0.4)] my-2"
                 >
-                    RESUME WALKING TOWARDS CONCERT PALACE →
+                    CLOSE ATELIER INTEL →
                 </button>
             </motion.div>
         </motion.div>
-    );
-}
-
-// STEM MIXER STAGE
-function StemMixerEndingStage({ userNickname, setUserNickname, stems, setStems, onGenerateTicket }) {
-    return (
-        <div className="pt-20 pb-20 px-4 sm:px-8 max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-                <div className="inline-flex items-center gap-1.5 font-mono text-[10px] sm:text-xs text-[#E7FF00] tracking-widest uppercase mb-2">
-                    <Sliders className="w-3.5 h-3.5" />
-                    <span>CURATOR STEM MIXER</span>
-                </div>
-                <h2 className="font-sans text-3xl sm:text-5xl font-black text-[#FFFFFF] uppercase">
-                    CRAFT YOUR HARMONY
-                </h2>
-                <p className="font-mono text-xs text-white/60 mt-2 max-w-md mx-auto">
-                    Sculpt the 4 audio stems to reveal your personalized VIP ending pass.
-                </p>
-            </div>
-
-            <div className="p-4 sm:p-6 rounded-2xl border border-white/15 bg-white/[0.03] backdrop-blur-xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <div className="font-mono text-xs text-center sm:text-left">
-                    <span className="text-[#E7FF00] font-bold block mb-0.5">ARTIST NICKNAME</span>
-                    <span className="text-white/50 text-[10px]">Your signature printed on ticket.</span>
-                </div>
-                <input
-                    type="text"
-                    value={userNickname}
-                    maxLength={12}
-                    onChange={(e) => setUserNickname(e.target.value.toUpperCase() || "SEAN")}
-                    className="w-full sm:w-auto bg-black/70 border border-white/20 px-5 py-2 rounded-xl font-mono text-xs font-bold text-center tracking-widest uppercase text-white outline-none focus:border-[#E7FF00]"
-                />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                {[
-                    { id: 'violin', label: '01. SOLO VIOLIN', desc: 'Paganini Solo Cadenza', color: '#E7FF00' },
-                    { id: 'electric', label: '02. ELECTRIC DISTORTION', desc: 'Indie Rock Amp Feedback', color: '#FF0055' },
-                    { id: 'bass', label: '03. NOIR BASS', desc: '02:00 AM Midnight Salon Pulse', color: '#00F0FF' },
-                    { id: 'orchestra', label: '04. GRAND SYMPHONY', desc: 'Full Orchestra Tutti', color: '#C5A059' },
-                ].map((s) => (
-                    <div key={s.id} className="p-4 sm:p-5 rounded-2xl border border-white/15 bg-white/[0.02] flex flex-col justify-between">
-                        <div className="flex justify-between items-center font-mono text-xs mb-2">
-                            <span className="font-bold text-[#FFFFFF] text-[11px]">{s.label}</span>
-                            <span style={{ color: s.color }} className="font-bold">{stems[s.id]}%</span>
-                        </div>
-                        <input
-                            type="range"
-                            min="0"
-                            max="100"
-                            value={stems[s.id]}
-                            onChange={(e) => setStems({ ...stems, [s.id]: Number(e.target.value) })}
-                            className="w-full accent-white h-2 bg-white/10 rounded cursor-pointer my-3"
-                        />
-                        <span className="font-mono text-[9px] text-white/50">{s.desc}</span>
-                    </div>
-                ))}
-            </div>
-
-            <div className="text-center">
-                <button
-                    onClick={onGenerateTicket}
-                    className="w-full sm:w-auto px-10 py-4 rounded-full bg-[#E7FF00] text-black font-mono text-xs font-black tracking-[0.25em] uppercase hover:scale-105 transition-all shadow-[0_0_40px_rgba(231,255,0,0.5)] flex items-center justify-center gap-2 mx-auto"
-                >
-                    <Sparkles className="w-4 h-4 fill-current" />
-                    <span>GET 9:16 VIP PASS</span>
-                </button>
-            </div>
-        </div>
-    );
-}
-
-// INSTAGRAM STORY 9:16 VIP TICKET MODAL
-function InstagramStoryTicketModal({ userNickname, ending, stems, onBack }) {
-    const canvasRef = useRef(null);
-    const [ticketDataUrl, setTicketDataUrl] = useState(null);
-
-    const safeEnding = ending || DEFAULT_ENDING;
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        const W = 1080;
-        const H = 1920;
-        canvas.width = W;
-        canvas.height = H;
-
-        ctx.fillStyle = '#070709';
-        ctx.fillRect(0, 0, W, H);
-
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-        ctx.lineWidth = 2;
-        for (let x = 60; x < W; x += 120) {
-            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
-        }
-
-        ctx.strokeStyle = safeEnding.accent || '#E7FF00';
-        ctx.lineWidth = 8;
-        ctx.strokeRect(60, 60, W - 120, H - 120);
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '900 32px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('JUST.SEAN.FLOWS // PRIVATE EXHIBITION', W / 2, 160);
-
-        ctx.fillStyle = safeEnding.accent || '#E7FF00';
-        ctx.font = '700 24px monospace';
-        ctx.fillText('VIP ALL-ACCESS PASS · 2026', W / 2, 210);
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '900 68px sans-serif';
-        ctx.fillText(safeEnding.title, W / 2, 360);
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.font = '400 30px monospace';
-        ctx.fillText(safeEnding.subtitle, W / 2, 420);
-
-        ctx.strokeStyle = safeEnding.accent || '#E7FF00';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        for (let x = 120; x < W - 120; x += 8) {
-            const h = Math.sin(x * 0.03) * 60 + Math.cos(x * 0.08) * 30;
-            ctx.moveTo(x, 580 - h);
-            ctx.lineTo(x, 580 + h);
-        }
-        ctx.stroke();
-
-        ctx.fillStyle = '#111115';
-        ctx.fillRect(120, 700, W - 240, 240);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-        ctx.strokeRect(120, 700, W - 240, 240);
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '700 24px monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText(`ARTIST: ${userNickname}`, 160, 760);
-        ctx.fillText(`VIOLIN STEM: ${stems.violin}%`, 160, 810);
-        ctx.fillText(`ELECTRIC STEM: ${stems.electric}%`, 160, 860);
-        ctx.fillText(`BASS / ORCH: ${stems.bass}% / ${stems.orchestra}%`, 160, 910);
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.font = 'italic 34px serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`"${safeEnding.quote}"`, W / 2, 1060);
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(W / 2 - 140, 1180, 280, 280);
-        
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(W / 2 - 120, 1200, 70, 70);
-        ctx.fillRect(W / 2 + 50, 1200, 70, 70);
-        ctx.fillRect(W / 2 - 120, 1370, 70, 70);
-        ctx.font = 'bold 20px monospace';
-        ctx.fillText('SCAN FOR SECRET VAULT', W / 2, 1500);
-
-        ctx.fillStyle = safeEnding.accent || '#E7FF00';
-        ctx.font = '900 36px monospace';
-        ctx.fillText('JUST.SEAN.FLOWS', W / 2, 1720);
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.font = '400 22px monospace';
-        ctx.fillText('FRANKFURT AM MAIN · ALL RIGHTS RESERVED', W / 2, 1780);
-
-        try {
-            setTicketDataUrl(canvas.toDataURL('image/png'));
-        } catch (e) {}
-    }, [safeEnding, stems, userNickname]);
-
-    const downloadTicket = () => {
-        if (!ticketDataUrl) return;
-        const a = document.createElement('a');
-        a.href = ticketDataUrl;
-        a.download = `JUST_SEAN_FLOWS_VIP_PASS_${userNickname}.png`;
-        a.click();
-    };
-
-    return (
-        <div className="pt-20 pb-20 px-4 max-w-lg mx-auto flex flex-col items-center text-center">
-            <canvas ref={canvasRef} className="hidden" />
-
-            <div className="inline-flex items-center gap-1.5 font-mono text-[10px] text-[#E7FF00] tracking-widest uppercase mb-3">
-                <Check className="w-3.5 h-3.5" />
-                <span>ENDING UNLOCKED: {safeEnding.title}</span>
-            </div>
-
-            <h2 className="font-sans text-3xl sm:text-5xl font-black text-white uppercase mb-2">
-                9:16 VIP PASS READY
-            </h2>
-            <p className="font-mono text-[11px] text-white/60 max-w-xs mb-6">
-                Ready for Instagram Story sharing in 9:16 vertical high resolution.
-            </p>
-
-            <div className="w-full rounded-3xl border border-white/20 bg-black/90 p-5 shadow-[0_0_50px_rgba(0,0,0,0.9)] relative overflow-hidden mb-6">
-                <div className="flex justify-between items-center font-mono text-[9px] text-[#E7FF00] mb-3 pb-2 border-b border-white/10">
-                    <span>VIP PASS · 2026</span>
-                    <span>JUST.SEAN.FLOWS</span>
-                </div>
-
-                <div className="text-left mb-4">
-                    <span className="font-mono text-[9px] text-white/50 block">ARTIST: {userNickname}</span>
-                    <h3 className="font-sans text-xl font-black text-white" style={{ color: safeEnding.accent }}>
-                        {safeEnding.title}
-                    </h3>
-                    <p className="font-mono text-[9px] text-white/70 mt-0.5">{safeEnding.subtitle}</p>
-                </div>
-
-                <p className="font-serif italic text-[11px] text-white/90 my-4 border-y border-white/10 py-2.5">
-                    "{safeEnding.quote}"
-                </p>
-
-                <a
-                    href={SECRET_YOUTUBE_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-3 rounded-xl bg-white/10 border border-white/20 flex items-center justify-between hover:border-[#E7FF00] transition-colors mb-3 group"
-                >
-                    <div className="flex items-center gap-2.5 text-left">
-                        <QrCode className="w-5 h-5 text-[#E7FF00]" />
-                        <div>
-                            <span className="font-mono text-[9px] text-[#FFFFFF] font-bold block">SECRET YOUTUBE VAULT</span>
-                            <span className="font-mono text-[7px] text-white/40">CLICK TO UNLOCK UNLISTED VIDEO</span>
-                        </div>
-                    </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-[#E7FF00] group-hover:text-[#E7FF00]" />
-                </a>
-
-                <div className="font-mono text-[8px] text-white/40">
-                    FRANKFURT AM MAIN · JUST.SEAN.FLOWS
-                </div>
-            </div>
-
-            <div className="w-full flex flex-col gap-2.5">
-                <button
-                    onClick={downloadTicket}
-                    className="w-full py-3.5 rounded-full bg-[#E7FF00] text-black font-mono text-xs font-black tracking-wider uppercase hover:scale-105 transition-all shadow-[0_0_40px_rgba(231,255,0,0.4)] flex items-center justify-center gap-2"
-                >
-                    <Download className="w-4 h-4" />
-                    <span>DOWNLOAD 9:16 STORY TICKET</span>
-                </button>
-
-                <a
-                    href={SECRET_YOUTUBE_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="w-full py-3.5 rounded-full border border-white/20 bg-white/5 text-white font-mono text-xs font-bold tracking-wider uppercase hover:border-[#E7FF00] hover:text-[#E7FF00] transition-all flex items-center justify-center gap-2"
-                >
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>WATCH SECRET YOUTUBE VIDEO</span>
-                </a>
-            </div>
-
-            <button
-                onClick={onBack}
-                className="mt-6 font-mono text-[11px] text-[#FFFFFF]/40 hover:text-white transition-colors"
-            >
-                ← RE-MIX STEMS &amp; TRY ANOTHER
-            </button>
-        </div>
     );
 }
