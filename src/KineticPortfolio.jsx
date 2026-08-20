@@ -698,18 +698,18 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             onTouchStart={(e) => forceUnlockAudio(e)}
             className="fixed inset-0 w-screen h-screen bg-[#050507] overflow-hidden select-none flex items-center justify-center cursor-pointer"
         >
-            {/* Ambient Background Blur for Desktop */}
+            {/* Ambient Background Blur for Mobile & Desktop (Cinematic Canvas Atmosphere) */}
             <div 
-                className="hidden md:block absolute inset-0 bg-cover bg-center filter blur-3xl opacity-30 scale-110 pointer-events-none transition-all duration-700"
+                className="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-40 scale-115 pointer-events-none transition-all duration-700"
                 style={{ backgroundImage: `url(${currentFrame.src})` }}
             />
 
             {/* SINGLE PURE HIGH-QUALITY MR AUDIO ELEMENT */}
             <audio ref={mrAudioRef} src={MR_AUDIO_SRC} loop playsInline preload="auto" />
 
-            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE */}
+            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE (모바일 100% 무손실 1:1 원본 비율 보존) */}
             <div 
-                className="relative w-full h-full md:w-[410px] md:h-[82vh] md:max-h-[820px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.15)] overflow-hidden transition-all duration-700 bg-black"
+                className="relative w-[92vw] max-w-[420px] aspect-square md:aspect-auto md:w-[410px] md:h-[82vh] md:max-h-[820px] rounded-[32px] md:rounded-[36px] border-2 border-white/20 shadow-[0_0_70px_rgba(0,0,0,0.95)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between"
                 style={{
                     filter: !isAudioUnlocked ? 'blur(20px) brightness(40%)' : 'none'
                 }}
@@ -751,7 +751,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 }}
                                 whileHover={{ scale: 1.04 }}
                                 whileTap={{ scale: 0.96 }}
-                                className="pointer-events-auto absolute top-[24%] left-1/2 -translate-x-1/2 w-[230px] sm:w-[260px] h-[130px] sm:h-[155px] rounded-t-[100px] rounded-b-2xl cursor-pointer group outline-none flex flex-col items-center justify-end pb-2.5"
+                                className="pointer-events-auto absolute top-[18%] md:top-[24%] left-1/2 -translate-x-1/2 w-[220px] sm:w-[260px] h-[125px] sm:h-[155px] rounded-t-[100px] rounded-b-2xl cursor-pointer group outline-none flex flex-col items-center justify-end pb-2.5"
                             >
                                 <div className="absolute inset-0 rounded-t-[100px] rounded-b-2xl border-2 border-[#E7FF00]/60 group-hover:border-[#E7FF00] transition-all duration-300 shadow-[0_0_25px_rgba(231,255,0,0.35)] group-hover:shadow-[0_0_45px_rgba(231,255,0,0.85)] animate-pulse" />
                                 <div className="absolute inset-0 rounded-t-[100px] rounded-b-2xl bg-[#E7FF00]/[0.05] group-hover:bg-[#E7FF00]/[0.14] backdrop-blur-[1px] transition-colors duration-300" />
