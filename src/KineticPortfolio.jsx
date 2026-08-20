@@ -4,21 +4,14 @@ import {
     Volume2, VolumeX, Sliders, Play, Pause, 
     Download, Music, Check, ThumbsUp, ArrowRight, 
     Compass, ExternalLink, QrCode, ChevronDown, RotateCcw, Zap, Flame, Mic, Building2, X, Globe, ShieldCheck, Activity,
-    Key, Lock, Tag, Ticket, Shield, Sparkles, ChevronUp
+    Key, Lock, Tag, Ticket, Shield, Sparkles, ChevronUp, Footprints
 } from 'lucide-react';
 
 const SECRET_YOUTUBE_URL = "https://www.youtube.com/watch?v=RUoWgJDZ0M8&t=1330s";
 const ATELIER_IMG = "/assets/frankfurt_sound_atelier.jpg";
 
-// Encoded Audio URIs for 100% Mobile & PC Browser Compatibility
-const STEM_SRCS = {
-    guitar: "/assets/manual_upload/A%20Twelve-minute%20Alibi/3%20Guitar.mp3",
-    bass: "/assets/manual_upload/A%20Twelve-minute%20Alibi/2%20Bass.mp3",
-    drums: "/assets/manual_upload/A%20Twelve-minute%20Alibi/1%20Drums.mp3",
-    perc: "/assets/manual_upload/A%20Twelve-minute%20Alibi/4%20Percussion.mp3",
-    synth: "/assets/manual_upload/A%20Twelve-minute%20Alibi/5%20Synth.mp3",
-    vocal: "/assets/manual_upload/A%20Twelve-minute%20Alibi/0%20Lead%20Vocals.mp3",
-};
+// Single Master High-Fidelity Audio Track (Zero Sync Issues)
+const MASTER_AUDIO_SRC = "/assets/manual_upload/A%20Twelve-minute%20Alibi_classic/J_SEAN_F_Capriccio_in_A_minor_Op1_FINAL_MASTER.wav";
 
 // Full 7-Step 1st-Person Walkthrough Story Sequence (100% Architecture & Lighting Consistency)
 const FRAMES = [
@@ -104,7 +97,6 @@ const ATELIER_100_WORDS = [
     "⚜ ATELIER", "§ SERENADE", "¶ NOCTURNE", "just.sean.flows"
 ];
 
-// GENERATE 100 DIVERSE SHAPE CATEGORIES WITH 3X AMPLIFIED 3D Z-DEPTH
 const ATELIER_DEBRIS_100 = ATELIER_100_WORDS.map((text, i) => {
     const isEmoji = ["🔑", "🗝️", "🔒", "⚜", "§", "¶"].includes(text);
     const shapeCategory = isEmoji ? 6 : (i % 6);
@@ -187,7 +179,7 @@ export default function App() {
     // 60FPS SMOOTH TRAIL LERP LOOP
     useEffect(() => {
         let animId;
-        const lerpFactors = [0.32, 0.22, 0.16, 0.11]; // Different lag per trail node
+        const lerpFactors = [0.32, 0.22, 0.16, 0.11];
 
         const updateTrails = () => {
             let prevX = targetPos.current.x;
@@ -274,7 +266,6 @@ export default function App() {
         setTilt({ x: normX, y: normY });
 
         if (spotlightRef.current) {
-            // 240px cursor centered: -120px offset
             spotlightRef.current.style.transform = `translate3d(${clientX - 120}px, ${clientY - 120}px, 0)`;
         }
     };
@@ -296,9 +287,7 @@ export default function App() {
             onTouchStart={handleTouchMoveUnified}
             className="relative min-h-screen bg-[#050507] text-[#ECEBE4] font-sans antialiased selection:bg-[#E7FF00] selection:text-black overflow-hidden select-none fixed inset-0 flex items-center justify-center"
         >
-            {/* 1. UNIFIED MOBILE & PC GLOW CURSOR (20% LARGER + SOFTENED CORE + 4 MUSICAL AFTERIMAGES) */}
-            
-            {/* 4 TRAILING MUSICAL GLYPH AFTERIMAGES */}
+            {/* 1. UNIFIED MOBILE & PC GLOW CURSOR (+20% SIZE + 4 MUSICAL AFTERIMAGES) */}
             {cursorPos.isHovered && trails.map((t, idx) => {
                 const scales = [0.85, 0.65, 0.48, 0.32];
                 const opacities = isScrollingUp ? [0.90, 0.75, 0.55, 0.38] : [0.65, 0.45, 0.28, 0.16];
@@ -314,25 +303,21 @@ export default function App() {
                         }}
                         className="fixed top-0 left-0 pointer-events-none z-50 transition-opacity duration-150 flex items-center justify-center"
                     >
-                        {/* Trail 0: Beamed Notes ♫ */}
                         {idx === 0 && (
                             <svg width="28" height="28" viewBox="0 0 24 24" fill={colors[0]} className="filter drop-shadow-[0_0_8px_#E7FF00]">
                                 <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                             </svg>
                         )}
-                        {/* Trail 1: Eighth Note ♪ */}
                         {idx === 1 && (
                             <svg width="24" height="24" viewBox="0 0 24 24" fill={colors[1]} className="filter drop-shadow-[0_0_8px_#00F0FF]">
                                 <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/>
                             </svg>
                         )}
-                        {/* Trail 2: Treble / Cadenza Symbol 𝄞 */}
                         {idx === 2 && (
                             <div className="font-serif font-black text-xl text-[#E7FF00] drop-shadow-[0_0_8px_#E7FF00]">
                                 𝄞
                             </div>
                         )}
-                        {/* Trail 3: Sharp & Fermata Dot ♯ */}
                         {idx === 3 && (
                             <div className="font-mono font-black text-base text-[#C5A059] drop-shadow-[0_0_6px_#C5A059]">
                                 ♯
@@ -342,7 +327,7 @@ export default function App() {
                 );
             })}
 
-            {/* MAIN FLASHLIGHT SPOTLIGHT (+20% SIZE: 240px / 312px on scroll) */}
+            {/* MAIN FLASHLIGHT SPOTLIGHT */}
             <div 
                 ref={spotlightRef}
                 style={{
@@ -355,7 +340,6 @@ export default function App() {
                         : 'w-[240px] h-[240px]'
                 }`}
             >
-                {/* Outer Glow Wave (20% Softer Brightness, Enhanced Rich Atmospheric Glow) */}
                 <div 
                     className={`w-full h-full rounded-full transition-all duration-300 filter blur-xl ${
                         isScrollingUp 
@@ -364,7 +348,6 @@ export default function App() {
                     }`} 
                 />
 
-                {/* Center Core Spark with Music Glyph */}
                 <div 
                     className={`absolute inset-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-200 flex items-center justify-center ${
                         isScrollingUp 
@@ -375,7 +358,6 @@ export default function App() {
                     <Music className={`w-3 h-3 text-black transition-transform ${isScrollingUp ? 'scale-125' : 'scale-90'}`} />
                 </div>
 
-                {/* Dynamic Upward Dopamine Kinetic Badge */}
                 {isScrollingUp && (
                     <motion.div 
                         initial={{ opacity: 0, y: 10, scale: 0.8 }}
@@ -451,7 +433,7 @@ export default function App() {
 }
 
 // ==============================================================================
-// 1인칭 보행 엔진 (초기 3초 탐색 일시정지 + 상향 스크롤 도파민 연출)
+// 1인칭 보행 엔진 (단일 마스터 음원 3D DSP + 5배 대형 중앙 파워 & 발자국)
 // ==============================================================================
 function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingUp, onEnterMixer, onOpenAtelier }) {
     const [progress, setProgress] = useState(0);
@@ -460,26 +442,22 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
     // Initial Audio Unlock & Blur Overlay State
     const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
 
-    // Initial 3-Second Exploration Grace Period (자동 진행 일시 정지)
+    // Initial 3-Second Exploration Grace Period
     const [gracePeriodSec, setGracePeriodSec] = useState(3);
     const hasUserStartedScroll = useRef(false);
 
-    // Live Dev Kinetics Power Meter State (Raw Number Only, No % Sign!)
+    // Live Dev Kinetics Power Meter State
     const [livePowerStr, setLivePowerStr] = useState("0");
     const [isTremblingAt8012, setIsTremblingAt8012] = useState(false);
 
     const [audioTier, setAudioTier] = useState(1);
 
+    // SINGLE MASTER AUDIO GRAPH REFS
     const audioCtxRef = useRef(null);
-    const guitarRef = useRef(null); // MASTER TIER 1 TRACK (3 Guitar.mp3)
-    const bassRef = useRef(null);
-    const drumsRef = useRef(null);
-    const percRef = useRef(null);
-    const synthRef = useRef(null);
-    const vocalRef = useRef(null);
-
-    const mediaNodesRef = useRef({});
-    const prevStemVolsRef = useRef({ bass: 0, drums: 0, perc: 0, synth: 0, vocal: 0 });
+    const masterAudioRef = useRef(null);
+    const lowpassFilterRef = useRef(null);
+    const stereoPannerRef = useRef(null);
+    const masterGainRef = useRef(null);
 
     // Dynamic Footstep Timestamp Guard & Alternating Foot State
     const lastFootstepTimeRef = useRef(0);
@@ -518,13 +496,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
     // PAGE-LEVEL BACKGROUND AUDIO PAUSE SAFEGUARD
     useEffect(() => {
-        const pauseAllAudioSafeguard = () => {
-            const allAudioRefs = [guitarRef, bassRef, drumsRef, percRef, synthRef, vocalRef];
-            allAudioRefs.forEach((r) => {
-                if (r.current && !r.current.paused) {
-                    try { r.current.pause(); } catch(e) {}
-                }
-            });
+        const pauseAudioSafeguard = () => {
+            if (masterAudioRef.current && !masterAudioRef.current.paused) {
+                try { masterAudioRef.current.pause(); } catch(e) {}
+            }
             if (audioCtxRef.current && audioCtxRef.current.state === 'running') {
                 try { audioCtxRef.current.suspend(); } catch(e) {}
             }
@@ -535,32 +510,25 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 if (audioCtxRef.current && audioCtxRef.current.state === 'suspended') {
                     try { audioCtxRef.current.resume(); } catch(e) {}
                 }
-                if (guitarRef.current && guitarRef.current.paused) {
-                    try { guitarRef.current.play().catch(() => {}); } catch(e) {}
+                if (masterAudioRef.current && masterAudioRef.current.paused) {
+                    try { masterAudioRef.current.play().catch(() => {}); } catch(e) {}
                 }
             }
         };
 
         const handleVisibilityChange = () => {
-            if (document.hidden) {
-                pauseAllAudioSafeguard();
-            } else {
-                resumeAudioIfUnlocked();
-            }
-        };
-
-        const handlePageHide = () => {
-            pauseAllAudioSafeguard();
+            if (document.hidden) pauseAudioSafeguard();
+            else resumeAudioIfUnlocked();
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('pagehide', handlePageHide);
-        window.addEventListener('blur', handlePageHide);
+        window.addEventListener('pagehide', pauseAudioSafeguard);
+        window.addEventListener('blur', pauseAudioSafeguard);
 
         return () => {
             document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('pagehide', handlePageHide);
-            window.removeEventListener('blur', handlePageHide);
+            window.removeEventListener('pagehide', pauseAudioSafeguard);
+            window.removeEventListener('blur', pauseAudioSafeguard);
         };
     }, [isAudioUnlocked]);
 
@@ -583,7 +551,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             osc.frequency.setValueAtTime(isLeft ? 165 : 190, ctx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(75, ctx.currentTime + 0.05);
 
-            oscGain.gain.setValueAtTime(0.15, ctx.currentTime);
+            oscGain.gain.setValueAtTime(0.12, ctx.currentTime);
             oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
             const bufferSize = Math.floor(ctx.sampleRate * 0.05);
@@ -602,17 +570,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             noiseFilter.Q.value = 2.4;
 
             const noiseGain = ctx.createGain();
-            noiseGain.gain.setValueAtTime(0.22, ctx.currentTime);
+            noiseGain.gain.setValueAtTime(0.18, ctx.currentTime);
             noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
 
             const mainGain = ctx.createGain();
-            mainGain.gain.value = 1.05;
-
-            const delayNode = ctx.createDelay();
-            delayNode.delayTime.value = 0.22;
-
-            const echoFeedbackGain = ctx.createGain();
-            echoFeedbackGain.gain.value = 0.42;
+            mainGain.gain.value = 0.95;
 
             osc.connect(oscGain);
             noise.connect(noiseFilter);
@@ -622,10 +584,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             noiseGain.connect(mainGain);
 
             mainGain.connect(ctx.destination);
-            mainGain.connect(delayNode);
-            delayNode.connect(echoFeedbackGain);
-            echoFeedbackGain.connect(delayNode);
-            delayNode.connect(ctx.destination);
 
             osc.start(); noise.start();
             osc.stop(ctx.currentTime + 0.06);
@@ -633,11 +591,9 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         } catch (e) {}
     };
 
-    // STRICT FOOTSTEP RATE-LIMIT & LEVEL 1 ONLY OFF-SWITCH SAFEGUARD
-    const MIN_FOOTSTEP_INTERVAL_MS = 260;
+    const MIN_FOOTSTEP_INTERVAL_MS = 280;
 
     const triggerCleanFootstep = (speedVelocity = 1) => {
-        // FOOTSTEP OFF-SWITCH: ONLY PLAY DURING INITIAL ENTRY / GUITAR-ONLY TIER 1 (OFF BEFORE LEVEL UP / TIER 2+)
         if (currentPower.current >= 20 || audioTier > 1) return;
 
         const now = Date.now();
@@ -649,29 +605,48 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         }
     };
 
-    // SETUP UNIFIED WEB AUDIO MEDIA GRAPH
-    const setupUnifiedAudioGraph = (ctx) => {
-        const stemsMap = {
-            guitar: guitarRef, bass: bassRef, drums: drumsRef,
-            perc: percRef, synth: synthRef, vocal: vocalRef
-        };
+    // SETUP UNIFIED SINGLE MASTER AUDIO DSP GRAPH
+    const setupSingleMasterAudioGraph = (ctx) => {
+        if (lowpassFilterRef.current || !masterAudioRef.current) return;
 
-        Object.keys(stemsMap).forEach((key) => {
-            const ref = stemsMap[key];
-            if (ref.current && !mediaNodesRef.current[key]) {
-                try {
-                    const sourceNode = ctx.createMediaElementSource(ref.current);
-                    const gainNode = ctx.createGain();
-                    gainNode.gain.value = key === 'guitar' ? 0.50 : 0.0;
-                    sourceNode.connect(gainNode);
-                    gainNode.connect(ctx.destination);
-                    mediaNodesRef.current[key] = { sourceNode, gainNode };
-                } catch (e) {}
+        try {
+            const sourceNode = ctx.createMediaElementSource(masterAudioRef.current);
+            
+            // 1. Distance Low-pass Filter (거리감에 따른 먹먹함 -> 청량함 스위프)
+            const lowpass = ctx.createBiquadFilter();
+            lowpass.type = 'lowpass';
+            lowpass.frequency.value = 400; // 출발 지점: 벽 너머로 은은하게 들리는 먹먹한 튜닝 소리
+            lowpass.Q.value = 1.0;
+            lowpassFilterRef.current = lowpass;
+
+            // 2. 3D Spatial Stereo Panner (자이로/마우스 좌우 틸트 반응)
+            let panner = null;
+            if (ctx.createStereoPanner) {
+                panner = ctx.createStereoPanner();
+                panner.pan.value = 0;
+                stereoPannerRef.current = panner;
             }
-        });
+
+            // 3. Dynamic Distance & Power Master Gain
+            const gain = ctx.createGain();
+            gain.gain.value = 0.25;
+            masterGainRef.current = gain;
+
+            // Connect DSP Chain: Source -> Lowpass -> (Panner) -> Gain -> Destination
+            if (panner) {
+                sourceNode.connect(lowpass);
+                lowpass.connect(panner);
+                panner.connect(gain);
+            } else {
+                sourceNode.connect(lowpass);
+                lowpass.connect(gain);
+            }
+            gain.connect(ctx.destination);
+
+        } catch (e) {}
     };
 
-    // GUARANTEED INSTANT SOUND UNLOCKER WITH FOOTSTEP CHECK SOUND
+    // GUARANTEED INSTANT SOUND UNLOCKER
     const forceUnlockAudio = (e) => {
         if (e && e.stopPropagation) e.stopPropagation();
 
@@ -687,60 +662,26 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 const ctx = audioCtxRef.current;
                 if (ctx.state === 'suspended') ctx.resume();
 
-                setupUnifiedAudioGraph(ctx);
+                setupSingleMasterAudioGraph(ctx);
             }
         } catch (err) {}
 
-        if (guitarRef.current) {
-            guitarRef.current.muted = false;
-            guitarRef.current.playsInline = true;
-            guitarRef.current.volume = 0.50;
-            if (mediaNodesRef.current.guitar) {
-                mediaNodesRef.current.guitar.gainNode.gain.value = 0.50;
-            }
-            if (guitarRef.current.paused) {
-                guitarRef.current.play().catch(() => {});
+        if (masterAudioRef.current) {
+            masterAudioRef.current.muted = false;
+            masterAudioRef.current.playsInline = true;
+            if (masterAudioRef.current.paused) {
+                masterAudioRef.current.play().catch(() => {});
             }
         }
-
-        const otherRefs = [bassRef, drumsRef, percRef, synthRef, vocalRef];
-
-        otherRefs.forEach((r) => {
-            if (r.current) {
-                r.current.muted = false;
-                r.current.playsInline = true;
-                if (r.current.volume === undefined || r.current.volume === null) {
-                    r.current.volume = 0.0;
-                }
-                if (r.current.paused) {
-                    r.current.play().catch(() => {});
-                }
-            }
-        });
     };
 
-    // CLEAN UNMOUNT AUDIO LIFECYCLE CLEANUP
-    useEffect(() => {
-        return () => {
-            [guitarRef, bassRef, drumsRef, percRef, synthRef, vocalRef].forEach((r) => {
-                if (r.current) {
-                    try {
-                        r.current.pause();
-                    } catch (e) {}
-                }
-            });
-        };
-    }, []);
-
-    // REAL-TIME VOLUME DECAY & GUITAR-FIRST STEM UNMUTE ENGINE
+    // REAL-TIME 3D SPATIAL DSP & POWER ENGINE
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
         const volumeEngineInterval = setInterval(() => {
             const now = Date.now();
             const timeSinceScroll = now - lastScrollPumpTime.current;
-
-            // 3초 탐색 기간 동안에는 파워 감소 일시정지
             const isGraceActive = (gracePeriodSec > 0 && !hasUserStartedScroll.current);
 
             if (timeSinceScroll > 180 && !isGraceActive) {
@@ -779,90 +720,47 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             }
 
             let tier = 1;
-            let targetGuitar = 0.50;
-            let targetBass = 0.0;
-            let targetOtherInst = 0.0;
-            let targetVocal = 0.0;
-
-            if (rawPower >= 80) {
-                tier = 4;
-                targetGuitar = 1.0;
-                targetBass = 1.0;
-                targetOtherInst = 1.0;
-                targetVocal = 0.95;
-            } else if (rawPower >= 50) {
-                tier = 3;
-                if (unlockedLevelFloor.current < 50) unlockedLevelFloor.current = 50;
-                targetGuitar = 0.90;
-                targetBass = 0.90;
-                targetOtherInst = 0.85;
-                targetVocal = 0.0;
-            } else if (rawPower >= 20) {
-                tier = 2;
-                if (unlockedLevelFloor.current < 20) unlockedLevelFloor.current = 20;
-                targetGuitar = 0.75;
-                targetBass = 0.70;
-                targetOtherInst = 0.0;
-                targetVocal = 0.0;
-            } else {
-                tier = 1;
-                targetGuitar = 0.50;
-                targetBass = 0.0;
-                targetOtherInst = 0.0;
-                targetVocal = 0.0;
-            }
+            if (rawPower >= 80) tier = 4;
+            else if (rawPower >= 50) tier = 3;
+            else if (rawPower >= 20) tier = 2;
+            else tier = 1;
 
             setAudioTier(tier);
 
-            if (guitarRef.current) {
-                guitarRef.current.volume = targetGuitar;
-                if (mediaNodesRef.current.guitar) {
-                    mediaNodesRef.current.guitar.gainNode.gain.value = targetGuitar;
-                }
-                if (guitarRef.current.paused) {
-                    guitarRef.current.play().catch(() => {});
-                }
+            // REAL-TIME DSP PARAMETER UPDATES:
+            const curProg = progressRef.current;
+            const progRatio = curProg / 100;
+
+            // 1. Cutoff frequency: 400Hz (far) -> 20,000Hz (at the door)
+            if (lowpassFilterRef.current && audioCtxRef.current) {
+                const targetCutoff = 400 + Math.pow(progRatio, 1.8) * 19600;
+                lowpassFilterRef.current.frequency.setTargetAtTime(targetCutoff, audioCtxRef.current.currentTime, 0.1);
             }
 
-            const masterTime = (guitarRef.current && guitarRef.current.currentTime) ? guitarRef.current.currentTime : 0;
+            // 2. 3D Stereo Pan based on Gyro/Mouse Tilt X
+            if (stereoPannerRef.current && audioCtxRef.current) {
+                const panVal = Math.max(-0.6, Math.min(0.6, tilt.x * 0.45));
+                stereoPannerRef.current.pan.setTargetAtTime(panVal, audioCtxRef.current.currentTime, 0.1);
+            }
 
-            const applyStemVolClean = (ref, targetVol, stemKey) => {
-                if (ref.current) {
-                    const prevVol = prevStemVolsRef.current[stemKey] || 0;
-                    
-                    if (prevVol <= 0.01 && targetVol > 0.01 && masterTime > 0) {
-                        ref.current.currentTime = masterTime;
-                    }
-
-                    ref.current.volume = targetVol;
-                    if (mediaNodesRef.current[stemKey]) {
-                        mediaNodesRef.current[stemKey].gainNode.gain.value = targetVol;
-                    }
-                    prevStemVolsRef.current[stemKey] = targetVol;
-
-                    if (targetVol > 0 && ref.current.paused) {
-                        ref.current.play().catch(() => {});
-                    }
-                }
-            };
-
-            applyStemVolClean(bassRef, targetBass, 'bass');
-            applyStemVolClean(drumsRef, targetOtherInst, 'drums');
-            applyStemVolClean(percRef, targetOtherInst, 'perc');
-            applyStemVolClean(synthRef, targetOtherInst, 'synth');
-            applyStemVolClean(vocalRef, targetVocal, 'vocal');
+            // 3. Dynamic Distance Volume & Power Swell
+            if (masterGainRef.current && audioCtxRef.current) {
+                const baseDistGain = 0.20 + Math.pow(progRatio, 1.6) * 0.75;
+                const powerBoost = 0.85 + (rawPower / 100) * 0.35;
+                const finalGain = Math.min(1.0, baseDistGain * powerBoost);
+                masterGainRef.current.gain.setTargetAtTime(finalGain, audioCtxRef.current.currentTime, 0.1);
+            }
 
         }, 50);
 
         return () => clearInterval(volumeEngineInterval);
-    }, [isAudioUnlocked, gracePeriodSec]);
+    }, [isAudioUnlocked, gracePeriodSec, tilt]);
 
-    // WALKING PACING TIMELINE (체류 시간 2배 확장 & 처음 3초간 자동 흐름 일시 정지)
+    // WALKING PACING TIMELINE (체류 시간 2배 확장)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
         const interval = setInterval(() => {
-            // 3초 탐색 기간 동안에는 자동 흐름 일시 정지
             if (gracePeriodSec > 0 && !hasUserStartedScroll.current) return;
 
             setProgress((prev) => {
@@ -876,7 +774,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         return () => clearInterval(interval);
     }, [isAudioUnlocked, gracePeriodSec]);
 
-    // PROGRESSIVE SCROLL & TOUCH ENGINE (상향 스크롤 감지 및 도파민 활성화, 2배 체류 감도)
+    // PROGRESSIVE SCROLL & TOUCH ENGINE (2배 체류 감도 & 상향 스크롤 도파민)
     useEffect(() => {
         const triggerDopamineScrollUp = () => {
             hasUserStartedScroll.current = true;
@@ -895,7 +793,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             forceUnlockAudio(e);
             if (!isAudioUnlocked) return;
 
-            // 오직 밑에서 위로(화면 전진 방향) 스크롤할 때만 도파민 활성화!
             if (e.deltaY > 0) {
                 triggerDopamineScrollUp();
             } else {
@@ -912,7 +809,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             currentPower.current = Math.min(100, currentPower.current + powerIncrement);
             lastScrollPumpTime.current = Date.now();
 
-            // 체류 시간 2배 확장을 위해 진행도 증가량 절반으로 조정
             const clampedDelta = Math.min(rawDelta * 0.00225, 1.25);
             setProgress((prev) => {
                 const next = Math.min(100, prev + clampedDelta);
@@ -951,7 +847,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
             const now = Date.now();
             const timeDiff = Math.max(16, now - touchStartTime.current);
 
-            // 오직 위로 스와이프(전진)할 때만 도파민 활성화!
             if (deltaY > 0) {
                 triggerDopamineScrollUp();
 
@@ -966,7 +861,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 currentPower.current = Math.min(100, currentPower.current + powerIncrement);
                 lastScrollPumpTime.current = now;
 
-                // 체류 시간 2배 확장을 위해 터치 진행도 증가량 절반으로 조정
                 const strokeProgress = Math.min(deltaY * 0.011, 1.9);
                 setProgress((prev) => {
                     const next = Math.min(100, prev + strokeProgress);
@@ -1026,15 +920,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 style={{ backgroundImage: `url(${currentFrame.src})` }}
             />
 
-            {/* 6 Synchronized Multi-Stem Audio Elements */}
-            <audio ref={guitarRef} src={STEM_SRCS.guitar} loop playsInline preload="auto" />
-            <audio ref={bassRef} src={STEM_SRCS.bass} loop playsInline preload="auto" />
-            <audio ref={drumsRef} src={STEM_SRCS.drums} loop playsInline preload="auto" />
-            <audio ref={percRef} src={STEM_SRCS.perc} loop playsInline preload="auto" />
-            <audio ref={synthRef} src={STEM_SRCS.synth} loop playsInline preload="auto" />
-            <audio ref={vocalRef} src={STEM_SRCS.vocal} loop playsInline preload="auto" />
+            {/* SINGLE HIGH-FIDELITY MASTER AUDIO ELEMENT */}
+            <audio ref={masterAudioRef} src={MASTER_AUDIO_SRC} loop playsInline preload="auto" />
 
-            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE (CLEAN 9:16 RESPONSIVE STAGE) */}
+            {/* 1. FULL 7-STEP FLIPBOOK WALKING STAGE */}
             <div 
                 className="relative w-full h-full md:w-[410px] md:h-[82vh] md:max-h-[820px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.15)] overflow-hidden transition-all duration-700 bg-black"
                 style={{
@@ -1086,7 +975,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     )}
                 </AnimatePresence>
 
-                                {/* 2.5 NARROW AUDIO-REACTIVE KINETIC SONIC BEAM (상단 레이어 z-25, 좁고 세련된 음악 매칭 빔) */}
+                {/* 2.5 NARROW AUDIO-REACTIVE KINETIC SONIC BEAM */}
                 <div className="absolute inset-x-0 bottom-0 h-64 pointer-events-none z-25 flex flex-col items-center justify-end overflow-hidden">
                     <AnimatePresence>
                         {isScrollingUp && (
@@ -1097,11 +986,9 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 transition={{ duration: 0.25, ease: "easeOut" }}
                                 className="relative w-40 sm:w-52 h-52 flex flex-col items-center justify-end"
                             >
-                                {/* Core Upward Neon Light Beam */}
                                 <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#E7FF00]/30 via-[#00F0FF]/25 to-transparent rounded-full filter blur-lg" />
                                 <div className="absolute w-1.5 h-44 bottom-0 bg-gradient-to-t from-[#E7FF00] via-[#00F0FF] to-transparent rounded-full shadow-[0_0_20px_#E7FF00,0_0_35px_#00F0FF] animate-pulse" />
 
-                                {/* 5-Pillar Rhythmic Audio EQ Kinetic Bars */}
                                 <div className="relative z-10 flex items-end gap-1.5 mb-8">
                                     {[0.4, 0.8, 1.0, 0.75, 0.45].map((h, i) => (
                                         <motion.div
@@ -1120,7 +1007,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                     ))}
                                 </div>
 
-                                {/* Micro Kinetic Sonic Ripples */}
                                 <motion.div
                                     animate={{
                                         scale: [0.8, 1.4],
@@ -1139,24 +1025,37 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </AnimatePresence>
                 </div>
 
-                {/* 3. Floating Spatial HUD & Cleaned-up Signature Typography */}
-                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
-                    {/* PURE TRANSLUCENT ETHEREAL POWER NUMBER */}
-                    <div className="flex flex-col items-center justify-center pt-2 select-none pointer-events-none">
-                        <span 
-                            className={`font-mono text-sm sm:text-base font-black tracking-[0.25em] transition-all duration-300 ${
-                                isTremblingAt8012 
-                                    ? 'text-[#FF0055] animate-pulse drop-shadow-[0_0_20px_#FF0055] opacity-90' 
-                                    : isScrollingUp
-                                        ? 'text-[#E7FF00] drop-shadow-[0_0_15px_#E7FF00] opacity-80 scale-110'
-                                        : 'text-white/30 drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] opacity-40'
-                            }`}
-                        >
+                {/* 3. CENTER WATERMARK POWER CHECK NUMBER (5X LARGER + GLOWING FOOTPRINTS) */}
+                <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center select-none overflow-hidden">
+                    <div 
+                        className={`flex items-center gap-3 transition-all duration-300 ${
+                            isTremblingAt8012
+                                ? 'scale-110 text-[#FF0055] drop-shadow-[0_0_35px_#FF0055] opacity-80 animate-pulse'
+                                : isScrollingUp
+                                    ? 'scale-105 text-[#E7FF00] drop-shadow-[0_0_25px_rgba(231,255,0,0.5)] opacity-35'
+                                    : 'text-white/20 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] opacity-20'
+                        }`}
+                        style={{
+                            transform: `perspective(600px) translate3d(${tiltX * 0.3}px, ${tiltY * 0.3}px, 0)`
+                        }}
+                    >
+                        {/* Custom Glowing Footprints Icon */}
+                        <Footprints className={`w-10 h-10 sm:w-14 sm:h-14 transition-transform duration-200 ${
+                            isScrollingUp ? 'scale-125 animate-bounce' : 'scale-100'
+                        }`} />
+
+                        {/* 5X Massive Center Number */}
+                        <span className="font-mono text-6xl sm:text-8xl font-black tracking-tight leading-none">
                             {livePowerStr}
                         </span>
                     </div>
+                </div>
 
-                    {/* True 3D Assembled Typography (단어별 대화형 블룸 & 스크롤/파워 레벨 연동 속도) */}
+                {/* 4. Floating Spatial HUD & Cleaned-up Signature Typography */}
+                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
+                    <div className="h-6" />
+
+                    {/* True 3D Assembled Typography (단어별 대화형 블룸) */}
                     <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -1176,7 +1075,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 }}
                                 className="flex flex-col items-center text-center"
                             >
-                                {/* SUBTITLE / TOP PHRASE (WORD BY WORD) */}
                                 <h2 className="font-sans text-xl sm:text-2xl font-light tracking-tight text-[#E7FF00] uppercase leading-none mb-2 flex flex-wrap items-center justify-center gap-x-2">
                                     {currentFrame.titleTop.split(" ").map((word, wIdx) => (
                                         <motion.span
@@ -1201,7 +1099,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                     ))}
                                 </h2>
 
-                                {/* MAIN TITLE / CONVERSATIONAL PHRASE (WORD BY WORD SPOKEN BLOOM) */}
                                 <h1 
                                     className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5"
                                     style={{
@@ -1268,10 +1165,8 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                             transformStyle: 'preserve-3d'
                         }}
                     >
-                        {/* CLEAN DARK OVERLAY & BLUR FILTER LAYER */}
                         <div className="absolute inset-0 bg-black/55 backdrop-blur-[3.5px] pointer-events-none z-10" />
 
-                        {/* 100-ITEM 3D PARALLAX DEBRIS LAYER (Z-0) */}
                         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
                             {ATELIER_DEBRIS_100.map((item) => {
                                 const tiltXVal = tilt.x * 32 * item.tiltMult;
@@ -1377,7 +1272,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                             })}
                         </div>
 
-                        {/* FOREGROUND 3D TILT "LET'S GO !" CONTAINER */}
                         <motion.div
                             initial={{ y: 260, opacity: 0 }}
                             animate={{ 
@@ -1396,7 +1290,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                             }}
                             className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20"
                         >
-                            {/* 3X LOUD NEON RED/MAGENTA GHOST LAYER */}
                             <div 
                                 className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-90 transition-transform duration-75 ease-out"
                                 style={{
@@ -1409,7 +1302,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_25px_#FF0055]">!</span>
                             </div>
 
-                            {/* 3X LOUD NEON CYAN/BLUE GHOST LAYER */}
                             <div 
                                 className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-90 transition-transform duration-75 ease-out"
                                 style={{
@@ -1422,7 +1314,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_25px_#00F0FF]">!</span>
                             </div>
 
-                            {/* MASTER CORE FOREGROUND TEXT */}
                             <div className="relative z-10 flex flex-col items-center text-center">
                                 <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
                                     LET
@@ -1441,8 +1332,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </motion.div>
                 )}
             </AnimatePresence>
-
-
         </div>
     );
 }
