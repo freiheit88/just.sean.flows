@@ -22,8 +22,9 @@ const FRAMES = [
     { 
         id: 1, 
         src: "/assets/walk_story_02_mid_alley.jpg", 
-        titleTop: "GUILD ATELIER", 
-        titleMain: "HEAR THE TUNING?", 
+        videoSrc: "/assets/step_02_transition.mp4",
+        titleTop: "ACTIVE QUEST", 
+        titleMain: "MISSION MANIFEST.", 
     },
     { 
         id: 2, 
@@ -725,11 +726,23 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         className="absolute inset-0 w-full h-full"
                     >
-                        <img
-                            src={f.src}
-                            alt={f.titleMain}
-                            className="w-full h-full object-cover transition-transform duration-700 scale-100"
-                        />
+                        {f.videoSrc && activeFrameIdx === idx ? (
+                            <video
+                                src={f.videoSrc}
+                                poster={f.src}
+                                autoPlay
+                                playsInline
+                                muted
+                                loop
+                                className="w-full h-full object-cover transition-transform duration-700 scale-100"
+                            />
+                        ) : (
+                            <img
+                                src={f.src}
+                                alt={f.titleMain}
+                                className="w-full h-full object-cover transition-transform duration-700 scale-100"
+                            />
+                        )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/60" />
                     </motion.div>
                 ))}
