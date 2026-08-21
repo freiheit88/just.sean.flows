@@ -24,9 +24,13 @@ dist-ssr
 *.sw?
 
 # Large media files > 100MB
+# Allow essential transition video
+!public/assets/step_02_transition.mp4
 *.mp4
 *.sf2
-public/assets/manual_upload/**/*.mp4
+public/assets/manual_upload/**/# Allow essential transition video
+!public/assets/step_02_transition.mp4
+*.mp4
 public/assets/sounds/music/*.sf2
 
 # Environment & Secrets

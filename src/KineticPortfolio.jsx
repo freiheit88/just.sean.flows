@@ -728,12 +728,20 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     >
                         {f.videoSrc && activeFrameIdx === idx ? (
                             <video
+                                ref={(el) => {
+                                    if (el) {
+                                        el.muted = true;
+                                        el.playsInline = true;
+                                        el.play().catch(() => {});
+                                    }
+                                }}
                                 src={f.videoSrc}
                                 poster={f.src}
                                 autoPlay
                                 playsInline
                                 muted
                                 loop
+                                preload="auto"
                                 className="w-full h-full object-cover transition-transform duration-700 scale-100"
                             />
                         ) : (
