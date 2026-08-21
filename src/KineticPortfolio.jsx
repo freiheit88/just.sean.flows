@@ -8,13 +8,13 @@ import { FRAMES, MR_AUDIO_SRC } from './constants/frames';
 import { useDeviceGyro } from './hooks/useDeviceGyro';
 import { useTrailCursor } from './hooks/useTrailCursor';
 import { useWalkPhysics } from './hooks/useWalkPhysics';
+import { useAudioMaster } from './hooks/useAudioMaster';
 
 // 3. Modular UI Components
 import { Header3D } from './components/common/Header3D';
 import { KineticCursor } from './components/common/KineticCursor';
 import { VolumePrompt } from './components/common/VolumePrompt';
 import { StainedGlassArch } from './components/walk/StainedGlassArch';
-import { CanvasVideoPlayer } from './components/walk/CanvasVideoPlayer';
 import { Step07Timeline } from './components/walk/Step07Timeline';
 import { SonicFootprints } from './components/walk/SonicFootprints';
 import { EvolutionGauge } from './components/walk/EvolutionGauge';
@@ -34,12 +34,18 @@ export default function KineticPortfolio() {
         updatePointerPos, triggerDopamineScrollUp 
     } = useTrailCursor();
 
-    // Audio & Modal States
-    const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
-    const [isMuted, setIsMuted] = useState(false);
+    // Bulletproof Mobile Master Audio Engine Hook
+    const {
+        isAudioUnlocked,
+        isMuted,
+        mrAudioRef,
+        forceUnlockAudio,
+        handleToggleMute
+    } = useAudioMaster();
+
+    // Modals
     const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
     const [isAtelierModalOpen, setIsAtelierModalOpen] = useState(false);
-    const mrAudioRef = useRef(null);
 
     // React Stale-Closure Free Walking Physics Engine
     const { progress, activeFrameIdx, resetWalk, handleVideoCompleted } = useWalkPhysics({
@@ -47,28 +53,6 @@ export default function KineticPortfolio() {
         onFinishWalk: () => setIsTrailerModalOpen(true),
         triggerDopamineScrollUp
     });
-
-    // Sound Mute Toggle Handler
-    const handleToggleMute = () => {
-        setIsMuted((prev) => {
-            const next = !prev;
-            if (mrAudioRef.current) {
-                mrAudioRef.current.muted = next;
-            }
-            return next;
-        });
-    };
-
-    // Audio Unlock Handler
-    const forceUnlockAudio = () => {
-        if (!isAudioUnlocked) {
-            setIsAudioUnlocked(true);
-            if (mrAudioRef.current) {
-                mrAudioRef.current.volume = 0.85;
-                mrAudioRef.current.play().catch(() => {});
-            }
-        }
-    };
 
     // Stained Glass Visibility on Frames 3 & 4
     const isAtelierOptionVisible = (activeFrameIdx === 3 || activeFrameIdx === 4);
@@ -83,6 +67,7 @@ export default function KineticPortfolio() {
                 }
             }}
             onClick={forceUnlockAudio}
+            onTouchStart={forceUnlockAudio}
         >
             {/* Background Master MR Audio Element */}
             <audio ref={mrAudioRef} src={MR_AUDIO_SRC} loop playsInline preload="auto" />
@@ -117,13 +102,9 @@ export default function KineticPortfolio() {
                             <video
                                 ref={(el) => {
                                     if (el) {
-                                        el.muted = false;
-                                        el.volume = 1.0;
+                                        el.muted = true; // Muted to prevent mobile OS from killing background MR soundtrack
                                         el.playsInline = true;
-                                        el.play().catch(() => {
-                                            el.muted = true;
-                                            el.play().catch(() => {});
-                                        });
+                                        el.play().catch(() => {});
                                     }
                                 }}
                                 src={f.videoSrc}
@@ -149,7 +130,7 @@ export default function KineticPortfolio() {
                     </motion.div>
                 ))}
 
-                {/* 1. Step 1: Dynamic 30% Volume Calibrator & Morphing Top-Right Mute Button */}
+                {/* 1. Dynamic 30% Volume Calibrator & Morphing Top-Right Mute Button */}
                 <VolumePrompt 
                     isAudioUnlocked={isAudioUnlocked} 
                     isMuted={isMuted}
