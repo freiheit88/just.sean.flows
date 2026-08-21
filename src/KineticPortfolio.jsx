@@ -620,16 +620,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
             const clampedDelta = Math.min(rawDelta * 0.00225, 1.25);
             setProgress((prev) => {
-                // Video & 3-Second Card Lock Handling: Hold between 12% and 22% until video ends and 3s card read is done
-                if (prev >= 12 && prev < 24 && videoPlayState !== 'unlocked') {
-                    if (!hasVideoPlayedOnce.current && videoPlayState === 'idle') {
-                        setVideoPlayState('playing');
-                        hasVideoPlayedOnce.current = true;
-                    }
-                    const next = Math.min(20, prev + clampedDelta * 0.2);
-                    progressRef.current = next;
-                    return next;
-                }
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
                 if (next >= 100) {
@@ -685,16 +675,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
                 const strokeProgress = Math.min(deltaY * 0.011, 1.9);
                 setProgress((prev) => {
-                    // Video & 3-Second Card Lock Handling: Hold between 12% and 22% until video ends and 3s card read is done
-                    if (prev >= 12 && prev < 24 && videoPlayState !== 'unlocked') {
-                        if (!hasVideoPlayedOnce.current && videoPlayState === 'idle') {
-                            setVideoPlayState('playing');
-                            hasVideoPlayedOnce.current = true;
-                        }
-                        const next = Math.min(20, prev + strokeProgress * 0.2);
-                        progressRef.current = next;
-                        return next;
-                    }
                     const next = Math.min(100, prev + strokeProgress);
                     progressRef.current = next;
                     if (next >= 100) {
@@ -871,16 +851,14 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         className="absolute inset-0 w-full h-full"
                     >
-                        {f.videoSrc && activeFrameIdx === idx && (videoPlayState === 'playing' || (!hasVideoPlayedOnce.current && videoPlayState === 'idle')) ? (
+                        {f.videoSrc && activeFrameIdx === idx ? (
                             <video
                                 ref={(el) => {
                                     if (el) {
-                                        // Unmute video audio to play simultaneously with background MR
                                         el.muted = false;
                                         el.volume = 1.0;
                                         el.playsInline = true;
                                         el.play().catch(() => {
-                                            // Fallback to muted if browser blocks unmuted video before touch
                                             el.muted = true;
                                             el.play().catch(() => {});
                                         });
@@ -891,13 +869,6 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 autoPlay
                                 playsInline
                                 preload="auto"
-                                onEnded={() => {
-                                    setVideoPlayState('card_reading');
-                                    // Hold the 2번 card still frame for 3.0 seconds so user can read text comfortably
-                                    setTimeout(() => {
-                                        setVideoPlayState('unlocked');
-                                    }, 3000);
-                                }}
                                 className="w-full h-full object-cover transition-transform duration-700 scale-100"
                             />
                         ) : (
