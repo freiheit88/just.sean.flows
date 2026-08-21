@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 
 export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
-    // phase: 'oscillating' (0~3s) -> 'ricochet' (3~4.4s) -> 'docked' (permanent top-right)
+    // phase: 'oscillating' (0~3s) -> 'ricochet' (3~4.4s) -> 'docked' (permanent top-right inside layout)
     const [phase, setPhase] = useState('idle');
     const [liveVolNum, setLiveVolNum] = useState(30);
 
@@ -50,7 +50,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
     if (!isAudioUnlocked || phase === 'idle') return null;
 
     return (
-        <div className="fixed inset-0 pointer-events-none z-50 select-none">
+        <div className="absolute inset-0 pointer-events-none z-50 select-none overflow-hidden">
             {/* 1. LARGE SMARTPHONE CAPSULE WITH 13%~45% OSCILLATION (0s ~ 3s) */}
             {phase === 'oscillating' && (
                 <motion.div
@@ -58,7 +58,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                     animate={{ opacity: 1, x: 0, scale: 1.0 }}
                     exit={{ scale: 0.6, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                    className="fixed right-4 sm:right-7 top-1/4 sm:top-1/3 flex flex-col items-center pointer-events-none"
+                    className="absolute right-3.5 sm:right-4 top-1/4 sm:top-1/3 flex flex-col items-center pointer-events-none"
                 >
                     {/* Realistic Smartphone Sized Capsule */}
                     <div className="w-12 sm:w-14 h-44 sm:h-52 rounded-[26px] bg-black/85 backdrop-blur-2xl border-2 border-white/25 p-2 sm:p-2.5 flex flex-col items-center justify-between shadow-[0_15px_45px_rgba(0,0,0,0.9),0_0_30px_rgba(231,255,0,0.3)]">
@@ -88,7 +88,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 2. STRAIGHT-LINE BILLIARD BALL RICOCHET PATH (3.0s ~ 4.4s, 1.4s deliberate roll) */}
+            {/* 2. STRAIGHT-LINE BILLIARD BALL RICOCHET PATH (3.0s ~ 4.4s) */}
             {phase === 'ricochet' && (
                 <motion.div
                     initial={{
@@ -99,16 +99,16 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         height: "180px",
                         borderRadius: "26px",
                         top: "30%",
-                        right: "24px",
+                        right: "16px",
                         boxShadow: "0 0 10px rgba(231,255,0,0.2)"
                     }}
                     animate={{
-                        // 3 Straight Billiard Vector Shots:
+                        // 3 Straight Billiard Vector Shots inside Layout:
                         // 0% -> Morph into ball
-                        // 35% -> Straight shot hitting right cushion (x: 12px, y: -75px)
+                        // 35% -> Straight shot hitting right cushion (x: 8px, y: -75px)
                         // 70% -> Straight ricochet strike directly into .FLOWS header (x: -95px, y: -205px)
                         // 100% -> Ricochets off .FLOWS into final top-right pocket (x: 0px, y: -220px)
-                        x: [0, 12, -95, 0],
+                        x: [0, 8, -95, 0],
                         y: [0, -75, -205, -220],
                         rotate: [0, -35, 180, 360],
                         width: ["52px", "40px", "40px", "40px"],
@@ -126,13 +126,13 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         times: [0, 0.35, 0.70, 1.0],
                         ease: "easeInOut"
                     }}
-                    className="fixed z-50 bg-black/90 border-2 border-[#E7FF00] flex items-center justify-center pointer-events-none"
+                    className="absolute z-50 bg-black/90 border-2 border-[#E7FF00] flex items-center justify-center pointer-events-none"
                 >
                     <Volume2 className="w-4 h-4 text-[#E7FF00]" />
                 </motion.div>
             )}
 
-            {/* 3. PERMANENT TOP-RIGHT SOUND MUTE BUTTON (4.4s onward) */}
+            {/* 3. PERMANENT TOP-RIGHT SOUND MUTE BUTTON INSIDE CONTAINER (4.4s onward) */}
             {phase === 'docked' && (
                 <motion.button
                     initial={{ scale: 0.8, opacity: 0 }}
@@ -140,7 +140,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={onToggleMute}
-                    className="fixed top-4 right-4 sm:top-5 sm:right-6 z-50 pointer-events-auto w-10 h-10 rounded-full bg-black/80 border border-[#E7FF00]/70 shadow-[0_0_20px_rgba(231,255,0,0.35)] backdrop-blur-xl flex items-center justify-center cursor-pointer transition-all group"
+                    className="absolute top-4 right-4 z-50 pointer-events-auto w-10 h-10 rounded-full bg-black/80 border border-[#E7FF00]/70 shadow-[0_0_20px_rgba(231,255,0,0.35)] backdrop-blur-xl flex items-center justify-center cursor-pointer transition-all group"
                 >
                     {isMuted ? (
                         <VolumeX className="w-5 h-5 text-neutral-400 group-hover:text-red-400 transition-colors" />
