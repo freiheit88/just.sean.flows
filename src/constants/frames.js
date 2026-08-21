@@ -10,7 +10,7 @@ export const FRAMES = [
     },
     { 
         id: 1, 
-        src: "/assets/walk_story_02_mid_alley.jpg", 
+        src: "/assets/walk_story_01_far_alley.jpg", 
         videoSrc: "/assets/step_02_transition.mp4",
         titleTop: "MISSION MANIFEST", 
         titleMain: "ACTIVE QUEST", 
