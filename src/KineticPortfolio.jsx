@@ -36,6 +36,7 @@ export default function KineticPortfolio() {
 
     // Audio & Modal States
     const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
     const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
     const [isAtelierModalOpen, setIsAtelierModalOpen] = useState(false);
     const mrAudioRef = useRef(null);
@@ -46,6 +47,17 @@ export default function KineticPortfolio() {
         onFinishWalk: () => setIsTrailerModalOpen(true),
         triggerDopamineScrollUp
     });
+
+    // Sound Mute Toggle Handler
+    const handleToggleMute = () => {
+        setIsMuted((prev) => {
+            const next = !prev;
+            if (mrAudioRef.current) {
+                mrAudioRef.current.muted = next;
+            }
+            return next;
+        });
+    };
 
     // Audio Unlock Handler
     const forceUnlockAudio = () => {
@@ -121,12 +133,11 @@ export default function KineticPortfolio() {
                     </motion.div>
                 ))}
 
-                {/* 1. Step 1: 3-Second 30% Volume Recommendation HUD */}
+                {/* 1. Step 1: Dynamic 30% Volume Calibrator & Morphing Top-Right Mute Button */}
                 <VolumePrompt 
                     isAudioUnlocked={isAudioUnlocked} 
-                    activeFrameIdx={activeFrameIdx} 
-                    tiltX={tiltX} 
-                    tiltY={tiltY} 
+                    isMuted={isMuted}
+                    onToggleMute={handleToggleMute}
                 />
 
                 {/* 2. Step 4/5: 3D Iridescent Stained Glass Arch Hotspot */}
