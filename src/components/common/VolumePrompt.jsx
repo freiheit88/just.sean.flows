@@ -3,8 +3,7 @@ import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 
 export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
-    // phase: 'oscillating' (0~3s) -> 'ricochet' (3~4.4s) -> 'docked' (permanent top-right inside layout)
-    const [phase, setPhase] = useState('idle');
+    const [phase, setPhase] = useState('idle'); // 'idle' | 'oscillating' | 'ricochet' | 'docked'
     const [liveVolNum, setLiveVolNum] = useState(30);
 
     useEffect(() => {
@@ -29,10 +28,10 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             setPhase('ricochet');
         }, 3000);
 
-        // At 3.75s (mid-flight collision with .FLOWS header text), trigger exaggerated wobble
+        // At 3.7s (mid-flight collision with .FLOWS header text), trigger exaggerated wobble
         const hitTimer = setTimeout(() => {
             if (onFlowsHit) onFlowsHit();
-        }, 3750);
+        }, 3700);
 
         // At 4.4s, ball settles into permanent top-right pocket button
         const dockTimer = setTimeout(() => {
@@ -50,8 +49,8 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
     if (!isAudioUnlocked || phase === 'idle') return null;
 
     return (
-        <div className="absolute inset-0 pointer-events-none z-50 select-none overflow-hidden">
-            {/* 1. LARGE SMARTPHONE CAPSULE WITH 13%~45% OSCILLATION (0s ~ 3s) */}
+        <div className="absolute inset-0 pointer-events-none z-50 select-none">
+            {/* 1. LARGE SMARTPHONE CAPSULE WITH PURE WHITE OSCILLATION GAUGE (0s ~ 3s) */}
             {phase === 'oscillating' && (
                 <motion.div
                     initial={{ opacity: 0, x: 80, scale: 0.9 }}
@@ -61,12 +60,12 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                     className="absolute right-3.5 sm:right-4 top-1/4 sm:top-1/3 flex flex-col items-center pointer-events-none"
                 >
                     {/* Realistic Smartphone Sized Capsule */}
-                    <div className="w-12 sm:w-14 h-44 sm:h-52 rounded-[26px] bg-black/85 backdrop-blur-2xl border-2 border-white/25 p-2 sm:p-2.5 flex flex-col items-center justify-between shadow-[0_15px_45px_rgba(0,0,0,0.9),0_0_30px_rgba(231,255,0,0.3)]">
-                        {/* Speaker Icon */}
-                        <Volume2 className="w-5 h-5 text-[#E7FF00] drop-shadow-[0_0_10px_#E7FF00] animate-pulse" />
+                    <div className="w-12 sm:w-14 h-44 sm:h-52 rounded-[26px] bg-black/85 backdrop-blur-2xl border-2 border-white/25 p-2 sm:p-2.5 flex flex-col items-center justify-between shadow-[0_15px_45px_rgba(0,0,0,0.9),0_0_30px_rgba(255,255,255,0.2)]">
+                        {/* White Speaker Icon */}
+                        <Volume2 className="w-5 h-5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse" />
 
-                        {/* Vertical Waveform Track with Dynamic Height Oscillation */}
-                        <div className="relative w-4 sm:w-4.5 flex-1 my-2 bg-white/15 rounded-full overflow-hidden flex flex-col justify-end p-0.5 border border-white/10">
+                        {/* Vertical Waveform Track with PURE WHITE GAUGE */}
+                        <div className="relative w-4 sm:w-4.5 flex-1 my-2 bg-white/20 rounded-full overflow-hidden flex flex-col justify-end p-0.5 border border-white/15">
                             <motion.div
                                 animate={{
                                     height: ["30%", "14%", "45%", "18%", "42%", "26%", "30%"]
@@ -76,12 +75,12 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                                     times: [0, 0.18, 0.38, 0.55, 0.72, 0.88, 1.0],
                                     ease: "easeInOut"
                                 }}
-                                className="w-full bg-gradient-to-t from-[#E7FF00] via-[#00F0FF] to-[#FFE082] rounded-full shadow-[0_0_15px_#E7FF00]"
+                                className="w-full bg-white rounded-full shadow-[0_0_12px_rgba(255,255,255,0.9)]"
                             />
                         </div>
 
-                        {/* Live Calibrating Percentage Indicator */}
-                        <span className="font-mono text-xs sm:text-sm font-black text-[#E7FF00] tracking-tighter drop-shadow-[0_0_8px_rgba(231,255,0,0.6)]">
+                        {/* Live Calibrating Percentage Indicator (Pure White) */}
+                        <span className="font-mono text-xs sm:text-sm font-black text-white tracking-tighter drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]">
                             {liveVolNum}%
                         </span>
                     </div>
@@ -98,27 +97,22 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         width: "52px",
                         height: "180px",
                         borderRadius: "26px",
-                        top: "30%",
-                        right: "16px",
-                        boxShadow: "0 0 10px rgba(231,255,0,0.2)"
+                        top: "28%",
+                        right: "14px",
+                        boxShadow: "0 0 10px rgba(255,255,255,0.2)"
                     }}
                     animate={{
-                        // 3 Straight Billiard Vector Shots inside Layout:
-                        // 0% -> Morph into ball
-                        // 35% -> Straight shot hitting right cushion (x: 8px, y: -75px)
-                        // 70% -> Straight ricochet strike directly into .FLOWS header (x: -95px, y: -205px)
-                        // 100% -> Ricochets off .FLOWS into final top-right pocket (x: 0px, y: -220px)
-                        x: [0, 8, -95, 0],
-                        y: [0, -75, -205, -220],
+                        x: [0, 8, -90, 0],
+                        y: [0, -60, -180, -200],
                         rotate: [0, -35, 180, 360],
                         width: ["52px", "40px", "40px", "40px"],
                         height: ["180px", "40px", "40px", "40px"],
                         borderRadius: ["26px", "50%", "50%", "50%"],
                         boxShadow: [
-                            "0 0 10px rgba(231,255,0,0.2)",
-                            "0 0 25px rgba(231,255,0,0.8), 0 0 40px rgba(0,240,255,0.6)",
-                            "0 0 35px rgba(255,0,85,0.9), 0 0 50px rgba(231,255,0,0.8)",
-                            "0 0 15px rgba(231,255,0,0.4)"
+                            "0 0 10px rgba(255,255,255,0.2)",
+                            "0 0 25px rgba(255,255,255,0.9)",
+                            "0 0 35px rgba(231,255,0,0.9)",
+                            "0 0 15px rgba(231,255,0,0.5)"
                         ]
                     }}
                     transition={{
@@ -126,13 +120,13 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         times: [0, 0.35, 0.70, 1.0],
                         ease: "easeInOut"
                     }}
-                    className="absolute z-50 bg-black/90 border-2 border-[#E7FF00] flex items-center justify-center pointer-events-none"
+                    className="absolute z-50 bg-black/90 border-2 border-white flex items-center justify-center pointer-events-none"
                 >
-                    <Volume2 className="w-4 h-4 text-[#E7FF00]" />
+                    <Volume2 className="w-4 h-4 text-white" />
                 </motion.div>
             )}
 
-            {/* 3. PERMANENT TOP-RIGHT SOUND MUTE BUTTON INSIDE CONTAINER (4.4s onward) */}
+            {/* 3. PERMANENT TOP-RIGHT SOUND MUTE BUTTON (4.4s onward) */}
             {phase === 'docked' && (
                 <motion.button
                     initial={{ scale: 0.8, opacity: 0 }}

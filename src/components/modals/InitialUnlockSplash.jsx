@@ -70,12 +70,12 @@ export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, ti
                 })}
             </div>
 
-            {/* Central 3D LET'S GO! Call to Action */}
+            {/* Central 3D LET ' S GO ! Staggered Typography matching Image */}
             <motion.div
-                initial={{ y: 260, opacity: 0 }}
+                initial={{ y: 220, opacity: 0 }}
                 animate={{ 
-                    y: [260, 180, 0, -120],
-                    opacity: [0, 1, 0.9, 0]
+                    y: [220, 160, 0, -100],
+                    opacity: [0, 1, 0.95, 0]
                 }}
                 transition={{
                     duration: 3.8,
@@ -87,40 +87,28 @@ export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, ti
                     transform: `perspective(600px) rotateX(${tiltY * -0.6}deg) rotateY(${tiltX * 0.6}deg) translateZ(30px)`,
                     transformStyle: 'preserve-3d'
                 }}
-                className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20"
+                className="relative flex flex-col items-center text-center cursor-pointer select-none z-20"
             >
-                <div 
-                    className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-90 transition-transform duration-75 ease-out"
-                    style={{
-                        transform: `translate3d(${-ghostOffsetX}px, ${-ghostOffsetY}px, 20px)`
-                    }}
-                >
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_20px_#FF0055]">LET</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_20px_#FF0055]">'S</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_20px_#FF0055]">GO</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#FF0055] drop-shadow-[0_0_25px_#FF0055]">!</span>
+                {/* Ambient Warm Glow Halo */}
+                <div className="absolute inset-0 bg-[#E7FF00]/15 filter blur-3xl rounded-full scale-125 pointer-events-none" />
+
+                {/* Staggered 4-Row Typography (LET / ' S / GO / !) */}
+                <div className="relative font-mono font-black text-5xl sm:text-6xl text-[#E7FF00] drop-shadow-[0_0_35px_rgba(231,255,0,0.85)] flex flex-col items-center gap-1">
+                    {/* Row 1: L E T */}
+                    <div className="tracking-[0.45em] pl-3">LET</div>
+                    
+                    {/* Row 2: ' on left, S on right */}
+                    <div className="w-full flex justify-between px-3 text-4xl sm:text-5xl -my-1">
+                        <span className="text-[#E7FF00] drop-shadow-[0_0_20px_#E7FF00] pl-2">'</span>
+                        <span className="text-[#E7FF00] drop-shadow-[0_0_20px_#E7FF00] pr-2">S</span>
+                    </div>
+
+                    {/* Row 3: G O */}
+                    <div className="tracking-[0.55em] pl-4">GO</div>
+
+                    {/* Row 4: ! */}
+                    <div className="text-4xl sm:text-5xl font-black text-[#E7FF00] drop-shadow-[0_0_25px_#E7FF00]">!</div>
                 </div>
-
-                <div 
-                    className="absolute inset-0 flex flex-col items-center text-center pointer-events-none opacity-90 transition-transform duration-75 ease-out"
-                    style={{
-                        transform: `translate3d(${ghostOffsetX}px, ${ghostOffsetY}px, 20px)`
-                    }}
-                >
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_20px_#00F0FF]">LET</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_20px_#00F0FF]">'S</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_20px_#00F0FF]">GO</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#00F0FF] drop-shadow-[0_0_25px_#00F0FF]">!</span>
-                </div>
-
-                <div className="relative flex flex-col items-center">
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00] drop-shadow-[0_0_25px_#E7FF00]">LET</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00] drop-shadow-[0_0_25px_#E7FF00]">'S</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00] drop-shadow-[0_0_25px_#E7FF00]">GO</span>
-                    <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00] drop-shadow-[0_0_30px_#E7FF00]">!</span>
-                </div>
-
-
             </motion.div>
         </motion.div>
     );
