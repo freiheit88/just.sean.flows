@@ -51,6 +51,7 @@ export default function KineticPortfolio() {
         isAtelierModalOpen,
         setIsTrailerModalOpen,
         setIsAtelierModalOpen,
+        playFootstepSound,
         handleVideoCompleted,
         resetWalk
     } = useWalkPhysics({
@@ -81,8 +82,8 @@ export default function KineticPortfolio() {
                     updatePointerPos(e.touches[0].clientX, e.touches[0].clientY);
                 }
             }}
-            onClick={forceUnlockAudio}
-            onTouchStart={forceUnlockAudio}
+            onClick={handleInitialUnlock}
+            onTouchStart={handleInitialUnlock}
         >
             {/* Background Master MR Audio Element */}
             <audio ref={mrAudioRef} src={MR_AUDIO_SRC} loop playsInline preload="auto" />
@@ -182,7 +183,7 @@ export default function KineticPortfolio() {
             {/* Opening 3D LET'S GO Particle Splash */}
             <InitialUnlockSplash 
                 isAudioUnlocked={isAudioUnlocked}
-                onUnlock={forceUnlockAudio}
+                onUnlock={handleInitialUnlock}
                 tilt={tilt}
                 tiltX={tiltX}
                 tiltY={tiltY}

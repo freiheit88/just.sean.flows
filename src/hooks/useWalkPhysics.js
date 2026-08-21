@@ -37,7 +37,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             }
             try {
                 footstepAudioRef.current = new Audio('/assets/footstep_crunch.mp3');
-                footstepAudioRef.current.volume = 0.25;
+                footstepAudioRef.current.volume = 0.18;
             } catch (e) {}
         };
         initAudio();
@@ -53,7 +53,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                 const source = audioCtxRef.current.createBufferSource();
                 source.buffer = footstepBufferRef.current;
                 const gainNode = audioCtxRef.current.createGain();
-                gainNode.gain.value = 0.25;
+                gainNode.gain.value = 0.18;
                 source.connect(gainNode);
                 gainNode.connect(audioCtxRef.current.destination);
                 source.start(0);
@@ -63,7 +63,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         if (footstepAudioRef.current) {
             try {
                 footstepAudioRef.current.currentTime = 0;
-                footstepAudioRef.current.volume = 0.25;
+                footstepAudioRef.current.volume = 0.18;
                 footstepAudioRef.current.play().catch(() => {});
             } catch (e) {}
         }
@@ -281,6 +281,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
     return {
         progress,
+        playFootstepSound,
         activeFrameIdx,
         isTrailerModalOpen,
         isAtelierModalOpen,
