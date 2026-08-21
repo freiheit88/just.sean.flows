@@ -162,17 +162,17 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         return () => clearInterval(stage1Timer);
     }, [isAudioUnlocked]);
 
-    // 동영상 완료 후: 2번 사진으로 전환 후 3초간 정속 대기!
+    // 동영상 완료 후: 2번 사진으로 전환 후 스크롤과 무관하게 '무조건 5.0초 고정' 대기!
     const handleVideoCompleted = () => {
         if (sequenceState.current !== 'video') return;
         sequenceState.current = 'stage2';
 
+        setActiveFrameIdx(2);
         setProgress(28.6);
         progressRef.current = 28.6;
-        setActiveFrameIdx(2);
 
         const startTime = Date.now();
-        const duration = 3000; // 3초 대기
+        const duration = 5000; // 스크롤과 무관하게 2번 사진 정확히 5초 고정!
         const startProgress = 28.6;
         const targetProgress = 42.9;
 
@@ -181,16 +181,16 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             const ratio = Math.min(1, elapsed / duration);
             const currentVal = startProgress + ratio * (targetProgress - startProgress);
 
-            setProgress((prev) => {
-                const next = Math.max(prev, currentVal);
-                progressRef.current = next;
-                return next;
-            });
+            setActiveFrameIdx(2); // 5초 동안 2번 사진 엄격 유지!
+            setProgress(currentVal);
+            progressRef.current = currentVal;
 
             if (ratio >= 1) {
                 clearInterval(stage2Timer);
-                sequenceState.current = 'free'; // 3단계부터 자유 스크롤 & 앰비언트 보행 언락!
+                sequenceState.current = 'free'; // 5초 완료 즉시 3번 아치 문 앞 단계로 진입 & 자유 스크롤 언락!
                 setActiveFrameIdx(3);
+                setProgress(42.9);
+                progressRef.current = 42.9;
             }
         }, 30);
     };
