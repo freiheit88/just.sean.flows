@@ -6,127 +6,132 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
         <AnimatePresence>
             {isVisible && isAudioUnlocked && (
                 <motion.div 
-                    initial={{ opacity: 0, scale: 0.96 }}
+                    initial={{ opacity: 0, scale: 0.97 }}
                     animate={{ opacity: 1, scale: 1.0 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
                     className="absolute inset-0 z-30 pointer-events-none"
                     style={{ perspective: 800 }}
                 >
-                    {/* User Calibrated 1:1 Pixel-Perfect Stained Glass Transom: Top 16.8%, Left 54.6%, Width 56%, Height 24.6% */}
+                    {/* Mobile-Prioritized Exact Calibrated Transom: Top 16.4%, Left 54%, Width 53.5%, Height 24.2% */}
                     <div 
                         style={{
                             position: 'absolute',
-                            top: '16.8%',
-                            left: '54.6%',
+                            top: '16.4%',
+                            left: '54%',
                             transform: 'translateX(-50%)',
-                            width: '56%',
-                            height: '24.6%'
+                            width: '53.5%',
+                            height: '24.2%'
                         }}
-                        className="pointer-events-auto flex items-center justify-center select-none"
+                        className="pointer-events-auto flex flex-col items-center justify-center select-none"
                     >
                         <motion.button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onOpenAtelier();
                             }}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full h-full cursor-pointer group outline-none relative flex items-center justify-center"
+                            whileHover={{ scale: 1.015 }}
+                            whileTap={{ scale: 0.985 }}
+                            className="w-full h-full cursor-pointer group outline-none relative flex flex-col items-center justify-center"
                             style={{
-                                transform: `translate3d(${tiltX * 0.1}px, ${tiltY * 0.1}px, 8px) rotateX(${-tiltY * 0.18}deg) rotateY(${tiltX * 0.18}deg)`,
+                                transform: `translate3d(${tiltX * 0.08}px, ${tiltY * 0.08}px, 6px) rotateX(${-tiltY * 0.15}deg) rotateY(${tiltX * 0.15}deg)`,
                                 transformStyle: 'preserve-3d',
                                 transition: 'transform 0.15s ease-out'
                             }}
                         >
-                            {/* Multi-Layer 3D Prismatic Glow & Organic Musical Pulse */}
+                            {/* 1. Organic Warm Volumetric Backlight & Atmosphere Glow */}
                             <motion.div 
                                 animate={{
-                                    scale: [1, 1.03, 0.99, 1.04, 1],
+                                    opacity: [0.75, 1.0, 0.7, 0.95, 0.75],
+                                    scale: [1, 1.02, 0.99, 1.015, 1],
                                     filter: [
-                                        'drop-shadow(0 0 16px rgba(255,183,3,0.7)) drop-shadow(0 0 35px rgba(230,126,34,0.5)) drop-shadow(0 0 45px rgba(194,24,91,0.3))',
-                                        'drop-shadow(0 0 32px rgba(255,215,0,0.95)) drop-shadow(0 0 65px rgba(230,126,34,0.75)) drop-shadow(0 0 80px rgba(194,24,91,0.5))',
-                                        'drop-shadow(0 0 18px rgba(255,183,3,0.7)) drop-shadow(0 0 40px rgba(230,126,34,0.5)) drop-shadow(0 0 50px rgba(194,24,91,0.3))',
-                                        'drop-shadow(0 0 42px rgba(255,215,0,1)) drop-shadow(0 0 85px rgba(211,84,0,0.85)) drop-shadow(0 0 100px rgba(194,24,91,0.6))',
-                                        'drop-shadow(0 0 16px rgba(255,183,3,0.7)) drop-shadow(0 0 35px rgba(230,126,34,0.5)) drop-shadow(0 0 45px rgba(194,24,91,0.3))'
+                                        'drop-shadow(0 0 12px rgba(255,193,7,0.45)) drop-shadow(0 0 25px rgba(245,124,0,0.25))',
+                                        'drop-shadow(0 0 22px rgba(255,213,79,0.75)) drop-shadow(0 0 45px rgba(255,143,0,0.45))',
+                                        'drop-shadow(0 0 14px rgba(255,193,7,0.5)) drop-shadow(0 0 28px rgba(245,124,0,0.3))',
+                                        'drop-shadow(0 0 28px rgba(255,224,130,0.85)) drop-shadow(0 0 55px rgba(230,81,0,0.5))',
+                                        'drop-shadow(0 0 12px rgba(255,193,7,0.45)) drop-shadow(0 0 25px rgba(245,124,0,0.25))'
                                     ]
                                 }}
                                 transition={{
                                     repeat: Infinity,
-                                    duration: 1.15,
+                                    duration: 2.4,
                                     ease: "easeInOut"
                                 }}
                                 className="absolute inset-0 w-full h-full pointer-events-none"
                             >
                                 <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                                     <defs>
-                                        {/* Rich Chromatic Amber-Ruby Iridescent Gradient */}
-                                        <radialGradient id="chromaticGlassGlow" cx="50%" cy="40%" r="65%">
-                                            <stop offset="0%" stopColor="#FFF9C4" stopOpacity="0.30" />
-                                            <stop offset="35%" stopColor="#FFB300" stopOpacity="0.22" />
-                                            <stop offset="65%" stopColor="#E65100" stopOpacity="0.16" />
-                                            <stop offset="85%" stopColor="#880E4F" stopOpacity="0.10" />
-                                            <stop offset="100%" stopColor="#00E5FF" stopOpacity="0.08" />
+                                        {/* Authentic Warm Candle/Chandelier Stained Glass Volumetric Gradient */}
+                                        <radialGradient id="candleGlassGlow" cx="50%" cy="45%" r="60%">
+                                            <stop offset="0%" stopColor="#FFF9C4" stopOpacity="0.42" />
+                                            <stop offset="40%" stopColor="#FFC107" stopOpacity="0.28" />
+                                            <stop offset="75%" stopColor="#FF8F00" stopOpacity="0.18" />
+                                            <stop offset="100%" stopColor="#3E2723" stopOpacity="0.05" />
                                         </radialGradient>
 
-                                        {/* Multi-Spectrum Antique Gold Leaded Stroke */}
-                                        <linearGradient id="richGoldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stopColor="#FFF59D" />
-                                            <stop offset="25%" stopColor="#FFB300" />
-                                            <stop offset="50%" stopColor="#F57C00" />
-                                            <stop offset="75%" stopColor="#D81B60" />
-                                            <stop offset="90%" stopColor="#FFD54F" />
-                                            <stop offset="100%" stopColor="#00E5FF" />
-                                        </linearGradient>
-
-                                        {/* Inner Panel Dividers for 3 Gothic Panes */}
-                                        <linearGradient id="mullionStroke" x1="0%" y1="0%" x2="0%" y2="100%">
-                                            <stop offset="0%" stopColor="#FFE082" stopOpacity="0.8" />
-                                            <stop offset="100%" stopColor="#FF6F00" stopOpacity="0.4" />
+                                        {/* Ultra-Refined Antique Brass Hairline Rim */}
+                                        <linearGradient id="antiqueBrassHairline" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stopColor="#FFE082" stopOpacity="0.9" />
+                                            <stop offset="45%" stopColor="#C5A059" stopOpacity="0.65" />
+                                            <stop offset="80%" stopColor="#8D6E63" stopOpacity="0.4" />
+                                            <stop offset="100%" stopColor="#FFE082" stopOpacity="0.8" />
                                         </linearGradient>
                                     </defs>
 
-                                    {/* Full Stilted Gothic Pointed Arch Fill matching Calibrated Path */}
+                                    {/* Mobile Calibrated Pointed Gothic Arch Fill */}
                                     <path
-                                        d="M 50 0 C 91 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 9 26.25, 50 0 Z"
-                                        fill="url(#chromaticGlassGlow)"
-                                        className="group-hover:opacity-95 transition-opacity"
+                                        d="M 50 0 C 84 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 16 26.25, 50 0 Z"
+                                        fill="url(#candleGlassGlow)"
+                                        className="transition-opacity duration-300 group-hover:opacity-90"
                                     />
 
-                                    {/* Subtle Leaded Glass Inner Mullion Lines (3D Depth Structure) */}
+                                    {/* 0.75px Architectural Antique Brass Hairline Border */}
                                     <path
-                                        d="M 32 45 L 32 99 M 68 45 L 68 99 M 1 72 L 99 72"
-                                        stroke="url(#mullionStroke)"
-                                        strokeWidth="0.9"
-                                        strokeDasharray="2 2"
+                                        d="M 50 0 C 84 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 16 26.25, 50 0 Z"
                                         fill="none"
-                                        className="opacity-45 group-hover:opacity-80 transition-opacity"
-                                    />
-
-                                    {/* Precise Outer Pointed Gothic Arch Border */}
-                                    <path
-                                        d="M 50 0 C 91 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 9 26.25, 50 0 Z"
-                                        fill="none"
-                                        stroke="url(#richGoldStroke)"
-                                        strokeWidth="2.4"
-                                        className="transition-all duration-300 group-hover:stroke-white/95"
+                                        stroke="url(#antiqueBrassHairline)"
+                                        strokeWidth="0.85"
+                                        className="transition-all duration-300 group-hover:stroke-[#FFF9C4] group-hover:stroke-width-[1.2]"
                                     />
                                 </svg>
                             </motion.div>
 
-                            {/* 3D Caustic Glass Light Sweep */}
+                            {/* 2. Delicate Prismatic Glass Specular Glint */}
                             <motion.div
                                 animate={{
-                                    x: ['-140%', '180%'],
-                                    opacity: [0, 0.65, 0]
+                                    x: ['-130%', '160%'],
+                                    opacity: [0, 0.45, 0]
                                 }}
                                 transition={{
                                     repeat: Infinity,
-                                    duration: 2.8,
+                                    duration: 3.6,
                                     ease: "easeInOut"
                                 }}
-                                className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[#FFFDE7]/35 via-[#00E5FF]/20 to-transparent -skew-x-18 pointer-events-none"
+                                className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-[#FFFDE7]/25 to-transparent -skew-x-18 pointer-events-none"
                             />
+
+                            {/* 3. Understated Luxury Floating Beacon (Pill Badge) */}
+                            <motion.div 
+                                animate={{
+                                    y: [0, -3, 0],
+                                    boxShadow: [
+                                        "0 4px 15px rgba(0,0,0,0.8), 0 0 15px rgba(231,255,0,0.3)",
+                                        "0 6px 20px rgba(0,0,0,0.9), 0 0 25px rgba(231,255,0,0.55)",
+                                        "0 4px 15px rgba(0,0,0,0.8), 0 0 15px rgba(231,255,0,0.3)"
+                                    ]
+                                }}
+                                transition={{
+                                    repeat: Infinity,
+                                    duration: 2.0,
+                                    ease: "easeInOut"
+                                }}
+                                className="absolute -bottom-4 z-40 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#E7FF00]/40 flex items-center gap-1.5 pointer-events-auto transition-transform duration-300 group-hover:scale-105 group-hover:border-[#E7FF00]"
+                            >
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_8px_#E7FF00] animate-ping" />
+                                <span className="font-mono text-[9px] sm:text-[10px] font-bold text-[#E7FF00] tracking-[0.2em] uppercase">
+                                    ATELIER // ENTER ➔
+                                </span>
+                            </motion.div>
                         </motion.button>
                     </div>
                 </motion.div>
