@@ -88,7 +88,7 @@ export default function KineticPortfolio() {
 
             {/* 7-Step 1st-Person Walkthrough Stage */}
             <main 
-                className="relative w-full h-full md:w-[410px] md:h-[82vh] md:max-h-[820px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.2)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between"
+                className="relative w-full h-full max-h-[100dvh] max-w-[56.25dvh] aspect-[9/16] md:w-[410px] md:h-[85vh] md:max-h-[840px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.2)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between mx-auto"
                 style={{
                     filter: !isAudioUnlocked ? 'blur(20px) brightness(40%)' : 'none'
                 }}
@@ -125,7 +125,7 @@ export default function KineticPortfolio() {
                                 disableRemotePlayback
                                 preload="auto"
                                 onEnded={handleVideoCompleted}
-                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
+                                className="w-full h-full object-cover sm:object-cover pointer-events-none transition-transform duration-700 scale-100"
                             />
                         ) : (
                             <img
