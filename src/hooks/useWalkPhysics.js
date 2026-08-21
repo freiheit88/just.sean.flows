@@ -40,6 +40,12 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             if (ratio >= 1) {
                 clearInterval(stage1Timer);
                 sequenceState.current = 'video';
+                // 8.5s fallback to guarantee smooth progression even if video stalls
+                setTimeout(() => {
+                    if (sequenceState.current === 'video') {
+                        handleVideoCompleted();
+                    }
+                }, 8500);
             }
         }, 30);
 

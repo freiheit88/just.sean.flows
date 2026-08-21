@@ -114,11 +114,30 @@ export default function KineticPortfolio() {
                         className="absolute inset-0 w-full h-full"
                     >
                         {f.videoSrc && activeFrameIdx === idx ? (
-                            <CanvasVideoPlayer
-                                videoSrc={f.videoSrc}
-                                posterSrc={f.src}
-                                isActive={activeFrameIdx === idx}
-                                onVideoEnd={handleVideoCompleted}
+                            <video
+                                ref={(el) => {
+                                    if (el) {
+                                        el.muted = false;
+                                        el.volume = 1.0;
+                                        el.playsInline = true;
+                                        el.play().catch(() => {
+                                            el.muted = true;
+                                            el.play().catch(() => {});
+                                        });
+                                    }
+                                }}
+                                src={f.videoSrc}
+                                poster={f.src}
+                                autoPlay
+                                playsInline
+                                webkit-playsinline="true"
+                                x5-playsinline="true"
+                                controls={false}
+                                disablePictureInPicture
+                                disableRemotePlayback
+                                preload="auto"
+                                onEnded={handleVideoCompleted}
+                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
                             />
                         ) : (
                             <img
