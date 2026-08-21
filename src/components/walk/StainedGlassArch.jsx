@@ -13,9 +13,9 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                     className="absolute inset-0 z-30 pointer-events-none"
                     style={{ perspective: 800 }}
                 >
-                    {/* Pure Centered Outer Wrapper without inline transforms */}
+                    {/* Precise Alignment with Stained Glass Transom: Top 23.6%, Width 40.2%, Height 19.3% */}
                     <div 
-                        className="pointer-events-auto absolute top-[20%] left-1/2 -translate-x-1/2 w-[56%] max-w-[220px] aspect-[100/110] flex items-center justify-center select-none"
+                        className="pointer-events-auto absolute top-[23.6%] left-1/2 -translate-x-1/2 w-[40.2%] h-[19.3%] flex items-center justify-center select-none"
                     >
                         <motion.button
                             onClick={(e) => {
@@ -50,7 +50,7 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                                 }}
                                 className="absolute inset-0 w-full h-full pointer-events-none"
                             >
-                                <svg viewBox="0 0 100 110" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                                <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                                     <defs>
                                         {/* Rich Chromatic Amber-Ruby Iridescent Gradient */}
                                         <radialGradient id="chromaticGlassGlow" cx="50%" cy="40%" r="65%">
@@ -78,16 +78,16 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                                         </linearGradient>
                                     </defs>
 
-                                    {/* Full 3-Panel Outer Gothic Arch Fill */}
+                                    {/* Full Gothic Pointed Arch Fill */}
                                     <path
-                                        d="M 50 2 C 76 16, 98 48, 98 108 L 2 108 C 2 48, 24 16, 50 2 Z"
+                                        d="M 50 1 C 77 18, 99 52, 99 99 L 1 99 C 1 52, 23 18, 50 1 Z"
                                         fill="url(#chromaticGlassGlow)"
                                         className="group-hover:opacity-90 transition-opacity"
                                     />
 
                                     {/* Subtle Leaded Glass Inner Mullion Lines (3D Depth Structure) */}
                                     <path
-                                        d="M 28 48 L 28 108 M 72 48 L 72 108 M 2 72 L 98 72"
+                                        d="M 30 48 L 30 99 M 70 48 L 70 99 M 1 70 L 99 70"
                                         stroke="url(#mullionStroke)"
                                         strokeWidth="0.8"
                                         strokeDasharray="2 2"
@@ -95,9 +95,9 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                                         className="opacity-40 group-hover:opacity-75 transition-opacity"
                                     />
 
-                                    {/* Precise Outer Leaded Stone Arch Border */}
+                                    {/* Precise Outer Pointed Gothic Arch Border */}
                                     <path
-                                        d="M 50 2 C 76 16, 98 48, 98 108 L 2 108 C 2 48, 24 16, 50 2 Z"
+                                        d="M 50 1 C 77 18, 99 52, 99 99 L 1 99 C 1 52, 23 18, 50 1 Z"
                                         fill="none"
                                         stroke="url(#richGoldStroke)"
                                         strokeWidth="2.2"
