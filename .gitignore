@@ -28,3 +28,14 @@ dist-ssr
 *.sf2
 public/assets/manual_upload/**/*.mp4
 public/assets/sounds/music/*.sf2
+
+# Environment & Secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.cert
+temp_*.js
+test_*.js
+scratch/
