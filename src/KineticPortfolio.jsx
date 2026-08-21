@@ -864,16 +864,21 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                             <video
                                 ref={(el) => {
                                     if (el) {
-                                        el.muted = true;
+                                        // Unmute video audio to play simultaneously with background MR
+                                        el.muted = false;
+                                        el.volume = 1.0;
                                         el.playsInline = true;
-                                        el.play().catch(() => {});
+                                        el.play().catch(() => {
+                                            // Fallback to muted if browser blocks unmuted video before touch
+                                            el.muted = true;
+                                            el.play().catch(() => {});
+                                        });
                                     }
                                 }}
                                 src={f.videoSrc}
                                 poster={f.src}
                                 autoPlay
                                 playsInline
-                                muted
                                 preload="auto"
                                 onEnded={() => {
                                     setVideoPlayState('card_reading');
