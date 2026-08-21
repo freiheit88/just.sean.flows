@@ -16,47 +16,47 @@ const FRAMES = [
     { 
         id: 0, 
         src: "/assets/walk_story_01_far_alley.jpg", 
-        titleTop: "JUST SEAN FLOWS", 
-        titleMain: "WALK WITH MUSIC?", 
+        titleTop: "FRANKFURT 02:00 AM", 
+        titleMain: "WALK WITH MUSIC", 
     },
     { 
         id: 1, 
         src: "/assets/walk_story_02_mid_alley.jpg", 
         videoSrc: "/assets/step_02_transition.mp4",
-        titleTop: "ACTIVE QUEST", 
-        titleMain: "MISSION MANIFEST.", 
+        titleTop: "MISSION MANIFEST", 
+        titleMain: "ACTIVE QUEST", 
     },
     { 
         id: 2, 
         src: "/assets/walk_story_03_corner_turn.jpg", 
-        titleTop: "02:00 AM", 
-        titleMain: "STILL AWAKE HERE.", 
+        titleTop: "CORNER TURN", 
+        titleMain: "STILL AWAKE", 
     },
     { 
         id: 3, 
         src: "/assets/walk_story_04_look_up_logo.jpg", 
         titleTop: "LOOK UP", 
-        titleMain: "PEEK AT THE LOGO?", 
+        titleMain: "THE LOGO", 
         hasBuildingTarget: true
     },
     { 
         id: 4, 
         src: "/assets/walk_story_05_amber_glow_shift.jpg", 
-        titleTop: "GLOWING AMBER", 
-        titleMain: "THE LIGHTS AWAKEN.", 
+        titleTop: "LIGHTS AWAKEN", 
+        titleMain: "AMBER GLOW", 
         hasBuildingTarget: true
     },
     { 
         id: 5, 
         src: "/assets/walk_story_06_door_handle_view.jpg", 
-        titleTop: "REACH THE DOOR", 
-        titleMain: "TOUCH THE HANDLE.", 
+        titleTop: "REACH OUT", 
+        titleMain: "TOUCH HANDLE", 
     },
     { 
         id: 6, 
         src: "/assets/walk_story_07_grand_piano_salon.jpg", 
-        titleTop: "ATELIER STATUS: 20% READY", 
-        titleMain: "INSTRUMENTS TUNED. SPACE IN PROGRESS.", 
+        titleTop: "20% READY", 
+        titleMain: "ENTER ATELIER", 
     }
 ];
 
@@ -926,120 +926,159 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </AnimatePresence>
                 </div>
 
-                {/* 3. CENTER WATERMARK POWER CHECK NUMBER (DEEP BACKGROUND WATERMARK) */}
-                <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center select-none overflow-hidden">
-                    <div 
-                        className={`flex items-center gap-3 transition-all duration-300 ${
-                            isTremblingAt8012
-                                ? 'scale-110 text-[#FF0055] drop-shadow-[0_0_35px_#FF0055] opacity-70 animate-pulse'
-                                : isScrollingUp
-                                    ? 'scale-105 text-[#E7FF00] drop-shadow-[0_0_25px_rgba(231,255,0,0.4)] opacity-25'
-                                    : 'text-white/10 drop-shadow-[0_0_15px_rgba(255,255,255,0.05)] opacity-10'
-                        }`}
-                        style={{
-                            transform: `perspective(600px) translate3d(${tiltX * 0.25}px, ${tiltY * 0.25}px, -40px)`
-                        }}
-                    >
-                        <Footprints className={`w-8 h-8 sm:w-12 sm:h-12 transition-transform duration-200 ${
-                            isScrollingUp ? 'scale-125 animate-bounce' : 'scale-100'
-                        }`} />
+                {/* 3. UPPER KINETIC TYPOGRAPHY (LARGE BOLD FONT & SLOW STAGGER REVEAL) */}
+                <div className="absolute inset-x-0 top-14 md:top-18 z-20 pointer-events-none flex flex-col items-center text-center px-4">
+                    {activeFrameIdx === 6 && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            className="mb-2 px-3 py-1 rounded-full bg-black/85 border border-[#E7FF00]/60 shadow-[0_0_20px_rgba(231,255,0,0.4)] backdrop-blur-md flex items-center gap-2 font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase animate-pulse"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-ping" />
+                            <span>🚧 20% READY • UNDER CONSTRUCTION</span>
+                        </motion.div>
+                    )}
 
-                        <span className="font-mono text-5xl sm:text-7xl font-black tracking-tight leading-none">
-                            {livePowerStr}
-                        </span>
-                    </div>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={`assembled-title-${activeFrameIdx}`}
+                            initial="hidden"
+                            animate="visible"
+                            exit={{ opacity: 0, y: -12, filter: "blur(6px)", transition: { duration: 0.25 } }}
+                            variants={{
+                                hidden: { opacity: 0 },
+                                visible: {
+                                    opacity: 1,
+                                    transition: {
+                                        delayChildren: 0.18,
+                                        staggerChildren: 0.16
+                                    }
+                                }
+                            }}
+                            className="flex flex-col items-center text-center max-w-xs sm:max-w-md"
+                        >
+                            <h2 className="font-mono text-xs sm:text-sm font-bold tracking-[0.32em] text-[#E7FF00] uppercase mb-1.5 flex flex-wrap items-center justify-center gap-x-2 drop-shadow-[0_0_15px_rgba(231,255,0,0.6)]">
+                                {currentFrame.titleTop.split(" ").map((word, wIdx) => (
+                                    <motion.span
+                                        key={`top-${wIdx}`}
+                                        variants={{
+                                            hidden: { opacity: 0, y: -16, filter: "blur(10px)", scale: 0.85 },
+                                            visible: { 
+                                                opacity: 1, 
+                                                y: 0, 
+                                                filter: "blur(0px)", 
+                                                scale: 1,
+                                                transition: { 
+                                                    duration: 0.75,
+                                                    ease: [0.16, 1, 0.3, 1]
+                                                } 
+                                            }
+                                        }}
+                                        className="inline-block"
+                                    >
+                                        {word}
+                                    </motion.span>
+                                ))}
+                            </h2>
+
+                            <h1 
+                                className="font-sans text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white uppercase leading-none flex flex-wrap items-center justify-center gap-x-2 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]"
+                                style={{
+                                    textShadow: cursorPos.isHovered 
+                                        ? `${tiltX * 0.4}px ${tiltY * 0.4}px 30px rgba(231,255,0,0.35)` 
+                                        : '0 4px 20px rgba(0,0,0,0.95)'
+                                }}
+                            >
+                                {currentFrame.titleMain.split(" ").map((word, wIdx) => (
+                                    <motion.span
+                                        key={`main-${wIdx}`}
+                                        variants={{
+                                            hidden: { opacity: 0, y: 22, filter: "blur(12px)", scale: 0.8 },
+                                            visible: { 
+                                                opacity: 1, 
+                                                y: 0, 
+                                                filter: "blur(0px)", 
+                                                scale: 1,
+                                                transition: { 
+                                                    duration: 0.85,
+                                                    ease: [0.16, 1, 0.3, 1]
+                                                } 
+                                            }
+                                        }}
+                                        className="inline-block"
+                                    >
+                                        {word}
+                                    </motion.span>
+                                ))}
+                            </h1>
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
 
-                {/* 4. Floating Spatial HUD & Cleaned-up Signature Typography */}
-                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-14 pb-5 px-4 text-center z-20">
-                    <div className="h-4" />
-
-                    {/* True 3D Assembled Typography (하단 1/3 영역에 안정적 배치) */}
-                    <div className="max-w-sm mx-auto mt-auto mb-10 md:mb-14 px-2 flex flex-col items-center">
-                        {activeFrameIdx === 6 && (
+                {/* 4. LOWER KINETIC FOOTPRINT & SONIC PACING VISUALIZER (NO RAW NUMBERS) */}
+                <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-5 px-4 text-center z-20">
+                    <div className="flex flex-col items-center gap-1.5 mb-2 pointer-events-none select-none">
+                        <div className="flex items-center gap-3">
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                className="mb-3 px-3.5 py-1.5 rounded-full bg-black/85 border border-[#E7FF00]/60 shadow-[0_0_20px_rgba(231,255,0,0.4)] backdrop-blur-md flex items-center gap-2 font-mono text-[9px] sm:text-[10px] text-[#E7FF00] tracking-widest uppercase animate-pulse"
-                            >
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-ping" />
-                                <span>🚧 20% READY • STAGE UNDER CONSTRUCTION</span>
-                            </motion.div>
-                        )}
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={`assembled-title-${activeFrameIdx}`}
-                                initial="hidden"
-                                animate="visible"
-                                exit={{ opacity: 0, y: -15, filter: "blur(6px)", transition: { duration: 0.2 } }}
-                                variants={{
-                                    hidden: { opacity: 0 },
-                                    visible: {
-                                        opacity: 1,
-                                        transition: {
-                                            staggerChildren: audioTier === 4 ? 0.05 : audioTier === 3 ? 0.12 : audioTier === 2 ? 0.22 : 0.36,
-                                            delayChildren: 0.04
-                                        }
-                                    }
+                                animate={{
+                                    scale: isScrollingUp ? [1, 1.25, 1] : [1, 1.08, 1],
+                                    opacity: isScrollingUp ? 1 : 0.65,
+                                    y: isScrollingUp ? [-2, -6, 0] : [0, -2, 0]
                                 }}
-                                className="flex flex-col items-center text-center"
+                                transition={{
+                                    repeat: Infinity,
+                                    duration: isScrollingUp ? 0.4 : 0.9,
+                                    ease: "easeInOut"
+                                }}
+                                className="flex items-center gap-1.5"
                             >
-                                <h2 className="font-sans text-xl sm:text-2xl font-light tracking-tight text-[#E7FF00] uppercase leading-none mb-2 flex flex-wrap items-center justify-center gap-x-2">
-                                    {currentFrame.titleTop.split(" ").map((word, wIdx) => (
-                                        <motion.span
-                                            key={`top-${wIdx}`}
-                                            variants={{
-                                                hidden: { opacity: 0, y: 12, filter: "blur(8px)", scale: 0.85 },
-                                                visible: { 
-                                                    opacity: 1, 
-                                                    y: 0, 
-                                                    filter: "blur(0px)", 
-                                                    scale: 1,
-                                                    transition: { 
-                                                        duration: audioTier === 4 ? 0.18 : audioTier === 3 ? 0.28 : audioTier === 2 ? 0.42 : 0.60,
-                                                        ease: [0.22, 1, 0.36, 1] 
-                                                    } 
-                                                }
-                                            }}
-                                            className="inline-block"
-                                        >
-                                            {word}
-                                        </motion.span>
-                                    ))}
-                                </h2>
-
-                                <h1 
-                                    className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight max-w-xs flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5"
-                                    style={{
-                                        textShadow: cursorPos.isHovered 
-                                            ? `${tiltX * 0.5}px ${tiltY * 0.5}px 35px rgba(231,255,0,0.4)` 
-                                            : '0 0 35px rgba(0,0,0,0.9)'
-                                    }}
-                                >
-                                    {currentFrame.titleMain.split(" ").map((word, wIdx) => (
-                                        <motion.span
-                                            key={`main-${wIdx}`}
-                                            variants={{
-                                                hidden: { opacity: 0, y: 18, filter: "blur(10px)", scale: 0.80 },
-                                                visible: { 
-                                                    opacity: 1, 
-                                                    y: 0, 
-                                                    filter: "blur(0px)", 
-                                                    scale: 1,
-                                                    transition: { 
-                                                        duration: audioTier === 4 ? 0.20 : audioTier === 3 ? 0.32 : audioTier === 2 ? 0.48 : 0.68,
-                                                        ease: [0.22, 1, 0.36, 1] 
-                                                    } 
-                                                }
-                                            }}
-                                            className="inline-block"
-                                        >
-                                            {word}
-                                        </motion.span>
-                                    ))}
-                                </h1>
+                                <Footprints className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-200 ${
+                                    isScrollingUp 
+                                        ? 'text-[#E7FF00] drop-shadow-[0_0_12px_#E7FF00]' 
+                                        : 'text-white/60 drop-shadow-[0_0_6px_rgba(255,255,255,0.3)]'
+                                }`} />
                             </motion.div>
-                        </AnimatePresence>
+
+                            {/* Dynamic Sonic Pacing Equalizer Bars */}
+                            <div className="flex items-end gap-1 h-3.5">
+                                {[0.4, 0.85, 1.0, 0.7, 0.45].map((h, i) => (
+                                    <motion.div
+                                        key={i}
+                                        animate={{
+                                            height: isScrollingUp 
+                                                ? [4 * h, 14 * h, 3 * h, 14 * h] 
+                                                : [3 * h, 7 * h, 3 * h],
+                                            opacity: isScrollingUp ? [0.7, 1, 0.7] : [0.35, 0.7, 0.35]
+                                        }}
+                                        transition={{
+                                            repeat: Infinity,
+                                            duration: isScrollingUp ? 0.35 + i * 0.05 : 0.8 + i * 0.1,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="w-0.5 rounded-full bg-gradient-to-t from-[#E7FF00] to-[#00F0FF] shadow-[0_0_6px_#E7FF00]"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Visual Pace Rhythm Dots */}
+                        <div className="flex items-center gap-1.5 opacity-60">
+                            {[0, 1, 2, 3].map((dotIdx) => (
+                                <motion.span
+                                    key={dotIdx}
+                                    animate={{
+                                        scale: isScrollingUp && (audioTier >= dotIdx + 1) ? [1, 1.4, 1] : 1,
+                                        opacity: audioTier >= dotIdx + 1 ? 0.9 : 0.25
+                                    }}
+                                    transition={{
+                                        repeat: Infinity,
+                                        duration: 0.5,
+                                        delay: dotIdx * 0.1
+                                    }}
+                                    className="w-1 h-1 rounded-full bg-[#E7FF00] shadow-[0_0_5px_#E7FF00]"
+                                />
+                            ))}
+                        </div>
                     </div>
 
                     {/* Bottom Progress Track with Dynamic Dopamine Glow */}
