@@ -4,12 +4,14 @@ import { MR_AUDIO_SRC } from '../constants/frames';
 export function useAudioMaster() {
     const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
+    const [showWelcomeBack, setShowWelcomeBack] = useState(false);
     const mrAudioRef = useRef(null);
+    const hasLeftRef = useRef(false);
 
     // Bulletproof Mobile Native Gesture Audio Unlocker
     useEffect(() => {
         const unlock = () => {
-            if (mrAudioRef.current) {
+            if (mrAudioRef.current && !isAudioUnlocked) {
                 mrAudioRef.current.volume = 0.85;
                 const playPromise = mrAudioRef.current.play();
                 if (playPromise !== undefined) {
@@ -18,7 +20,7 @@ export function useAudioMaster() {
                             setIsAudioUnlocked(true);
                         })
                         .catch((err) => {
-                            console.warn("Mobile audio autoplay blocked, awaiting gesture:", err);
+                            console.warn("Mobile audio autoplay awaiting gesture:", err);
                         });
                 }
             }
@@ -35,7 +37,48 @@ export function useAudioMaster() {
             window.removeEventListener('pointerdown', unlock);
             window.removeEventListener('click', unlock);
         };
-    }, []);
+    }, [isAudioUnlocked]);
+
+    // Focus / Home-Key / Tab Inactive Detection
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                // User pressed home key or changed tab -> Pause immediately
+                if (mrAudioRef.current && isAudioUnlocked) {
+                    mrAudioRef.current.pause();
+                    hasLeftRef.current = true;
+                }
+            } else {
+                // User returned to the app -> Trigger Welcome Back 5s countdown
+                if (hasLeftRef.current && isAudioUnlocked) {
+                    setShowWelcomeBack(true);
+                }
+            }
+        };
+
+        const handleBlur = () => {
+            if (mrAudioRef.current && isAudioUnlocked) {
+                mrAudioRef.current.pause();
+                hasLeftRef.current = true;
+            }
+        };
+
+        const handleFocus = () => {
+            if (hasLeftRef.current && isAudioUnlocked) {
+                setShowWelcomeBack(true);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('blur', handleBlur);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('blur', handleBlur);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [isAudioUnlocked]);
 
     const forceUnlockAudio = () => {
         if (mrAudioRef.current) {
@@ -57,11 +100,22 @@ export function useAudioMaster() {
         });
     };
 
+    // Resume Audio after Welcome Back Countdown finishes
+    const handleResumeFromWelcomeBack = () => {
+        setShowWelcomeBack(false);
+        hasLeftRef.current = false;
+        if (mrAudioRef.current && !isMuted) {
+            mrAudioRef.current.play().catch(() => {});
+        }
+    };
+
     return {
         isAudioUnlocked,
         isMuted,
+        showWelcomeBack,
         mrAudioRef,
         forceUnlockAudio,
-        handleToggleMute
+        handleToggleMute,
+        handleResumeFromWelcomeBack
     };
 }

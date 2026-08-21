@@ -21,6 +21,7 @@ import { EvolutionGauge } from './components/walk/EvolutionGauge';
 
 // 4. Interactive Modals
 import { InitialUnlockSplash } from './components/modals/InitialUnlockSplash';
+import { WelcomeBackModal } from './components/modals/WelcomeBackModal';
 import { TeaserTrailerModal } from './components/modals/TeaserTrailerModal';
 import { FrankfurtAtelierModal } from './components/modals/FrankfurtAtelierModal';
 
@@ -38,9 +39,11 @@ export default function KineticPortfolio() {
     const {
         isAudioUnlocked,
         isMuted,
+        showWelcomeBack,
         mrAudioRef,
         forceUnlockAudio,
-        handleToggleMute
+        handleToggleMute,
+        handleResumeFromWelcomeBack
     } = useAudioMaster();
 
     // Modals
@@ -66,7 +69,7 @@ export default function KineticPortfolio() {
 
     return (
         <div 
-            className="fixed inset-0 w-screen h-screen bg-black text-white select-none overflow-hidden flex items-center justify-center cursor-default touch-none"
+            className="fixed inset-0 w-screen h-screen bg-black text-white select-none overflow-hidden flex flex-col items-center justify-start cursor-default touch-none pt-10 sm:pt-14 pb-4"
             onMouseMove={(e) => updatePointerPos(e.clientX, e.clientY)}
             onTouchMove={(e) => {
                 if (e.touches && e.touches[0]) {
@@ -86,11 +89,11 @@ export default function KineticPortfolio() {
                 isScrollingUp={isScrollingUp} 
             />
 
-            {/* 7-Step 1st-Person Walkthrough Stage */}
+            {/* 7-Step 1st-Person Walkthrough Stage (Reduced Top Gap, Increased Bottom Buffer) */}
             <main 
-                className="relative w-full h-full max-h-[100dvh] max-w-[56.25dvh] aspect-[9/16] md:w-[410px] md:h-[85vh] md:max-h-[840px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.2)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between mx-auto"
+                className="relative w-full flex-1 max-h-[88vh] max-w-[56.25vh] aspect-[9/16] md:w-[410px] md:h-[84vh] md:max-h-[840px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.2)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between mx-auto"
                 style={{
-                    filter: !isAudioUnlocked ? 'blur(20px) brightness(40%)' : 'none'
+                    filter: (!isAudioUnlocked || showWelcomeBack) ? 'blur(20px) brightness(40%)' : 'none'
                 }}
             >
                 {/* Visual Frames Sequence */}
@@ -125,19 +128,19 @@ export default function KineticPortfolio() {
                                 disableRemotePlayback
                                 preload="auto"
                                 onEnded={handleVideoCompleted}
-                                className="w-full h-full object-cover sm:object-cover pointer-events-none transition-transform duration-700 scale-100"
+                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
                             />
                         ) : (
                             <img
                                 src={f.src}
                                 alt={f.titleMain}
-                                className="w-full h-full object-cover transition-transform duration-700 scale-100"
+                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
                             />
                         )}
                     </motion.div>
                 ))}
 
-                {/* 1. Dynamic 30% Volume Calibrator & Morphing Top-Right Mute Button */}
+                {/* 1. Dynamic Pure White Volume Calibrator & Morphing Top-Right Mute Button */}
                 <VolumePrompt 
                     isAudioUnlocked={isAudioUnlocked} 
                     isMuted={isMuted}
@@ -181,6 +184,12 @@ export default function KineticPortfolio() {
                 tiltY={tiltY}
                 ghostOffsetX={ghostOffsetX}
                 ghostOffsetY={ghostOffsetY}
+            />
+
+            {/* Welcome Back 5-Second Countdown Resume Modal */}
+            <WelcomeBackModal 
+                isOpen={showWelcomeBack}
+                onComplete={handleResumeFromWelcomeBack}
             />
 
             {/* 100% Walk Completion Teaser Trailer Modal */}
