@@ -128,13 +128,13 @@ export default function KineticPortfolio() {
                                 disableRemotePlayback
                                 preload="auto"
                                 onEnded={handleVideoCompleted}
-                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
+                                className="w-full h-full object-contain pointer-events-none transition-transform duration-700 scale-100"
                             />
                         ) : (
                             <img
                                 src={f.src}
                                 alt={f.titleMain}
-                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
+                                className="w-full h-full object-contain pointer-events-none transition-transform duration-700 scale-100"
                             />
                         )}
                     </motion.div>

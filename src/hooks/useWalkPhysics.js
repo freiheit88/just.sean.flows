@@ -8,7 +8,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     const touchStartY = useRef(0);
     const touchStartTime = useRef(0);
 
-    // Sequence state: 'idle' -> 'stage1' (0번 사진 5s) -> 'video' (1번 비디오 1회) -> 'stage2' (2번 사진 3s 대기) -> 'free'
+    // Sequence state: 'idle' -> 'stage1' (5s) -> 'video' (1x) -> 'stage2' (3s pause) -> 'free'
     const sequenceState = useRef('idle');
 
     // Dynamic Frame Index computation with strict phase locking
@@ -37,7 +37,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         const stage1Timer = setInterval(() => {
             const elapsed = Date.now() - startTime;
             const ratio = Math.min(1, elapsed / duration);
-            const currentVal = ratio * 14.0; // 14%까지만 진행 (0번 사진 안전 범위)
+            const currentVal = ratio * 14.0; // 14%까지만 진행
 
             setProgress((prev) => {
                 const next = Math.max(prev, currentVal);
@@ -47,7 +47,6 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
             if (ratio >= 1) {
                 clearInterval(stage1Timer);
-                // 5초 완료 즉시 비디오 단계로 전환 (코너 사진 노출 원천 차단)
                 sequenceState.current = 'video';
                 setProgress(14.3);
                 progressRef.current = 14.3;
@@ -70,12 +69,10 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         if (sequenceState.current !== 'video') return;
         sequenceState.current = 'stage2';
 
-        // 1. 즉시 2번 사진(코너 턴)으로 고정
         setProgress(28.6);
         progressRef.current = 28.6;
         setActiveFrameIdx(2);
 
-        // 2. 2번 사진에서 정확히 3초간 대기 (3-Second Pause on Frame 2)
         const startTime = Date.now();
         const duration = 3000; // 3초 대기
         const startProgress = 28.6;
@@ -94,13 +91,30 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
             if (ratio >= 1) {
                 clearInterval(stage2Timer);
-                sequenceState.current = 'free'; // 3단계부터 자유 스크롤 언락!
+                sequenceState.current = 'free'; // 3단계부터 자유 스크롤 & 자동 앰비언트 보행 언락!
                 setActiveFrameIdx(3);
             }
         }, 30);
     };
 
-    // 휠 & 터치 스크롤 이벤트 리스너 (3단계 이전에는 자유 스크롤 차단, 이후 해제)
+    // Ambient Gentle Auto-Walk Progression (3단계 이후 가만히 있어도 서서히 전진)
+    useEffect(() => {
+        if (!isAudioUnlocked) return;
+
+        const autoDriftInterval = setInterval(() => {
+            if (sequenceState.current === 'free' && progressRef.current < 100) {
+                setProgress((prev) => {
+                    const next = Math.min(100, prev + 0.035); // Gentle ~0.7% per second steady drift
+                    progressRef.current = next;
+                    return next;
+                });
+            }
+        }, 50);
+
+        return () => clearInterval(autoDriftInterval);
+    }, [isAudioUnlocked]);
+
+    // 휠 & 터치 스크롤 이벤트 리스너 (3단계 이후 가속 스크롤)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -114,12 +128,10 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                 triggerDopamineScrollUp();
 
                 if (sequenceState.current === 'free' || progressRef.current >= 42.8) {
-                    const clampedDelta = Math.min(e.deltaY * 0.00225, 1.25);
+                    const clampedDelta = Math.min(e.deltaY * 0.0025, 1.35);
                     setProgress((prev) => {
                         const next = Math.min(100, prev + clampedDelta);
                         progressRef.current = next;
-                        // Locked cleanly inside Step 7
-                        return next;
                         return next;
                     });
                 }
@@ -146,13 +158,10 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                     triggerDopamineScrollUp();
 
                     if (sequenceState.current === 'free' || progressRef.current >= 42.8) {
-                        const strokeProgress = Math.min(deltaY * 0.011, 1.9);
+                        const strokeProgress = Math.min(deltaY * 0.012, 2.0);
                         setProgress((prev) => {
                             const next = Math.min(100, prev + strokeProgress);
                             progressRef.current = next;
-                            if (next >= 100 && onFinishWalk) {
-                                setTimeout(() => onFinishWalk(), 800);
-                            }
                             return next;
                         });
                     }
