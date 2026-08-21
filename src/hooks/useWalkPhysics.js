@@ -8,37 +8,26 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     const touchStartY = useRef(0);
     const touchStartTime = useRef(0);
 
+    const footstepAudioRef = useRef(null);
     const lastFootstepTime = useRef(0);
+
+    useEffect(() => {
+        const audio = new Audio('/assets/sounds/footsteps_three_steps.wav');
+        audio.volume = 0.38;
+        audio.preload = 'auto';
+        footstepAudioRef.current = audio;
+    }, []);
+
+    // Natural 3-Step ("뚜벅 뚜벅 뚜벅") Cobblestone Sound Player (1.2s Pacing)
     const playFootstepSound = () => {
         const now = Date.now();
-        if (now - lastFootstepTime.current < 1000) return; // Strictly throttled to max 1 sound per 1.0s
+        if (now - lastFootstepTime.current < 1200) return; // 1.2s throttle so 3 steps complete naturally
         lastFootstepTime.current = now;
 
-        try {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (!AudioCtx) return;
-            const ctx = new AudioCtx();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            const filter = ctx.createBiquadFilter();
-
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(130, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(32, ctx.currentTime + 0.14);
-
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(400, ctx.currentTime);
-
-            gain.gain.setValueAtTime(0.16, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.14);
-
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(ctx.destination);
-
-            osc.start();
-            osc.stop(ctx.currentTime + 0.15);
-        } catch (e) {}
+        if (footstepAudioRef.current) {
+            footstepAudioRef.current.currentTime = 0;
+            footstepAudioRef.current.play().catch(() => {});
+        }
     };
 
 
