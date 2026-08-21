@@ -138,10 +138,64 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 3. PHYSICAL BREAK-SHOT & DECELERATING REBOUND (4.2s ~ 6.8s) */}
+            {/* 3. PHYSICAL BREAK-SHOT WITH 3-TIER SUBTLE GLOWING COMET TAILS (4.2s ~ 6.8s) */}
             {phase === 'ricochet' && (
                 <>
-                    {/* Billiard Cue Ball: Directly smashes into JUST.SEAN.FLOWS */}
+                    {/* Tail 3: Faintest outer micro dust (Delayed 70ms) */}
+                    <motion.div
+                        initial={{ x: 0, y: 0, opacity: 0 }}
+                        animate={{
+                            x: [0, -140, 6, -15, 0],
+                            y: [0, -135, -80, -135, -155],
+                            opacity: [0, 0.25, 0.15, 0.05, 0]
+                        }}
+                        transition={{
+                            duration: 2.6,
+                            delay: 0.07,
+                            times: [0, 0.22, 0.52, 0.78, 1.0],
+                            ease: [0.18, 0.8, 0.25, 1.0]
+                        }}
+                        style={{ top: '24%', right: '16px' }}
+                        className="absolute z-[9995] w-3 h-3 rounded-full bg-[#E7FF00]/40 filter blur-[4px] pointer-events-none -translate-x-1/2 -translate-y-1/2 left-5 top-5"
+                    />
+
+                    {/* Tail 2: Soft glowing amber ghost (Delayed 45ms) */}
+                    <motion.div
+                        initial={{ x: 0, y: 0, opacity: 0 }}
+                        animate={{
+                            x: [0, -140, 6, -15, 0],
+                            y: [0, -135, -80, -135, -155],
+                            opacity: [0, 0.4, 0.22, 0.08, 0]
+                        }}
+                        transition={{
+                            duration: 2.6,
+                            delay: 0.045,
+                            times: [0, 0.22, 0.52, 0.78, 1.0],
+                            ease: [0.18, 0.8, 0.25, 1.0]
+                        }}
+                        style={{ top: '24%', right: '16px' }}
+                        className="absolute z-[9996] w-5 h-5 rounded-full bg-[#FFF9A6]/50 filter blur-[3px] pointer-events-none -translate-x-1/2 -translate-y-1/2 left-5 top-5"
+                    />
+
+                    {/* Tail 1: Close trailing soft light sphere (Delayed 20ms) */}
+                    <motion.div
+                        initial={{ x: 0, y: 0, opacity: 0 }}
+                        animate={{
+                            x: [0, -140, 6, -15, 0],
+                            y: [0, -135, -80, -135, -155],
+                            opacity: [0, 0.6, 0.35, 0.12, 0]
+                        }}
+                        transition={{
+                            duration: 2.6,
+                            delay: 0.02,
+                            times: [0, 0.22, 0.52, 0.78, 1.0],
+                            ease: [0.18, 0.8, 0.25, 1.0]
+                        }}
+                        style={{ top: '24%', right: '16px' }}
+                        className="absolute z-[9997] w-7 h-7 rounded-full bg-[#FFFDE7]/60 filter blur-[2px] pointer-events-none -translate-x-1/2 -translate-y-1/2 left-5 top-5"
+                    />
+
+                    {/* Main Billiard Cue Ball: Directly smashes into JUST.SEAN.FLOWS */}
                     <motion.div
                         initial={{
                             x: 0,
@@ -157,10 +211,6 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                             boxShadow: "0 0 30px rgba(255,249,166,0.85)"
                         }}
                         animate={{
-                            // Phase 1 (Direct Power Smash into JUST.SEAN.FLOWS): x: -140px, y: -135px at t=22%
-                            // Phase 2 (Kinetic Transfer & Cushion Rebound): Velocity drops 60%, bounces down-right (x: 6px, y: -80px) at t=52%
-                            // Phase 3 (Gentle Secondary Tap): Velocity drops 80%, bounces up (x: -15px, y: -135px) at t=78%
-                            // Phase 4 (Final Soft Rolling Settle): Smoothly rolls into top-right pocket (x: 0, y: -155px) at t=100%
                             x: [0, -140, 6, -15, 0],
                             y: [0, -135, -80, -135, -155],
                             rotate: [0, -360, -520, -640, -720],
@@ -182,10 +232,10 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                             ],
                             boxShadow: [
                                 "0 0 30px rgba(255,249,166,0.85)",
-                                "0 0 55px rgba(231,255,0,1)",
-                                "0 0 30px rgba(255,224,130,0.75)",
-                                "0 0 25px rgba(231,255,0,0.6)",
-                                "0 0 20px rgba(231,255,0,0.45)"
+                                "0 0 45px rgba(231,255,0,0.9)",
+                                "0 0 25px rgba(255,224,130,0.7)",
+                                "0 0 20px rgba(231,255,0,0.5)",
+                                "0 0 15px rgba(231,255,0,0.4)"
                             ]
                         }}
                         transition={{
@@ -200,12 +250,12 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
 
                     {/* Break Shot Impact Radial Halo Bloom behind JUST.SEAN.FLOWS */}
                     {breakGlow && (
-                        <div className="absolute top-1 left-[50%] w-36 h-20 -translate-x-1/2 rounded-full bg-[#E7FF00]/45 filter blur-2xl pointer-events-none animate-pulse" />
+                        <div className="absolute top-1 left-[50%] w-36 h-20 -translate-x-1/2 rounded-full bg-[#E7FF00]/35 filter blur-2xl pointer-events-none animate-pulse" />
                     )}
 
                     {/* Right Frame Cushion Rebound Soft Halo */}
                     {reboundGlow && (
-                        <div className="absolute top-[14%] right-1 w-16 h-20 rounded-full bg-[#FFE082]/25 filter blur-xl pointer-events-none" />
+                        <div className="absolute top-[14%] right-1 w-16 h-20 rounded-full bg-[#FFE082]/20 filter blur-xl pointer-events-none" />
                     )}
                 </>
             )}

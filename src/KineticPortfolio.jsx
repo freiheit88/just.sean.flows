@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FRAMES, MR_AUDIO_SRC } from './constants/frames';
 import { useAudioMaster } from './hooks/useAudioMaster';
@@ -38,6 +38,17 @@ export default function KineticPortfolio() {
 
     // 2. 60FPS Gyro & Mouse Tilt Engine
     const { tilt, tiltX, tiltY, ghostOffsetX, ghostOffsetY } = useDeviceGyro();
+    const videoRef = useRef(null);
+
+    // Reliable 1-shot video playback on Frame 1 transition
+    useEffect(() => {
+        if (activeFrameIdx === 1 && videoRef.current) {
+            videoRef.current.currentTime = 0;
+            videoRef.current.play().catch((err) => console.log('Video play error:', err));
+        } else if (videoRef.current) {
+            videoRef.current.pause();
+        }
+    }, [activeFrameIdx]);
 
     // 3. Fluid Mouse / Touch Trail Engine
     const { cursorPos, trails, isScrollingUp, updatePointerPos, triggerDopamineScrollUp } = useTrailCursor();
@@ -108,16 +119,7 @@ export default function KineticPortfolio() {
                         >
                             {f.isVideo ? (
                                 <video
-                                    ref={(el) => {
-                                        if (el) {
-                                            if (activeFrameIdx === idx) {
-                                                el.currentTime = 0;
-                                                el.play().catch(() => {});
-                                            } else {
-                                                el.pause();
-                                            }
-                                        }
-                                    }}
+                                    ref={videoRef}
                                     src={f.videoSrc}
                                     poster={f.src}
                                     muted
