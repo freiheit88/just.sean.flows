@@ -84,7 +84,7 @@ export default function KineticPortfolio() {
             />
 
             {/* Centered Phone Canvas Wrapper (395px max width for PC & Mobile consistency) */}
-            <div className="relative w-full max-w-[395px] h-[calc(100dvh-62px)] max-h-[820px] mx-auto my-auto flex items-center justify-center">
+            <div className="relative w-full max-w-[395px] aspect-[768/1376] max-h-[calc(100dvh-62px)] mx-auto my-auto flex items-center justify-center">
                 
                 {/* 7-Step 1st-Person Walkthrough Stage */}
                 <main 
@@ -129,13 +129,13 @@ export default function KineticPortfolio() {
                                     disableRemotePlayback
                                     preload="auto"
                                     onEnded={handleVideoCompleted}
-                                    className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
+                                    className="w-full h-full object-fill pointer-events-none transition-transform duration-700 scale-100"
                                 />
                             ) : (
                                 <img
                                     src={f.src}
                                     alt={f.titleMain}
-                                    className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
+                                    className="w-full h-full object-fill pointer-events-none transition-transform duration-700 scale-100"
                                 />
                             )}
                         </motion.div>
