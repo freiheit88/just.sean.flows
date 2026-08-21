@@ -14,6 +14,7 @@ import { Header3D } from './components/common/Header3D';
 import { KineticCursor } from './components/common/KineticCursor';
 import { VolumePrompt } from './components/common/VolumePrompt';
 import { StainedGlassArch } from './components/walk/StainedGlassArch';
+import { CanvasVideoPlayer } from './components/walk/CanvasVideoPlayer';
 import { Step07Timeline } from './components/walk/Step07Timeline';
 import { SonicFootprints } from './components/walk/SonicFootprints';
 import { EvolutionGauge } from './components/walk/EvolutionGauge';
@@ -104,24 +105,10 @@ export default function KineticPortfolio() {
                         className="absolute inset-0 w-full h-full"
                     >
                         {f.videoSrc && activeFrameIdx === idx ? (
-                            <video
-                                ref={(el) => {
-                                    if (el) {
-                                        el.muted = false;
-                                        el.volume = 1.0;
-                                        el.playsInline = true;
-                                        el.play().catch(() => {
-                                            el.muted = true;
-                                            el.play().catch(() => {});
-                                        });
-                                    }
-                                }}
-                                src={f.videoSrc}
-                                poster={f.src}
-                                autoPlay
-                                playsInline
-                                preload="auto"
-                                className="w-full h-full object-cover transition-transform duration-700 scale-100"
+                            <CanvasVideoPlayer
+                                videoSrc={f.videoSrc}
+                                posterSrc={f.src}
+                                isActive={activeFrameIdx === idx}
                             />
                         ) : (
                             <img
