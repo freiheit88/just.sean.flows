@@ -323,12 +323,13 @@ export default function App() {
 
                 {isScrollingUp && (
                     <motion.div 
-                        initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                        animate={{ opacity: 1, y: -30, scale: 1 }}
+                        initial={{ opacity: 0, y: 0, scale: 0.85 }}
+                        animate={{ opacity: 1, y: -18, scale: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute -top-4 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-black/90 border border-[#E7FF00] shadow-[0_0_15px_#E7FF00] flex items-center gap-1 font-mono text-[9px] font-black text-[#E7FF00] whitespace-nowrap tracking-wider"
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="absolute -top-5 left-1/2 -translate-x-1/2 flex items-center gap-1 font-mono text-[10px] sm:text-xs font-black text-[#E7FF00] whitespace-nowrap tracking-widest pointer-events-none select-none drop-shadow-[0_0_12px_rgba(231,255,0,0.9)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]"
                     >
-                        <ChevronUp className="w-3 h-3 animate-bounce" />
+                        <ChevronUp className="w-3.5 h-3.5 animate-bounce text-[#E7FF00]" />
                         <span>WALK FORWARD</span>
                     </motion.div>
                 )}
