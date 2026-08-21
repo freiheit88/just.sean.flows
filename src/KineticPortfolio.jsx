@@ -425,7 +425,8 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
     const [livePowerStr, setLivePowerStr] = useState("0");
     const [isTremblingAt8012, setIsTremblingAt8012] = useState(false);
     const [audioTier, setAudioTier] = useState(1);
-    const [isVideoTransitionFinished, setIsVideoTransitionFinished] = useState(false);
+    const [videoPlayState, setVideoPlayState] = useState('idle'); // 'idle' | 'playing' | 'card_reading' | 'unlocked'
+    const hasVideoPlayedOnce = useRef(false);
     const [timelineStage, setTimelineStage] = useState(0);
     const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
     const videoSwipeCountRef = useRef(0);
@@ -618,13 +619,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
             const clampedDelta = Math.min(rawDelta * 0.00225, 1.25);
             setProgress((prev) => {
-                // Video Exception Handling: If video is playing between 12% and 24%, let video play at normal speed
-                if (!isVideoTransitionFinished && prev >= 12 && prev < 24) {
-                    videoSwipeCountRef.current += 1;
-                    if (videoSwipeCountRef.current >= 4) {
-                        setIsVideoTransitionFinished(true);
+                // Video & 3-Second Card Lock Handling: Hold between 12% and 22% until video ends and 3s card read is done
+                if (prev >= 12 && prev < 24 && videoPlayState !== 'unlocked') {
+                    if (!hasVideoPlayedOnce.current && videoPlayState === 'idle') {
+                        setVideoPlayState('playing');
+                        hasVideoPlayedOnce.current = true;
                     }
-                    const next = Math.min(22, prev + clampedDelta * 0.25);
+                    const next = Math.min(20, prev + clampedDelta * 0.2);
                     progressRef.current = next;
                     return next;
                 }
@@ -683,13 +684,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
                 const strokeProgress = Math.min(deltaY * 0.011, 1.9);
                 setProgress((prev) => {
-                    // Video Exception Handling: If video is playing between 12% and 24%, let video play naturally
-                    if (!isVideoTransitionFinished && prev >= 12 && prev < 24) {
-                        videoSwipeCountRef.current += 1;
-                        if (videoSwipeCountRef.current >= 3) {
-                            setIsVideoTransitionFinished(true);
+                    // Video & 3-Second Card Lock Handling: Hold between 12% and 22% until video ends and 3s card read is done
+                    if (prev >= 12 && prev < 24 && videoPlayState !== 'unlocked') {
+                        if (!hasVideoPlayedOnce.current && videoPlayState === 'idle') {
+                            setVideoPlayState('playing');
+                            hasVideoPlayedOnce.current = true;
                         }
-                        const next = Math.min(22, prev + strokeProgress * 0.25);
+                        const next = Math.min(20, prev + strokeProgress * 0.2);
                         progressRef.current = next;
                         return next;
                     }
@@ -859,7 +860,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                         transition={{ duration: 0.5, ease: 'easeOut' }}
                         className="absolute inset-0 w-full h-full"
                     >
-                        {f.videoSrc && activeFrameIdx === idx ? (
+                        {f.videoSrc && activeFrameIdx === idx && (videoPlayState === 'playing' || (!hasVideoPlayedOnce.current && videoPlayState === 'idle')) ? (
                             <video
                                 ref={(el) => {
                                     if (el) {
@@ -875,7 +876,11 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 muted
                                 preload="auto"
                                 onEnded={() => {
-                                    setIsVideoTransitionFinished(true);
+                                    setVideoPlayState('card_reading');
+                                    // Hold the 2번 card still frame for 3.0 seconds so user can read text comfortably
+                                    setTimeout(() => {
+                                        setVideoPlayState('unlocked');
+                                    }, 3000);
                                 }}
                                 className="w-full h-full object-cover transition-transform duration-700 scale-100"
                             />
@@ -1101,82 +1106,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                    ) : (
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={`assembled-title-${activeFrameIdx}`}
-                                initial="hidden"
-                                animate="visible"
-                                exit={{ opacity: 0, y: -12, filter: "blur(6px)", transition: { duration: 0.25 } }}
-                                variants={{
-                                    hidden: { opacity: 0 },
-                                    visible: {
-                                        opacity: 1,
-                                        transition: {
-                                            delayChildren: 0.18,
-                                            staggerChildren: 0.16
-                                        }
-                                    }
-                                }}
-                                className="flex flex-col items-center text-center max-w-xs sm:max-w-md"
-                            >
-                                <h2 className="font-mono text-xs sm:text-sm font-bold tracking-[0.32em] text-[#E7FF00] uppercase mb-1.5 flex flex-wrap items-center justify-center gap-x-2 drop-shadow-[0_0_15px_rgba(231,255,0,0.6)]">
-                                    {currentFrame.titleTop.split(" ").map((word, wIdx) => (
-                                        <motion.span
-                                            key={`top-${wIdx}`}
-                                            variants={{
-                                                hidden: { opacity: 0, y: -16, filter: "blur(10px)", scale: 0.85 },
-                                                visible: { 
-                                                    opacity: 1, 
-                                                    y: 0, 
-                                                    filter: "blur(0px)", 
-                                                    scale: 1,
-                                                    transition: { 
-                                                        duration: 0.75,
-                                                        ease: [0.16, 1, 0.3, 1]
-                                                    } 
-                                                }
-                                            }}
-                                            className="inline-block"
-                                        >
-                                            {word}
-                                        </motion.span>
-                                    ))}
-                                </h2>
-
-                                <h1 
-                                    className="font-sans text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white uppercase leading-none flex flex-wrap items-center justify-center gap-x-2 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]"
-                                    style={{
-                                        textShadow: cursorPos.isHovered 
-                                            ? `${tiltX * 0.4}px ${tiltY * 0.4}px 30px rgba(231,255,0,0.35)` 
-                                            : '0 4px 20px rgba(0,0,0,0.95)'
-                                    }}
-                                >
-                                    {currentFrame.titleMain.split(" ").map((word, wIdx) => (
-                                        <motion.span
-                                            key={`main-${wIdx}`}
-                                            variants={{
-                                                hidden: { opacity: 0, y: 22, filter: "blur(12px)", scale: 0.8 },
-                                                visible: { 
-                                                    opacity: 1, 
-                                                    y: 0, 
-                                                    filter: "blur(0px)", 
-                                                    scale: 1,
-                                                    transition: { 
-                                                        duration: 0.85,
-                                                        ease: [0.16, 1, 0.3, 1]
-                                                    } 
-                                                }
-                                            }}
-                                            className="inline-block"
-                                        >
-                                            {word}
-                                        </motion.span>
-                                    ))}
-                                </h1>
-                            </motion.div>
-                        </AnimatePresence>
-                    )}
+                    ) : null}
                 </div>
 
                 {/* 4. LOWER KINETIC FOOTPRINT & SONIC PACING VISUALIZER (NO RAW NUMBERS) */}
