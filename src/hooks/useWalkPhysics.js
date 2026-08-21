@@ -11,7 +11,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     // Sequence state: 'idle' -> 'stage1' (5s) -> 'video' (1x) -> 'stage2' (3s pause) -> 'free'
     const sequenceState = useRef('idle');
 
-    // Dynamic Frame Index computation with strict phase locking
+    // Dynamic Frame Index computation with ironclad phase locking
     useEffect(() => {
         if (sequenceState.current === 'stage1') {
             setActiveFrameIdx(0); // 1단계 5초 동안 0번 사진 엄격 고정!
@@ -25,7 +25,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         }
     }, [progress]);
 
-    // STAGE 1: 1단계 5초 정속 보행 (0번 사진 5초간 유지)
+    // STAGE 1: 1단계 5초 정속 보행 (0번 사진 5초간 엄격 유지)
     useEffect(() => {
         if (!isAudioUnlocked || sequenceState.current !== 'idle') return;
         sequenceState.current = 'stage1';
@@ -37,7 +37,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         const stage1Timer = setInterval(() => {
             const elapsed = Date.now() - startTime;
             const ratio = Math.min(1, elapsed / duration);
-            const currentVal = ratio * 14.0; // 14%까지만 진행
+            const currentVal = ratio * 13.5; // Strictly capped at 13.5% (cannot leak into frame 1 or 2)
 
             setProgress((prev) => {
                 const next = Math.max(prev, currentVal);
@@ -47,10 +47,11 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
             if (ratio >= 1) {
                 clearInterval(stage1Timer);
+                // 5초 완료 즉시 비디오 단계로 직행 (Frame 1 고정)
                 sequenceState.current = 'video';
+                setActiveFrameIdx(1);
                 setProgress(14.3);
                 progressRef.current = 14.3;
-                setActiveFrameIdx(1);
 
                 // 8.5s fallback to guarantee progression
                 setTimeout(() => {
@@ -91,7 +92,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
             if (ratio >= 1) {
                 clearInterval(stage2Timer);
-                sequenceState.current = 'free'; // 3단계부터 자유 스크롤 & 자동 앰비언트 보행 언락!
+                sequenceState.current = 'free'; // 3단계부터 자유 스크롤 & 앰비언트 보행 언락!
                 setActiveFrameIdx(3);
             }
         }, 30);
@@ -104,7 +105,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         const autoDriftInterval = setInterval(() => {
             if (sequenceState.current === 'free' && progressRef.current < 100) {
                 setProgress((prev) => {
-                    const next = Math.min(100, prev + 0.035); // Gentle ~0.7% per second steady drift
+                    const next = Math.min(100, prev + 0.035);
                     progressRef.current = next;
                     return next;
                 });
@@ -114,7 +115,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         return () => clearInterval(autoDriftInterval);
     }, [isAudioUnlocked]);
 
-    // 휠 & 터치 스크롤 이벤트 리스너 (3단계 이후 가속 스크롤)
+    // 휠 & 터치 스크롤 이벤트 리스너 (1단계, 비디오, 2단계에서는 스크롤에 의한 진행 변형 원천 차단)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -127,7 +128,8 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             if (e.deltaY > 0) {
                 triggerDopamineScrollUp();
 
-                if (sequenceState.current === 'free' || progressRef.current >= 42.8) {
+                // 1단계, 비디오, 2단계 중에는 스크롤로 앞지르지 못하도록 절대 차단!
+                if (sequenceState.current === 'free' && progressRef.current >= 42.8) {
                     const clampedDelta = Math.min(e.deltaY * 0.0025, 1.35);
                     setProgress((prev) => {
                         const next = Math.min(100, prev + clampedDelta);
@@ -157,7 +159,8 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                 if (deltaY > 0) {
                     triggerDopamineScrollUp();
 
-                    if (sequenceState.current === 'free' || progressRef.current >= 42.8) {
+                    // 1단계, 비디오, 2단계 중에는 스크롤로 앞지르지 못하도록 절대 차단!
+                    if (sequenceState.current === 'free' && progressRef.current >= 42.8) {
                         const strokeProgress = Math.min(deltaY * 0.012, 2.0);
                         setProgress((prev) => {
                             const next = Math.min(100, prev + strokeProgress);
