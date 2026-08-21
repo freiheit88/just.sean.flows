@@ -734,13 +734,13 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </motion.div>
                 ))}
 
-                {/* 2. PERFECTLY ALIGNED STAINED-GLASS GOTHIC ARCH WITH DRAMATIC NEON SHIMMER (FRAME 4 & 5) */}
+                {/* 2. AUTHENTIC WARM AMBER-GOLD STAINED-GLASS GOTHIC ARCH (PC & MOBILE RESPONSIVE FIT) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && isAudioUnlocked && (
                         <motion.div 
-                            initial={{ opacity: 0, scale: 0.92 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1.0 }}
-                            exit={{ opacity: 0, scale: 0.92 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.4, ease: "easeOut" }}
                             className="absolute inset-0 z-30 pointer-events-none"
                         >
@@ -751,31 +751,31 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 }}
                                 whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.97 }}
-                                className="pointer-events-auto absolute top-[11%] left-1/2 -translate-x-1/2 w-[240px] sm:w-[270px] h-[220px] sm:h-[250px] rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg cursor-pointer group outline-none flex flex-col items-center justify-end pb-3"
+                                className="pointer-events-auto absolute top-[11.5%] md:top-[23.5%] left-[50%] md:left-[49%] -translate-x-1/2 w-[230px] md:w-[165px] h-[215px] md:h-[185px] rounded-t-[115px] md:rounded-t-[85px] rounded-b-sm cursor-pointer group outline-none flex flex-col items-center justify-end pb-3"
                             >
-                                {/* Exaggerated Multi-Layer Neon Arch Glow & Shimmer */}
-                                <div className="absolute inset-0 rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg border-2 border-[#E7FF00] group-hover:border-white transition-all duration-300 shadow-[0_0_35px_#E7FF00,0_0_70px_rgba(231,255,0,0.5),inset_0_0_30px_rgba(231,255,0,0.3)] group-hover:shadow-[0_0_60px_#E7FF00,0_0_100px_rgba(231,255,0,0.8),inset_0_0_40px_rgba(231,255,0,0.5)] animate-pulse" />
+                                {/* Exact Matching Warm Antique Gold & Amber Stained-Glass Halo */}
+                                <div className="absolute inset-0 rounded-t-[115px] md:rounded-t-[85px] rounded-b-sm border-2 border-[#C5A059] group-hover:border-[#F3E5AB] transition-all duration-400 shadow-[0_0_25px_rgba(197,160,89,0.55),0_0_55px_rgba(230,167,64,0.35),inset_0_0_20px_rgba(197,160,89,0.3)] group-hover:shadow-[0_0_45px_rgba(243,229,171,0.85),0_0_80px_rgba(230,167,64,0.6),inset_0_0_30px_rgba(197,160,89,0.5)] animate-pulse" />
                                 
-                                {/* Inner Stained-Glass Ambient Amber/Cyan Wash */}
-                                <div className="absolute inset-0 rounded-t-[120px] sm:rounded-t-[135px] rounded-b-lg bg-gradient-to-b from-[#E7FF00]/20 via-[#00F0FF]/10 to-transparent group-hover:from-[#E7FF00]/30 transition-all duration-300 backdrop-blur-[1.5px]" />
+                                {/* Inner Ambient Warm Amber & Wine Illumination */}
+                                <div className="absolute inset-0 rounded-t-[115px] md:rounded-t-[85px] rounded-b-sm bg-gradient-to-b from-[#C5A059]/25 via-[#E6A740]/15 to-[#8B263E]/10 group-hover:from-[#C5A059]/35 transition-all duration-300 backdrop-blur-[1px]" />
 
-                                {/* Diagonal Light Sweep / Shimmer */}
+                                {/* Diagonal Light Sweep / Warm Glass Shimmer */}
                                 <motion.div
                                     animate={{
                                         x: ['-120%', '160%'],
-                                        opacity: [0, 0.75, 0]
+                                        opacity: [0, 0.65, 0]
                                     }}
                                     transition={{
                                         repeat: Infinity,
-                                        duration: 2.2,
+                                        duration: 2.5,
                                         ease: "easeInOut"
                                     }}
-                                    className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-white/35 to-transparent -skew-x-12 pointer-events-none"
+                                    className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-[#FFF8DC]/30 to-transparent -skew-x-12 pointer-events-none"
                                 />
 
-                                {/* High-Tech Floating Neon Callout Badge */}
-                                <div className="relative z-10 px-3.5 py-1.5 rounded-full bg-black/90 border-2 border-[#E7FF00] shadow-[0_0_20px_#E7FF00] flex items-center gap-2 font-mono text-[9.5px] sm:text-[11px] font-black text-[#E7FF00] tracking-widest uppercase transition-transform group-hover:scale-105">
-                                    <Building2 className="w-3.5 h-3.5 text-[#E7FF00] animate-bounce" />
+                                {/* Elegant Antique Bronze/Gold Seal Callout Badge */}
+                                <div className="relative z-10 px-3.5 py-1.5 rounded-full bg-[#16120C]/90 border border-[#C5A059] shadow-[0_0_15px_rgba(197,160,89,0.45)] flex items-center gap-1.5 font-mono text-[9px] sm:text-[10px] font-black text-[#E5C158] tracking-widest uppercase transition-transform group-hover:scale-105">
+                                    <Building2 className="w-3.5 h-3.5 text-[#C5A059] animate-bounce" />
                                     <span>⚜ J.S.F 간판 터치 (설립 정보)</span>
                                 </div>
                             </motion.button>
@@ -833,36 +833,36 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </AnimatePresence>
                 </div>
 
-                {/* 3. CENTER WATERMARK POWER CHECK NUMBER (5X LARGER + GLOWING FOOTPRINTS) */}
+                {/* 3. CENTER WATERMARK POWER CHECK NUMBER (DEEP BACKGROUND WATERMARK) */}
                 <div className="absolute inset-0 pointer-events-none z-10 flex flex-col items-center justify-center select-none overflow-hidden">
                     <div 
                         className={`flex items-center gap-3 transition-all duration-300 ${
                             isTremblingAt8012
-                                ? 'scale-110 text-[#FF0055] drop-shadow-[0_0_35px_#FF0055] opacity-80 animate-pulse'
+                                ? 'scale-110 text-[#FF0055] drop-shadow-[0_0_35px_#FF0055] opacity-70 animate-pulse'
                                 : isScrollingUp
-                                    ? 'scale-105 text-[#E7FF00] drop-shadow-[0_0_25px_rgba(231,255,0,0.5)] opacity-35'
-                                    : 'text-white/20 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] opacity-20'
+                                    ? 'scale-105 text-[#E7FF00] drop-shadow-[0_0_25px_rgba(231,255,0,0.4)] opacity-25'
+                                    : 'text-white/10 drop-shadow-[0_0_15px_rgba(255,255,255,0.05)] opacity-10'
                         }`}
                         style={{
-                            transform: `perspective(600px) translate3d(${tiltX * 0.3}px, ${tiltY * 0.3}px, 0)`
+                            transform: `perspective(600px) translate3d(${tiltX * 0.25}px, ${tiltY * 0.25}px, -40px)`
                         }}
                     >
-                        <Footprints className={`w-10 h-10 sm:w-14 sm:h-14 transition-transform duration-200 ${
+                        <Footprints className={`w-8 h-8 sm:w-12 sm:h-12 transition-transform duration-200 ${
                             isScrollingUp ? 'scale-125 animate-bounce' : 'scale-100'
                         }`} />
 
-                        <span className="font-mono text-6xl sm:text-8xl font-black tracking-tight leading-none">
+                        <span className="font-mono text-5xl sm:text-7xl font-black tracking-tight leading-none">
                             {livePowerStr}
                         </span>
                     </div>
                 </div>
 
                 {/* 4. Floating Spatial HUD & Cleaned-up Signature Typography */}
-                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-16 pb-6 px-4 text-center z-20">
-                    <div className="h-6" />
+                <div className="absolute inset-0 pointer-events-none flex flex-col justify-between pt-14 pb-5 px-4 text-center z-20">
+                    <div className="h-4" />
 
-                    {/* True 3D Assembled Typography (단어별 대화형 블룸) */}
-                    <div className="max-w-sm mx-auto my-auto px-2 flex flex-col items-center">
+                    {/* True 3D Assembled Typography (하단 1/3 영역에 안정적 배치) */}
+                    <div className="max-w-sm mx-auto mt-auto mb-10 md:mb-14 px-2 flex flex-col items-center">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={`assembled-title-${activeFrameIdx}`}
