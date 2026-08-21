@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 
 export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
     const [phase, setPhase] = useState('idle'); // 'idle' | 'oscillating' | 'ricochet' | 'docked'
     const [liveVolNum, setLiveVolNum] = useState(30);
+    const onFlowsHitRef = useRef(onFlowsHit);
+    onFlowsHitRef.current = onFlowsHit;
 
     useEffect(() => {
         if (!isAudioUnlocked) return;
@@ -28,9 +30,9 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             setPhase('ricochet');
         }, 3000);
 
-        // At 3.7s (mid-flight collision with .FLOWS header text), trigger exaggerated wobble
+        // At 3.7s, trigger collision wobble on .FLOWS text
         const hitTimer = setTimeout(() => {
-            if (onFlowsHit) onFlowsHit();
+            if (onFlowsHitRef.current) onFlowsHitRef.current();
         }, 3700);
 
         // At 4.4s, ball settles into permanent top-right pocket button
@@ -44,7 +46,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             clearTimeout(hitTimer);
             clearTimeout(dockTimer);
         };
-    }, [isAudioUnlocked, onFlowsHit]);
+    }, [isAudioUnlocked]); // Locked to run ONCE when isAudioUnlocked becomes true
 
     if (!isAudioUnlocked || phase === 'idle') return null;
 

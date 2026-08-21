@@ -8,28 +8,36 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     const touchStartY = useRef(0);
     const touchStartTime = useRef(0);
 
-    // Sequence state: 'idle' -> 'stage1' (5s) -> 'video' (1 play) -> 'stage2' (3s pause on frame 2) -> 'free'
+    // Sequence state: 'idle' -> 'stage1' (0번 사진 5s) -> 'video' (1번 비디오 1회) -> 'stage2' (2번 사진 3s 대기) -> 'free'
     const sequenceState = useRef('idle');
 
-    // Frame Index calculation (Frame 0: 0~14.3%, Frame 1: 14.3~28.6%, Frame 2: 28.6~42.8%, Frame 3: 42.8~57.1%...)
+    // Dynamic Frame Index computation with strict phase locking
     useEffect(() => {
-        const frameIdx = Math.min(FRAMES.length - 1, Math.max(0, Math.floor((progress / 100) * FRAMES.length)));
-        setActiveFrameIdx(frameIdx);
+        if (sequenceState.current === 'stage1') {
+            setActiveFrameIdx(0); // 1단계 5초 동안 0번 사진 엄격 고정!
+        } else if (sequenceState.current === 'video') {
+            setActiveFrameIdx(1); // 동영상 재생 중 1번 비디오 엄격 고정!
+        } else if (sequenceState.current === 'stage2') {
+            setActiveFrameIdx(2); // 2단계 코너 턴 3초 동안 2번 사진 엄격 고정!
+        } else {
+            const frameIdx = Math.min(FRAMES.length - 1, Math.max(0, Math.floor((progress / 100) * FRAMES.length)));
+            setActiveFrameIdx(frameIdx);
+        }
     }, [progress]);
 
-    // STAGE 1: 1단계 5초 정속 보행 (0% -> 14.3% over 5000ms)
+    // STAGE 1: 1단계 5초 정속 보행 (0번 사진 5초간 유지)
     useEffect(() => {
         if (!isAudioUnlocked || sequenceState.current !== 'idle') return;
         sequenceState.current = 'stage1';
+        setActiveFrameIdx(0);
 
         const startTime = Date.now();
-        const duration = 5000; // 5초 정속
-        const targetProgress = 14.3; // 2번째 컷(동영상) 진입점
+        const duration = 5000; // 5초
 
         const stage1Timer = setInterval(() => {
             const elapsed = Date.now() - startTime;
             const ratio = Math.min(1, elapsed / duration);
-            const currentVal = ratio * targetProgress;
+            const currentVal = ratio * 14.0; // 14%까지만 진행 (0번 사진 안전 범위)
 
             setProgress((prev) => {
                 const next = Math.max(prev, currentVal);
@@ -39,8 +47,13 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
             if (ratio >= 1) {
                 clearInterval(stage1Timer);
+                // 5초 완료 즉시 비디오 단계로 전환 (코너 사진 노출 원천 차단)
                 sequenceState.current = 'video';
-                // 8.5s fallback to guarantee smooth progression even if video stalls
+                setProgress(14.3);
+                progressRef.current = 14.3;
+                setActiveFrameIdx(1);
+
+                // 8.5s fallback to guarantee progression
                 setTimeout(() => {
                     if (sequenceState.current === 'video') {
                         handleVideoCompleted();
@@ -52,20 +65,21 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         return () => clearInterval(stage1Timer);
     }, [isAudioUnlocked]);
 
-    // 동영상 완료 후: 즉시 2번 사진(28.6%)으로 점프하여 3초간 머무른 뒤 3단계로 연결!
+    // 동영상 완료 후: 2번 사진으로 전환 후 3초간 정속 대기!
     const handleVideoCompleted = () => {
         if (sequenceState.current !== 'video') return;
         sequenceState.current = 'stage2';
 
-        // 1. 즉시 2번 사진(코너 턴, 28.6%)으로 화면 전환 (동영상 2회 반복 재생 원천 차단!)
+        // 1. 즉시 2번 사진(코너 턴)으로 고정
         setProgress(28.6);
         progressRef.current = 28.6;
+        setActiveFrameIdx(2);
 
-        // 2. 2번 사진에서 정확히 3초간 머무름 (3-Second Pacing Pause on Frame 2)
+        // 2. 2번 사진에서 정확히 3초간 대기 (3-Second Pause on Frame 2)
         const startTime = Date.now();
         const duration = 3000; // 3초 대기
         const startProgress = 28.6;
-        const targetProgress = 42.9; // 3단계(LOOK UP 간판) 도달점
+        const targetProgress = 42.9;
 
         const stage2Timer = setInterval(() => {
             const elapsed = Date.now() - startTime;
@@ -81,11 +95,12 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             if (ratio >= 1) {
                 clearInterval(stage2Timer);
                 sequenceState.current = 'free'; // 3단계부터 자유 스크롤 언락!
+                setActiveFrameIdx(3);
             }
         }, 30);
     };
 
-    // 휠 & 터치 스크롤 이벤트 리스너
+    // 휠 & 터치 스크롤 이벤트 리스너 (3단계 이전에는 자유 스크롤 차단, 이후 해제)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -98,7 +113,6 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             if (e.deltaY > 0) {
                 triggerDopamineScrollUp();
 
-                // 3단계(42.9%) 이후부터 자유 스크롤 가능
                 if (sequenceState.current === 'free' || progressRef.current >= 42.8) {
                     const clampedDelta = Math.min(e.deltaY * 0.00225, 1.25);
                     setProgress((prev) => {
@@ -132,7 +146,6 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                 if (deltaY > 0) {
                     triggerDopamineScrollUp();
 
-                    // 3단계(42.9%) 이후부터 자유 스크롤 가능
                     if (sequenceState.current === 'free' || progressRef.current >= 42.8) {
                         const strokeProgress = Math.min(deltaY * 0.011, 1.9);
                         setProgress((prev) => {
@@ -164,6 +177,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         setProgress(0);
         progressRef.current = 0;
         sequenceState.current = 'idle';
+        setActiveFrameIdx(0);
     };
 
     return {
