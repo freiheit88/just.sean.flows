@@ -747,7 +747,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </motion.div>
                 ))}
 
-                {/* 2. AUTHENTIC WARM AMBER-GOLD STAINED-GLASS GOTHIC ARCH (PC & MOBILE RESPONSIVE FIT) */}
+                {/* 2. AUTHENTIC WARM AMBER-GOLD STAINED-GLASS GOTHIC ARCH (TIGHT-FIT SVG PATH & MUSICAL EXAGGERATED GLOW) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && isAudioUnlocked && (
                         <motion.div 
@@ -762,33 +762,75 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                     e.stopPropagation();
                                     onOpenAtelier();
                                 }}
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.97 }}
-                                className="pointer-events-auto absolute top-[11.5%] md:top-[23.5%] left-[50%] md:left-[49%] -translate-x-1/2 w-[230px] md:w-[165px] h-[215px] md:h-[185px] rounded-t-[115px] md:rounded-t-[85px] rounded-b-sm cursor-pointer group outline-none flex flex-col items-center justify-end pb-3"
+                                whileHover={{ scale: 1.04 }}
+                                whileTap={{ scale: 0.96 }}
+                                className="pointer-events-auto absolute top-[14.5%] md:top-[16.5%] left-[50%] -translate-x-1/2 w-[184px] md:w-[155px] h-[215px] md:h-[185px] cursor-pointer group outline-none flex flex-col items-center justify-end pb-3"
                             >
-                                {/* Exact Matching Warm Antique Gold & Amber Stained-Glass Halo */}
-                                <div className="absolute inset-0 rounded-t-[115px] md:rounded-t-[85px] rounded-b-sm border-2 border-[#C5A059] group-hover:border-[#F3E5AB] transition-all duration-400 shadow-[0_0_25px_rgba(197,160,89,0.55),0_0_55px_rgba(230,167,64,0.35),inset_0_0_20px_rgba(197,160,89,0.3)] group-hover:shadow-[0_0_45px_rgba(243,229,171,0.85),0_0_80px_rgba(230,167,64,0.6),inset_0_0_30px_rgba(197,160,89,0.5)] animate-pulse" />
-                                
-                                {/* Inner Ambient Warm Amber & Wine Illumination */}
-                                <div className="absolute inset-0 rounded-t-[115px] md:rounded-t-[85px] rounded-b-sm bg-gradient-to-b from-[#C5A059]/25 via-[#E6A740]/15 to-[#8B263E]/10 group-hover:from-[#C5A059]/35 transition-all duration-300 backdrop-blur-[1px]" />
+                                {/* Exaggerated Musical Throbbing & Amber-Gold Glow */}
+                                <motion.div 
+                                    animate={{
+                                        scale: [1, 1.05, 0.98, 1.07, 1],
+                                        filter: [
+                                            'drop-shadow(0 0 16px rgba(255,183,3,0.8)) drop-shadow(0 0 35px rgba(230,126,34,0.6))',
+                                            'drop-shadow(0 0 38px rgba(255,215,0,1)) drop-shadow(0 0 75px rgba(230,126,34,0.9))',
+                                            'drop-shadow(0 0 20px rgba(255,183,3,0.8)) drop-shadow(0 0 45px rgba(230,126,34,0.6))',
+                                            'drop-shadow(0 0 50px rgba(255,215,0,1)) drop-shadow(0 0 98px rgba(211,84,0,0.95))',
+                                            'drop-shadow(0 0 16px rgba(255,183,3,0.8)) drop-shadow(0 0 35px rgba(230,126,34,0.6))'
+                                        ]
+                                    }}
+                                    transition={{
+                                        repeat: Infinity,
+                                        duration: 1.1,
+                                        ease: "easeInOut"
+                                    }}
+                                    className="absolute inset-0 w-full h-full pointer-events-none"
+                                >
+                                    <svg viewBox="0 0 100 130" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                                        <defs>
+                                            <linearGradient id="amberGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" stopColor="#FFE066" stopOpacity="0.32" />
+                                                <stop offset="40%" stopColor="#F5B041" stopOpacity="0.22" />
+                                                <stop offset="100%" stopColor="#8B263E" stopOpacity="0.12" />
+                                            </linearGradient>
+                                            <linearGradient id="goldStrokeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" stopColor="#FFF2A3" />
+                                                <stop offset="45%" stopColor="#F39C12" />
+                                                <stop offset="100%" stopColor="#D35400" />
+                                            </linearGradient>
+                                        </defs>
+                                        {/* Fill */}
+                                        <path
+                                            d="M 50 1 C 72 18, 99 48, 99 82 L 99 129 L 1 129 L 1 82 C 1 48, 28 18, 50 1 Z"
+                                            fill="url(#amberGlowGrad)"
+                                            className="group-hover:opacity-90 transition-opacity"
+                                        />
+                                        {/* Precise Outer Border Stroke */}
+                                        <path
+                                            d="M 50 1 C 72 18, 99 48, 99 82 L 99 129 L 1 129 L 1 82 C 1 48, 28 18, 50 1 Z"
+                                            fill="none"
+                                            stroke="url(#goldStrokeGrad)"
+                                            strokeWidth="2.5"
+                                        />
+                                    </svg>
+                                </motion.div>
 
                                 {/* Diagonal Light Sweep / Warm Glass Shimmer */}
                                 <motion.div
                                     animate={{
                                         x: ['-120%', '160%'],
-                                        opacity: [0, 0.65, 0]
+                                        opacity: [0, 0.75, 0]
                                     }}
                                     transition={{
                                         repeat: Infinity,
-                                        duration: 2.5,
+                                        duration: 2.2,
                                         ease: "easeInOut"
                                     }}
-                                    className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-[#FFF8DC]/30 to-transparent -skew-x-12 pointer-events-none"
+                                    className="absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-[#FFF8DC]/35 to-transparent -skew-x-12 pointer-events-none"
                                 />
 
                                 {/* Elegant Antique Bronze/Gold Seal Callout Badge */}
-                                <div className="relative z-10 px-3.5 py-1.5 rounded-full bg-[#16120C]/90 border border-[#C5A059] shadow-[0_0_15px_rgba(197,160,89,0.45)] flex items-center gap-1.5 font-mono text-[9px] sm:text-[10px] font-black text-[#E5C158] tracking-widest uppercase transition-transform group-hover:scale-105">
-                                    <Building2 className="w-3.5 h-3.5 text-[#C5A059] animate-bounce" />
+                                <div className="relative z-10 px-3 py-1 rounded-full bg-[#140E07]/95 border border-[#F39C12] shadow-[0_0_20px_rgba(243,156,18,0.6)] flex items-center gap-1.5 font-mono text-[9px] sm:text-[10px] font-black text-[#FDEBD0] tracking-wider uppercase transition-transform group-hover:scale-105">
+                                    <Building2 className="w-3.5 h-3.5 text-[#F39C12] animate-bounce" />
                                     <span>⚜ J.S.F 간판 터치 (설립 정보)</span>
                                 </div>
                             </motion.button>
