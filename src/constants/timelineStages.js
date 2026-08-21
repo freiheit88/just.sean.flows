@@ -1,4 +1,3 @@
-// 7번 컷 (아틀리에) 10초 순차 오픈 4단계 타임라인 데이터
 export const ATELIER_TIMELINE_STAGES = [
     {
         tag: "JULY 2026",
@@ -19,5 +18,11 @@ export const ATELIER_TIMELINE_STAGES = [
         tag: "OCTOBER 2026",
         title: "GRAND OPENING",
         desc: "모든 준비가 순조롭다면 10월 정식 오픈 예정!"
+    },
+    {
+        tag: "TEASER TRAILER 2026",
+        title: "SEE YOU IN OCTOBER.",
+        desc: "10월에 정식으로 돌아옵니다! 환상적인 음악과 공간으로 여러분을 초대합니다.",
+        isFinal: true
     }
 ];

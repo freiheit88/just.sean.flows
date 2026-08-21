@@ -118,9 +118,8 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                     setProgress((prev) => {
                         const next = Math.min(100, prev + clampedDelta);
                         progressRef.current = next;
-                        if (next >= 100 && onFinishWalk) {
-                            setTimeout(() => onFinishWalk(), 800);
-                        }
+                        // Locked cleanly inside Step 7
+                        return next;
                         return next;
                     });
                 }

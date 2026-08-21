@@ -157,11 +157,12 @@ export default function KineticPortfolio() {
                     onOpenAtelier={() => setIsAtelierModalOpen(true)}
                 />
 
-                {/* 3. Step 7: 10-Second Progressive 4-Stage Atelier Timeline */}
+                {/* 3. Step 7: 5-Stage Progressive Atelier Timeline with Bidirectional Scroll */}
                 <Step07Timeline 
                     activeFrameIdx={activeFrameIdx}
                     tiltX={tiltX}
                     tiltY={tiltY}
+                    onWalkAgain={resetWalk}
                 />
 
                 {/* 4. Stepping Footprints Surge & Sonic Equalizer */}
