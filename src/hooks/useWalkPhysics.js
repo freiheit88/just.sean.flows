@@ -53,7 +53,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                 }
                 const source = audioCtxRef.current.createBufferSource();
                 const gainNode = audioCtxRef.current.createGain();
-                gainNode.gain.value = 0.85;
+                gainNode.gain.value = 0.25; // Scaled to 30% comfortable ambient level
                 source.buffer = footstepBufferRef.current;
                 source.connect(gainNode);
                 gainNode.connect(audioCtxRef.current.destination);
@@ -65,6 +65,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         // Method 2: HTML5 Audio Element Fallback
         if (!played && html5AudioRef.current) {
             try {
+                html5AudioRef.current.volume = 0.25;
                 html5AudioRef.current.currentTime = 0;
                 html5AudioRef.current.play().catch(() => {});
                 played = true;
@@ -89,7 +90,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                     filter.type = 'lowpass';
                     filter.frequency.setValueAtTime(650, ctx.currentTime + delay);
 
-                    gain.gain.setValueAtTime(0.4, ctx.currentTime + delay);
+                    gain.gain.setValueAtTime(0.12, ctx.currentTime + delay); // Scaled to 30% volume level
                     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.12);
 
                     osc.connect(filter);
