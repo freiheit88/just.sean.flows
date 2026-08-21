@@ -87,9 +87,6 @@ export default function KineticPortfolio() {
             {/* Background Master MR Audio Element */}
             <audio ref={mrAudioRef} src={MR_AUDIO_SRC} loop playsInline preload="auto" />
 
-            {/* 3D Glowing Header */}
-            <Header3D />
-
             {/* Interactive 60FPS Trailing Cursor */}
             <KineticCursor 
                 cursorPos={cursorPos} 
@@ -193,6 +190,9 @@ export default function KineticPortfolio() {
                 isOpen={isAtelierModalOpen}
                 onClose={() => setIsAtelierModalOpen(false)}
             />
+
+            {/* Top-Level Permanent 3D Header (z-[9999]) */}
+            <Header3D />
         </div>
     );
 }
