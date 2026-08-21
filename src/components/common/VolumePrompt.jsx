@@ -3,15 +3,16 @@ import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 
 export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
-    const [phase, setPhase] = useState('oscillating'); // 'oscillating' (0-4s) -> 'minimizing' (4-4.8s) -> 'ricochet' (4.8-6.8s) -> 'docked'
+    const [phase, setPhase] = useState('oscillating'); // 'oscillating' (0-3.6s) -> 'minimizing' (3.6-4.4s) -> 'ricochet' (4.4-6.8s) -> 'docked'
     const [liveVolNum, setLiveVolNum] = useState(30);
-    const [wallSpark, setWallSpark] = useState(false);
-    const [flowsSpark, setFlowsSpark] = useState(false);
+    const [wallGlow, setWallGlow] = useState(false);
+    const [flowsGlow, setFlowsGlow] = useState(false);
+    const [cornerGlow, setCornerGlow] = useState(false);
     const onFlowsHitRef = useRef(onFlowsHit);
     onFlowsHitRef.current = onFlowsHit;
 
     useEffect(() => {
-        // Initial Volume Calibration (0.0s ~ 4.0s)
+        // Initial Volume Calibration (0.0s ~ 3.6s)
         const numSequence = [30, 22, 16, 28, 42, 36, 24, 38, 30, 30, 30];
         let step = 0;
         const numInterval = setInterval(() => {
@@ -22,32 +23,38 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 setLiveVolNum(30);
                 clearInterval(numInterval);
             }
-        }, 320);
+        }, 300);
 
-        // Stage 1: At 4.0s, cleanly minimize straight upward into a circle
+        // Stage 1: At 3.6s, smoothly shrink as a tall vertical cylinder in place
         const minTimer = setTimeout(() => {
             setPhase('minimizing');
-        }, 4000);
+        }, 3600);
 
-        // Stage 2: At 4.8s, begin fast kinetic billiard trick-shot
+        // Stage 2: At 4.4s, begin the 4-cushion fluid billiard bank shot
         const ricochetTimer = setTimeout(() => {
             setPhase('ricochet');
-        }, 4800);
+        }, 4400);
 
-        // Wall impact spark at 5.3s
+        // 1st Bounce (Right Wall) glow at 4.7s
         const wallTimer = setTimeout(() => {
-            setWallSpark(true);
-            setTimeout(() => setWallSpark(false), 300);
-        }, 5300);
+            setWallGlow(true);
+            setTimeout(() => setWallGlow(false), 350);
+        }, 4700);
 
-        // .FLOWS impact spark & collision trigger at 6.0s
+        // 2nd Bounce (.FLOWS Smash) flinch & soft glow at 5.2s
         const hitTimer = setTimeout(() => {
-            setFlowsSpark(true);
+            setFlowsGlow(true);
             if (onFlowsHitRef.current) onFlowsHitRef.current();
-            setTimeout(() => setFlowsSpark(false), 350);
-        }, 6000);
+            setTimeout(() => setFlowsGlow(false), 400);
+        }, 5200);
 
-        // Stage 3: At 6.8s, dock into permanent top-right button
+        // 3rd & 4th Corner Bounce glow at 6.1s
+        const cornerTimer = setTimeout(() => {
+            setCornerGlow(true);
+            setTimeout(() => setCornerGlow(false), 400);
+        }, 6100);
+
+        // Stage 3: At 6.8s, seamlessly dock into the top-right button
         const dockTimer = setTimeout(() => {
             setPhase('docked');
         }, 6800);
@@ -58,13 +65,14 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             clearTimeout(ricochetTimer);
             clearTimeout(wallTimer);
             clearTimeout(hitTimer);
+            clearTimeout(cornerTimer);
             clearTimeout(dockTimer);
         };
     }, []);
 
     return (
         <div className="absolute inset-0 pointer-events-none z-[9998] select-none overflow-hidden">
-            {/* 1. 4.0S OSCILLATING VOLUME CAPSULE (0s ~ 4s) */}
+            {/* 1. FULL EXPANDED VOLUME CALIBRATION (0s ~ 3.6s) */}
             {phase === 'oscillating' && (
                 <motion.div
                     initial={{ opacity: 0, x: 60, scale: 0.95 }}
@@ -83,7 +91,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                                     height: ["30%", "16%", "42%", "24%", "38%", "30%", "30%"]
                                 }}
                                 transition={{
-                                    duration: 4.0,
+                                    duration: 3.6,
                                     times: [0, 0.2, 0.4, 0.6, 0.8, 0.95, 1.0],
                                     ease: "easeInOut"
                                 }}
@@ -98,7 +106,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 2. SMOOTH UPWARD MINIMIZE (4.0s ~ 4.8s) */}
+            {/* 2. NORMAL SLEEK VERTICAL CYLINDER SHRINK IN PLACE (3.6s ~ 4.4s) */}
             {phase === 'minimizing' && (
                 <motion.div
                     initial={{
@@ -107,15 +115,15 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         borderRadius: "26px",
                         borderColor: "#FFFFFF",
                         color: "#FFFFFF",
-                        boxShadow: "0 0 15px rgba(255,255,255,0.3)"
+                        boxShadow: "0 0 20px rgba(255,255,255,0.3)"
                     }}
                     animate={{
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
+                        width: "36px",
+                        height: "72px",
+                        borderRadius: "22px",
                         borderColor: "#FFF9A6",
                         color: "#FFF9A6",
-                        boxShadow: "0 0 20px rgba(255,249,166,0.7)"
+                        boxShadow: "0 0 25px rgba(255,249,166,0.7)"
                     }}
                     transition={{
                         duration: 0.8,
@@ -125,7 +133,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         position: "absolute",
                         top: "24%",
                         right: "16px",
-                        transformOrigin: "top center"
+                        transformOrigin: "center center"
                     }}
                     className="z-[9998] bg-black/90 border-2 flex flex-col items-center justify-center pointer-events-none overflow-hidden"
                 >
@@ -133,35 +141,41 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 3. REMASTERED FAST 3-CUSHION BILLIARD BANK SHOT (4.8s ~ 6.8s) */}
+            {/* 3. FLUID 4-CUSHION BANK SHOT & SMOOTH SETTLE (4.4s ~ 6.8s) */}
             {phase === 'ricochet' && (
                 <>
-                    {/* Billiard Ball Dynamic Motion */}
+                    {/* Sleek Vertical Cylinder Kinetic Motion */}
                     <motion.div
                         initial={{
                             x: 0,
                             y: 0,
                             rotate: 0,
-                            width: "40px",
-                            height: "40px",
-                            borderRadius: "50%",
+                            width: "36px",
+                            height: "72px",
+                            borderRadius: "22px",
                             top: "24%",
                             right: "16px",
                             borderColor: "#FFF9A6",
                             color: "#FFF9A6",
-                            boxShadow: "0 0 20px rgba(255,249,166,0.7)"
+                            boxShadow: "0 0 25px rgba(255,249,166,0.7)"
                         }}
                         animate={{
-                            // Shot 1: Taps Right Wall (+6px, -15px)
-                            // Shot 2: Banks hard diagonally into .FLOWS (-92px, -145px)
-                            // Shot 3: Rebounds cleanly into top-right pocket (0px, -165px)
-                            x: [0, 6, -92, 0],
-                            y: [0, -15, -145, -165],
-                            scale: [1, 0.9, 1.25, 1],
-                            rotate: [0, 60, 360, 540],
+                            // Bounce 1 (Right Wall): x: 10, y: -20 (at 15% time)
+                            // Bounce 2 (.FLOWS Header): x: -95, y: -145 (at 40% time)
+                            // Bounce 3 (Top Ceiling): x: -35, y: -170 (at 65% time)
+                            // Bounce 4 (Upper Right Corner): x: 8, y: -155 (at 85% time)
+                            // Final Settle into Mute Dock: x: 0, y: -160, width: 40px, height: 40px, borderRadius: 50% (at 100% time)
+                            x: [0, 10, -95, -35, 8, 0],
+                            y: [0, -20, -145, -170, -155, -160],
+                            width: ["36px", "36px", "36px", "36px", "38px", "40px"],
+                            height: ["72px", "72px", "72px", "72px", "48px", "40px"],
+                            borderRadius: ["22px", "22px", "22px", "22px", "30px", "50%"],
+                            rotate: [0, 15, -25, 45, -15, 0],
                             borderColor: [
                                 "#FFF9A6",
                                 "#FFE082",
+                                "#E7FF00",
+                                "#E7FF00",
                                 "#E7FF00",
                                 "#E7FF00"
                             ],
@@ -169,18 +183,22 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                                 "#FFF9A6",
                                 "#FFE082",
                                 "#E7FF00",
+                                "#E7FF00",
+                                "#E7FF00",
                                 "#E7FF00"
                             ],
                             boxShadow: [
-                                "0 0 20px rgba(255,249,166,0.7)",
-                                "0 0 35px rgba(255,224,130,0.9)",
+                                "0 0 25px rgba(255,249,166,0.7)",
+                                "0 0 35px rgba(255,224,130,0.85)",
                                 "0 0 45px rgba(231,255,0,1)",
-                                "0 0 20px rgba(231,255,0,0.7)"
+                                "0 0 35px rgba(231,255,0,0.8)",
+                                "0 0 25px rgba(231,255,0,0.6)",
+                                "0 0 20px rgba(231,255,0,0.45)"
                             ]
                         }}
                         transition={{
-                            duration: 2.0,
-                            times: [0, 0.25, 0.60, 1.0],
+                            duration: 2.4,
+                            times: [0, 0.15, 0.40, 0.65, 0.85, 1.0],
                             ease: [0.25, 0.1, 0.25, 1.0]
                         }}
                         className="absolute z-[9998] bg-black/90 border-2 flex items-center justify-center pointer-events-none"
@@ -188,14 +206,19 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         <Volume2 className="w-4 h-4" />
                     </motion.div>
 
-                    {/* Right Wall Impact Spark Ring */}
-                    {wallSpark && (
-                        <div className="absolute top-[22%] right-2 w-12 h-12 rounded-full border-2 border-[#FFF9A6] animate-ping pointer-events-none shadow-[0_0_20px_#FFF9A6]" />
+                    {/* Subtle Borderless Halo Glow on Right Wall */}
+                    {wallGlow && (
+                        <div className="absolute top-[22%] right-1 w-16 h-20 rounded-full bg-[#FFF9A6]/25 filter blur-xl pointer-events-none" />
                     )}
 
-                    {/* .FLOWS Header Collision Spark Ring */}
-                    {flowsSpark && (
-                        <div className="absolute top-2.5 left-[62%] w-16 h-16 -translate-x-1/2 rounded-full border-2 border-[#E7FF00] animate-ping pointer-events-none shadow-[0_0_30px_#E7FF00]" />
+                    {/* Subtle Borderless Amber Halo Glow on .FLOWS Header */}
+                    {flowsGlow && (
+                        <div className="absolute top-1 left-[64%] w-24 h-16 -translate-x-1/2 rounded-full bg-[#E7FF00]/30 filter blur-xl pointer-events-none" />
+                    )}
+
+                    {/* Subtle Borderless Corner Halo Glow */}
+                    {cornerGlow && (
+                        <div className="absolute top-2 right-2 w-16 h-16 rounded-full bg-[#E7FF00]/25 filter blur-xl pointer-events-none" />
                     )}
                 </>
             )}
@@ -203,7 +226,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             {/* 4. PERMANENT TOP-RIGHT MUTE BUTTON (6.8s onward) */}
             {phase === 'docked' && (
                 <motion.button
-                    initial={{ scale: 0.7, opacity: 0 }}
+                    initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
