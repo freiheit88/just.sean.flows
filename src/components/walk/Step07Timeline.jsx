@@ -179,7 +179,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                     {/* Line 1: Phase Tag (Assembles from 0.0 to 0.35) */}
                     <div className="mb-2">
                         {renderKineticLine(
-                            `✦ ${data.phase} ✦`,
+                            data.phase,
                             1,
                             0.0,
                             0.35,
@@ -187,16 +187,31 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                         )}
                     </div>
 
-                    {/* Line 2: Headline (Assembles from 0.25 to 0.70) */}
-                    <div className="mb-3 min-h-[36px] flex items-center justify-center">
+                    {/* Line 2: Headline (Assembles from 0.25 to 0.70 with 3s completion glow shimmer) */}
+                    <motion.div 
+                        animate={stageProgress >= 0.70 ? {
+                            scale: [1, 1.025, 0.99, 1.02, 1],
+                            filter: [
+                                "drop-shadow(0 0 15px rgba(231,255,0,0.6))",
+                                "drop-shadow(0 0 30px rgba(231,255,0,0.95)) drop-shadow(0 0 45px rgba(255,255,255,0.7))",
+                                "drop-shadow(0 0 15px rgba(231,255,0,0.6))"
+                            ]
+                        } : {}}
+                        transition={stageProgress >= 0.70 ? {
+                            repeat: Infinity,
+                            duration: 1.8,
+                            ease: "easeInOut"
+                        } : {}}
+                        className="mb-3 min-h-[36px] flex items-center justify-center transition-all duration-300"
+                    >
                         {renderKineticLine(
                             data.headline,
                             2,
                             0.25,
                             0.70,
-                            "font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight drop-shadow-[0_3px_16px_rgba(0,0,0,1)] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                            "font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight drop-shadow-[0_3px_16px_rgba(0,0,0,1)]"
                         )}
-                    </div>
+                    </motion.div>
 
                     {/* Line 3: Subline (Assembles from 0.55 to 1.00) */}
                     <div className="min-h-[44px] flex items-center justify-center max-w-xs">

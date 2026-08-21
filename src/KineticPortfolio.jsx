@@ -40,16 +40,6 @@ export default function KineticPortfolio() {
     const { tilt, tiltX, tiltY, ghostOffsetX, ghostOffsetY } = useDeviceGyro();
     const videoRef = useRef(null);
 
-    // Reliable 1-shot video playback on Frame 1 transition
-    useEffect(() => {
-        if (activeFrameIdx === 1 && videoRef.current) {
-            videoRef.current.currentTime = 0;
-            videoRef.current.play().catch((err) => console.log('Video play error:', err));
-        } else if (videoRef.current) {
-            videoRef.current.pause();
-        }
-    }, [activeFrameIdx]);
-
     // 3. Fluid Mouse / Touch Trail Engine
     const { cursorPos, trails, isScrollingUp, updatePointerPos, triggerDopamineScrollUp } = useTrailCursor();
 
@@ -68,6 +58,16 @@ export default function KineticPortfolio() {
         onFinishWalk: () => setIsTrailerModalOpen(true),
         triggerDopamineScrollUp
     });
+
+    // Reliable 1-shot video playback on Frame 1 transition
+    useEffect(() => {
+        if (activeFrameIdx === 1 && videoRef.current) {
+            videoRef.current.currentTime = 0;
+            videoRef.current.play().catch((err) => console.log('Video play error:', err));
+        } else if (videoRef.current) {
+            videoRef.current.pause();
+        }
+    }, [activeFrameIdx]);
 
     // Stained Glass Visibility on Frames 3 & 4
     const isAtelierOptionVisible = (activeFrameIdx === 3 || activeFrameIdx === 4);

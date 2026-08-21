@@ -88,7 +88,7 @@ export function WelcomeBackModal({ isOpen, onComplete }) {
                                 transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
                                 className="font-mono font-black text-7xl sm:text-8xl text-white drop-shadow-[0_0_35px_rgba(255,255,255,1)] drop-shadow-[0_0_60px_rgba(231,255,0,0.9)]"
                             >
-                                {count > 0 ? count : '⚡'}
+                                {count > 0 ? count : '1'}
                             </motion.div>
                         </AnimatePresence>
                     </div>
