@@ -900,7 +900,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </motion.div>
                 ))}
 
-                {/* 2. AUTHENTIC 3-PANEL GOTHIC ARCH (PERCENTAGE-LOCKED 8.7% TOP, 36.2% WIDTH, 25.8% HEIGHT) */}
+                {/* 2. AUTHENTIC 3-PANEL GOTHIC ARCH (PERFECT FIT: LEFT 24%, WIDTH 52%, TOP 10.5%, HEIGHT 24%) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && isAudioUnlocked && (
                         <motion.div 
@@ -913,109 +913,113 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 perspective: 800,
                             }}
                         >
-                            <motion.button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onOpenAtelier();
-                                }}
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                className="pointer-events-auto absolute top-[8.7%] left-[50%] -translate-x-1/2 w-[36.2%] h-[25.8%] cursor-pointer group outline-none flex items-center justify-center select-none"
-                                style={{
-                                    transform: `translate3d(${tiltX * 0.15}px, ${tiltY * 0.15}px, 12px) rotateX(${-tiltY * 0.25}deg) rotateY(${tiltX * 0.25}deg)`,
-                                    transformStyle: 'preserve-3d',
-                                    transition: 'transform 0.15s ease-out'
-                                }}
+                            <div 
+                                className="pointer-events-auto absolute top-[10.5%] left-[24.0%] w-[52.0%] h-[24.0%] flex items-center justify-center select-none"
                             >
-                                {/* Multi-Layer 3D Prismatic Glow & Organic Musical Pulse */}
-                                <motion.div 
-                                    animate={{
-                                        scale: [1, 1.03, 0.99, 1.04, 1],
-                                        filter: [
-                                            'drop-shadow(0 0 16px rgba(255,183,3,0.7)) drop-shadow(0 0 35px rgba(230,126,34,0.5)) drop-shadow(0 0 45px rgba(194,24,91,0.3))',
-                                            'drop-shadow(0 0 32px rgba(255,215,0,0.95)) drop-shadow(0 0 65px rgba(230,126,34,0.75)) drop-shadow(0 0 80px rgba(194,24,91,0.5))',
-                                            'drop-shadow(0 0 18px rgba(255,183,3,0.7)) drop-shadow(0 0 40px rgba(230,126,34,0.5)) drop-shadow(0 0 50px rgba(194,24,91,0.3))',
-                                            'drop-shadow(0 0 42px rgba(255,215,0,1)) drop-shadow(0 0 85px rgba(211,84,0,0.85)) drop-shadow(0 0 100px rgba(194,24,91,0.6))',
-                                            'drop-shadow(0 0 16px rgba(255,183,3,0.7)) drop-shadow(0 0 35px rgba(230,126,34,0.5)) drop-shadow(0 0 45px rgba(194,24,91,0.3))'
-                                        ]
+                                <motion.button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onOpenAtelier();
                                     }}
-                                    transition={{
-                                        repeat: Infinity,
-                                        duration: 1.15,
-                                        ease: "easeInOut"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="w-full h-full cursor-pointer group outline-none relative flex items-center justify-center"
+                                    style={{
+                                        transform: `translate3d(${tiltX * 0.12}px, ${tiltY * 0.12}px, 10px) rotateX(${-tiltY * 0.2}deg) rotateY(${tiltX * 0.2}deg)`,
+                                        transformStyle: 'preserve-3d',
+                                        transition: 'transform 0.15s ease-out'
                                     }}
-                                    className="absolute inset-0 w-full h-full pointer-events-none"
                                 >
-                                    <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                                        <defs>
-                                            {/* Rich Chromatic Amber-Ruby Iridescent Gradient */}
-                                            <radialGradient id="chromaticGlassGlow" cx="50%" cy="40%" r="65%">
-                                                <stop offset="0%" stopColor="#FFF9C4" stopOpacity="0.25" />
-                                                <stop offset="35%" stopColor="#FFB300" stopOpacity="0.20" />
-                                                <stop offset="65%" stopColor="#E65100" stopOpacity="0.15" />
-                                                <stop offset="85%" stopColor="#880E4F" stopOpacity="0.10" />
-                                                <stop offset="100%" stopColor="#00E5FF" stopOpacity="0.08" />
-                                            </radialGradient>
+                                    {/* Multi-Layer 3D Prismatic Glow & Organic Musical Pulse */}
+                                    <motion.div 
+                                        animate={{
+                                            scale: [1, 1.03, 0.99, 1.04, 1],
+                                            filter: [
+                                                'drop-shadow(0 0 16px rgba(255,183,3,0.7)) drop-shadow(0 0 35px rgba(230,126,34,0.5)) drop-shadow(0 0 45px rgba(194,24,91,0.3))',
+                                                'drop-shadow(0 0 32px rgba(255,215,0,0.95)) drop-shadow(0 0 65px rgba(230,126,34,0.75)) drop-shadow(0 0 80px rgba(194,24,91,0.5))',
+                                                'drop-shadow(0 0 18px rgba(255,183,3,0.7)) drop-shadow(0 0 40px rgba(230,126,34,0.5)) drop-shadow(0 0 50px rgba(194,24,91,0.3))',
+                                                'drop-shadow(0 0 42px rgba(255,215,0,1)) drop-shadow(0 0 85px rgba(211,84,0,0.85)) drop-shadow(0 0 100px rgba(194,24,91,0.6))',
+                                                'drop-shadow(0 0 16px rgba(255,183,3,0.7)) drop-shadow(0 0 35px rgba(230,126,34,0.5)) drop-shadow(0 0 45px rgba(194,24,91,0.3))'
+                                            ]
+                                        }}
+                                        transition={{
+                                            repeat: Infinity,
+                                            duration: 1.15,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="absolute inset-0 w-full h-full pointer-events-none"
+                                    >
+                                        <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                                            <defs>
+                                                {/* Rich Chromatic Amber-Ruby Iridescent Gradient */}
+                                                <radialGradient id="chromaticGlassGlow" cx="50%" cy="40%" r="65%">
+                                                    <stop offset="0%" stopColor="#FFF9C4" stopOpacity="0.25" />
+                                                    <stop offset="35%" stopColor="#FFB300" stopOpacity="0.20" />
+                                                    <stop offset="65%" stopColor="#E65100" stopOpacity="0.15" />
+                                                    <stop offset="85%" stopColor="#880E4F" stopOpacity="0.10" />
+                                                    <stop offset="100%" stopColor="#00E5FF" stopOpacity="0.08" />
+                                                </radialGradient>
 
-                                            {/* Multi-Spectrum Antique Gold Leaded Stroke */}
-                                            <linearGradient id="richGoldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stopColor="#FFF59D" />
-                                                <stop offset="25%" stopColor="#FFB300" />
-                                                <stop offset="50%" stopColor="#F57C00" />
-                                                <stop offset="75%" stopColor="#D81B60" />
-                                                <stop offset="90%" stopColor="#FFD54F" />
-                                                <stop offset="100%" stopColor="#00E5FF" />
-                                            </linearGradient>
+                                                {/* Multi-Spectrum Antique Gold Leaded Stroke */}
+                                                <linearGradient id="richGoldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stopColor="#FFF59D" />
+                                                    <stop offset="25%" stopColor="#FFB300" />
+                                                    <stop offset="50%" stopColor="#F57C00" />
+                                                    <stop offset="75%" stopColor="#D81B60" />
+                                                    <stop offset="90%" stopColor="#FFD54F" />
+                                                    <stop offset="100%" stopColor="#00E5FF" />
+                                                </linearGradient>
 
-                                            {/* Inner Panel Dividers for 3 Gothic Panes */}
-                                            <linearGradient id="mullionStroke" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                <stop offset="0%" stopColor="#FFE082" stopOpacity="0.8" />
-                                                <stop offset="100%" stopColor="#FF6F00" stopOpacity="0.4" />
-                                            </linearGradient>
-                                        </defs>
+                                                {/* Inner Panel Dividers for 3 Gothic Panes */}
+                                                <linearGradient id="mullionStroke" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stopColor="#FFE082" stopOpacity="0.8" />
+                                                    <stop offset="100%" stopColor="#FF6F00" stopOpacity="0.4" />
+                                                </linearGradient>
+                                            </defs>
 
-                                        {/* Full 3-Panel Outer Gothic Arch Fill */}
-                                        <path
-                                            d="M 50 0 C 76 15, 100 45, 100 80 L 100 100 L 0 100 L 0 80 C 0 45, 24 15, 50 0 Z"
-                                            fill="url(#chromaticGlassGlow)"
-                                            className="group-hover:opacity-90 transition-opacity"
-                                        />
+                                            {/* Full 3-Panel Outer Gothic Arch Fill */}
+                                            <path
+                                                d="M 50 0 C 76 14, 100 45, 100 100 L 0 100 C 0 45, 24 14, 50 0 Z"
+                                                fill="url(#chromaticGlassGlow)"
+                                                className="group-hover:opacity-90 transition-opacity"
+                                            />
 
-                                        {/* Subtle Leaded Glass Inner Mullion Lines (3D Depth Structure) */}
-                                        <path
-                                            d="M 32 45 L 32 100 M 68 45 L 68 100 M 0 68 L 100 68"
-                                            stroke="url(#mullionStroke)"
-                                            strokeWidth="0.8"
-                                            strokeDasharray="2 2"
-                                            fill="none"
-                                            className="opacity-40 group-hover:opacity-75 transition-opacity"
-                                        />
+                                            {/* Subtle Leaded Glass Inner Mullion Lines (3D Depth Structure) */}
+                                            <path
+                                                d="M 28 45 L 28 100 M 72 45 L 72 100 M 0 68 L 100 68"
+                                                stroke="url(#mullionStroke)"
+                                                strokeWidth="0.8"
+                                                strokeDasharray="2 2"
+                                                fill="none"
+                                                className="opacity-40 group-hover:opacity-75 transition-opacity"
+                                            />
 
-                                        {/* Precise Outer Leaded Stone Arch Border */}
-                                        <path
-                                            d="M 50 0 C 76 15, 100 45, 100 80 L 100 100 L 0 100 L 0 80 C 0 45, 24 15, 50 0 Z"
-                                            fill="none"
-                                            stroke="url(#richGoldStroke)"
-                                            strokeWidth="2.2"
-                                            className="transition-all duration-300 group-hover:stroke-white/90"
-                                        />
-                                    </svg>
-                                </motion.div>
+                                            {/* Precise Outer Leaded Stone Arch Border */}
+                                            <path
+                                                d="M 50 0 C 76 14, 100 45, 100 100 L 0 100 C 0 45, 24 14, 50 0 Z"
+                                                fill="none"
+                                                stroke="url(#richGoldStroke)"
+                                                strokeWidth="2.2"
+                                                className="transition-all duration-300 group-hover:stroke-white/90"
+                                            />
+                                        </svg>
+                                    </motion.div>
 
-                                {/* 3D Caustic Glass Light Sweep */}
-                                <motion.div
-                                    animate={{
-                                        x: ['-140%', '180%'],
-                                        opacity: [0, 0.65, 0]
-                                    }}
-                                    transition={{
-                                        repeat: Infinity,
-                                        duration: 2.8,
-                                        ease: "easeInOut"
-                                    }}
-                                    className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[#FFFDE7]/35 via-[#00E5FF]/20 to-transparent -skew-x-18 pointer-events-none"
-                                />
-                            </motion.button>
+                                    {/* 3D Caustic Glass Light Sweep */}
+                                    <motion.div
+                                        animate={{
+                                            x: ['-140%', '180%'],
+                                            opacity: [0, 0.65, 0]
+                                        }}
+                                        transition={{
+                                            repeat: Infinity,
+                                            duration: 2.8,
+                                            ease: "easeInOut"
+                                        }}
+                                        className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[#FFFDE7]/35 via-[#00E5FF]/20 to-transparent -skew-x-18 pointer-events-none"
+                                    />
+                                </motion.button>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
