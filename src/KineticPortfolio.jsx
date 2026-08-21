@@ -402,6 +402,8 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
     const [livePowerStr, setLivePowerStr] = useState("0");
     const [isTremblingAt8012, setIsTremblingAt8012] = useState(false);
     const [audioTier, setAudioTier] = useState(1);
+    const [isVideoTransitionFinished, setIsVideoTransitionFinished] = useState(false);
+    const videoSwipeCountRef = useRef(0);
 
     // SINGLE PURE MR AUDIO ELEMENT REF
     const mrAudioRef = useRef(null);
@@ -591,6 +593,16 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
             const clampedDelta = Math.min(rawDelta * 0.00225, 1.25);
             setProgress((prev) => {
+                // Video Exception Handling: If video is playing between 12% and 24%, let video play at normal speed
+                if (!isVideoTransitionFinished && prev >= 12 && prev < 24) {
+                    videoSwipeCountRef.current += 1;
+                    if (videoSwipeCountRef.current >= 4) {
+                        setIsVideoTransitionFinished(true);
+                    }
+                    const next = Math.min(22, prev + clampedDelta * 0.25);
+                    progressRef.current = next;
+                    return next;
+                }
                 const next = Math.min(100, prev + clampedDelta);
                 progressRef.current = next;
                 if (next >= 100) {
@@ -646,6 +658,16 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
                 const strokeProgress = Math.min(deltaY * 0.011, 1.9);
                 setProgress((prev) => {
+                    // Video Exception Handling: If video is playing between 12% and 24%, let video play naturally
+                    if (!isVideoTransitionFinished && prev >= 12 && prev < 24) {
+                        videoSwipeCountRef.current += 1;
+                        if (videoSwipeCountRef.current >= 3) {
+                            setIsVideoTransitionFinished(true);
+                        }
+                        const next = Math.min(22, prev + strokeProgress * 0.25);
+                        progressRef.current = next;
+                        return next;
+                    }
                     const next = Math.min(100, prev + strokeProgress);
                     progressRef.current = next;
                     if (next >= 100) {
@@ -741,8 +763,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 autoPlay
                                 playsInline
                                 muted
-                                loop
                                 preload="auto"
+                                onEnded={() => {
+                                    setIsVideoTransitionFinished(true);
+                                }}
                                 className="w-full h-full object-cover transition-transform duration-700 scale-100"
                             />
                         ) : (
