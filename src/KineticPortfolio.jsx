@@ -761,12 +761,12 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
         }
     }, [progress]);
 
-    // 3D GYRO TILT
-    const tiltX = tilt.x * 55;
-    const tiltY = tilt.y * 45;
+    // 3D GYRO TILT (50% REDUCED SENSITIVITY FOR SMOOTH ELEGANCE)
+    const tiltX = tilt.x * 26;
+    const tiltY = tilt.y * 22;
 
-    const ghostOffsetX = tilt.x * 65;
-    const ghostOffsetY = tilt.y * 45;
+    const ghostOffsetX = tilt.x * 30;
+    const ghostOffsetY = tilt.y * 22;
 
     return (
         <div 
@@ -1077,15 +1077,22 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                 {/* 3. UPPER KINETIC TYPOGRAPHY & STEP 7 PROGRESSIVE 10-SEC TIMELINE */}
                 <div className="absolute inset-x-0 top-14 md:top-18 z-20 pointer-events-none flex flex-col items-center text-center px-4">
                     {activeFrameIdx === 6 ? (
-                        <div className="flex flex-col items-center text-center max-w-sm">
-                            {/* Step Indicator Pill */}
+                        <div 
+                            className="flex flex-col items-center text-center max-w-sm select-none"
+                            style={{
+                                transform: `perspective(600px) translate3d(${tiltX * 0.25}px, ${tiltY * 0.25}px, 15px) rotateX(${-tiltY * 0.35}deg) rotateY(${tiltX * 0.35}deg)`,
+                                transformStyle: 'preserve-3d',
+                                transition: 'transform 0.15s ease-out'
+                            }}
+                        >
+                            {/* Step Indicator Pill with Gyro Glow */}
                             <div className="mb-2 flex items-center gap-1.5">
                                 {ATELIER_TIMELINE_STAGES.map((s, idx) => (
                                     <div 
                                         key={idx} 
                                         className={`h-1 rounded-full transition-all duration-500 ${
                                             timelineStage === idx 
-                                                ? 'w-6 bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]' 
+                                                ? 'w-6 bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]' 
                                                 : timelineStage > idx 
                                                     ? 'w-3 bg-[#E7FF00]/60' 
                                                     : 'w-2 bg-white/20'
@@ -1101,7 +1108,10 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                     animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                                     exit={{ opacity: 0, y: -15, filter: "blur(6px)" }}
                                     transition={{ duration: 0.5, ease: "easeOut" }}
-                                    className="flex flex-col items-center"
+                                    className="flex flex-col items-center p-3 rounded-2xl bg-black/40 backdrop-blur-sm border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+                                    style={{
+                                        textShadow: `${tiltX * 0.2}px ${tiltY * 0.2}px 15px rgba(231,255,0,0.3)`
+                                    }}
                                 >
                                     <span className="font-mono text-[11px] sm:text-xs font-black tracking-[0.25em] text-[#E7FF00] uppercase mb-1 drop-shadow-[0_0_12px_rgba(231,255,0,0.6)]">
                                         ✦ {ATELIER_TIMELINE_STAGES[timelineStage].tag} ✦
@@ -1220,8 +1230,8 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
                         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" style={{ transformStyle: 'preserve-3d' }}>
                             {ATELIER_DEBRIS_100.map((item) => {
-                                const tiltXVal = tilt.x * 32 * item.tiltMult;
-                                const tiltYVal = tilt.y * 32 * item.tiltMult;
+                                const tiltXVal = tilt.x * 16 * item.tiltMult;
+                                const tiltYVal = tilt.y * 16 * item.tiltMult;
 
                                 const startY = item.isLarge ? '85vh' : '108vh';
                                 const endY = item.isLarge ? '10vh' : '-28vh';
@@ -1336,7 +1346,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 ease: 'easeInOut'
                             }}
                             style={{
-                                transform: `perspective(600px) rotateX(${tiltY * -1.4}deg) rotateY(${tiltX * 1.4}deg) translateZ(60px)`,
+                                transform: `perspective(600px) rotateX(${tiltY * -0.6}deg) rotateY(${tiltX * 0.6}deg) translateZ(30px)`,
                                 transformStyle: 'preserve-3d'
                             }}
                             className="relative flex flex-col items-center text-center cursor-pointer select-none leading-[1.15] z-20"
