@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 
-export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute }) {
-    // phase: 'oscillating' (0~3s) -> 'ricochet' (3~3.8s) -> 'docked' (permanent top-right)
+export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
+    // phase: 'oscillating' (0~3s) -> 'ricochet' (3~4.4s) -> 'docked' (permanent top-right)
     const [phase, setPhase] = useState('idle');
     const [liveVolNum, setLiveVolNum] = useState(30);
 
@@ -24,22 +24,28 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute }) {
             }
         }, 270);
 
-        // At 3.0s, trigger the billiard ball ricochet morph
+        // At 3.0s, begin straight-line billiard roll & ricochet
         const morphTimer = setTimeout(() => {
             setPhase('ricochet');
         }, 3000);
 
-        // At 3.85s, settle into permanent docked top-right button
+        // At 3.75s (mid-flight collision with .FLOWS header text), trigger exaggerated wobble
+        const hitTimer = setTimeout(() => {
+            if (onFlowsHit) onFlowsHit();
+        }, 3750);
+
+        // At 4.4s, ball settles into permanent top-right pocket button
         const dockTimer = setTimeout(() => {
             setPhase('docked');
-        }, 3850);
+        }, 4400);
 
         return () => {
             clearInterval(numInterval);
             clearTimeout(morphTimer);
+            clearTimeout(hitTimer);
             clearTimeout(dockTimer);
         };
-    }, [isAudioUnlocked]);
+    }, [isAudioUnlocked, onFlowsHit]);
 
     if (!isAudioUnlocked || phase === 'idle') return null;
 
@@ -82,41 +88,51 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute }) {
                 </motion.div>
             )}
 
-            {/* 2. BILLIARD-BALL RICOCHET MORPH ANIMATION (3.0s ~ 3.85s) */}
+            {/* 2. STRAIGHT-LINE BILLIARD BALL RICOCHET PATH (3.0s ~ 4.4s, 1.4s deliberate roll) */}
             {phase === 'ricochet' && (
                 <motion.div
                     initial={{
                         x: 0,
                         y: 0,
-                        scale: 1,
-                        borderRadius: "26px",
+                        rotate: 0,
                         width: "52px",
                         height: "180px",
+                        borderRadius: "26px",
                         top: "30%",
-                        right: "24px"
+                        right: "24px",
+                        boxShadow: "0 0 10px rgba(231,255,0,0.2)"
                     }}
                     animate={{
-                        // 2-step wall ricochet trajectory into top right corner
-                        x: [0, -40, 10, 0],
-                        y: [0, -110, -180, -220],
-                        rotate: [0, -25, 20, 0],
-                        width: ["52px", "44px", "44px", "44px"],
-                        height: ["180px", "44px", "44px", "44px"],
+                        // 3 Straight Billiard Vector Shots:
+                        // 0% -> Morph into ball
+                        // 35% -> Straight shot hitting right cushion (x: 12px, y: -75px)
+                        // 70% -> Straight ricochet strike directly into .FLOWS header (x: -95px, y: -205px)
+                        // 100% -> Ricochets off .FLOWS into final top-right pocket (x: 0px, y: -220px)
+                        x: [0, 12, -95, 0],
+                        y: [0, -75, -205, -220],
+                        rotate: [0, -35, 180, 360],
+                        width: ["52px", "40px", "40px", "40px"],
+                        height: ["180px", "40px", "40px", "40px"],
                         borderRadius: ["26px", "50%", "50%", "50%"],
-                        opacity: [1, 1, 1, 1]
+                        boxShadow: [
+                            "0 0 10px rgba(231,255,0,0.2)",
+                            "0 0 25px rgba(231,255,0,0.8), 0 0 40px rgba(0,240,255,0.6)",
+                            "0 0 35px rgba(255,0,85,0.9), 0 0 50px rgba(231,255,0,0.8)",
+                            "0 0 15px rgba(231,255,0,0.4)"
+                        ]
                     }}
                     transition={{
-                        duration: 0.85,
-                        times: [0, 0.35, 0.7, 1.0],
+                        duration: 1.4,
+                        times: [0, 0.35, 0.70, 1.0],
                         ease: "easeInOut"
                     }}
-                    className="fixed z-50 bg-black/90 border-2 border-[#E7FF00] shadow-[0_0_25px_#E7FF00] flex items-center justify-center pointer-events-none"
+                    className="fixed z-50 bg-black/90 border-2 border-[#E7FF00] flex items-center justify-center pointer-events-none"
                 >
-                    <Volume2 className="w-5 h-5 text-[#E7FF00] animate-spin" />
+                    <Volume2 className="w-4 h-4 text-[#E7FF00]" />
                 </motion.div>
             )}
 
-            {/* 3. PERMANENT TOP-RIGHT SOUND MUTE BUTTON (3.85s onward) */}
+            {/* 3. PERMANENT TOP-RIGHT SOUND MUTE BUTTON (4.4s onward) */}
             {phase === 'docked' && (
                 <motion.button
                     initial={{ scale: 0.8, opacity: 0 }}

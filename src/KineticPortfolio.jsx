@@ -46,6 +46,13 @@ export default function KineticPortfolio() {
     // Modals
     const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
     const [isAtelierModalOpen, setIsAtelierModalOpen] = useState(false);
+    const [isFlowsHit, setIsFlowsHit] = useState(false);
+
+    // Trigger billiard ball collision wobble on .FLOWS text
+    const handleFlowsHit = () => {
+        setIsFlowsHit(true);
+        setTimeout(() => setIsFlowsHit(false), 1200);
+    };
 
     // React Stale-Closure Free Walking Physics Engine
     const { progress, activeFrameIdx, resetWalk, handleVideoCompleted } = useWalkPhysics({
@@ -135,6 +142,7 @@ export default function KineticPortfolio() {
                     isAudioUnlocked={isAudioUnlocked} 
                     isMuted={isMuted}
                     onToggleMute={handleToggleMute}
+                    onFlowsHit={handleFlowsHit}
                 />
 
                 {/* 2. Step 4/5: 3D Iridescent Stained Glass Arch Hotspot */}
@@ -191,8 +199,8 @@ export default function KineticPortfolio() {
                 onClose={() => setIsAtelierModalOpen(false)}
             />
 
-            {/* Top-Level Permanent 3D Header (z-[9999]) */}
-            <Header3D />
+            {/* Top-Level Permanent 3D Header (z-[9999]) with .FLOWS collision response */}
+            <Header3D isFlowsHit={isFlowsHit} tiltX={tiltX} tiltY={tiltY} />
         </div>
     );
 }
