@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Footprints } from 'lucide-react';
 
-export function SonicFootprints({ isScrollingUp }) {
+export function SonicFootprints({ isScrollingUp, isAudioUnlocked }) {
     return (
         <>
             {/* 1. DYNAMIC KINETIC SCROLLING FOOTPRINTS (SURGE ON SCROLL UP) */}
@@ -56,23 +56,24 @@ export function SonicFootprints({ isScrollingUp }) {
                 </AnimatePresence>
             </div>
 
-            {/* 2. CENTERED 3X ENLARGED FOOTPRINT & AMBIENT EQUALIZER (CLEANLY ELEVATED ABOVE GAUGE) */}
+            {/* 2. CENTERED 3X ENLARGED FOOTPRINT & AMBIENT EQUALIZER (STAGGERED ENTRANCE) */}
             <div className="absolute inset-x-0 bottom-14 pointer-events-none flex flex-col items-center justify-center z-20">
                 <div className="flex flex-col items-center gap-2 pointer-events-none select-none">
+                    {/* Footprint Icon: Rises smoothly at 1.0s */}
                     <motion.div
-                        animate={{
-                            scale: isScrollingUp ? [1.1, 1.35, 1.1] : [1.0, 1.12, 1.0],
-                            opacity: isScrollingUp ? 1 : 0.8,
-                            y: isScrollingUp ? [-3, -8, 0] : [0, -3, 0]
+                        initial={{ opacity: 0, y: 25, scale: 0.8 }}
+                        animate={{ 
+                            opacity: isAudioUnlocked ? 1 : 0, 
+                            y: isAudioUnlocked ? 0 : 25, 
+                            scale: isAudioUnlocked ? (isScrollingUp ? [1.1, 1.35, 1.1] : [1.0, 1.12, 1.0]) : 0.8 
                         }}
                         transition={{
-                            repeat: Infinity,
-                            duration: isScrollingUp ? 0.4 : 1.1,
-                            ease: "easeInOut"
+                            delay: 0.8,
+                            duration: 0.9,
+                            ease: "easeOut"
                         }}
-                        className="flex items-center justify-center p-2 rounded-full bg-black/40 backdrop-blur-md border border-[#E7FF00]/30 shadow-[0_0_20px_rgba(231,255,0,0.25)]"
+                        className="flex items-center justify-center p-2.5 rounded-full bg-black/40 backdrop-blur-md border border-[#E7FF00]/30 shadow-[0_0_20px_rgba(231,255,0,0.25)]"
                     >
-                        {/* 3X Enlarged Footprint Icon (w-10 h-10) */}
                         <Footprints className={`w-9 h-9 sm:w-10 sm:h-10 transition-colors duration-200 ${
                             isScrollingUp 
                                 ? 'text-[#E7FF00] drop-shadow-[0_0_16px_#E7FF00]' 
@@ -80,8 +81,13 @@ export function SonicFootprints({ isScrollingUp }) {
                         }`} />
                     </motion.div>
 
-                    {/* Ambient Equalizer Bar */}
-                    <div className="flex items-end gap-1.5 h-3">
+                    {/* Ambient Equalizer Bar: Expands up at 1.6s */}
+                    <motion.div 
+                        initial={{ opacity: 0, scaleY: 0 }}
+                        animate={{ opacity: isAudioUnlocked ? 1 : 0, scaleY: isAudioUnlocked ? 1 : 0 }}
+                        transition={{ delay: 1.5, duration: 0.6, ease: "easeOut" }}
+                        className="flex items-end gap-1.5 h-3"
+                    >
                         {[0.4, 0.85, 1.0, 0.7, 0.45].map((h, i) => (
                             <motion.div
                                 key={i}
@@ -99,7 +105,7 @@ export function SonicFootprints({ isScrollingUp }) {
                                 className="w-1 rounded-full bg-gradient-to-t from-[#E7FF00] to-[#00F0FF] shadow-[0_0_8px_#E7FF00]"
                             />
                         ))}
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </>

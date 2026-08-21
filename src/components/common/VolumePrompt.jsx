@@ -3,19 +3,14 @@ import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 
 export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
-    // 4 Distinct Phases:
-    // 'idle' -> 'oscillating' (0-3s) -> 'shrinking' (3-4.2s in-place) -> 'ricochet' (4.2-8.0s physical roll) -> 'docked'
-    const [phase, setPhase] = useState('idle');
+    const [phase, setPhase] = useState('oscillating'); // 'oscillating' (0-5s) -> 'minimizing' (5-6.2s) -> 'ricochet' (6.2-10s) -> 'docked'
     const [liveVolNum, setLiveVolNum] = useState(30);
     const onFlowsHitRef = useRef(onFlowsHit);
     onFlowsHitRef.current = onFlowsHit;
 
     useEffect(() => {
-        if (!isAudioUnlocked) return;
-        setPhase('oscillating');
-
-        // Dynamic fluctuation between 13% and 45%, finishing solidly at 30% at 3.0s
-        const numSequence = [30, 22, 14, 28, 45, 36, 18, 42, 26, 38, 30];
+        // Extended by 2 seconds: 5.0 seconds total calibration on initial screen
+        const numSequence = [30, 24, 16, 28, 45, 38, 22, 42, 34, 26, 38, 30, 30, 30];
         let step = 0;
         const numInterval = setInterval(() => {
             step++;
@@ -25,49 +20,48 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 setLiveVolNum(30);
                 clearInterval(numInterval);
             }
-        }, 270);
+        }, 350);
 
-        // Stage 1: At 3.0s, lock at 30% and begin IN-PLACE upward shrinkage into a circle
-        const shrinkTimer = setTimeout(() => {
-            setPhase('shrinking');
-        }, 3000);
+        // Stage 1: At 5.0s, cleanly minimize straight upward into a circle
+        const minTimer = setTimeout(() => {
+            setPhase('minimizing');
+        }, 5000);
 
-        // Stage 2: At 4.2s, start physical billiard motion (cushion tap -> .FLOWS hit -> pocket rebound)
+        // Stage 2: At 6.2s, begin straight billiard roll
         const ricochetTimer = setTimeout(() => {
             setPhase('ricochet');
-        }, 4200);
-
-        // At 6.2s (mid-flight contact with .FLOWS), trigger collision wobble
-        const hitTimer = setTimeout(() => {
-            if (onFlowsHitRef.current) onFlowsHitRef.current();
         }, 6200);
 
-        // At 8.0s, ball settles into permanent top-right pocket button
+        // At 8.2s, hit .FLOWS in header
+        const hitTimer = setTimeout(() => {
+            if (onFlowsHitRef.current) onFlowsHitRef.current();
+        }, 8200);
+
+        // At 10.0s, dock into permanent top-right button
         const dockTimer = setTimeout(() => {
             setPhase('docked');
-        }, 8000);
+        }, 10000);
 
         return () => {
             clearInterval(numInterval);
-            clearTimeout(shrinkTimer);
+            clearTimeout(minTimer);
             clearTimeout(ricochetTimer);
             clearTimeout(hitTimer);
             clearTimeout(dockTimer);
         };
-    }, [isAudioUnlocked]);
-
-    if (!isAudioUnlocked || phase === 'idle') return null;
+    }, []);
 
     return (
         <div className="absolute inset-0 pointer-events-none z-50 select-none overflow-hidden">
-            {/* 1. OSCILLATING VOLUME CAPSULE (0.0s ~ 3.0s) */}
+            {/* 1. EXTENDED 5.0S OSCILLATING VOLUME CAPSULE (0s ~ 5s) */}
             {phase === 'oscillating' && (
                 <motion.div
-                    initial={{ opacity: 0, x: 80, scale: 0.9 }}
+                    initial={{ opacity: 0, x: 80, scale: 0.95 }}
                     animate={{ opacity: 1, x: 0, scale: 1.0 }}
+                    exit={{ opacity: 0 }}
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
                     style={{ originY: 0 }}
-                    className="absolute right-3.5 sm:right-4 top-[28%] flex flex-col items-center pointer-events-none"
+                    className="absolute right-3.5 sm:right-4 top-[26%] flex flex-col items-center pointer-events-none"
                 >
                     <div className="w-12 sm:w-14 h-44 sm:h-52 rounded-[26px] bg-black/85 backdrop-blur-2xl border-2 border-white/25 p-2 sm:p-2.5 flex flex-col items-center justify-between shadow-[0_15px_45px_rgba(0,0,0,0.9),0_0_30px_rgba(255,255,255,0.2)]">
                         <Volume2 className="w-5 h-5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse" />
@@ -75,10 +69,10 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         <div className="relative w-4 sm:w-4.5 flex-1 my-2 bg-white/20 rounded-full overflow-hidden flex flex-col justify-end p-0.5 border border-white/15">
                             <motion.div
                                 animate={{
-                                    height: ["30%", "14%", "45%", "18%", "42%", "26%", "30%"]
+                                    height: ["30%", "16%", "45%", "22%", "42%", "30%", "30%"]
                                 }}
                                 transition={{
-                                    duration: 3.0,
+                                    duration: 5.0,
                                     times: [0, 0.18, 0.38, 0.55, 0.72, 0.88, 1.0],
                                     ease: "easeInOut"
                                 }}
@@ -93,8 +87,8 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 2. FIXED-POSITION UPWARD SHRINKAGE INTO CIRCLE (3.0s ~ 4.2s) */}
-            {phase === 'shrinking' && (
+            {/* 2. STANDARD SMOOTH UPWARD MINIMIZE (5.0s ~ 6.2s) */}
+            {phase === 'minimizing' && (
                 <motion.div
                     initial={{
                         width: "52px",
@@ -114,11 +108,11 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                     }}
                     transition={{
                         duration: 1.2,
-                        ease: [0.25, 1, 0.5, 1] // Smooth natural cubic deceleration
+                        ease: [0.25, 1, 0.5, 1]
                     }}
                     style={{
                         position: "absolute",
-                        top: "28%",
+                        top: "26%",
                         right: "16px",
                         transformOrigin: "top center"
                     }}
@@ -128,7 +122,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 3. REALISTIC PHYSICAL BILLIARD TRAJECTORY (4.2s ~ 8.0s) */}
+            {/* 3. PHYSICAL BILLIARD ROLL TO HEADER .FLOWS & TOP-RIGHT POCKET (6.2s ~ 10.0s) */}
             {phase === 'ricochet' && (
                 <motion.div
                     initial={{
@@ -138,19 +132,15 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         width: "40px",
                         height: "40px",
                         borderRadius: "50%",
-                        top: "28%",
+                        top: "26%",
                         right: "16px",
                         borderColor: "#FFF9A6",
                         color: "#FFF9A6",
                         boxShadow: "0 0 20px rgba(255,249,166,0.7)"
                     }}
                     animate={{
-                        // 1) 0% (t=0s): Rested at right cushion origin
-                        // 2) 20% (t=0.7s): Gentle cushion tap on the right wall (x: 4, y: -20)
-                        // 3) 60% (t=2.2s): Straight line physical roll striking .FLOWS (x: -82, y: -140)
-                        // 4) 100% (t=3.8s): Clean rebound into top-right pocket (x: 0, y: -160)
                         x: [0, 4, -82, 0],
-                        y: [0, -20, -140, -160],
+                        y: [0, -20, -140, -155],
                         rotate: [0, -25, 240, 360],
                         borderColor: [
                             "#FFF9A6",
@@ -182,7 +172,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 4. PERMANENT TOP-RIGHT SOUND MUTE BUTTON (8.0s onward) */}
+            {/* 4. PERMANENT TOP-RIGHT MUTE BUTTON (10.0s onward) */}
             {phase === 'docked' && (
                 <motion.button
                     initial={{ scale: 0.8, opacity: 0 }}

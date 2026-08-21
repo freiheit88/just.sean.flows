@@ -166,13 +166,14 @@ export default function KineticPortfolio() {
                 />
 
                 {/* 4. Stepping Footprints Surge & Sonic Equalizer */}
-                <SonicFootprints isScrollingUp={isScrollingUp} />
+                <SonicFootprints isScrollingUp={isScrollingUp} isAudioUnlocked={isAudioUnlocked} />
 
                 {/* 5. 7-Stage Evolutionary Rainbow Master Gauge */}
                 <EvolutionGauge 
                     progress={progress}
                     activeFrameIdx={activeFrameIdx}
                     isScrollingUp={isScrollingUp}
+                    isAudioUnlocked={isAudioUnlocked}
                 />
             </main>
 

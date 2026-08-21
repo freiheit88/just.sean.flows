@@ -8,6 +8,40 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     const touchStartY = useRef(0);
     const touchStartTime = useRef(0);
 
+    const lastFootstepTime = useRef(0);
+    const playFootstepSound = () => {
+        const now = Date.now();
+        if (now - lastFootstepTime.current < 1000) return; // Strictly throttled to max 1 sound per 1.0s
+        lastFootstepTime.current = now;
+
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const filter = ctx.createBiquadFilter();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(130, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(32, ctx.currentTime + 0.14);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, ctx.currentTime);
+
+            gain.gain.setValueAtTime(0.16, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.14);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 0.15);
+        } catch (e) {}
+    };
+
+
     // Sequence state: 'idle' -> 'stage1' (5s) -> 'video' (1x) -> 'stage2' (3s pause) -> 'free'
     const sequenceState = useRef('idle');
 
@@ -127,6 +161,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
             if (e.deltaY > 0) {
                 triggerDopamineScrollUp();
+                playFootstepSound();
 
                 // 1단계, 비디오, 2단계 중에는 스크롤로 앞지르지 못하도록 절대 차단!
                 if (sequenceState.current === 'free' && progressRef.current >= 42.8) {
@@ -158,6 +193,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
                 if (deltaY > 0) {
                     triggerDopamineScrollUp();
+                playFootstepSound();
 
                     // 1단계, 비디오, 2단계 중에는 스크롤로 앞지르지 못하도록 절대 차단!
                     if (sequenceState.current === 'free' && progressRef.current >= 42.8) {
