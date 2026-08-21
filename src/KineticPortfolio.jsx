@@ -429,6 +429,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
     const hasVideoPlayedOnce = useRef(false);
     const [timelineStage, setTimelineStage] = useState(0);
     const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
+    const [showVolumeRecommend, setShowVolumeRecommend] = useState(true);
     const videoSwipeCountRef = useRef(0);
 
     // SINGLE PURE MR AUDIO ELEMENT REF
