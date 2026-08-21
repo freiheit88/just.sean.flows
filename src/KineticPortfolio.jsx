@@ -41,7 +41,7 @@ export default function KineticPortfolio() {
     const mrAudioRef = useRef(null);
 
     // React Stale-Closure Free Walking Physics Engine
-    const { progress, activeFrameIdx, resetWalk } = useWalkPhysics({
+    const { progress, activeFrameIdx, resetWalk, handleVideoCompleted } = useWalkPhysics({
         isAudioUnlocked,
         onFinishWalk: () => setIsTrailerModalOpen(true),
         triggerDopamineScrollUp
@@ -109,6 +109,7 @@ export default function KineticPortfolio() {
                                 videoSrc={f.videoSrc}
                                 posterSrc={f.src}
                                 isActive={activeFrameIdx === idx}
+                                onVideoEnd={handleVideoCompleted}
                             />
                         ) : (
                             <img

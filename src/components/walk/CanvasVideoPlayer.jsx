@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 
-export function CanvasVideoPlayer({ videoSrc, posterSrc, isActive }) {
+export function CanvasVideoPlayer({ videoSrc, posterSrc, isActive, onVideoEnd }) {
     const canvasRef = useRef(null);
     const videoRef = useRef(null);
     const animRef = useRef(null);
+    const hasEndedRef = useRef(false);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -19,7 +20,17 @@ export function CanvasVideoPlayer({ videoSrc, posterSrc, isActive }) {
             animRef.current = requestAnimationFrame(renderLoop);
         };
 
+        const handleEnded = () => {
+            if (!hasEndedRef.current) {
+                hasEndedRef.current = true;
+                if (onVideoEnd) onVideoEnd();
+            }
+        };
+
+        video.addEventListener('ended', handleEnded);
+
         if (isActive) {
+            hasEndedRef.current = false;
             video.currentTime = 0;
             video.muted = false;
             video.volume = 1.0;
@@ -34,13 +45,14 @@ export function CanvasVideoPlayer({ videoSrc, posterSrc, isActive }) {
         }
 
         return () => {
+            video.removeEventListener('ended', handleEnded);
             if (animRef.current) cancelAnimationFrame(animRef.current);
         };
-    }, [isActive]);
+    }, [isActive, onVideoEnd]);
 
     return (
         <div className="relative w-full h-full overflow-hidden pointer-events-none">
-            {/* Hidden Background Video Element (No Samsung/iOS Video Assistant Detection) */}
+            {/* Hidden Background Video Element */}
             <video
                 ref={videoRef}
                 src={videoSrc}
@@ -56,7 +68,7 @@ export function CanvasVideoPlayer({ videoSrc, posterSrc, isActive }) {
                 className="absolute opacity-0 pointer-events-none w-1 h-1 -top-10 -left-10"
             />
 
-            {/* Seamless 60FPS Canvas Surface (Renders purely as pixel graphic) */}
+            {/* Seamless 60FPS Canvas Surface */}
             <canvas
                 ref={canvasRef}
                 width={720}

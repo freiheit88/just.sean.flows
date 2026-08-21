@@ -7,7 +7,9 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     const progressRef = useRef(0);
     const touchStartY = useRef(0);
     const touchStartTime = useRef(0);
-    const step1PacingActive = useRef(false);
+
+    // Sequence state: 'stage1' (5s) -> 'video' -> 'stage2' (5s) -> 'free'
+    const sequenceState = useRef('idle'); // 'idle' | 'stage1' | 'video' | 'stage2' | 'free'
 
     // Frame Index 계산
     useEffect(() => {
@@ -15,16 +17,16 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         setActiveFrameIdx(frameIdx);
     }, [progress]);
 
-    // 1단계 5초 정속 자동 진행 (0% -> 14.3% over 5000ms)
+    // STAGE 1: 1단계 5초 정속 보행 (0% -> 14.3% over 5000ms)
     useEffect(() => {
-        if (!isAudioUnlocked || step1PacingActive.current) return;
-        step1PacingActive.current = true;
+        if (!isAudioUnlocked || sequenceState.current !== 'idle') return;
+        sequenceState.current = 'stage1';
 
         const startTime = Date.now();
         const duration = 5000; // 5초 정속
-        const targetProgress = 14.3; // 2번째 컷 진입점
+        const targetProgress = 14.3; // 2번째 컷(동영상) 진입점
 
-        const step1Timer = setInterval(() => {
+        const stage1Timer = setInterval(() => {
             const elapsed = Date.now() - startTime;
             const ratio = Math.min(1, elapsed / duration);
             const currentVal = ratio * targetProgress;
@@ -36,14 +38,43 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             });
 
             if (ratio >= 1) {
-                clearInterval(step1Timer);
+                clearInterval(stage1Timer);
+                sequenceState.current = 'video';
             }
         }, 30);
 
-        return () => clearInterval(step1Timer);
+        return () => clearInterval(stage1Timer);
     }, [isAudioUnlocked]);
 
-    // 휠 & 터치 스크롤 이벤트 리스너 (1단계 5초 정속 이후 자유 스크롤)
+    // 동영상 완료 후 STAGE 2: 2단계 5초 정속 보행 트리거 함수
+    const handleVideoCompleted = () => {
+        if (sequenceState.current !== 'video') return;
+        sequenceState.current = 'stage2';
+
+        const startTime = Date.now();
+        const duration = 5000; // 5초 정속
+        const startProgress = 14.3;
+        const targetProgress = 28.6; // 3번째 컷(코너턴 완료 및 LOOK UP 직전)
+
+        const stage2Timer = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const ratio = Math.min(1, elapsed / duration);
+            const currentVal = startProgress + ratio * (targetProgress - startProgress);
+
+            setProgress((prev) => {
+                const next = Math.max(prev, currentVal);
+                progressRef.current = next;
+                return next;
+            });
+
+            if (ratio >= 1) {
+                clearInterval(stage2Timer);
+                sequenceState.current = 'free'; // 3단계(LOOK UP)부터 자유 스크롤 언락!
+            }
+        }, 30);
+    };
+
+    // 휠 & 터치 스크롤 이벤트 리스너 (Stage 1 & 2 정속 보호 + Stage 3 이후 자유 스크롤)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -55,22 +86,19 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
             if (e.deltaY > 0) {
                 triggerDopamineScrollUp();
-                // 1단계에서는 5초 정속이 우선, 2단계(14.3% 이상)부터는 빠른 스크롤 반응
-                const clampedDelta = Math.min(e.deltaY * 0.00225, 1.25);
-                setProgress((prev) => {
-                    if (prev < 14.3) {
-                        // 1단계 내에서는 완만한 보행 감도
-                        const next = Math.min(100, prev + clampedDelta * 0.25);
+
+                // 3단계(28.6%) 이전까지는 정속 시퀀스가 우선, 이후부터 자유 스크롤
+                if (sequenceState.current === 'free' || progressRef.current >= 28.6) {
+                    const clampedDelta = Math.min(e.deltaY * 0.00225, 1.25);
+                    setProgress((prev) => {
+                        const next = Math.min(100, prev + clampedDelta);
                         progressRef.current = next;
+                        if (next >= 100 && onFinishWalk) {
+                            setTimeout(() => onFinishWalk(), 800);
+                        }
                         return next;
-                    }
-                    const next = Math.min(100, prev + clampedDelta);
-                    progressRef.current = next;
-                    if (next >= 100 && onFinishWalk) {
-                        setTimeout(() => onFinishWalk(), 800);
-                    }
-                    return next;
-                });
+                    });
+                }
             }
         };
 
@@ -92,20 +120,19 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
                 if (deltaY > 0) {
                     triggerDopamineScrollUp();
-                    const strokeProgress = Math.min(deltaY * 0.011, 1.9);
-                    setProgress((prev) => {
-                        if (prev < 14.3) {
-                            const next = Math.min(100, prev + strokeProgress * 0.25);
+
+                    // 3단계(28.6%) 이전까지는 정속 시퀀스가 우선, 이후부터 자유 스크롤
+                    if (sequenceState.current === 'free' || progressRef.current >= 28.6) {
+                        const strokeProgress = Math.min(deltaY * 0.011, 1.9);
+                        setProgress((prev) => {
+                            const next = Math.min(100, prev + strokeProgress);
                             progressRef.current = next;
+                            if (next >= 100 && onFinishWalk) {
+                                setTimeout(() => onFinishWalk(), 800);
+                            }
                             return next;
-                        }
-                        const next = Math.min(100, prev + strokeProgress);
-                        progressRef.current = next;
-                        if (next >= 100 && onFinishWalk) {
-                            setTimeout(() => onFinishWalk(), 800);
-                        }
-                        return next;
-                    });
+                        });
+                    }
                 }
                 touchStartY.current = currentY;
             }
@@ -125,13 +152,14 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     const resetWalk = () => {
         setProgress(0);
         progressRef.current = 0;
-        step1PacingActive.current = false;
+        sequenceState.current = 'idle';
     };
 
     return {
         progress,
         setProgress,
         activeFrameIdx,
-        resetWalk
+        resetWalk,
+        handleVideoCompleted
     };
 }
