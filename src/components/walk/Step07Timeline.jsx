@@ -51,29 +51,31 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
 
             let newProg = progressRef.current + delta;
 
-            if (newProg > 1.0) {
+            // Intentional 25% reading buffer: Sentence stays assembled and doesn't instantly jump
+            if (newProg > 1.25) {
                 if (stageRef.current < ATELIER_TIMELINE_STAGES.length - 1) {
                     stageRef.current += 1;
-                    newProg = 0.05;
+                    newProg = 0.0;
                 } else {
                     newProg = 1.0;
                 }
-            } else if (newProg < 0.0) {
+            } else if (newProg < -0.25) {
                 if (stageRef.current > 0) {
                     stageRef.current -= 1;
-                    newProg = 0.95;
+                    newProg = 1.0;
                 } else {
                     newProg = 0.0;
                 }
             }
 
             progressRef.current = newProg;
-            setStageProgress(newProg);
+            setStageProgress(Math.min(1.0, Math.max(0.0, newProg)));
             setCurrentStage(stageRef.current);
         };
 
         const handleWheel = (e) => {
-            const delta = e.deltaY * 0.0035;
+            // Calm, controllable, luxury scrolling cadence
+            const delta = e.deltaY * 0.0012;
             updateScroll(delta);
         };
 
@@ -86,7 +88,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
         const handleTouchMove = (e) => {
             if (e.touches && e.touches[0]) {
                 const currentY = e.touches[0].clientY;
-                const deltaY = (lastTouchY - currentY) * 0.008;
+                const deltaY = (lastTouchY - currentY) * 0.0032;
                 updateScroll(deltaY);
                 lastTouchY = currentY;
             }

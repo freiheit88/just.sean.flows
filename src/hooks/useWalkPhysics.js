@@ -202,7 +202,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         const autoDriftInterval = setInterval(() => {
             if (sequenceState.current === 'free' && progressRef.current < 100) {
                 setProgress((prev) => {
-                    const next = Math.min(100, prev + 0.035);
+                    const next = Math.min(100, prev + 0.025);
                     progressRef.current = next;
                     return next;
                 });
@@ -228,7 +228,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
                 // 1단계, 비디오, 2단계 중에는 스크롤로 앞지르지 못하도록 절대 차단!
                 if (sequenceState.current === 'free' && progressRef.current >= 42.8) {
-                    const clampedDelta = Math.min(e.deltaY * 0.0025, 1.35);
+                    const clampedDelta = Math.min(e.deltaY * 0.0018, 0.85); // Relaxed, smooth gallery cadence
                     setProgress((prev) => {
                         const next = Math.min(100, prev + clampedDelta);
                         progressRef.current = next;
@@ -260,7 +260,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
 
                     // 1단계, 비디오, 2단계 중에는 스크롤로 앞지르지 못하도록 절대 차단!
                     if (sequenceState.current === 'free' && progressRef.current >= 42.8) {
-                        const strokeProgress = Math.min(deltaY * 0.012, 2.0);
+                        const strokeProgress = Math.min(deltaY * 0.0075, 1.25); // Gentle, responsive mobile swipe
                         setProgress((prev) => {
                             const next = Math.min(100, prev + strokeProgress);
                             progressRef.current = next;
