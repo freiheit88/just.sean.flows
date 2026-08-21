@@ -1,47 +1,88 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+const HEADER_LETTERS = [
+    { char: 'J', group: 0 },
+    { char: 'U', group: 0 },
+    { char: 'S', group: 0 },
+    { char: 'T', group: 0 },
+    { char: '.', group: 0 },
+    { char: 'S', group: 1 },
+    { char: 'E', group: 1 },
+    { char: 'A', group: 1 },
+    { char: 'N', group: 1 },
+    { char: '.', group: 1 },
+    { char: 'F', group: 2 },
+    { char: 'L', group: 2 },
+    { char: 'O', group: 2 },
+    { char: 'W', group: 2 },
+    { char: 'S', group: 2 }
+];
+
 export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
     return (
-        <header className="fixed top-0 left-0 right-0 z-[9999] px-6 py-4 md:py-4 flex items-center justify-center pointer-events-none select-none">
+        <header className="fixed top-0 left-0 right-0 z-[9999] px-6 py-4 flex items-center justify-center pointer-events-none select-none">
             <div className="pointer-events-auto flex items-center justify-center gap-2.5 py-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_15px_#E7FF00] animate-pulse" />
+                {/* Leading Neon Indicator Dot */}
+                <motion.span 
+                    animate={isFlowsHit ? {
+                        scale: [1, 1.8, 0.9, 1.2, 1],
+                        boxShadow: [
+                            "0 0 15px #E7FF00",
+                            "0 0 35px #FFF9A6",
+                            "0 0 15px #E7FF00"
+                        ]
+                    } : {}}
+                    transition={{ duration: 0.6, delay: 0.12 }}
+                    className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_15px_#E7FF00] shrink-0" 
+                />
+
+                {/* Individual Physics Reactive Billiard Letters */}
                 <h1 
-                    className="font-mono font-black text-base sm:text-lg tracking-[0.38em] uppercase text-[#E7FF00] flex items-center select-none"
+                    className="font-mono font-black text-base sm:text-lg tracking-[0.34em] uppercase text-[#E7FF00] flex items-center select-none"
                     style={{
                         textShadow: '0 2px 0 #C5A059, 0 4px 0 #000000, 0 6px 18px rgba(231,255,0,0.65)'
                     }}
                 >
-                    <span>JUST.SEAN.</span>
-                    <motion.span
-                        animate={isFlowsHit ? {
-                            x: [0, 10, -14, 12, -7, 4, 0],
-                            y: [0, -8, 10, -6, 4, 0],
-                            rotate: [0, 22, -18, 12, -7, 0],
-                            scale: [1, 1.5, 0.88, 1.2, 1],
-                            color: ["#E7FF00", "#FF0055", "#00F0FF", "#E7FF00"],
-                            filter: [
-                                "drop-shadow(0 0 0px #E7FF00)",
-                                "drop-shadow(0 0 30px #FF0055) drop-shadow(0 0 45px #00F0FF)",
-                                "drop-shadow(0 0 18px #E7FF00)",
-                                "drop-shadow(0 0 0px #E7FF00)"
-                            ]
-                        } : {
-                            x: tiltX * 0.1,
-                            y: tiltY * 0.1,
-                            rotate: tiltX * 0.12
-                        }}
-                        transition={isFlowsHit ? {
-                            duration: 0.95,
-                            ease: "easeOut"
-                        } : {
-                            duration: 0.15,
-                            ease: "easeOut"
-                        }}
-                        className="inline-block origin-center"
-                    >
-                        FLOWS
-                    </motion.span>
+                    {HEADER_LETTERS.map((item, idx) => {
+                        // Delay wave propagation: Group 2 (FLOWS) hits first (0ms), Group 1 (SEAN) at 45ms, Group 0 (JUST) at 90ms
+                        const groupDelay = (2 - item.group) * 0.045;
+                        const isHitZone = item.group === 2;
+
+                        return (
+                            <motion.span
+                                key={idx}
+                                animate={isFlowsHit ? {
+                                    y: isHitZone ? [0, -12, 6, -3, 0] : item.group === 1 ? [0, -7, 3, -1, 0] : [0, -4, 2, 0],
+                                    x: isHitZone ? [0, (idx - 12) * 3, -(idx - 12) * 1.5, 0] : [0, (idx - 7) * 1.5, 0],
+                                    rotate: isHitZone ? [0, (idx % 2 === 0 ? 14 : -14), -6, 0] : item.group === 1 ? [0, 7, -3, 0] : [0, -4, 0],
+                                    scale: isHitZone ? [1, 1.45, 0.92, 1.08, 1] : item.group === 1 ? [1, 1.25, 0.96, 1] : [1, 1.12, 1],
+                                    color: isHitZone ? ["#E7FF00", "#FFFDE7", "#00F0FF", "#E7FF00"] : ["#E7FF00", "#FFF9A6", "#E7FF00"],
+                                    filter: isHitZone ? [
+                                        "drop-shadow(0 0 0px #E7FF00)",
+                                        "drop-shadow(0 0 25px #00F0FF) drop-shadow(0 0 35px #FF0055)",
+                                        "drop-shadow(0 0 15px #E7FF00)",
+                                        "drop-shadow(0 0 0px #E7FF00)"
+                                    ] : []
+                                } : {
+                                    x: tiltX * 0.08,
+                                    y: tiltY * 0.08,
+                                    rotate: tiltX * 0.06
+                                }}
+                                transition={isFlowsHit ? {
+                                    duration: 0.75,
+                                    delay: groupDelay,
+                                    ease: [0.18, 0.89, 0.32, 1.28] // Elastic recoil spring
+                                } : {
+                                    duration: 0.15,
+                                    ease: "easeOut"
+                                }}
+                                className="inline-block origin-center"
+                            >
+                                {item.char}
+                            </motion.span>
+                        );
+                    })}
                 </h1>
             </div>
         </header>
