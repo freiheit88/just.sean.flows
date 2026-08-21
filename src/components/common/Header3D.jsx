@@ -26,14 +26,14 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
                 {/* Leading Neon Indicator Dot */}
                 <motion.span 
                     animate={isFlowsHit ? {
-                        scale: [1, 1.8, 0.9, 1.2, 1],
+                        scale: [1, 2.2, 0.8, 1.3, 1],
                         boxShadow: [
                             "0 0 15px #E7FF00",
-                            "0 0 35px #FFF9A6",
+                            "0 0 45px #FFF9A6",
                             "0 0 15px #E7FF00"
                         ]
                     } : {}}
-                    transition={{ duration: 0.6, delay: 0.12 }}
+                    transition={{ duration: 0.6, delay: 0.08 }}
                     className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_15px_#E7FF00] shrink-0" 
                 />
 
@@ -45,23 +45,23 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
                     }}
                 >
                     {HEADER_LETTERS.map((item, idx) => {
-                        // Delay wave propagation: Group 2 (FLOWS) hits first (0ms), Group 1 (SEAN) at 45ms, Group 0 (JUST) at 90ms
-                        const groupDelay = (2 - item.group) * 0.045;
+                        // Delay wave propagation: FLOWS (Group 2) hits first at 0ms, SEAN at 35ms, JUST at 70ms
+                        const groupDelay = (2 - item.group) * 0.035;
                         const isHitZone = item.group === 2;
 
                         return (
                             <motion.span
                                 key={idx}
                                 animate={isFlowsHit ? {
-                                    y: isHitZone ? [0, -12, 6, -3, 0] : item.group === 1 ? [0, -7, 3, -1, 0] : [0, -4, 2, 0],
-                                    x: isHitZone ? [0, (idx - 12) * 3, -(idx - 12) * 1.5, 0] : [0, (idx - 7) * 1.5, 0],
-                                    rotate: isHitZone ? [0, (idx % 2 === 0 ? 14 : -14), -6, 0] : item.group === 1 ? [0, 7, -3, 0] : [0, -4, 0],
-                                    scale: isHitZone ? [1, 1.45, 0.92, 1.08, 1] : item.group === 1 ? [1, 1.25, 0.96, 1] : [1, 1.12, 1],
-                                    color: isHitZone ? ["#E7FF00", "#FFFDE7", "#00F0FF", "#E7FF00"] : ["#E7FF00", "#FFF9A6", "#E7FF00"],
+                                    y: isHitZone ? [0, -18, 8, -4, 0] : item.group === 1 ? [0, -12, 5, -2, 0] : [0, -7, 3, 0],
+                                    x: isHitZone ? [0, (idx - 12) * 5, -(idx - 12) * 2, 0] : [0, (idx - 7) * 2, 0],
+                                    rotate: isHitZone ? [0, (idx % 2 === 0 ? 22 : -22), -8, 0] : item.group === 1 ? [0, 12, -5, 0] : [0, -6, 0],
+                                    scale: isHitZone ? [1, 1.6, 0.88, 1.15, 1] : item.group === 1 ? [1, 1.35, 0.94, 1] : [1, 1.18, 1],
+                                    color: isHitZone ? ["#E7FF00", "#FFFFFF", "#00F0FF", "#E7FF00"] : ["#E7FF00", "#FFF9A6", "#E7FF00"],
                                     filter: isHitZone ? [
                                         "drop-shadow(0 0 0px #E7FF00)",
-                                        "drop-shadow(0 0 25px #00F0FF) drop-shadow(0 0 35px #FF0055)",
-                                        "drop-shadow(0 0 15px #E7FF00)",
+                                        "drop-shadow(0 0 35px #00F0FF) drop-shadow(0 0 45px #FF0055)",
+                                        "drop-shadow(0 0 20px #E7FF00)",
                                         "drop-shadow(0 0 0px #E7FF00)"
                                     ] : []
                                 } : {
@@ -70,9 +70,9 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
                                     rotate: tiltX * 0.06
                                 }}
                                 transition={isFlowsHit ? {
-                                    duration: 0.75,
+                                    duration: 0.8,
                                     delay: groupDelay,
-                                    ease: [0.18, 0.89, 0.32, 1.28] // Elastic recoil spring
+                                    ease: [0.175, 0.885, 0.32, 1.275]
                                 } : {
                                     duration: 0.15,
                                     ease: "easeOut"

@@ -5,6 +5,7 @@ export function useAudioMaster() {
     const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [showWelcomeBack, setShowWelcomeBack] = useState(false);
+    const [isFlowsHit, setIsFlowsHit] = useState(false);
     const mrAudioRef = useRef(null);
     const hasLeftRef = useRef(false);
 
@@ -90,6 +91,11 @@ export function useAudioMaster() {
         setIsAudioUnlocked(true);
     };
 
+    const handleFlowsHit = () => {
+        setIsFlowsHit(true);
+        setTimeout(() => setIsFlowsHit(false), 950);
+    };
+
     const handleToggleMute = () => {
         setIsMuted((prev) => {
             const next = !prev;
@@ -113,6 +119,8 @@ export function useAudioMaster() {
         isAudioUnlocked,
         isMuted,
         showWelcomeBack,
+        isFlowsHit,
+        handleFlowsHit,
         mrAudioRef,
         forceUnlockAudio,
         handleToggleMute,

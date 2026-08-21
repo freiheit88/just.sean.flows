@@ -30,22 +30,24 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             setPhase('shrinking');
         }, 3400);
 
-        // Stage 2: At 4.2s, launch powerful billiard break shot into header text
+        // Stage 2: At 4.2s, launch billiard cue strike
         const ricochetTimer = setTimeout(() => {
             setPhase('ricochet');
         }, 4200);
 
-        // Break Shot Impact at 4.7s (High speed smash into header text)
+        // Break Shot Impact at 4.75s (Ball hits JUST.SEAN.FLOWS)
         const breakTimer = setTimeout(() => {
             setBreakGlow(true);
-            if (onFlowsHitRef.current) onFlowsHitRef.current();
-            setTimeout(() => setBreakGlow(false), 450);
-        }, 4700);
+            if (onFlowsHitRef.current) {
+                onFlowsHitRef.current();
+            }
+            setTimeout(() => setBreakGlow(false), 500);
+        }, 4750);
 
         // Rebound Cushion Tap at 5.5s (Decelerated bounce on right frame)
         const reboundTimer = setTimeout(() => {
             setReboundGlow(true);
-            setTimeout(() => setReboundGlow(false), 350);
+            setTimeout(() => setReboundGlow(false), 400);
         }, 5500);
 
         // Stage 3: At 6.8s, smoothly dock into the permanent top-right button
@@ -139,7 +141,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             {/* 3. PHYSICAL BREAK-SHOT & DECELERATING REBOUND (4.2s ~ 6.8s) */}
             {phase === 'ricochet' && (
                 <>
-                    {/* Billiard Cue Ball: Strictly bounded inside screen frame */}
+                    {/* Billiard Cue Ball: Directly smashes into JUST.SEAN.FLOWS */}
                     <motion.div
                         initial={{
                             x: 0,
@@ -155,13 +157,13 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                             boxShadow: "0 0 30px rgba(255,249,166,0.85)"
                         }}
                         animate={{
-                            // Phase 1 (Break Strike): Fast powerful drive straight into JUST.SEAN.FLOWS (x: -85, y: -135) at t=20%
-                            // Phase 2 (Kinetic Loss & Cushion Rebound): Velocity drops 60%, bounces down-right into right cushion (x: 4, y: -80) at t=50%
-                            // Phase 3 (Gentle Secondary Hop): Velocity drops 80%, bounces up-left slightly (x: -20, y: -140) at t=75%
-                            // Phase 4 (Final Soft Rolling Settle): Smoothly rolls into top-right pocket (x: 0, y: -155) at t=100%
-                            x: [0, -85, 4, -20, 0],
-                            y: [0, -135, -80, -140, -155],
-                            rotate: [0, -360, -500, -620, -720],
+                            // Phase 1 (Direct Power Smash into JUST.SEAN.FLOWS): x: -140px, y: -135px at t=22%
+                            // Phase 2 (Kinetic Transfer & Cushion Rebound): Velocity drops 60%, bounces down-right (x: 6px, y: -80px) at t=52%
+                            // Phase 3 (Gentle Secondary Tap): Velocity drops 80%, bounces up (x: -15px, y: -135px) at t=78%
+                            // Phase 4 (Final Soft Rolling Settle): Smoothly rolls into top-right pocket (x: 0, y: -155px) at t=100%
+                            x: [0, -140, 6, -15, 0],
+                            y: [0, -135, -80, -135, -155],
+                            rotate: [0, -360, -520, -640, -720],
                             width: ["44px", "44px", "42px", "40px", "40px"],
                             height: ["44px", "44px", "42px", "40px", "40px"],
                             borderColor: [
@@ -180,7 +182,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                             ],
                             boxShadow: [
                                 "0 0 30px rgba(255,249,166,0.85)",
-                                "0 0 50px rgba(231,255,0,1)",
+                                "0 0 55px rgba(231,255,0,1)",
                                 "0 0 30px rgba(255,224,130,0.75)",
                                 "0 0 25px rgba(231,255,0,0.6)",
                                 "0 0 20px rgba(231,255,0,0.45)"
@@ -188,7 +190,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         }}
                         transition={{
                             duration: 2.6,
-                            times: [0, 0.20, 0.50, 0.75, 1.0],
+                            times: [0, 0.22, 0.52, 0.78, 1.0],
                             ease: [0.18, 0.8, 0.25, 1.0]
                         }}
                         className="absolute z-[9998] bg-black/90 border-2 flex items-center justify-center pointer-events-none"
@@ -198,7 +200,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
 
                     {/* Break Shot Impact Radial Halo Bloom behind JUST.SEAN.FLOWS */}
                     {breakGlow && (
-                        <div className="absolute top-1 left-[60%] w-28 h-20 -translate-x-1/2 rounded-full bg-[#E7FF00]/40 filter blur-2xl pointer-events-none animate-pulse" />
+                        <div className="absolute top-1 left-[50%] w-36 h-20 -translate-x-1/2 rounded-full bg-[#E7FF00]/45 filter blur-2xl pointer-events-none animate-pulse" />
                     )}
 
                     {/* Right Frame Cushion Rebound Soft Halo */}
