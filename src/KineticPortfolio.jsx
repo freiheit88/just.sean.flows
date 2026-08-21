@@ -141,13 +141,7 @@ export default function KineticPortfolio() {
                     </motion.div>
                 ))}
 
-                {/* 1. Dynamic Pure White Volume Calibrator & Morphing Top-Right Mute Button */}
-                <VolumePrompt 
-                    isAudioUnlocked={isAudioUnlocked} 
-                    isMuted={isMuted}
-                    onToggleMute={handleToggleMute}
-                    onFlowsHit={handleFlowsHit}
-                />
+
 
                 {/* 2. Step 4/5: 3D Iridescent Stained Glass Arch Hotspot */}
                 <StainedGlassArch 
@@ -206,6 +200,14 @@ export default function KineticPortfolio() {
             <FrankfurtAtelierModal 
                 isOpen={isAtelierModalOpen}
                 onClose={() => setIsAtelierModalOpen(false)}
+            />
+
+            {/* Supreme Top-Level Volume Calibrator & Morphing Mute Button (z-[9998]) */}
+            <VolumePrompt 
+                isAudioUnlocked={isAudioUnlocked} 
+                isMuted={isMuted}
+                onToggleMute={handleToggleMute}
+                onFlowsHit={handleFlowsHit}
             />
 
             {/* Top-Level Permanent 3D Header (z-[9999]) with .FLOWS collision response */}

@@ -70,7 +70,7 @@ export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, ti
                 })}
             </div>
 
-            {/* Central 3D Gyro Rigid Body Container (Immune to Framer Motion Transform Stomping) */}
+            {/* Central 3D Gyro Rigid Body Container */}
             <div
                 style={{
                     transform: `perspective(800px) rotateX(${-tiltY * 1.1}deg) rotateY(${tiltX * 1.1}deg) translate3d(${ghostOffsetX * 0.9}px, ${ghostOffsetY * 0.9}px, 45px)`,
@@ -79,33 +79,58 @@ export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, ti
                 }}
                 className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none"
             >
-                {/* Vertical Breathing / Float Motion Div */}
+                {/* 1. Below-to-Above Smooth Rising Ascent Motion Loop */}
                 <motion.div
+                    initial={{ y: 200, opacity: 0 }}
                     animate={{ 
-                        y: [12, -12, 12],
-                        scale: [1.0, 1.03, 1.0]
+                        y: [200, 140, 0, -120],
+                        opacity: [0, 1, 0.95, 0]
                     }}
                     transition={{
-                        duration: 3.5,
+                        duration: 4.2,
                         repeat: Infinity,
+                        times: [0, 0.18, 0.70, 1.0],
                         ease: 'easeInOut'
                     }}
                     className="relative flex flex-col items-center text-center cursor-pointer select-none"
                 >
                     {/* Ambient Warm Glow Halo that shifts with Gyro */}
                     <div 
-                        className="absolute inset-0 bg-[#E7FF00]/20 filter blur-3xl rounded-full scale-150 pointer-events-none"
+                        className="absolute inset-0 bg-[#E7FF00]/25 filter blur-3xl rounded-full scale-150 pointer-events-none"
                         style={{
-                            transform: `translate3d(${ghostOffsetX * -0.5}px, ${ghostOffsetY * -0.5}px, -20px)`
+                            transform: `translate3d(${ghostOffsetX * -0.6}px, ${ghostOffsetY * -0.6}px, -25px)`
                         }}
                     />
 
-                    {/* 3-Column Precise Grid: 
-                        [L] [E] [T]
-                        [ ] ['] [S]
-                        [ ] [G] [O]
-                        [ ] [ ] [!]
-                    */}
+                    {/* Glitch Ghost Layer 1: Red/Magenta Chromatic Aberration */}
+                    <div 
+                        style={{
+                            transform: `translate3d(${ghostOffsetX * 0.45}px, ${ghostOffsetY * 0.45}px, -10px)`,
+                            opacity: Math.min(0.65, Math.abs(tilt.x) + Math.abs(tilt.y) + 0.15)
+                        }}
+                        className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#FF0055] filter blur-[1px] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
+                    >
+                        <span>L</span><span>E</span><span>T</span>
+                        <span></span><span className="text-4xl sm:text-5xl">'</span><span>S</span>
+                        <span></span><span>G</span><span>O</span>
+                        <span></span><span></span><span className="text-4xl sm:text-5xl font-black">!</span>
+                    </div>
+
+                    {/* Glitch Ghost Layer 2: Cyan/Blue Chromatic Aberration */}
+                    <div 
+                        style={{
+                            transform: `translate3d(${-ghostOffsetX * 0.45}px, ${-ghostOffsetY * 0.45}px, -10px)`,
+                            opacity: Math.min(0.65, Math.abs(tilt.x) + Math.abs(tilt.y) + 0.15)
+                        }}
+                        className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#00F0FF] filter blur-[1px] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
+                    >
+                        <span>L</span><span>E</span><span>T</span>
+                        <span></span><span className="text-4xl sm:text-5xl">'</span><span>S</span>
+                        <span></span><span>G</span><span>O</span>
+                        <span></span><span></span><span className="text-4xl sm:text-5xl font-black">!</span>
+                    </div>
+
+                    {/* Main Sharp Neon Gold 3-Column Grid */}
                     <div className="relative font-mono font-black text-5xl sm:text-6xl text-[#E7FF00] drop-shadow-[0_0_35px_rgba(231,255,0,0.9)] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64">
                         {/* Row 1: L E T */}
                         <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">L</span>
