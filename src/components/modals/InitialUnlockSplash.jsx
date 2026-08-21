@@ -74,9 +74,9 @@ export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, ti
             {/* Central 3D Gyro Rigid Body Container */}
             <div
                 style={{
-                    transform: `perspective(800px) rotateX(${-tiltY * 1.1}deg) rotateY(${tiltX * 1.1}deg) translate3d(${ghostOffsetX * 0.9}px, ${ghostOffsetY * 0.9}px, 45px)`,
+                    transform: `perspective(800px) rotateX(${-tiltY * 0.35}deg) rotateY(${tiltX * 0.35}deg) translate3d(${ghostOffsetX * 0.28}px, ${ghostOffsetY * 0.28}px, 20px)`,
                     transformStyle: 'preserve-3d',
-                    transition: 'transform 0.08s ease-out'
+                    transition: 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)'
                 }}
                 className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none"
             >
