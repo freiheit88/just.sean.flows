@@ -30,94 +30,94 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                                 e.stopPropagation();
                                 onOpenAtelier();
                             }}
-                            whileHover={{ scale: 1.015 }}
-                            whileTap={{ scale: 0.985 }}
+                            whileHover={{ scale: 1.018 }}
+                            whileTap={{ scale: 0.982 }}
                             className="w-full h-full cursor-pointer group outline-none relative flex flex-col items-center justify-center"
                             style={{
-                                transform: `translate3d(${tiltX * 0.08}px, ${tiltY * 0.08}px, 6px) rotateX(${-tiltY * 0.15}deg) rotateY(${tiltX * 0.15}deg)`,
+                                transform: `translate3d(${tiltX * 0.08}px, ${tiltY * 0.08}px, 8px) rotateX(${-tiltY * 0.15}deg) rotateY(${tiltX * 0.15}deg)`,
                                 transformStyle: 'preserve-3d',
                                 transition: 'transform 0.15s ease-out'
                             }}
                         >
-                            {/* 1. Organic Warm Volumetric Backlight & Atmosphere Glow */}
+                            {/* 1. JARVIS Holographic Soft Glow & Breathing Pulse */}
                             <motion.div 
                                 animate={{
-                                    opacity: [0.75, 1.0, 0.7, 0.95, 0.75],
-                                    scale: [1, 1.02, 0.99, 1.015, 1],
+                                    opacity: [0.85, 1.0, 0.8, 0.98, 0.85],
+                                    scale: [1, 1.02, 0.99, 1.018, 1],
                                     filter: [
-                                        'drop-shadow(0 0 12px rgba(255,193,7,0.45)) drop-shadow(0 0 25px rgba(245,124,0,0.25))',
-                                        'drop-shadow(0 0 22px rgba(255,213,79,0.75)) drop-shadow(0 0 45px rgba(255,143,0,0.45))',
-                                        'drop-shadow(0 0 14px rgba(255,193,7,0.5)) drop-shadow(0 0 28px rgba(245,124,0,0.3))',
-                                        'drop-shadow(0 0 28px rgba(255,224,130,0.85)) drop-shadow(0 0 55px rgba(230,81,0,0.5))',
-                                        'drop-shadow(0 0 12px rgba(255,193,7,0.45)) drop-shadow(0 0 25px rgba(245,124,0,0.25))'
+                                        'drop-shadow(0 0 14px rgba(0,255,136,0.65)) drop-shadow(0 0 28px rgba(118,255,3,0.35))',
+                                        'drop-shadow(0 0 26px rgba(0,255,136,0.95)) drop-shadow(0 0 50px rgba(0,229,255,0.65)) drop-shadow(0 0 70px rgba(118,255,3,0.45))',
+                                        'drop-shadow(0 0 16px rgba(0,255,136,0.7)) drop-shadow(0 0 32px rgba(118,255,3,0.4))',
+                                        'drop-shadow(0 0 32px rgba(0,255,136,1)) drop-shadow(0 0 60px rgba(0,229,255,0.75)) drop-shadow(0 0 85px rgba(118,255,3,0.5))',
+                                        'drop-shadow(0 0 14px rgba(0,255,136,0.65)) drop-shadow(0 0 28px rgba(118,255,3,0.35))'
                                     ]
                                 }}
                                 transition={{
                                     repeat: Infinity,
-                                    duration: 2.4,
+                                    duration: 2.2,
                                     ease: "easeInOut"
                                 }}
                                 className="absolute inset-0 w-full h-full pointer-events-none"
                             >
                                 <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                                     <defs>
-                                        {/* Authentic Warm Candle/Chandelier Stained Glass Volumetric Gradient */}
-                                        <radialGradient id="candleGlassGlow" cx="50%" cy="45%" r="60%">
-                                            <stop offset="0%" stopColor="#FFF9C4" stopOpacity="0.42" />
-                                            <stop offset="40%" stopColor="#FFC107" stopOpacity="0.28" />
-                                            <stop offset="75%" stopColor="#FF8F00" stopOpacity="0.18" />
-                                            <stop offset="100%" stopColor="#3E2723" stopOpacity="0.05" />
+                                        {/* Jarvis Cyber-Hologram Translucent Lime-Emerald Gradient */}
+                                        <radialGradient id="jarvisHoloFill" cx="50%" cy="42%" r="65%">
+                                            <stop offset="0%" stopColor="#CCFF90" stopOpacity="0.26" />
+                                            <stop offset="35%" stopColor="#00E676" stopOpacity="0.18" />
+                                            <stop offset="70%" stopColor="#00B0FF" stopOpacity="0.09" />
+                                            <stop offset="100%" stopColor="#004D40" stopOpacity="0.0" />
                                         </radialGradient>
 
-                                        {/* Ultra-Refined Antique Brass Hairline Rim */}
-                                        <linearGradient id="antiqueBrassHairline" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stopColor="#FFE082" stopOpacity="0.9" />
-                                            <stop offset="45%" stopColor="#C5A059" stopOpacity="0.65" />
-                                            <stop offset="80%" stopColor="#8D6E63" stopOpacity="0.4" />
-                                            <stop offset="100%" stopColor="#FFE082" stopOpacity="0.8" />
+                                        {/* Bold Soft-Glow Jarvis Lime-Emerald Stroke Gradient */}
+                                        <linearGradient id="jarvisBorderGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stopColor="#CCFF90" />
+                                            <stop offset="30%" stopColor="#00FF88" />
+                                            <stop offset="70%" stopColor="#00E5FF" />
+                                            <stop offset="100%" stopColor="#76FF03" />
                                         </linearGradient>
                                     </defs>
 
-                                    {/* Mobile Calibrated Pointed Gothic Arch Fill */}
+                                    {/* Jarvis Translucent Ambient Arch Fill */}
                                     <path
                                         d="M 50 0 C 84 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 16 26.25, 50 0 Z"
-                                        fill="url(#candleGlassGlow)"
-                                        className="transition-opacity duration-300 group-hover:opacity-90"
+                                        fill="url(#jarvisHoloFill)"
+                                        className="transition-opacity duration-300 group-hover:opacity-95"
                                     />
 
-                                    {/* 0.75px Architectural Antique Brass Hairline Border */}
+                                    {/* Bolder Soft-Glowing Holographic Border */}
                                     <path
                                         d="M 50 0 C 84 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 16 26.25, 50 0 Z"
                                         fill="none"
-                                        stroke="url(#antiqueBrassHairline)"
-                                        strokeWidth="0.85"
-                                        className="transition-all duration-300 group-hover:stroke-[#FFF9C4] group-hover:stroke-width-[1.2]"
+                                        stroke="url(#jarvisBorderGlow)"
+                                        strokeWidth="2.0"
+                                        className="transition-all duration-300 group-hover:stroke-white group-hover:stroke-width-[2.4]"
                                     />
                                 </svg>
                             </motion.div>
 
-                            {/* 2. Delicate Prismatic Glass Specular Glint */}
+                            {/* 2. Cyber-Hologram Laser Sheen Sweep */}
                             <motion.div
                                 animate={{
-                                    x: ['-130%', '160%'],
-                                    opacity: [0, 0.45, 0]
+                                    x: ['-140%', '170%'],
+                                    opacity: [0, 0.55, 0]
                                 }}
                                 transition={{
                                     repeat: Infinity,
-                                    duration: 3.6,
+                                    duration: 3.2,
                                     ease: "easeInOut"
                                 }}
-                                className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-[#FFFDE7]/25 to-transparent -skew-x-18 pointer-events-none"
+                                className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[#CCFF90]/35 via-[#00E5FF]/20 to-transparent -skew-x-18 pointer-events-none"
                             />
 
-                            {/* 3. Understated Luxury Floating Beacon (Pill Badge) */}
+                            {/* 3. Jarvis Holographic Pill Badge */}
                             <motion.div 
                                 animate={{
                                     y: [0, -3, 0],
                                     boxShadow: [
-                                        "0 4px 15px rgba(0,0,0,0.8), 0 0 15px rgba(231,255,0,0.3)",
-                                        "0 6px 20px rgba(0,0,0,0.9), 0 0 25px rgba(231,255,0,0.55)",
-                                        "0 4px 15px rgba(0,0,0,0.8), 0 0 15px rgba(231,255,0,0.3)"
+                                        "0 4px 15px rgba(0,0,0,0.85), 0 0 18px rgba(0,255,136,0.45)",
+                                        "0 6px 22px rgba(0,0,0,0.95), 0 0 30px rgba(0,255,136,0.75), 0 0 45px rgba(0,229,255,0.4)",
+                                        "0 4px 15px rgba(0,0,0,0.85), 0 0 18px rgba(0,255,136,0.45)"
                                     ]
                                 }}
                                 transition={{
@@ -125,10 +125,10 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                                     duration: 2.0,
                                     ease: "easeInOut"
                                 }}
-                                className="absolute -bottom-4 z-40 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#E7FF00]/40 flex items-center gap-1.5 pointer-events-auto transition-transform duration-300 group-hover:scale-105 group-hover:border-[#E7FF00]"
+                                className="absolute -bottom-4 z-40 px-3.5 py-1 rounded-full bg-black/85 backdrop-blur-lg border-2 border-[#00FF88]/70 flex items-center gap-1.5 pointer-events-auto transition-transform duration-300 group-hover:scale-105 group-hover:border-[#CCFF90]"
                             >
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_8px_#E7FF00] animate-ping" />
-                                <span className="font-mono text-[9px] sm:text-[10px] font-bold text-[#E7FF00] tracking-[0.2em] uppercase">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] shadow-[0_0_10px_#00FF88] animate-ping" />
+                                <span className="font-mono text-[9px] sm:text-[10px] font-bold text-[#00FF88] tracking-[0.22em] uppercase">
                                     ATELIER // ENTER ➔
                                 </span>
                             </motion.div>
