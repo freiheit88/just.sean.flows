@@ -186,6 +186,9 @@ export default function KineticPortfolio() {
                 tiltY={tiltY}
                 ghostOffsetX={ghostOffsetX}
                 ghostOffsetY={ghostOffsetY}
+                isMuted={isMuted}
+                onToggleMute={handleToggleMute}
+                onFlowsHit={handleFlowsHit}
             />
 
             {/* Welcome Back 5-Second Countdown Resume Modal */}
