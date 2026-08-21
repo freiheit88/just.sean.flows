@@ -55,8 +55,8 @@ const FRAMES = [
     { 
         id: 6, 
         src: "/assets/walk_story_07_grand_piano_salon.jpg", 
-        titleTop: "STAGE READY", 
-        titleMain: "THE DOORS OPEN.", 
+        titleTop: "ATELIER STATUS: 20% READY", 
+        titleMain: "INSTRUMENTS TUNED. SPACE IN PROGRESS.", 
     }
 ];
 
@@ -918,6 +918,16 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
                     {/* True 3D Assembled Typography (하단 1/3 영역에 안정적 배치) */}
                     <div className="max-w-sm mx-auto mt-auto mb-10 md:mb-14 px-2 flex flex-col items-center">
+                        {activeFrameIdx === 6 && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                className="mb-3 px-3.5 py-1.5 rounded-full bg-black/85 border border-[#E7FF00]/60 shadow-[0_0_20px_rgba(231,255,0,0.4)] backdrop-blur-md flex items-center gap-2 font-mono text-[9px] sm:text-[10px] text-[#E7FF00] tracking-widest uppercase animate-pulse"
+                            >
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] animate-ping" />
+                                <span>🚧 20% READY • STAGE UNDER CONSTRUCTION</span>
+                            </motion.div>
+                        )}
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={`assembled-title-${activeFrameIdx}`}
