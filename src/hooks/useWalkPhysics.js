@@ -4,198 +4,186 @@ import { FRAMES } from '../constants/frames';
 export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineScrollUp }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
+    const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
+    const [isAtelierModalOpen, setIsAtelierModalOpen] = useState(false);
+
     const progressRef = useRef(0);
-    const touchStartY = useRef(0);
-    const touchStartTime = useRef(0);
+    const hasTriggered100Modal = useRef(false);
+    // sequenceState: 'idle' -> 'stage1' (0번 5s) -> 'stage2_origin' (1번 3s) -> 'video' (2번 mp4) -> 'stage2_variant' (3번 5s) -> 'free' (4~7번)
+    const sequenceState = useRef('idle');
 
     const audioCtxRef = useRef(null);
+    const footstepAudioRef = useRef(null);
     const footstepBufferRef = useRef(null);
-    const html5AudioRef = useRef(null);
-    const lastFootstepTime = useRef(0);
+    const isFetchingRef = useRef(false);
 
-    // Preload & decode footsteps into Web Audio Buffer for 100% reliable instant playback
+    // Audio Engine Preload (30% scale)
     useEffect(() => {
-        try {
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (AudioCtx) {
-                const ctx = new AudioCtx();
-                audioCtxRef.current = ctx;
-
-                fetch('/assets/sounds/footsteps_three_steps.wav')
-                    .then((res) => res.arrayBuffer())
-                    .then((arrayBuf) => ctx.decodeAudioData(arrayBuf))
-                    .then((decodedBuf) => {
-                        footstepBufferRef.current = decodedBuf;
-                    })
-                    .catch(() => {});
+        const initAudio = async () => {
+            if (isFetchingRef.current) return;
+            isFetchingRef.current = true;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtxRef.current = new AudioContext();
+                    const resp = await fetch('/assets/footstep_crunch.mp3').catch(() => null);
+                    if (resp && resp.ok) {
+                        const arrayBuffer = await resp.arrayBuffer();
+                        footstepBufferRef.current = await audioCtxRef.current.decodeAudioData(arrayBuffer);
+                    }
+                }
+            } catch (e) {
+                console.warn("Footstep buffer load:", e);
             }
-        } catch (e) {}
-
-        const html5 = new Audio('/assets/sounds/footsteps_three_steps.wav');
-        html5.volume = 0.85;
-        html5.preload = 'auto';
-        html5AudioRef.current = html5;
+            try {
+                footstepAudioRef.current = new Audio('/assets/footstep_crunch.mp3');
+                footstepAudioRef.current.volume = 0.25;
+            } catch (e) {}
+        };
+        initAudio();
     }, []);
 
-    // Guaranteed 3-Step ("뚜벅 뚜벅 뚜벅") Cobblestone Footstep Player
     const playFootstepSound = () => {
-        const now = Date.now();
-        if (now - lastFootstepTime.current < 1000) return; // 1.0s pacing
-        lastFootstepTime.current = now;
-
-        let played = false;
-
-        // Method 1: Web Audio Buffer Source (Bypasses all mobile autoplay locks)
+        if (!isAudioUnlocked) return;
         if (audioCtxRef.current && footstepBufferRef.current) {
             try {
                 if (audioCtxRef.current.state === 'suspended') {
                     audioCtxRef.current.resume();
                 }
                 const source = audioCtxRef.current.createBufferSource();
-                const gainNode = audioCtxRef.current.createGain();
-                gainNode.gain.value = 0.25; // Scaled to 30% comfortable ambient level
                 source.buffer = footstepBufferRef.current;
+                const gainNode = audioCtxRef.current.createGain();
+                gainNode.gain.value = 0.25;
                 source.connect(gainNode);
                 gainNode.connect(audioCtxRef.current.destination);
                 source.start(0);
-                played = true;
+                return;
             } catch (e) {}
         }
-
-        // Method 2: HTML5 Audio Element Fallback
-        if (!played && html5AudioRef.current) {
+        if (footstepAudioRef.current) {
             try {
-                html5AudioRef.current.volume = 0.25;
-                html5AudioRef.current.currentTime = 0;
-                html5AudioRef.current.play().catch(() => {});
-                played = true;
-            } catch (e) {}
-        }
-
-        // Method 3: Procedural Real-time Synthesizer Fallback (3 Distinct Taps)
-        if (!played) {
-            try {
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                if (!AudioCtx) return;
-                const ctx = new AudioCtx();
-                [0, 0.35, 0.70].forEach((delay, idx) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    const filter = ctx.createBiquadFilter();
-
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(160 - idx * 10, ctx.currentTime + delay);
-                    osc.frequency.exponentialRampToValueAtTime(35, ctx.currentTime + delay + 0.12);
-
-                    filter.type = 'lowpass';
-                    filter.frequency.setValueAtTime(650, ctx.currentTime + delay);
-
-                    gain.gain.setValueAtTime(0.12, ctx.currentTime + delay); // Scaled to 30% volume level
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.12);
-
-                    osc.connect(filter);
-                    filter.connect(gain);
-                    gain.connect(ctx.destination);
-
-                    osc.start(ctx.currentTime + delay);
-                    osc.stop(ctx.currentTime + delay + 0.13);
-                });
+                footstepAudioRef.current.currentTime = 0;
+                footstepAudioRef.current.volume = 0.25;
+                footstepAudioRef.current.play().catch(() => {});
             } catch (e) {}
         }
     };
 
-
-    // Sequence state: 'idle' -> 'stage1' (5s) -> 'video' (1x) -> 'stage2' (3s pause) -> 'free'
-    const sequenceState = useRef('idle');
-
-    // Dynamic Frame Index computation with ironclad phase locking
+    // Frame Index computation with ironclad phase locking
     useEffect(() => {
         if (sequenceState.current === 'stage1') {
-            setActiveFrameIdx(0); // 1단계 5초 동안 0번 사진 엄격 고정!
+            setActiveFrameIdx(0); // 1번 사진 5초 고정!
+        } else if (sequenceState.current === 'stage2_origin') {
+            setActiveFrameIdx(1); // 원본 2번 사진 3초 고정!
         } else if (sequenceState.current === 'video') {
-            setActiveFrameIdx(1); // 동영상 재생 중 1번 비디오 엄격 고정!
-        } else if (sequenceState.current === 'stage2') {
-            setActiveFrameIdx(2); // 2단계 코너 턴 3초 동안 2번 사진 엄격 고정!
+            setActiveFrameIdx(2); // 동영상 재생 고정!
+        } else if (sequenceState.current === 'stage2_variant') {
+            setActiveFrameIdx(3); // 변형된 2번 코너 턴 사진 5초 고정!
         } else {
-            const frameIdx = Math.min(FRAMES.length - 1, Math.max(0, Math.floor((progress / 100) * FRAMES.length)));
+            // Free scroll for Frames 4, 5, 6, 7 (50% ~ 100% progress mapped to indices 4 ~ 7)
+            const freeProg = Math.max(0, Math.min(1, (progress - 50) / 50));
+            const frameIdx = Math.min(7, Math.max(4, 4 + Math.floor(freeProg * 4)));
             setActiveFrameIdx(frameIdx);
         }
     }, [progress]);
 
-    // STAGE 1: 1단계 5초 정속 보행 (0번 사진 5초간 엄격 유지)
+    // STAGE 1 (5.0s) -> STAGE 2 ORIGIN (3.0s) -> VIDEO
     useEffect(() => {
         if (!isAudioUnlocked || sequenceState.current !== 'idle') return;
         sequenceState.current = 'stage1';
         setActiveFrameIdx(0);
+        setProgress(0);
 
         const startTime = Date.now();
-        const duration = 5000; // 5초
+        const stage1Duration = 5000; // 1번 사진 5초
 
         const stage1Timer = setInterval(() => {
             const elapsed = Date.now() - startTime;
-            const ratio = Math.min(1, elapsed / duration);
-            const currentVal = ratio * 13.5; // Strictly capped at 13.5% (cannot leak into frame 1 or 2)
+            const ratio = Math.min(1, elapsed / stage1Duration);
+            const currentVal = ratio * 12.5;
 
-            setProgress((prev) => {
-                const next = Math.max(prev, currentVal);
-                progressRef.current = next;
-                return next;
-            });
+            setProgress(currentVal);
+            progressRef.current = currentVal;
+            setActiveFrameIdx(0);
 
             if (ratio >= 1) {
                 clearInterval(stage1Timer);
-                // 5초 완료 즉시 비디오 단계로 직행 (Frame 1 고정)
-                sequenceState.current = 'video';
-                setActiveFrameIdx(1);
-                setProgress(14.3);
-                progressRef.current = 14.3;
 
-                // 8.5s fallback to guarantee progression
-                setTimeout(() => {
-                    if (sequenceState.current === 'video') {
-                        handleVideoCompleted();
+                // Stage 2 Origin: 원본 2번 사진 3초 고정 진입!
+                sequenceState.current = 'stage2_origin';
+                setActiveFrameIdx(1);
+                setProgress(12.5);
+                progressRef.current = 12.5;
+
+                const originStartTime = Date.now();
+                const originDuration = 3000; // 원본 2번 사진 3초
+
+                const originTimer = setInterval(() => {
+                    const originElapsed = Date.now() - originStartTime;
+                    const originRatio = Math.min(1, originElapsed / originDuration);
+                    const originVal = 12.5 + originRatio * 12.5;
+
+                    setProgress(originVal);
+                    progressRef.current = originVal;
+                    setActiveFrameIdx(1);
+
+                    if (originRatio >= 1) {
+                        clearInterval(originTimer);
+
+                        // 동영상 단계로 직행!
+                        sequenceState.current = 'video';
+                        setActiveFrameIdx(2);
+                        setProgress(25.0);
+                        progressRef.current = 25.0;
+
+                        // 8.5s fallback to guarantee video transition
+                        setTimeout(() => {
+                            if (sequenceState.current === 'video') {
+                                handleVideoCompleted();
+                            }
+                        }, 8500);
                     }
-                }, 8500);
+                }, 30);
             }
         }, 30);
 
         return () => clearInterval(stage1Timer);
     }, [isAudioUnlocked]);
 
-    // 동영상 완료 후: 2번 사진으로 전환 후 스크롤과 무관하게 '무조건 5.0초 고정' 대기!
+    // 동영상 완료 후: 변형된 2번 사진(코너 턴)으로 전환 후 '정확히 5.0초 고정' 대기!
     const handleVideoCompleted = () => {
         if (sequenceState.current !== 'video') return;
-        sequenceState.current = 'stage2';
+        sequenceState.current = 'stage2_variant';
 
-        setActiveFrameIdx(2);
-        setProgress(28.6);
-        progressRef.current = 28.6;
+        setActiveFrameIdx(3);
+        setProgress(37.5);
+        progressRef.current = 37.5;
 
         const startTime = Date.now();
-        const duration = 5000; // 스크롤과 무관하게 2번 사진 정확히 5초 고정!
-        const startProgress = 28.6;
-        const targetProgress = 42.9;
+        const duration = 5000; // 동영상 끝나고 5초 고정!
+        const startProgress = 37.5;
+        const targetProgress = 50.0;
 
-        const stage2Timer = setInterval(() => {
+        const variantTimer = setInterval(() => {
             const elapsed = Date.now() - startTime;
             const ratio = Math.min(1, elapsed / duration);
             const currentVal = startProgress + ratio * (targetProgress - startProgress);
 
-            setActiveFrameIdx(2); // 5초 동안 2번 사진 엄격 유지!
+            setActiveFrameIdx(3); // 5초 동안 변형 2번 코너 턴 사진 엄격 고정!
             setProgress(currentVal);
             progressRef.current = currentVal;
 
             if (ratio >= 1) {
-                clearInterval(stage2Timer);
-                sequenceState.current = 'free'; // 5초 완료 즉시 3번 아치 문 앞 단계로 진입 & 자유 스크롤 언락!
-                setActiveFrameIdx(3);
-                setProgress(42.9);
-                progressRef.current = 42.9;
+                clearInterval(variantTimer);
+                sequenceState.current = 'free'; // 5초 완료 즉시 4번 아치 문 앞 단계로 진입 & 자유 스크롤 언락!
+                setActiveFrameIdx(4);
+                setProgress(50.0);
+                progressRef.current = 50.0;
             }
         }, 30);
     };
 
-    // Ambient Gentle Auto-Walk Progression (3단계 이후 가만히 있어도 서서히 전진)
+    // Ambient Gentle Auto-Walk Progression (4단계 이후 가만히 있어도 서서히 전진)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -212,7 +200,7 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         return () => clearInterval(autoDriftInterval);
     }, [isAudioUnlocked]);
 
-    // 휠 & 터치 스크롤 이벤트 리스너 (1단계, 비디오, 2단계에서는 스크롤에 의한 진행 변형 원천 차단)
+    // 휠 & 터치 스크롤 이벤트 리스너 (초반 자동 시퀀스 중에는 스크롤에 의한 진행 변형 차단)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
@@ -226,9 +214,8 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
                 triggerDopamineScrollUp();
                 playFootstepSound();
 
-                // 1단계, 비디오, 2단계 중에는 스크롤로 앞지르지 못하도록 절대 차단!
-                if (sequenceState.current === 'free' && progressRef.current >= 42.8) {
-                    const clampedDelta = Math.min(e.deltaY * 0.0018, 0.85); // Relaxed, smooth gallery cadence
+                if (sequenceState.current === 'free' && progressRef.current >= 50.0) {
+                    const clampedDelta = Math.min(e.deltaY * 0.0018, 0.85);
                     setProgress((prev) => {
                         const next = Math.min(100, prev + clampedDelta);
                         progressRef.current = next;
@@ -238,63 +225,68 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             }
         };
 
+        let touchStartY = 0;
         const handleTouchStart = (e) => {
             if (e.touches && e.touches[0]) {
-                touchStartY.current = e.touches[0].clientY;
-                touchStartTime.current = Date.now();
+                touchStartY = e.touches[0].clientY;
             }
         };
 
         const handleTouchMove = (e) => {
-            const isScrollableChild = e.target.closest('.overflow-y-auto, .touch-pan-y, button, input');
-            if (!isScrollableChild && e.touches && e.touches[0]) {
+            if (e.touches && e.touches[0]) {
                 const currentY = e.touches[0].clientY;
-                const deltaY = touchStartY.current - currentY;
-                if (deltaY < 0 && window.scrollY === 0 && e.cancelable) {
-                    e.preventDefault();
-                }
-
-                if (deltaY > 0) {
+                const deltaY = touchStartY - currentY;
+                if (deltaY > 5) {
                     triggerDopamineScrollUp();
-                playFootstepSound();
-
-                    // 1단계, 비디오, 2단계 중에는 스크롤로 앞지르지 못하도록 절대 차단!
-                    if (sequenceState.current === 'free' && progressRef.current >= 42.8) {
-                        const strokeProgress = Math.min(deltaY * 0.0075, 1.25); // Gentle, responsive mobile swipe
+                    playFootstepSound();
+                    if (sequenceState.current === 'free' && progressRef.current >= 50.0) {
+                        const strokeProgress = Math.min(deltaY * 0.0075, 1.25);
                         setProgress((prev) => {
                             const next = Math.min(100, prev + strokeProgress);
                             progressRef.current = next;
                             return next;
                         });
                     }
+                    touchStartY = currentY;
                 }
-                touchStartY.current = currentY;
             }
         };
 
-        window.addEventListener('wheel', handleWheel, { passive: false });
+        window.addEventListener('wheel', handleWheel, { passive: true });
         window.addEventListener('touchstart', handleTouchStart, { passive: true });
-        window.addEventListener('touchmove', handleTouchMove, { passive: false });
+        window.addEventListener('touchmove', handleTouchMove, { passive: true });
 
         return () => {
             window.removeEventListener('wheel', handleWheel);
             window.removeEventListener('touchstart', handleTouchStart);
             window.removeEventListener('touchmove', handleTouchMove);
         };
-    }, [isAudioUnlocked]);
+    }, [isAudioUnlocked, triggerDopamineScrollUp]);
+
+    // 100% Walk Completion Trailer Trigger
+    useEffect(() => {
+        if (progress >= 100 && !hasTriggered100Modal.current) {
+            hasTriggered100Modal.current = true;
+            if (onFinishWalk) onFinishWalk();
+        }
+    }, [progress, onFinishWalk]);
 
     const resetWalk = () => {
-        setProgress(0);
-        progressRef.current = 0;
-        sequenceState.current = 'idle';
-        setActiveFrameIdx(0);
+        sequenceState.current = 'free';
+        setProgress(50.0);
+        progressRef.current = 50.0;
+        setActiveFrameIdx(4);
+        hasTriggered100Modal.current = false;
     };
 
     return {
         progress,
-        setProgress,
         activeFrameIdx,
-        resetWalk,
-        handleVideoCompleted
+        isTrailerModalOpen,
+        isAtelierModalOpen,
+        setIsTrailerModalOpen,
+        setIsAtelierModalOpen,
+        handleVideoCompleted,
+        resetWalk
     };
 }

@@ -61,7 +61,7 @@ export default function KineticPortfolio() {
 
     // Reliable 1-shot video playback on Frame 1 transition
     useEffect(() => {
-        if (activeFrameIdx === 1 && videoRef.current) {
+        if (activeFrameIdx === 2 && videoRef.current) {
             videoRef.current.currentTime = 0;
             videoRef.current.play().catch((err) => console.log('Video play error:', err));
         } else if (videoRef.current) {
@@ -70,7 +70,7 @@ export default function KineticPortfolio() {
     }, [activeFrameIdx]);
 
     // Stained Glass Visibility on Frames 3 & 4
-    const isAtelierOptionVisible = (activeFrameIdx === 3 || activeFrameIdx === 4);
+    const isAtelierOptionVisible = (activeFrameIdx === 4 || activeFrameIdx === 5);
 
     return (
         <div 

@@ -105,7 +105,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
         };
     }, [activeFrameIdx]);
 
-    if (activeFrameIdx !== 6) return null;
+    if (activeFrameIdx !== 7) return null;
 
     const data = ATELIER_TIMELINE_STAGES[currentStage];
 
