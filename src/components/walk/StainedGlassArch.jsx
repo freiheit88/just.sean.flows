@@ -15,7 +15,7 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                 >
                     {/* Pure Centered Outer Wrapper without inline transforms */}
                     <div 
-                        className="pointer-events-auto absolute top-[25.5%] left-1/2 -translate-x-1/2 w-[52%] max-w-[210px] aspect-[100/110] flex items-center justify-center select-none"
+                        className="pointer-events-auto absolute top-[20%] left-1/2 -translate-x-1/2 w-[56%] max-w-[220px] aspect-[100/110] flex items-center justify-center select-none"
                     >
                         <motion.button
                             onClick={(e) => {

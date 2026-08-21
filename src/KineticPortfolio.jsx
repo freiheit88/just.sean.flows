@@ -69,7 +69,7 @@ export default function KineticPortfolio() {
 
     return (
         <div 
-            className="fixed inset-0 w-screen h-screen bg-black text-white select-none overflow-hidden flex flex-col items-center justify-start cursor-default touch-none pt-10 sm:pt-14 pb-4"
+            className="fixed inset-0 w-screen h-[100dvh] bg-black text-white select-none overflow-hidden flex flex-col items-center justify-between cursor-default touch-none pt-2 pb-2 px-3"
             onMouseMove={(e) => updatePointerPos(e.clientX, e.clientY)}
             onTouchMove={(e) => {
                 if (e.touches && e.touches[0]) {
@@ -91,7 +91,7 @@ export default function KineticPortfolio() {
 
             {/* 7-Step 1st-Person Walkthrough Stage (Reduced Top Gap, Increased Bottom Buffer) */}
             <main 
-                className="relative w-full flex-1 max-h-[88vh] max-w-[56.25vh] aspect-[9/16] md:w-[410px] md:h-[84vh] md:max-h-[840px] md:rounded-[36px] md:border-2 md:border-white/20 md:shadow-[0_0_80px_rgba(231,255,0,0.2)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between mx-auto"
+                className="relative w-full max-w-[395px] h-[calc(100dvh-62px)] max-h-[820px] rounded-[32px] border-2 border-white/20 shadow-[0_0_60px_rgba(231,255,0,0.18)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between mx-auto my-auto"
                 style={{
                     filter: (!isAudioUnlocked || showWelcomeBack) ? 'blur(20px) brightness(40%)' : 'none'
                 }}
@@ -128,13 +128,13 @@ export default function KineticPortfolio() {
                                 disableRemotePlayback
                                 preload="auto"
                                 onEnded={handleVideoCompleted}
-                                className="w-full h-full object-contain pointer-events-none transition-transform duration-700 scale-100"
+                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
                             />
                         ) : (
                             <img
                                 src={f.src}
                                 alt={f.titleMain}
-                                className="w-full h-full object-contain pointer-events-none transition-transform duration-700 scale-100"
+                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
                             />
                         )}
                     </motion.div>
