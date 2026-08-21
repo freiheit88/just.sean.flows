@@ -52,7 +52,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
     }, []);
 
     return (
-        <div className="absolute inset-0 pointer-events-none z-50 select-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none z-[9998] select-none overflow-hidden">
             {/* 1. EXTENDED 5.0S OSCILLATING VOLUME CAPSULE (0s ~ 5s) */}
             {phase === 'oscillating' && (
                 <motion.div
@@ -61,9 +61,9 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                     exit={{ opacity: 0 }}
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
                     style={{ originY: 0 }}
-                    className="absolute right-3.5 sm:right-4 top-[26%] flex flex-col items-center pointer-events-none"
+                    className="absolute right-3.5 sm:right-4 top-[26%] flex flex-col items-center pointer-events-none z-[9998]"
                 >
-                    <div className="w-12 sm:w-14 h-44 sm:h-52 rounded-[26px] bg-black/85 backdrop-blur-2xl border-2 border-white/25 p-2 sm:p-2.5 flex flex-col items-center justify-between shadow-[0_15px_45px_rgba(0,0,0,0.9),0_0_30px_rgba(255,255,255,0.2)]">
+                    <div className="w-12 sm:w-14 h-44 sm:h-52 rounded-[26px] bg-black/90 backdrop-blur-2xl border-2 border-white/30 p-2 sm:p-2.5 flex flex-col items-center justify-between shadow-[0_15px_45px_rgba(0,0,0,0.95),0_0_30px_rgba(255,255,255,0.3)]">
                         <Volume2 className="w-5 h-5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse" />
 
                         <div className="relative w-4 sm:w-4.5 flex-1 my-2 bg-white/20 rounded-full overflow-hidden flex flex-col justify-end p-0.5 border border-white/15">
@@ -116,7 +116,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         right: "16px",
                         transformOrigin: "top center"
                     }}
-                    className="z-50 bg-black/90 border-2 flex flex-col items-center justify-center pointer-events-none overflow-hidden"
+                    className="z-[9998] bg-black/90 border-2 flex flex-col items-center justify-center pointer-events-none overflow-hidden"
                 >
                     <Volume2 className="w-4 h-4" />
                 </motion.div>
@@ -166,7 +166,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         times: [0, 0.20, 0.60, 1.0],
                         ease: "easeInOut"
                     }}
-                    className="absolute z-50 bg-black/90 border-2 flex items-center justify-center pointer-events-none"
+                    className="absolute z-[9998] bg-black/90 border-2 flex items-center justify-center pointer-events-none"
                 >
                     <Volume2 className="w-4 h-4" />
                 </motion.div>
@@ -180,7 +180,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={onToggleMute}
-                    className="absolute top-4 right-4 z-50 pointer-events-auto w-10 h-10 rounded-full bg-black/80 border border-[#E7FF00]/70 shadow-[0_0_20px_rgba(231,255,0,0.35)] backdrop-blur-xl flex items-center justify-center cursor-pointer transition-all group"
+                    className="absolute top-3.5 right-3.5 z-[9999] pointer-events-auto w-10 h-10 rounded-full bg-black/85 border-2 border-[#E7FF00] shadow-[0_0_25px_rgba(231,255,0,0.45)] backdrop-blur-2xl flex items-center justify-center cursor-pointer transition-all group"
                 >
                     {isMuted ? (
                         <VolumeX className="w-5 h-5 text-neutral-400 group-hover:text-red-400 transition-colors" />
