@@ -15,6 +15,7 @@ import { Header3D } from './components/common/Header3D';
 import { KineticCursor } from './components/common/KineticCursor';
 import { VolumePrompt } from './components/common/VolumePrompt';
 import { StainedGlassArch } from './components/walk/StainedGlassArch';
+import { ArchCalibrationDevTool } from './components/dev/ArchCalibrationDevTool';
 import { Step07Timeline } from './components/walk/Step07Timeline';
 import { SonicFootprints } from './components/walk/SonicFootprints';
 // EvolutionGauge removed for clean minimal aesthetic
@@ -156,6 +157,9 @@ export default function KineticPortfolio() {
                     tiltY={tiltY}
                     onOpenAtelier={() => setIsAtelierModalOpen(true)}
                 />
+
+                {/* Live Dev Pen & Touch Calibration Tool */}
+                <ArchCalibrationDevTool isVisible={isAtelierOptionVisible} />
 
                 {/* 3. Step 7: 5-Stage Progressive Atelier Timeline with Bidirectional Scroll */}
                 <Step07Timeline 
