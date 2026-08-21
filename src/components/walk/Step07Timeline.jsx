@@ -1,50 +1,80 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_TIMELINE_STAGES } from '../../constants/timelineStages';
 import { RotateCcw } from 'lucide-react';
 
-export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
-    const [timelineStage, setTimelineStage] = useState(0);
+// Deterministic Pseudo-Random Generator for character assembly thresholds
+function getCharThreshold(charIndex, lineIndex) {
+    const seed = (charIndex * 137 + lineIndex * 269) % 1000;
+    return seed / 1000; // 0.0 to 1.0
+}
 
-    // Conversational Auto Progression (~7.5s per stage)
+export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
+    const [currentStage, setCurrentStage] = useState(0); // 0 to 4
+    const [stageProgress, setStageProgress] = useState(1.0); // 0.0 to 1.0
+    const stageRef = useRef(0);
+    const progressRef = useRef(1.0);
+    const isAutoDriftPaused = useRef(false);
+
+    // Auto Gentle Story Progression (~7.5s per card if idle)
     useEffect(() => {
         if (activeFrameIdx !== 6) {
-            setTimelineStage(0);
+            setCurrentStage(0);
+            setStageProgress(1.0);
+            stageRef.current = 0;
+            progressRef.current = 1.0;
             return;
         }
 
-        const timelineTimer = setInterval(() => {
-            setTimelineStage((prev) => {
-                if (prev < ATELIER_TIMELINE_STAGES.length - 1) {
-                    return prev + 1;
-                }
-                return prev;
-            });
+        const autoTimer = setInterval(() => {
+            if (isAutoDriftPaused.current) return;
+            if (stageRef.current < ATELIER_TIMELINE_STAGES.length - 1) {
+                stageRef.current += 1;
+                progressRef.current = 1.0;
+                setCurrentStage(stageRef.current);
+                setStageProgress(1.0);
+            }
         }, 7500);
 
-        return () => clearInterval(timelineTimer);
+        return () => clearInterval(autoTimer);
     }, [activeFrameIdx]);
 
-    // Bidirectional Wheel & Touch Gesture Handler within Step 7
+    // 2026 Awwwards Continuous Bidirectional Scroll Kinetic Engine
     useEffect(() => {
         if (activeFrameIdx !== 6) return;
 
         let lastTouchY = 0;
-        let lastTriggerTime = 0;
+
+        const updateScroll = (delta) => {
+            isAutoDriftPaused.current = true;
+            setTimeout(() => { isAutoDriftPaused.current = false; }, 4000);
+
+            let newProg = progressRef.current + delta;
+
+            if (newProg > 1.0) {
+                if (stageRef.current < ATELIER_TIMELINE_STAGES.length - 1) {
+                    stageRef.current += 1;
+                    newProg = 0.05;
+                } else {
+                    newProg = 1.0;
+                }
+            } else if (newProg < 0.0) {
+                if (stageRef.current > 0) {
+                    stageRef.current -= 1;
+                    newProg = 0.95;
+                } else {
+                    newProg = 0.0;
+                }
+            }
+
+            progressRef.current = newProg;
+            setStageProgress(newProg);
+            setCurrentStage(stageRef.current);
+        };
 
         const handleWheel = (e) => {
-            const now = Date.now();
-            if (now - lastTriggerTime < 600) return;
-
-            if (e.deltaY > 20) {
-                // Scroll Forward -> Next Story
-                setTimelineStage((prev) => Math.min(ATELIER_TIMELINE_STAGES.length - 1, prev + 1));
-                lastTriggerTime = now;
-            } else if (e.deltaY < -20) {
-                // Scroll Backward -> Prev Story
-                setTimelineStage((prev) => Math.max(0, prev - 1));
-                lastTriggerTime = now;
-            }
+            const delta = e.deltaY * 0.0035;
+            updateScroll(delta);
         };
 
         const handleTouchStart = (e) => {
@@ -56,18 +86,9 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
         const handleTouchMove = (e) => {
             if (e.touches && e.touches[0]) {
                 const currentY = e.touches[0].clientY;
-                const deltaY = lastTouchY - currentY;
-                const now = Date.now();
-
-                if (Math.abs(deltaY) > 30 && now - lastTriggerTime > 600) {
-                    if (deltaY > 0) {
-                        setTimelineStage((prev) => Math.min(ATELIER_TIMELINE_STAGES.length - 1, prev + 1));
-                    } else {
-                        setTimelineStage((prev) => Math.max(0, prev - 1));
-                    }
-                    lastTriggerTime = now;
-                    lastTouchY = currentY;
-                }
+                const deltaY = (lastTouchY - currentY) * 0.008;
+                updateScroll(deltaY);
+                lastTouchY = currentY;
             }
         };
 
@@ -84,7 +105,42 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
 
     if (activeFrameIdx !== 6) return null;
 
-    const currentData = ATELIER_TIMELINE_STAGES[timelineStage];
+    const data = ATELIER_TIMELINE_STAGES[currentStage];
+
+    // Render individual characters with randomized assembly
+    const renderKineticLine = (text, lineIdx, startThreshold, endThreshold, textClass) => {
+        const chars = text.split('');
+        const lineSpan = endThreshold - startThreshold;
+
+        return (
+            <div className={`flex flex-wrap justify-center items-center ${textClass}`}>
+                {chars.map((char, charIdx) => {
+                    if (char === ' ') {
+                        return <span key={charIdx} className="inline-block w-1.5 sm:w-2">&nbsp;</span>;
+                    }
+
+                    const rand = getCharThreshold(charIdx, lineIdx);
+                    const charTrigger = startThreshold + rand * lineSpan;
+                    const isRevealed = stageProgress >= charTrigger || stageProgress >= 0.96;
+
+                    return (
+                        <span
+                            key={charIdx}
+                            style={{
+                                opacity: isRevealed ? 1 : 0,
+                                transform: isRevealed ? 'translate3d(0, 0, 0) scale(1)' : `translate3d(${(rand - 0.5) * 25}px, ${(rand - 0.5) * 20}px, 0) scale(0.3)`,
+                                filter: isRevealed ? 'blur(0px)' : 'blur(8px)',
+                                transition: 'opacity 0.25s ease-out, transform 0.35s ease-out, filter 0.25s ease-out',
+                                display: 'inline-block'
+                            }}
+                        >
+                            {char}
+                        </span>
+                    );
+                })}
+            </div>
+        );
+    };
 
     return (
         <div className="absolute inset-x-0 top-10 sm:top-14 z-30 pointer-events-none flex flex-col items-center text-center px-4">
@@ -97,15 +153,20 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                 }}
             >
                 {/* 5-Step Story Indicator Pill */}
-                <div className="mb-3 flex items-center gap-1.5 pointer-events-auto">
+                <div className="mb-4 flex items-center gap-1.5 pointer-events-auto">
                     {ATELIER_TIMELINE_STAGES.map((s, idx) => (
                         <button 
                             key={idx} 
-                            onClick={() => setTimelineStage(idx)}
-                            className={`h-1 rounded-full transition-all duration-700 cursor-pointer ${
-                                timelineStage === idx 
+                            onClick={() => {
+                                stageRef.current = idx;
+                                progressRef.current = 1.0;
+                                setCurrentStage(idx);
+                                setStageProgress(1.0);
+                            }}
+                            className={`h-1 rounded-full transition-all duration-500 cursor-pointer ${
+                                currentStage === idx 
                                     ? 'w-7 bg-[#E7FF00] shadow-[0_0_15px_#E7FF00]' 
-                                    : timelineStage > idx 
+                                    : currentStage > idx 
                                         ? 'w-3 bg-[#E7FF00]/50' 
                                         : 'w-2 bg-white/25'
                             }`} 
@@ -113,67 +174,65 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                     ))}
                 </div>
 
-                {/* Box-Free Pure Floating 3D Typography */}
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={`timeline-${timelineStage}`}
-                        initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, y: -16, filter: "blur(6px)" }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                        className="w-full flex flex-col items-center px-2"
-                    >
-                        {/* Phase Tag */}
-                        <motion.span 
-                            initial={{ opacity: 0, y: 4 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.15, duration: 0.5 }}
-                            className="font-mono text-[10px] sm:text-[11px] font-black tracking-[0.35em] text-[#E7FF00] uppercase mb-1.5 drop-shadow-[0_0_12px_rgba(231,255,0,0.85)] drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]"
-                        >
-                            ✦ {currentData.phase} ✦
-                        </motion.span>
-
-                        {/* Headline */}
-                        <motion.h1 
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3, duration: 0.6 }}
-                            className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight mb-2 drop-shadow-[0_3px_16px_rgba(0,0,0,1)] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-                        >
-                            {currentData.headline}
-                        </motion.h1>
-
-                        {/* Subline */}
-                        <motion.p 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5, duration: 0.8 }}
-                            className="font-mono text-xs sm:text-sm text-neutral-200 font-medium tracking-wide leading-relaxed max-w-xs drop-shadow-[0_2px_12px_rgba(0,0,0,1)] drop-shadow-[0_0_8px_rgba(0,0,0,0.9)]"
-                        >
-                            {currentData.subline}
-                        </motion.p>
-
-                        {/* Final Climax: Walk Again Button */}
-                        {currentData.isFinal && (
-                            <motion.button
-                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                transition={{ delay: 0.8, duration: 0.5 }}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={onWalkAgain}
-                                className="pointer-events-auto mt-4 px-6 py-2.5 rounded-full bg-[#E7FF00] text-black font-mono font-black text-xs tracking-wider uppercase shadow-[0_0_25px_rgba(231,255,0,0.7)] flex items-center gap-2 cursor-pointer hover:bg-white transition-all"
-                            >
-                                <RotateCcw className="w-3.5 h-3.5" />
-                                WALK AGAIN
-                            </motion.button>
+                {/* Box-Free Pure Floating 3D Typography with Scroll-Driven Random Assembly */}
+                <div className="w-full flex flex-col items-center px-2">
+                    {/* Line 1: Phase Tag (Assembles from 0.0 to 0.35) */}
+                    <div className="mb-2">
+                        {renderKineticLine(
+                            `✦ ${data.phase} ✦`,
+                            1,
+                            0.0,
+                            0.35,
+                            "font-mono text-[10px] sm:text-[11px] font-black tracking-[0.35em] text-[#E7FF00] uppercase drop-shadow-[0_0_12px_rgba(231,255,0,0.85)] drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]"
                         )}
-                    </motion.div>
-                </AnimatePresence>
+                    </div>
+
+                    {/* Line 2: Headline (Assembles from 0.25 to 0.70) */}
+                    <div className="mb-3 min-h-[36px] flex items-center justify-center">
+                        {renderKineticLine(
+                            data.headline,
+                            2,
+                            0.25,
+                            0.70,
+                            "font-sans text-2xl sm:text-3xl font-black tracking-tight text-white uppercase leading-tight drop-shadow-[0_3px_16px_rgba(0,0,0,1)] drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                        )}
+                    </div>
+
+                    {/* Line 3: Subline (Assembles from 0.55 to 1.00) */}
+                    <div className="min-h-[44px] flex items-center justify-center max-w-xs">
+                        {renderKineticLine(
+                            data.subline,
+                            3,
+                            0.55,
+                            1.00,
+                            "font-mono text-xs sm:text-sm text-neutral-200 font-medium tracking-wide leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,1)] drop-shadow-[0_0_8px_rgba(0,0,0,0.9)]"
+                        )}
+                    </div>
+
+                    {/* Final Climax: Walk Again Button */}
+                    {data.isFinal && (
+                        <motion.button
+                            initial={{ opacity: 0, scale: 0.85, y: 10 }}
+                            animate={{ 
+                                opacity: stageProgress >= 0.85 ? 1 : 0, 
+                                scale: stageProgress >= 0.85 ? 1 : 0.85, 
+                                y: stageProgress >= 0.85 ? 0 : 10 
+                            }}
+                            transition={{ duration: 0.4 }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={onWalkAgain}
+                            className="pointer-events-auto mt-6 px-6 py-2.5 rounded-full bg-[#E7FF00] text-black font-mono font-black text-xs tracking-wider uppercase shadow-[0_0_25px_rgba(231,255,0,0.7)] flex items-center gap-2 cursor-pointer hover:bg-white transition-all"
+                        >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            WALK AGAIN
+                        </motion.button>
+                    )}
+                </div>
 
                 {/* Subtext Guide for Bidirectional Scrolling */}
-                <div className="mt-3 text-[9px] font-mono text-white/35 tracking-[0.25em] uppercase drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
-                    ↑ SWIPE TO EXPLORE JOURNAL ↓
+                <div className="mt-5 text-[9px] font-mono text-white/35 tracking-[0.25em] uppercase drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                    ↑ SCROLL TO ASSEMBLE & EXPLORE ↓
                 </div>
             </div>
         </div>

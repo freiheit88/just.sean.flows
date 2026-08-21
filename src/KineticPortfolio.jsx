@@ -17,7 +17,7 @@ import { VolumePrompt } from './components/common/VolumePrompt';
 import { StainedGlassArch } from './components/walk/StainedGlassArch';
 import { Step07Timeline } from './components/walk/Step07Timeline';
 import { SonicFootprints } from './components/walk/SonicFootprints';
-import { EvolutionGauge } from './components/walk/EvolutionGauge';
+// EvolutionGauge removed for clean minimal aesthetic
 
 // 4. Interactive Modals
 import { InitialUnlockSplash } from './components/modals/InitialUnlockSplash';
@@ -168,13 +168,7 @@ export default function KineticPortfolio() {
                 {/* 4. Stepping Footprints Surge & Sonic Equalizer */}
                 <SonicFootprints isScrollingUp={isScrollingUp} isAudioUnlocked={isAudioUnlocked} />
 
-                {/* 5. 7-Stage Evolutionary Rainbow Master Gauge */}
-                <EvolutionGauge 
-                    progress={progress}
-                    activeFrameIdx={activeFrameIdx}
-                    isScrollingUp={isScrollingUp}
-                    isAudioUnlocked={isAudioUnlocked}
-                />
+
             </main>
 
             {/* Opening 3D LET'S GO Particle Splash */}
