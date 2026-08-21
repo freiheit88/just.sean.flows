@@ -39,99 +39,78 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                                 transition: 'transform 0.15s ease-out'
                             }}
                         >
-                            {/* 1. JARVIS Holographic Soft Glow & Breathing Pulse */}
+                            {/* 1. JARVIS Holographic Rich Fill & Smooth Organic Glow */}
                             <motion.div 
                                 animate={{
-                                    opacity: [0.85, 1.0, 0.8, 0.98, 0.85],
-                                    scale: [1, 1.02, 0.99, 1.018, 1],
+                                    opacity: [0.9, 1.0, 0.85, 0.98, 0.9],
+                                    scale: [1, 1.015, 0.992, 1.012, 1],
                                     filter: [
+                                        'drop-shadow(0 0 12px rgba(0,255,136,0.6)) drop-shadow(0 0 24px rgba(118,255,3,0.3))',
+                                        'drop-shadow(0 0 22px rgba(0,255,136,0.85)) drop-shadow(0 0 42px rgba(0,229,255,0.5)) drop-shadow(0 0 60px rgba(118,255,3,0.35))',
                                         'drop-shadow(0 0 14px rgba(0,255,136,0.65)) drop-shadow(0 0 28px rgba(118,255,3,0.35))',
-                                        'drop-shadow(0 0 26px rgba(0,255,136,0.95)) drop-shadow(0 0 50px rgba(0,229,255,0.65)) drop-shadow(0 0 70px rgba(118,255,3,0.45))',
-                                        'drop-shadow(0 0 16px rgba(0,255,136,0.7)) drop-shadow(0 0 32px rgba(118,255,3,0.4))',
-                                        'drop-shadow(0 0 32px rgba(0,255,136,1)) drop-shadow(0 0 60px rgba(0,229,255,0.75)) drop-shadow(0 0 85px rgba(118,255,3,0.5))',
-                                        'drop-shadow(0 0 14px rgba(0,255,136,0.65)) drop-shadow(0 0 28px rgba(118,255,3,0.35))'
+                                        'drop-shadow(0 0 26px rgba(0,255,136,0.9)) drop-shadow(0 0 50px rgba(0,229,255,0.6)) drop-shadow(0 0 70px rgba(118,255,3,0.4))',
+                                        'drop-shadow(0 0 12px rgba(0,255,136,0.6)) drop-shadow(0 0 24px rgba(118,255,3,0.3))'
                                     ]
                                 }}
                                 transition={{
                                     repeat: Infinity,
-                                    duration: 2.2,
+                                    duration: 2.4,
                                     ease: "easeInOut"
                                 }}
                                 className="absolute inset-0 w-full h-full pointer-events-none"
                             >
                                 <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                                     <defs>
-                                        {/* Jarvis Cyber-Hologram Translucent Lime-Emerald Gradient */}
-                                        <radialGradient id="jarvisHoloFill" cx="50%" cy="42%" r="65%">
-                                            <stop offset="0%" stopColor="#CCFF90" stopOpacity="0.26" />
-                                            <stop offset="35%" stopColor="#00E676" stopOpacity="0.18" />
-                                            <stop offset="70%" stopColor="#00B0FF" stopOpacity="0.09" />
-                                            <stop offset="100%" stopColor="#004D40" stopOpacity="0.0" />
+                                        {/* Rich Visible Jarvis Cyber-Hologram Lime-Emerald Radial Fill */}
+                                        <radialGradient id="jarvisRichFill" cx="50%" cy="40%" r="65%">
+                                            <stop offset="0%" stopColor="#CCFF90" stopOpacity="0.48" />
+                                            <stop offset="35%" stopColor="#00FF88" stopOpacity="0.36" />
+                                            <stop offset="70%" stopColor="#00E676" stopOpacity="0.22" />
+                                            <stop offset="100%" stopColor="#00B0FF" stopOpacity="0.10" />
                                         </radialGradient>
 
-                                        {/* Bold Soft-Glow Jarvis Lime-Emerald Stroke Gradient */}
-                                        <linearGradient id="jarvisBorderGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" stopColor="#CCFF90" />
-                                            <stop offset="30%" stopColor="#00FF88" />
-                                            <stop offset="70%" stopColor="#00E5FF" />
-                                            <stop offset="100%" stopColor="#76FF03" />
+                                        {/* Smooth Rounded Green-Matched Border Gradient (85% Opacity / 15% Transparency) */}
+                                        <linearGradient id="jarvisSmoothBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" stopColor="#CCFF90" stopOpacity="0.88" />
+                                            <stop offset="35%" stopColor="#00FF88" stopOpacity="0.85" />
+                                            <stop offset="70%" stopColor="#00E5FF" stopOpacity="0.80" />
+                                            <stop offset="100%" stopColor="#76FF03" stopOpacity="0.85" />
                                         </linearGradient>
                                     </defs>
 
-                                    {/* Jarvis Translucent Ambient Arch Fill */}
+                                    {/* Jarvis Translucent Rich Ambient Arch Fill */}
                                     <path
                                         d="M 50 0 C 84 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 16 26.25, 50 0 Z"
-                                        fill="url(#jarvisHoloFill)"
-                                        className="transition-opacity duration-300 group-hover:opacity-95"
+                                        fill="url(#jarvisRichFill)"
+                                        className="transition-opacity duration-300 group-hover:opacity-100"
                                     />
 
-                                    {/* Bolder Soft-Glowing Holographic Border */}
+                                    {/* Smooth Rounded Harmonious Border (Green-matched, 15% transparency, rounded joins) */}
                                     <path
                                         d="M 50 0 C 84 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 16 26.25, 50 0 Z"
                                         fill="none"
-                                        stroke="url(#jarvisBorderGlow)"
-                                        strokeWidth="2.0"
-                                        className="transition-all duration-300 group-hover:stroke-white group-hover:stroke-width-[2.4]"
+                                        stroke="url(#jarvisSmoothBorder)"
+                                        strokeWidth="1.6"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="transition-all duration-300 group-hover:stroke-white/90 group-hover:stroke-width-[1.9]"
                                     />
                                 </svg>
                             </motion.div>
 
-                            {/* 2. Cyber-Hologram Laser Sheen Sweep */}
+                            {/* 2. Soft Prismatic Hologram Sheen Sweep */}
                             <motion.div
                                 animate={{
                                     x: ['-140%', '170%'],
-                                    opacity: [0, 0.55, 0]
+                                    opacity: [0, 0.45, 0]
                                 }}
                                 transition={{
                                     repeat: Infinity,
-                                    duration: 3.2,
+                                    duration: 3.4,
                                     ease: "easeInOut"
                                 }}
-                                className="absolute inset-y-0 w-24 bg-gradient-to-r from-transparent via-[#CCFF90]/35 via-[#00E5FF]/20 to-transparent -skew-x-18 pointer-events-none"
+                                className="absolute inset-y-0 w-20 bg-gradient-to-r from-transparent via-[#CCFF90]/30 via-[#00E5FF]/18 to-transparent -skew-x-18 pointer-events-none"
                             />
-
-                            {/* 3. Jarvis Holographic Pill Badge */}
-                            <motion.div 
-                                animate={{
-                                    y: [0, -3, 0],
-                                    boxShadow: [
-                                        "0 4px 15px rgba(0,0,0,0.85), 0 0 18px rgba(0,255,136,0.45)",
-                                        "0 6px 22px rgba(0,0,0,0.95), 0 0 30px rgba(0,255,136,0.75), 0 0 45px rgba(0,229,255,0.4)",
-                                        "0 4px 15px rgba(0,0,0,0.85), 0 0 18px rgba(0,255,136,0.45)"
-                                    ]
-                                }}
-                                transition={{
-                                    repeat: Infinity,
-                                    duration: 2.0,
-                                    ease: "easeInOut"
-                                }}
-                                className="absolute -bottom-4 z-40 px-3.5 py-1 rounded-full bg-black/85 backdrop-blur-lg border-2 border-[#00FF88]/70 flex items-center gap-1.5 pointer-events-auto transition-transform duration-300 group-hover:scale-105 group-hover:border-[#CCFF90]"
-                            >
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#00FF88] shadow-[0_0_10px_#00FF88] animate-ping" />
-                                <span className="font-mono text-[9px] sm:text-[10px] font-bold text-[#00FF88] tracking-[0.22em] uppercase">
-                                    ATELIER // ENTER ➔
-                                </span>
-                            </motion.div>
                         </motion.button>
                     </div>
                 </motion.div>

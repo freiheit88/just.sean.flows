@@ -14,7 +14,7 @@ import { StainedGlassArch } from './components/walk/StainedGlassArch';
 import { Step07Timeline } from './components/walk/Step07Timeline';
 import { SonicFootprints } from './components/walk/SonicFootprints';
 import { EvolutionGauge } from './components/walk/EvolutionGauge';
-import { ArchCalibrationDevTool } from './components/dev/ArchCalibrationDevTool';
+// import { ArchCalibrationDevTool } from './components/dev/ArchCalibrationDevTool';
 
 // Modal Overlays
 import { InitialUnlockSplash } from './components/modals/InitialUnlockSplash';
@@ -153,8 +153,7 @@ export default function KineticPortfolio() {
                         onOpenAtelier={() => setIsAtelierModalOpen(true)}
                     />
 
-                    {/* Live Dev Pen & Touch Calibration Tool */}
-                    <ArchCalibrationDevTool isVisible={isAtelierOptionVisible} />
+
 
                     {/* Step 7: 5-Stage Progressive Atelier Timeline with Bidirectional Scroll */}
                     <Step07Timeline 
