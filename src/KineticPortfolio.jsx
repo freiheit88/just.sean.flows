@@ -1,65 +1,59 @@
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-
-// 1. Constants
-import { FRAMES, MR_AUDIO_SRC } from './constants/frames';
-
-// 2. Custom Performance Hooks
+import { FRAMES } from './constants/frames';
+import { MR_AUDIO_SRC } from './constants/audioConstants';
+import { useAudioMaster } from './hooks/useAudioMaster';
 import { useDeviceGyro } from './hooks/useDeviceGyro';
 import { useTrailCursor } from './hooks/useTrailCursor';
 import { useWalkPhysics } from './hooks/useWalkPhysics';
-import { useAudioMaster } from './hooks/useAudioMaster';
 
-// 3. Modular UI Components
+// Core Dynamic Components
 import { Header3D } from './components/common/Header3D';
 import { KineticCursor } from './components/common/KineticCursor';
 import { VolumePrompt } from './components/common/VolumePrompt';
 import { StainedGlassArch } from './components/walk/StainedGlassArch';
-import { ArchCalibrationDevTool } from './components/dev/ArchCalibrationDevTool';
 import { Step07Timeline } from './components/walk/Step07Timeline';
 import { SonicFootprints } from './components/walk/SonicFootprints';
-// EvolutionGauge removed for clean minimal aesthetic
+import { EvolutionGauge } from './components/walk/EvolutionGauge';
+import { ArchCalibrationDevTool } from './components/dev/ArchCalibrationDevTool';
 
-// 4. Interactive Modals
+// Modal Overlays
 import { InitialUnlockSplash } from './components/modals/InitialUnlockSplash';
 import { WelcomeBackModal } from './components/modals/WelcomeBackModal';
 import { TeaserTrailerModal } from './components/modals/TeaserTrailerModal';
 import { FrankfurtAtelierModal } from './components/modals/FrankfurtAtelierModal';
 
 export default function KineticPortfolio() {
-    // Gyroscope & 3D Tilt Hook (50% Sensitivity)
-    const { tilt, tiltX, tiltY, ghostOffsetX, ghostOffsetY } = useDeviceGyro();
-
-    // 60FPS LERP Trailing Cursor Hook
-    const { 
-        cursorPos, trails, isScrollingUp, 
-        updatePointerPos, triggerDopamineScrollUp 
-    } = useTrailCursor();
-
-    // Bulletproof Mobile Master Audio Engine Hook
+    // 1. Audio Master & Lifecycle Manager
     const {
+        mrAudioRef,
         isAudioUnlocked,
         isMuted,
         showWelcomeBack,
-        mrAudioRef,
+        isFlowsHit,
         forceUnlockAudio,
         handleToggleMute,
+        handleFlowsHit,
         handleResumeFromWelcomeBack
     } = useAudioMaster();
 
-    // Modals
-    const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
-    const [isAtelierModalOpen, setIsAtelierModalOpen] = useState(false);
-    const [isFlowsHit, setIsFlowsHit] = useState(false);
+    // 2. 60FPS Gyro & Mouse Tilt Engine
+    const { tilt, tiltX, tiltY, ghostOffsetX, ghostOffsetY } = useDeviceGyro();
 
-    // Trigger billiard ball collision wobble on .FLOWS text
-    const handleFlowsHit = () => {
-        setIsFlowsHit(true);
-        setTimeout(() => setIsFlowsHit(false), 1200);
-    };
+    // 3. Fluid Mouse / Touch Trail Engine
+    const { cursorPos, trails, isScrollingUp, updatePointerPos, triggerDopamineScrollUp } = useTrailCursor();
 
-    // React Stale-Closure Free Walking Physics Engine
-    const { progress, activeFrameIdx, resetWalk, handleVideoCompleted } = useWalkPhysics({
+    // 4. Kinetic Walk Physics & 7-Stage State Machine
+    const {
+        progress,
+        activeFrameIdx,
+        isTrailerModalOpen,
+        isAtelierModalOpen,
+        setIsTrailerModalOpen,
+        setIsAtelierModalOpen,
+        handleVideoCompleted,
+        resetWalk
+    } = useWalkPhysics({
         isAudioUnlocked,
         onFinishWalk: () => setIsTrailerModalOpen(true),
         triggerDopamineScrollUp
@@ -70,7 +64,7 @@ export default function KineticPortfolio() {
 
     return (
         <div 
-            className="fixed inset-0 w-screen h-[100dvh] bg-black text-white select-none overflow-hidden flex flex-col items-center justify-between cursor-default touch-none pt-2 pb-2 px-3"
+            className="fixed inset-0 w-screen h-[100dvh] bg-black text-white select-none overflow-hidden flex flex-col items-center justify-center cursor-default touch-none pt-2 pb-2 px-3"
             onMouseMove={(e) => updatePointerPos(e.clientX, e.clientY)}
             onTouchMove={(e) => {
                 if (e.touches && e.touches[0]) {
@@ -90,84 +84,99 @@ export default function KineticPortfolio() {
                 isScrollingUp={isScrollingUp} 
             />
 
-            {/* 7-Step 1st-Person Walkthrough Stage (Reduced Top Gap, Increased Bottom Buffer) */}
-            <main 
-                className="relative w-full max-w-[395px] h-[calc(100dvh-62px)] max-h-[820px] rounded-[32px] border-2 border-white/20 shadow-[0_0_60px_rgba(231,255,0,0.18)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between mx-auto my-auto"
-                style={{
-                    filter: (!isAudioUnlocked || showWelcomeBack) ? 'blur(20px) brightness(40%)' : 'none'
-                }}
-            >
-                {/* Visual Frames Sequence */}
-                {FRAMES.map((f, idx) => (
-                    <motion.div
-                        key={f.id}
-                        initial={false}
-                        animate={{
-                            opacity: activeFrameIdx === idx ? 1 : 0,
-                            scale: activeFrameIdx === idx ? 1.0 : 1.05,
-                        }}
-                        transition={{ duration: 0.5, ease: 'easeOut' }}
-                        className="absolute inset-0 w-full h-full"
-                    >
-                        {f.videoSrc && activeFrameIdx === idx ? (
-                            <video
-                                ref={(el) => {
-                                    if (el) {
-                                        el.muted = true; // Muted to prevent mobile OS from killing background MR soundtrack
-                                        el.playsInline = true;
-                                        el.play().catch(() => {});
-                                    }
-                                }}
-                                src={f.videoSrc}
-                                poster={f.src}
-                                autoPlay
-                                playsInline
-                                webkit-playsinline="true"
-                                x5-playsinline="true"
-                                controls={false}
-                                disablePictureInPicture
-                                disableRemotePlayback
-                                preload="auto"
-                                onEnded={handleVideoCompleted}
-                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
-                            />
-                        ) : (
-                            <img
-                                src={f.src}
-                                alt={f.titleMain}
-                                className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
-                            />
-                        )}
-                    </motion.div>
-                ))}
+            {/* Centered Phone Canvas Wrapper (395px max width for PC & Mobile consistency) */}
+            <div className="relative w-full max-w-[395px] h-[calc(100dvh-62px)] max-h-[820px] mx-auto my-auto flex items-center justify-center">
+                
+                {/* 7-Step 1st-Person Walkthrough Stage */}
+                <main 
+                    className="relative w-full h-full rounded-[32px] border-2 border-white/20 shadow-[0_0_60px_rgba(231,255,0,0.18)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between"
+                    style={{
+                        filter: (!isAudioUnlocked || showWelcomeBack) ? 'blur(20px) brightness(40%)' : 'none'
+                    }}
+                >
+                    {/* Visual Frames Sequence */}
+                    {FRAMES.map((f, idx) => (
+                        <motion.div
+                            key={f.id}
+                            initial={false}
+                            animate={{
+                                opacity: activeFrameIdx === idx ? 1 : 0,
+                                scale: activeFrameIdx === idx ? 1.0 : 1.04
+                            }}
+                            transition={{ duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
+                            className="absolute inset-0 w-full h-full pointer-events-none"
+                            style={{ zIndex: activeFrameIdx === idx ? 10 : 0 }}
+                        >
+                            {f.isVideo ? (
+                                <video
+                                    ref={(el) => {
+                                        if (el) {
+                                            if (activeFrameIdx === idx) {
+                                                el.currentTime = 0;
+                                                el.play().catch(() => {});
+                                            } else {
+                                                el.pause();
+                                            }
+                                        }
+                                    }}
+                                    src={f.videoSrc}
+                                    poster={f.src}
+                                    autoPlay
+                                    playsInline
+                                    webkit-playsinline="true"
+                                    x5-playsinline="true"
+                                    controls={false}
+                                    disablePictureInPicture
+                                    disableRemotePlayback
+                                    preload="auto"
+                                    onEnded={handleVideoCompleted}
+                                    className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
+                                />
+                            ) : (
+                                <img
+                                    src={f.src}
+                                    alt={f.titleMain}
+                                    className="w-full h-full object-cover pointer-events-none transition-transform duration-700 scale-100"
+                                />
+                            )}
+                        </motion.div>
+                    ))}
 
+                    {/* Step 4/5: 3D Iridescent Stained Glass Arch Hotspot */}
+                    <StainedGlassArch 
+                        isVisible={isAtelierOptionVisible}
+                        isAudioUnlocked={isAudioUnlocked}
+                        tiltX={tiltX}
+                        tiltY={tiltY}
+                        onOpenAtelier={() => setIsAtelierModalOpen(true)}
+                    />
 
+                    {/* Live Dev Pen & Touch Calibration Tool */}
+                    <ArchCalibrationDevTool isVisible={isAtelierOptionVisible} />
 
-                {/* 2. Step 4/5: 3D Iridescent Stained Glass Arch Hotspot */}
-                <StainedGlassArch 
-                    isVisible={isAtelierOptionVisible}
-                    isAudioUnlocked={isAudioUnlocked}
-                    tiltX={tiltX}
-                    tiltY={tiltY}
-                    onOpenAtelier={() => setIsAtelierModalOpen(true)}
+                    {/* Step 7: 5-Stage Progressive Atelier Timeline with Bidirectional Scroll */}
+                    <Step07Timeline 
+                        activeFrameIdx={activeFrameIdx}
+                        tiltX={tiltX}
+                        tiltY={tiltY}
+                        onWalkAgain={resetWalk}
+                    />
+
+                    {/* Dynamic Stepping Footprints Surge (Only on Scroll Up) */}
+                    <SonicFootprints isScrollingUp={isScrollingUp} />
+
+                    {/* Restored Minimal Text-Free Progress Gauge Bar */}
+                    <EvolutionGauge progress={progress} isAudioUnlocked={isAudioUnlocked} />
+                </main>
+
+                {/* Frame-Anchored Volume Calibrator & Morphing Top-Right Mute Button (z-[9998]) */}
+                <VolumePrompt 
+                    isAudioUnlocked={isAudioUnlocked} 
+                    isMuted={isMuted}
+                    onToggleMute={handleToggleMute}
+                    onFlowsHit={handleFlowsHit}
                 />
-
-                {/* Live Dev Pen & Touch Calibration Tool */}
-                <ArchCalibrationDevTool isVisible={isAtelierOptionVisible} />
-
-                {/* 3. Step 7: 5-Stage Progressive Atelier Timeline with Bidirectional Scroll */}
-                <Step07Timeline 
-                    activeFrameIdx={activeFrameIdx}
-                    tiltX={tiltX}
-                    tiltY={tiltY}
-                    onWalkAgain={resetWalk}
-                />
-
-                {/* 4. Stepping Footprints Surge & Sonic Equalizer */}
-                <SonicFootprints isScrollingUp={isScrollingUp} isAudioUnlocked={isAudioUnlocked} />
-
-
-            </main>
+            </div>
 
             {/* Opening 3D LET'S GO Particle Splash */}
             <InitialUnlockSplash 
@@ -200,14 +209,6 @@ export default function KineticPortfolio() {
             <FrankfurtAtelierModal 
                 isOpen={isAtelierModalOpen}
                 onClose={() => setIsAtelierModalOpen(false)}
-            />
-
-            {/* Supreme Top-Level Volume Calibrator & Morphing Mute Button (z-[9998]) */}
-            <VolumePrompt 
-                isAudioUnlocked={isAudioUnlocked} 
-                isMuted={isMuted}
-                onToggleMute={handleToggleMute}
-                onFlowsHit={handleFlowsHit}
             />
 
             {/* Top-Level Permanent 3D Header (z-[9999]) with .FLOWS collision response */}
