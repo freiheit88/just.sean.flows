@@ -120,6 +120,7 @@ export default function KineticPortfolio() {
                                     }}
                                     src={f.videoSrc}
                                     poster={f.src}
+                                    muted
                                     autoPlay
                                     playsInline
                                     webkit-playsinline="true"
