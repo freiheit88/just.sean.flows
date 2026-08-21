@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
-import { VolumePrompt } from '../common/VolumePrompt';
+
 
 export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, tiltY, ghostOffsetX, ghostOffsetY, isMuted, onToggleMute, onFlowsHit }) {
     if (isAudioUnlocked) return null;
@@ -161,15 +161,7 @@ export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, ti
                 </motion.div>
             </div>
 
-            {/* Direct Splash-Embedded Volume Prompt (100% Unobstructed Visibility) */}
-            <div className="absolute inset-0 pointer-events-none z-30 max-w-[395px] mx-auto">
-                <VolumePrompt 
-                    isAudioUnlocked={isAudioUnlocked} 
-                    isMuted={isMuted}
-                    onToggleMute={onToggleMute}
-                    onFlowsHit={onFlowsHit}
-                />
-            </div>
+
         </motion.div>
     );
 }

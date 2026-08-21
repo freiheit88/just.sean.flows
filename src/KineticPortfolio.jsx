@@ -84,7 +84,7 @@ export default function KineticPortfolio() {
             />
 
             {/* Centered Phone Canvas Wrapper (395px max width for PC & Mobile consistency) */}
-            <div className="relative w-full max-w-[395px] aspect-[768/1376] max-h-[calc(100dvh-62px)] mx-auto my-auto flex items-center justify-center">
+            <div className="relative z-60 w-full max-w-[395px] aspect-[768/1376] max-h-[calc(100dvh-62px)] mx-auto my-auto flex items-center justify-center">
                 
                 {/* 7-Step 1st-Person Walkthrough Stage */}
                 <main 
