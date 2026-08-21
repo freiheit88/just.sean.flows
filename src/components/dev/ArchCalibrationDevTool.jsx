@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Edit3, Check, RotateCcw, Copy } from 'lucide-react';
 
 export function ArchCalibrationDevTool({ isVisible }) {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
     const [mode, setMode] = useState('box'); // 'box' | 'draw'
 
     // Box calibration states (% of parent container)

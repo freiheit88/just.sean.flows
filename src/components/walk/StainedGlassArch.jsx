@@ -13,9 +13,17 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                     className="absolute inset-0 z-30 pointer-events-none"
                     style={{ perspective: 800 }}
                 >
-                    {/* Precise Alignment with Stained Glass Transom: Top 23.6%, Width 40.2%, Height 19.3% */}
+                    {/* User Calibrated 1:1 Pixel-Perfect Stained Glass Transom: Top 16.8%, Left 54.6%, Width 56%, Height 24.6% */}
                     <div 
-                        className="pointer-events-auto absolute top-[23.6%] left-1/2 -translate-x-1/2 w-[40.2%] h-[19.3%] flex items-center justify-center select-none"
+                        style={{
+                            position: 'absolute',
+                            top: '16.8%',
+                            left: '54.6%',
+                            transform: 'translateX(-50%)',
+                            width: '56%',
+                            height: '24.6%'
+                        }}
+                        className="pointer-events-auto flex items-center justify-center select-none"
                     >
                         <motion.button
                             onClick={(e) => {
@@ -54,9 +62,9 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                                     <defs>
                                         {/* Rich Chromatic Amber-Ruby Iridescent Gradient */}
                                         <radialGradient id="chromaticGlassGlow" cx="50%" cy="40%" r="65%">
-                                            <stop offset="0%" stopColor="#FFF9C4" stopOpacity="0.25" />
-                                            <stop offset="35%" stopColor="#FFB300" stopOpacity="0.20" />
-                                            <stop offset="65%" stopColor="#E65100" stopOpacity="0.15" />
+                                            <stop offset="0%" stopColor="#FFF9C4" stopOpacity="0.30" />
+                                            <stop offset="35%" stopColor="#FFB300" stopOpacity="0.22" />
+                                            <stop offset="65%" stopColor="#E65100" stopOpacity="0.16" />
                                             <stop offset="85%" stopColor="#880E4F" stopOpacity="0.10" />
                                             <stop offset="100%" stopColor="#00E5FF" stopOpacity="0.08" />
                                         </radialGradient>
@@ -78,30 +86,30 @@ export function StainedGlassArch({ isVisible, isAudioUnlocked, tiltX, tiltY, onO
                                         </linearGradient>
                                     </defs>
 
-                                    {/* Full Gothic Pointed Arch Fill */}
+                                    {/* Full Stilted Gothic Pointed Arch Fill matching Calibrated Path */}
                                     <path
-                                        d="M 50 1 C 77 18, 99 52, 99 99 L 1 99 C 1 52, 23 18, 50 1 Z"
+                                        d="M 50 0 C 91 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 9 26.25, 50 0 Z"
                                         fill="url(#chromaticGlassGlow)"
-                                        className="group-hover:opacity-90 transition-opacity"
+                                        className="group-hover:opacity-95 transition-opacity"
                                     />
 
                                     {/* Subtle Leaded Glass Inner Mullion Lines (3D Depth Structure) */}
                                     <path
-                                        d="M 30 48 L 30 99 M 70 48 L 70 99 M 1 70 L 99 70"
+                                        d="M 32 45 L 32 99 M 68 45 L 68 99 M 1 72 L 99 72"
                                         stroke="url(#mullionStroke)"
-                                        strokeWidth="0.8"
+                                        strokeWidth="0.9"
                                         strokeDasharray="2 2"
                                         fill="none"
-                                        className="opacity-40 group-hover:opacity-75 transition-opacity"
+                                        className="opacity-45 group-hover:opacity-80 transition-opacity"
                                     />
 
                                     {/* Precise Outer Pointed Gothic Arch Border */}
                                     <path
-                                        d="M 50 1 C 77 18, 99 52, 99 99 L 1 99 C 1 52, 23 18, 50 1 Z"
+                                        d="M 50 0 C 91 26.25, 99 63.75, 99 75 L 99 99 L 1 99 L 1 75 C 1 63.75, 9 26.25, 50 0 Z"
                                         fill="none"
                                         stroke="url(#richGoldStroke)"
-                                        strokeWidth="2.2"
-                                        className="transition-all duration-300 group-hover:stroke-white/90"
+                                        strokeWidth="2.4"
+                                        className="transition-all duration-300 group-hover:stroke-white/95"
                                     />
                                 </svg>
                             </motion.div>
