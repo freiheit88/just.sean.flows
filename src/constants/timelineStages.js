@@ -1,28 +1,33 @@
 export const ATELIER_TIMELINE_STAGES = [
     {
-        phase: "PHASE 01 // 07.2026",
-        headline: "THE SEARCH BEGAN",
-        subline: "Exploring private sanctuary spaces across Frankfurt am Main."
+        num: "01",
+        phase: "FRANKFURT // 07.2026",
+        headline: "A HIDDEN SANCTUARY",
+        subline: "Looking for a quiet room in the midnight city."
     },
     {
-        phase: "PHASE 02 // 08.2026",
-        headline: "VIEWING COMPLETE",
-        subline: "Acoustic space verification & salon site validation finalized."
+        num: "02",
+        phase: "ACOUSTICS // 08.2026",
+        headline: "SOUND MEETS BRICK",
+        subline: "Testing the raw echo of old wooden floors."
     },
     {
-        phase: "PHASE 03 // 08.21.2026",
-        headline: "CONTRACT IN PROGRESS",
-        subline: "Commercial lease agreement & official licensing currently underway."
+        num: "03",
+        phase: "SIGNING // 08.2026",
+        headline: "KEYS IN HAND",
+        subline: "The private atelier officially takes root."
     },
     {
-        phase: "PHASE 04 // 10.2026",
-        headline: "GRAND ATELIER OPENING",
-        subline: "Grand piano acoustics, string quartet & vintage wine salon unveiled."
+        num: "04",
+        phase: "OPENING // 10.2026",
+        headline: "GRAND SALON",
+        subline: "Piano keys, warm wine & midnight strings."
     },
     {
-        phase: "TEASER TRAILER // 2026",
-        headline: "SEE YOU IN OCTOBER.",
-        subline: "Returning this Autumn with breathtaking soundscapes and immersive space.",
+        num: "05",
+        phase: "INVITATION // AUTUMN",
+        headline: "SEE YOU SOON.",
+        subline: "Our journey begins this October.",
         isFinal: true
     }
 ];
