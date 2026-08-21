@@ -2,15 +2,16 @@ import React, { useState, useRef } from 'react';
 import { Edit3, Check, RotateCcw, Copy } from 'lucide-react';
 
 export function ArchCalibrationDevTool({ isVisible }) {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     const [mode, setMode] = useState('box'); // 'box' | 'draw'
 
     // Box calibration states (% of parent container)
-    const [topPct, setTopPct] = useState(15.2);
-    const [leftPct, setLeftPct] = useState(50.0);
-    const [widthPct, setWidthPct] = useState(53.0);
-    const [heightPct, setHeightPct] = useState(25.8);
-    const [apexCurve, setApexCurve] = useState(18); // Gothic apex sharpness
+    const [topPct, setTopPct] = useState(16.4);
+    const [leftPct, setLeftPct] = useState(50.0); // Left/Right Horizontal Shift
+    const [widthPct, setWidthPct] = useState(51.0);
+    const [heightPct, setHeightPct] = useState(24.2);
+    const [apexCurve, setApexCurve] = useState(26); // Gothic apex sharpness
+    const [baseH, setBaseH] = useState(25); // Straight Vertical Wall Base Height (0% to 50%)
 
     // Freehand drawing points
     const [drawnPoints, setDrawnPoints] = useState([]);
@@ -18,8 +19,9 @@ export function ArchCalibrationDevTool({ isVisible }) {
     const containerRef = useRef(null);
     const [copied, setCopied] = useState(false);
 
-    // Generate real-time SVG path from box values
-    const generatedSvgPath = `M 50 2 C ${50 + apexCurve} 18, 98 48, 98 108 L 2 108 C 2 48, ${50 - apexCurve} 18, 50 2 Z`;
+    // Stilted Gothic Pointed Arch SVG Path with Straight Vertical Base
+    const shoulderY = 100 - baseH;
+    const generatedSvgPath = `M 50 0 C ${50 + apexCurve} ${shoulderY * 0.35}, 99 ${shoulderY * 0.85}, 99 ${shoulderY} L 99 99 L 1 99 L 1 ${shoulderY} C 1 ${shoulderY * 0.85}, ${50 - apexCurve} ${shoulderY * 0.35}, 50 0 Z`;
 
     const calibrationData = {
         topPct: Number(topPct.toFixed(2)),
@@ -27,6 +29,7 @@ export function ArchCalibrationDevTool({ isVisible }) {
         widthPct: Number(widthPct.toFixed(2)),
         heightPct: Number(heightPct.toFixed(2)),
         apexCurve: Number(apexCurve),
+        baseH: Number(baseH),
         svgPath: generatedSvgPath,
         freehandPointCount: drawnPoints.length
     };
@@ -102,14 +105,14 @@ export function ArchCalibrationDevTool({ isVisible }) {
                             height: `${heightPct}%`,
                             pointerEvents: 'none'
                         }}
-                        className="border-2 border-dashed border-red-500 bg-red-500/10 flex items-center justify-center shadow-[0_0_20px_rgba(255,0,0,0.6)]"
+                        className="border border-dashed border-red-500 bg-red-500/10 flex items-center justify-center shadow-[0_0_20px_rgba(255,0,0,0.6)]"
                     >
-                        <svg viewBox="0 0 100 110" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                        <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
                             <path
                                 d={generatedSvgPath}
-                                fill="rgba(231, 255, 0, 0.25)"
+                                fill="rgba(231, 255, 0, 0.35)"
                                 stroke="#E7FF00"
-                                strokeWidth="3"
+                                strokeWidth="2.5"
                             />
                         </svg>
                     </div>
@@ -130,7 +133,7 @@ export function ArchCalibrationDevTool({ isVisible }) {
                     )}
 
                     {/* Interactive Controls & Real-time JSON Display Dock */}
-                    <div className="absolute bottom-2 inset-x-2 p-3 rounded-2xl bg-black/90 backdrop-blur-xl border border-red-500/50 shadow-[0_0_30px_rgba(0,0,0,0.9)] flex flex-col gap-2 font-mono text-[10px] text-white">
+                    <div className="absolute bottom-2 inset-x-2 p-3 rounded-2xl bg-black/92 backdrop-blur-xl border border-red-500/50 shadow-[0_0_30px_rgba(0,0,0,0.9)] flex flex-col gap-2 font-mono text-[10px] text-white">
                         {/* Mode Selector */}
                         <div className="flex items-center justify-between gap-2 pb-1 border-b border-white/15">
                             <span className="font-black text-[#E7FF00]">🛠️ ARCH CALIBRATOR</span>
@@ -157,15 +160,15 @@ export function ArchCalibrationDevTool({ isVisible }) {
                             </div>
                         </div>
 
-                        {/* Slider Controls */}
+                        {/* Slider Controls with Left/Right (Left X) Shift */}
                         {mode === 'box' ? (
                             <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 py-1">
                                 <label className="flex flex-col">
-                                    <span className="text-neutral-400">Top Y: {topPct}%</span>
+                                    <span className="text-neutral-400">Top Y (상하): {topPct}%</span>
                                     <input
                                         type="range"
                                         min="5"
-                                        max="40"
+                                        max="35"
                                         step="0.2"
                                         value={topPct}
                                         onChange={(e) => setTopPct(parseFloat(e.target.value))}
@@ -173,11 +176,23 @@ export function ArchCalibrationDevTool({ isVisible }) {
                                     />
                                 </label>
                                 <label className="flex flex-col">
-                                    <span className="text-neutral-400">Width: {widthPct}%</span>
+                                    <span className="text-neutral-400">Left X (좌우 이동): {leftPct}%</span>
                                     <input
                                         type="range"
-                                        min="20"
-                                        max="80"
+                                        min="35"
+                                        max="65"
+                                        step="0.2"
+                                        value={leftPct}
+                                        onChange={(e) => setLeftPct(parseFloat(e.target.value))}
+                                        className="accent-[#E7FF00] h-1.5 cursor-pointer"
+                                    />
+                                </label>
+                                <label className="flex flex-col">
+                                    <span className="text-neutral-400">Width (가로폭): {widthPct}%</span>
+                                    <input
+                                        type="range"
+                                        min="25"
+                                        max="75"
                                         step="0.5"
                                         value={widthPct}
                                         onChange={(e) => setWidthPct(parseFloat(e.target.value))}
@@ -185,7 +200,7 @@ export function ArchCalibrationDevTool({ isVisible }) {
                                     />
                                 </label>
                                 <label className="flex flex-col">
-                                    <span className="text-neutral-400">Height: {heightPct}%</span>
+                                    <span className="text-neutral-400">Height (세로길이): {heightPct}%</span>
                                     <input
                                         type="range"
                                         min="10"
@@ -197,28 +212,40 @@ export function ArchCalibrationDevTool({ isVisible }) {
                                     />
                                 </label>
                                 <label className="flex flex-col">
-                                    <span className="text-neutral-400">Apex Curve: {apexCurve}</span>
+                                    <span className="text-neutral-400">Apex Curve (첨두 곡률): {apexCurve}</span>
                                     <input
                                         type="range"
                                         min="5"
-                                        max="40"
+                                        max="45"
                                         step="1"
                                         value={apexCurve}
                                         onChange={(e) => setApexCurve(parseInt(e.target.value))}
                                         className="accent-[#E7FF00] h-1.5 cursor-pointer"
                                     />
                                 </label>
+                                <label className="flex flex-col">
+                                    <span className="text-neutral-400">Base Straight (수직벽 높이): {baseH}%</span>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="50"
+                                        step="1"
+                                        value={baseH}
+                                        onChange={(e) => setBaseH(parseInt(e.target.value))}
+                                        className="accent-[#E7FF00] h-1.5 cursor-pointer"
+                                    />
+                                </label>
                             </div>
                         ) : (
                             <div className="py-2 text-center text-[#00F0FF] text-[11px]">
-                                👆 사진 위 스테인드글라스 창문 둘레를 손가락으로 둥글게 그려보세요!
+                                👆 사진 위 스테인드글라스 창문 둘레를 마우스/손가락으로 둥글게 그려보세요!
                             </div>
                         )}
 
                         {/* Realtime JSON Output Bar */}
                         <div className="flex items-center justify-between bg-black/60 p-1.5 rounded-lg border border-white/10 gap-2">
                             <span className="truncate text-[9px] text-[#E7FF00]">
-                                Top:{topPct}% | W:{widthPct}% | H:{heightPct}% | Curve:{apexCurve}
+                                Top:{topPct}% | Left:{leftPct}% | W:{widthPct}% | H:{heightPct}% | Curve:{apexCurve} | Base:{baseH}%
                             </span>
                             <button
                                 onClick={copyJson}
