@@ -6,7 +6,7 @@ export function SonicFootprints({ isScrollingUp }) {
     return (
         <>
             {/* 1. NARROW AUDIO-REACTIVE KINETIC SONIC BEAM & FOOTPRINTS SURGE */}
-            <div className="absolute inset-x-0 bottom-0 h-64 pointer-events-none z-25 flex flex-col items-center justify-end overflow-hidden">
+            <div className="absolute inset-x-0 bottom-10 sm:bottom-0 h-64 pointer-events-none z-25 flex flex-col items-center justify-end overflow-hidden">
                 <AnimatePresence>
                     {isScrollingUp && (
                         <motion.div
@@ -59,7 +59,7 @@ export function SonicFootprints({ isScrollingUp }) {
             </div>
 
             {/* 2. LOWER KINETIC FOOTPRINT & SONIC PACING VISUALIZER */}
-            <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-5 px-4 text-center z-20">
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-end pb-16 sm:pb-8 px-4 text-center z-20">
                 <div className="flex flex-col items-center gap-1.5 mb-2 pointer-events-none select-none">
                     <div className="flex items-center gap-3">
                         <motion.div

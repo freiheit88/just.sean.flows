@@ -120,9 +120,7 @@ export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, ti
                     <span className="font-mono text-4xl sm:text-6xl font-black tracking-[0.5em] block uppercase text-[#E7FF00] drop-shadow-[0_0_30px_#E7FF00]">!</span>
                 </div>
 
-                <div className="mt-8 px-6 py-2 rounded-full border border-[#E7FF00]/80 bg-black/60 shadow-[0_0_20px_rgba(231,255,0,0.5)] font-mono text-xs text-[#E7FF00] tracking-widest uppercase animate-pulse">
-                    TOUCH ANYWHERE TO ENTER
-                </div>
+
             </motion.div>
         </motion.div>
     );

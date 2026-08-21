@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 export function EvolutionGauge({ progress, activeFrameIdx, isScrollingUp }) {
     return (
-        <div className="absolute inset-x-0 bottom-4 z-30 pointer-events-auto flex flex-col items-center gap-1.5 select-none">
+        <div className="absolute inset-x-0 bottom-14 sm:bottom-6 z-30 pointer-events-auto flex flex-col items-center gap-1.5 select-none">
             {/* Evolutionary Stage Badge & Wing Nodes */}
             <div className="flex items-center gap-2">
                 {activeFrameIdx >= 3 && (
