@@ -25,20 +25,20 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             }
         }, 270);
 
-        // At 3.0s, begin straight-line billiard roll & ricochet
+        // At 3.0s, begin 3X Slower (4.2s) straight-line billiard roll & ricochet
         const morphTimer = setTimeout(() => {
             setPhase('ricochet');
         }, 3000);
 
-        // At 3.7s, trigger collision wobble on .FLOWS text
+        // At 5.7s (mid-flight contact with .FLOWS header text), trigger exaggerated wobble
         const hitTimer = setTimeout(() => {
             if (onFlowsHitRef.current) onFlowsHitRef.current();
-        }, 3700);
+        }, 5700);
 
-        // At 4.4s, ball settles into permanent top-right pocket button
+        // At 7.2s, ball settles gracefully into permanent top-right pocket button
         const dockTimer = setTimeout(() => {
             setPhase('docked');
-        }, 4400);
+        }, 7200);
 
         return () => {
             clearInterval(numInterval);
@@ -46,12 +46,12 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             clearTimeout(hitTimer);
             clearTimeout(dockTimer);
         };
-    }, [isAudioUnlocked]); // Locked to run ONCE when isAudioUnlocked becomes true
+    }, [isAudioUnlocked]);
 
     if (!isAudioUnlocked || phase === 'idle') return null;
 
     return (
-        <div className="absolute inset-0 pointer-events-none z-50 select-none">
+        <div className="absolute inset-0 pointer-events-none z-50 select-none overflow-hidden">
             {/* 1. LARGE SMARTPHONE CAPSULE WITH PURE WHITE OSCILLATION GAUGE (0s ~ 3s) */}
             {phase === 'oscillating' && (
                 <motion.div
@@ -89,7 +89,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 2. STRAIGHT-LINE BILLIARD BALL RICOCHET PATH (3.0s ~ 4.4s) */}
+            {/* 2. 3X SLOWER (4.2s) STRICTLY-CONTAINED BILLIARD PATH WITH 2-SECOND GRADUAL WHITE->YELLOW COLOR MORPH */}
             {phase === 'ricochet' && (
                 <motion.div
                     initial={{
@@ -100,35 +100,58 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         height: "180px",
                         borderRadius: "26px",
                         top: "28%",
-                        right: "14px",
-                        boxShadow: "0 0 10px rgba(255,255,255,0.2)"
+                        right: "16px",
+                        borderColor: "#FFFFFF",
+                        color: "#FFFFFF",
+                        boxShadow: "0 0 10px rgba(255,255,255,0.3)"
                     }}
                     animate={{
-                        x: [0, 8, -90, 0],
-                        y: [0, -60, -180, -200],
-                        rotate: [0, -35, 180, 360],
-                        width: ["52px", "40px", "40px", "40px"],
-                        height: ["180px", "40px", "40px", "40px"],
+                        // Strictly contained vector trajectory inside virtual phone/photo boundary:
+                        // 0%: Origin (right margin 16px, top 28%)
+                        // 30%: Gently hits right cushion without spilling outside (x: 0, y: -45)
+                        // 65%: Glides to touch .FLOWS header inside top frame (x: -82, y: -142)
+                        // 100%: Smoothly rebounds into top-right pocket (x: 0, y: -160)
+                        x: [0, 0, -82, 0],
+                        y: [0, -45, -142, -160],
+                        rotate: [0, -30, 220, 360],
+                        width: ["52px", "38px", "38px", "38px"],
+                        height: ["180px", "38px", "38px", "38px"],
                         borderRadius: ["26px", "50%", "50%", "50%"],
+                        // 2-Second Gradual Color Shift from Pure White -> Warm Glow -> Lemon Yellow
+                        borderColor: [
+                            "#FFFFFF",
+                            "#FFFFFF",
+                            "#FFF9A6",
+                            "#E7FF00",
+                            "#E7FF00"
+                        ],
+                        color: [
+                            "#FFFFFF",
+                            "#FFFFFF",
+                            "#FFF9A6",
+                            "#E7FF00",
+                            "#E7FF00"
+                        ],
                         boxShadow: [
-                            "0 0 10px rgba(255,255,255,0.2)",
-                            "0 0 25px rgba(255,255,255,0.9)",
-                            "0 0 35px rgba(231,255,0,0.9)",
-                            "0 0 15px rgba(231,255,0,0.5)"
+                            "0 0 10px rgba(255,255,255,0.3)",
+                            "0 0 20px rgba(255,255,255,0.8)",
+                            "0 0 25px rgba(255,249,166,0.85)",
+                            "0 0 30px rgba(231,255,0,0.85)",
+                            "0 0 18px rgba(231,255,0,0.6)"
                         ]
                     }}
                     transition={{
-                        duration: 1.4,
-                        times: [0, 0.35, 0.70, 1.0],
+                        duration: 4.2, // 3X slower majestic pace
+                        times: [0, 0.28, 0.65, 0.85, 1.0],
                         ease: "easeInOut"
                     }}
-                    className="absolute z-50 bg-black/90 border-2 border-white flex items-center justify-center pointer-events-none"
+                    className="absolute z-50 bg-black/90 border-2 flex items-center justify-center pointer-events-none"
                 >
-                    <Volume2 className="w-4 h-4 text-white" />
+                    <Volume2 className="w-4 h-4" />
                 </motion.div>
             )}
 
-            {/* 3. PERMANENT TOP-RIGHT SOUND MUTE BUTTON (4.4s onward) */}
+            {/* 3. PERMANENT TOP-RIGHT SOUND MUTE BUTTON (7.2s onward) */}
             {phase === 'docked' && (
                 <motion.button
                     initial={{ scale: 0.8, opacity: 0 }}
