@@ -780,14 +780,14 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                     </motion.div>
                 ))}
 
-                {/* 2. AUTHENTIC 3-PANEL GOTHIC ARCH (PRECISION FULL-CONTOUR, 3D IRIDESCENT CAUSTIC SHIMMER & PURE NO-TEXT) */}
+                {/* 2. AUTHENTIC 3-PANEL GOTHIC ARCH (PERCENTAGE-LOCKED 8.7% TOP, 36.2% WIDTH, 25.8% HEIGHT) */}
                 <AnimatePresence>
                     {isAtelierOptionVisible && isAudioUnlocked && (
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.96 }}
                             animate={{ opacity: 1, scale: 1.0 }}
                             exit={{ opacity: 0, scale: 0.96 }}
-                            transition={{ duration: 0.5, ease: "easeOut" }}
+                            transition={{ duration: 0.35, ease: "easeOut" }}
                             className="absolute inset-0 z-30 pointer-events-none"
                             style={{
                                 perspective: 800,
@@ -800,7 +800,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
                                 }}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="pointer-events-auto absolute top-[9.2%] md:top-[12.0%] left-[50%] -translate-x-1/2 w-[266px] md:w-[208px] h-[240px] md:h-[196px] cursor-pointer group outline-none flex items-center justify-center select-none"
+                                className="pointer-events-auto absolute top-[8.7%] left-[50%] -translate-x-1/2 w-[36.2%] h-[25.8%] cursor-pointer group outline-none flex items-center justify-center select-none"
                                 style={{
                                     transform: `translate3d(${tiltX * 0.15}px, ${tiltY * 0.15}px, 12px) rotateX(${-tiltY * 0.25}deg) rotateY(${tiltX * 0.25}deg)`,
                                     transformStyle: 'preserve-3d',
@@ -856,14 +856,14 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
                                         {/* Full 3-Panel Outer Gothic Arch Fill */}
                                         <path
-                                            d="M 50 1.5 C 74 14, 98.5 42, 98.5 78 L 98.5 98.5 L 1.5 98.5 L 1.5 78 C 1.5 42, 26 14, 50 1.5 Z"
+                                            d="M 50 0 C 76 15, 100 45, 100 80 L 100 100 L 0 100 L 0 80 C 0 45, 24 15, 50 0 Z"
                                             fill="url(#chromaticGlassGlow)"
                                             className="group-hover:opacity-90 transition-opacity"
                                         />
 
                                         {/* Subtle Leaded Glass Inner Mullion Lines (3D Depth Structure) */}
                                         <path
-                                            d="M 32 45 L 32 98.5 M 68 45 L 68 98.5 M 1.5 68 L 98.5 68"
+                                            d="M 32 45 L 32 100 M 68 45 L 68 100 M 0 68 L 100 68"
                                             stroke="url(#mullionStroke)"
                                             strokeWidth="0.8"
                                             strokeDasharray="2 2"
@@ -873,7 +873,7 @@ function FlipbookWalkingEngine({ tilt, cursorPos, isScrollingUp, setIsScrollingU
 
                                         {/* Precise Outer Leaded Stone Arch Border */}
                                         <path
-                                            d="M 50 1.5 C 74 14, 98.5 42, 98.5 78 L 98.5 98.5 L 1.5 98.5 L 1.5 78 C 1.5 42, 26 14, 50 1.5 Z"
+                                            d="M 50 0 C 76 15, 100 45, 100 80 L 100 100 L 0 100 L 0 80 C 0 45, 24 15, 50 0 Z"
                                             fill="none"
                                             stroke="url(#richGoldStroke)"
                                             strokeWidth="2.2"
