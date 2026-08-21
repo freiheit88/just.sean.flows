@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FRAMES } from './constants/frames';
-import { MR_AUDIO_SRC } from './constants/audioConstants';
+import { FRAMES, MR_AUDIO_SRC } from './constants/frames';
 import { useAudioMaster } from './hooks/useAudioMaster';
 import { useDeviceGyro } from './hooks/useDeviceGyro';
 import { useTrailCursor } from './hooks/useTrailCursor';
