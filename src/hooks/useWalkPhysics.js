@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { FRAMES } from '../constants/frames';
 
-export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineScrollUp }) {
+export function useWalkPhysics({ isAudioUnlocked, triggerDopamineScrollUp }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
-    const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
     const [isAtelierModalOpen, setIsAtelierModalOpen] = useState(false);
     const [sequenceState, setSequenceState] = useState('idle');
 
     const progressRef = useRef(0);
     const sequenceStateRef = useRef('idle');
-    const hasTriggered100Modal = useRef(false);
 
     const audioCtxRef = useRef(null);
     const footstepAudioRef = useRef(null);
@@ -271,29 +269,20 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         };
     }, [isAudioUnlocked, triggerDopamineScrollUp]);
 
-    // 100% Walk Completion Trailer Trigger
-    useEffect(() => {
-        if (progress >= 100 && !hasTriggered100Modal.current) {
-            hasTriggered100Modal.current = true;
-            if (onFinishWalk) onFinishWalk();
-        }
-    }, [progress, onFinishWalk]);
+
 
     const resetWalk = () => {
         setSequenceState('free');
         setProgress(50.0);
         progressRef.current = 50.0;
         setActiveFrameIdx(4);
-        hasTriggered100Modal.current = false;
     };
 
     return {
         progress,
         activeFrameIdx,
-        isTrailerModalOpen,
         isAtelierModalOpen,
         playFootstepSound,
-        setIsTrailerModalOpen,
         setIsAtelierModalOpen,
         handleVideoCompleted,
         resetWalk

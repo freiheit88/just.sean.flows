@@ -19,7 +19,7 @@ import { EvolutionGauge } from './components/walk/EvolutionGauge';
 // Modal Overlays
 import { InitialUnlockSplash } from './components/modals/InitialUnlockSplash';
 import { WelcomeBackModal } from './components/modals/WelcomeBackModal';
-import { TeaserTrailerModal } from './components/modals/TeaserTrailerModal';
+// import { TeaserTrailerModal } from './components/modals/TeaserTrailerModal';
 import { FrankfurtAtelierModal } from './components/modals/FrankfurtAtelierModal';
 
 export default function KineticPortfolio() {
@@ -47,16 +47,13 @@ export default function KineticPortfolio() {
     const {
         progress,
         activeFrameIdx,
-        isTrailerModalOpen,
         isAtelierModalOpen,
-        setIsTrailerModalOpen,
         setIsAtelierModalOpen,
         playFootstepSound,
         handleVideoCompleted,
         resetWalk
     } = useWalkPhysics({
         isAudioUnlocked,
-        onFinishWalk: () => setIsTrailerModalOpen(true),
         triggerDopamineScrollUp
     });
 
@@ -220,15 +217,7 @@ export default function KineticPortfolio() {
                 onComplete={handleResumeFromWelcomeBack}
             />
 
-            {/* 100% Walk Completion Teaser Trailer Modal */}
-            <TeaserTrailerModal 
-                isOpen={isTrailerModalOpen}
-                onClose={() => setIsTrailerModalOpen(false)}
-                onWalkAgain={() => {
-                    resetWalk();
-                    setIsTrailerModalOpen(false);
-                }}
-            />
+
 
 
 
