@@ -17,6 +17,8 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     const footstepBufferRef = useRef(null);
     const isFetchingRef = useRef(false);
 
+    const activeTimerRef = useRef(null);
+
     // Audio Engine Preload (0.18 volume)
     useEffect(() => {
         const initAudio = async () => {
@@ -75,56 +77,62 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
     }, [sequenceState]);
 
     // MASTER CINEMATIC SEQUENCE CONTROLLER
-    // Stage 1 (0번 사진 5s) -> Stage 2 Origin (1번 사진 3s) -> Video (2번 mp4)
+    // Stage 1 (0번 사진 5s) -> Stage 2 Origin (1번 원본 3s) -> Video (2번 mp4)
     useEffect(() => {
         if (!isAudioUnlocked || sequenceState !== 'idle') return;
 
-        // 1. Stage 1: 1번 골목 사진 5초
+        console.log("🚀 Starting Stage 1: 1st Far Alley Photo (Frame 0) for 5.0s");
         setSequenceState('stage1');
         setActiveFrameIdx(0);
         setProgress(0);
+        progressRef.current = 0;
 
         const stage1Start = Date.now();
         const stage1Duration = 5000;
 
-        const stage1Timer = setInterval(() => {
+        if (activeTimerRef.current) clearInterval(activeTimerRef.current);
+
+        activeTimerRef.current = setInterval(() => {
             const elapsed = Date.now() - stage1Start;
             const ratio = Math.min(1, elapsed / stage1Duration);
-            const val = ratio * 15;
+            const val = ratio * 12.5;
             setProgress(val);
             progressRef.current = val;
+            setActiveFrameIdx(0);
 
             if (ratio >= 1) {
-                clearInterval(stage1Timer);
+                clearInterval(activeTimerRef.current);
 
-                // 2. Stage 2 Origin: 원본 2번 사진 3초
+                console.log("🚀 Starting Stage 2-Origin: 2nd Origin Photo (Frame 1) for 3.0s");
                 setSequenceState('stage2_origin');
                 setActiveFrameIdx(1);
-                setProgress(15);
-                progressRef.current = 15;
+                setProgress(12.5);
+                progressRef.current = 12.5;
 
                 const originStart = Date.now();
                 const originDuration = 3000;
 
-                const originTimer = setInterval(() => {
+                activeTimerRef.current = setInterval(() => {
                     const originElapsed = Date.now() - originStart;
                     const originRatio = Math.min(1, originElapsed / originDuration);
-                    const originVal = 15 + originRatio * 15;
+                    const originVal = 12.5 + originRatio * 12.5;
                     setProgress(originVal);
                     progressRef.current = originVal;
+                    setActiveFrameIdx(1);
 
                     if (originRatio >= 1) {
-                        clearInterval(originTimer);
+                        clearInterval(activeTimerRef.current);
 
-                        // 3. Stage 2 Video: 동영상 재생
+                        console.log("🚀 Starting Stage 2-Video: Playing Video (Frame 2)");
                         setSequenceState('video');
                         setActiveFrameIdx(2);
-                        setProgress(30);
-                        progressRef.current = 30;
+                        setProgress(25);
+                        progressRef.current = 25;
 
-                        // 8.5s fallback in case video event doesn't fire
+                        // 8.5s fallback in case video onEnded fails to fire
                         setTimeout(() => {
                             if (sequenceStateRef.current === 'video') {
+                                console.log("⚠️ Fallback triggering handleVideoCompleted");
                                 handleVideoCompleted();
                             }
                         }, 8500);
@@ -133,38 +141,43 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
             }
         }, 30);
 
-        return () => clearInterval(stage1Timer);
+        return () => {
+            if (activeTimerRef.current) clearInterval(activeTimerRef.current);
+        };
     }, [isAudioUnlocked]);
 
-    // 4. Stage 2 Variant: 동영상 끝나고 '변형된 2번 사진(코너 턴)' 정확히 5초 고정!
+    // 4. Stage 2 Variant: 동영상 끝나고 '변형된 2번 사진(코너 턴, Frame 3)' 정확히 5.0초 고정!
     const handleVideoCompleted = () => {
         if (sequenceStateRef.current !== 'video') return;
 
+        console.log("🎬 Video Finished! Starting Stage 2-Variant (Frame 3) for strictly 5.0s!");
         setSequenceState('stage2_variant');
-        setActiveFrameIdx(3); // 3번 코너 턴 사진으로 즉시 전환!
-        setProgress(35);
-        progressRef.current = 35;
+        setActiveFrameIdx(3);
+        setProgress(37.5);
+        progressRef.current = 37.5;
+
+        if (activeTimerRef.current) clearInterval(activeTimerRef.current);
 
         const variantStart = Date.now();
-        const variantDuration = 5000; // 5초간 정확히 고정!
+        const variantDuration = 5000; // 정확히 5.0초 고정!
 
-        const variantTimer = setInterval(() => {
+        activeTimerRef.current = setInterval(() => {
             const elapsed = Date.now() - variantStart;
             const ratio = Math.min(1, elapsed / variantDuration);
-            const val = 35 + ratio * 15;
+            const val = 37.5 + ratio * 12.5;
 
-            setActiveFrameIdx(3); // 5초 동안 3번 사진 엄격 고정!
+            setActiveFrameIdx(3); // 5초 동안 Frame 3 엄격 고정!
             setProgress(val);
             progressRef.current = val;
 
             if (ratio >= 1) {
-                clearInterval(variantTimer);
+                clearInterval(activeTimerRef.current);
+                console.log("🏛️ 5.0s Variant Complete! Unlocking Stage 4 Free Scroll (Frame 4)!");
 
-                // 5. Stage 4: 5초 완료 즉시 4번 아치 문 앞 도착 & 자유 스크롤 언락!
                 setSequenceState('free');
                 setActiveFrameIdx(4);
-                setProgress(50);
-                progressRef.current = 50;
+                setProgress(50.0);
+                progressRef.current = 50.0;
             }
         }, 30);
     };
