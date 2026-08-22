@@ -96,12 +96,19 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
     if (activeFrameIdx !== 7) return null;
 
     const data = ATELIER_TIMELINE_STAGES[currentStage];
-    // Light expansion radius & brightness factor (0.0 to 1.0)
+    // Overall light bloom ratio (0.0: tightly packed at bottom matchstick -> 1.0: fully illuminated room)
     const lightRatio = Math.min(1.0, totalElapsed / 60.0);
 
-    // Dynamic radial mask: Starts as a tiny matchstick point light (radius ~8%) and expands to 130%
-    const matchRadius = 8 + lightRatio * 115; // 8% -> 123%
-    const ambientDarkness = Math.max(0.0, 0.96 - lightRatio * 0.90); // 96% dark -> 6% soft ambient
+    // Dynamic radial mask: Starts as a tiny matchstick point light (radius ~8%) at bottom violin table (50% 70%) and expands to 135%
+    const matchRadius = 8 + lightRatio * 125; // 8% -> 133%
+    const ambientDarkness = Math.max(0.0, 0.98 - lightRatio * 0.92); // 98% dark -> 6% soft ambient
+
+    // Kinetic typography bloom physics:
+    // Starts centered at bottom light (offsetY: +220px, scale: 0.72, tracking: tight)
+    // Expands smoothly upwards and spreads across the screen as light expands!
+    const textBloomY = (1.0 - lightRatio) * 190; // +190px -> 0px
+    const textBloomScale = 0.75 + lightRatio * 0.25; // 0.75 -> 1.0
+    const letterSpread = (1.0 - lightRatio) * 45; // scatter radius from flame origin
 
     const renderKineticLine = (text, lineIdx, startThreshold, endThreshold, textClass) => {
         const chars = text.split('');
@@ -118,6 +125,10 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
                     const charTrigger = startThreshold + rand * lineSpan;
                     const isRevealed = stageProgress >= charTrigger || isCompleted;
 
+                    // Initial scatter coordinates originate tightly from the bottom flame
+                    const scatterX = (rand - 0.5) * letterSpread;
+                    const scatterY = (rand - 0.5) * (letterSpread * 0.8) + (1.0 - lightRatio) * 30;
+
                     return (
                         <span
                             key={charIdx}
@@ -125,9 +136,9 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
                                 opacity: isRevealed ? 1 : 0,
                                 transform: isRevealed 
                                     ? 'translate3d(0, 0, 0) scale(1)' 
-                                    : `translate3d(${(rand - 0.5) * 35}px, ${(rand - 0.5) * 25}px, 0) scale(0.35)`,
-                                filter: isRevealed ? 'blur(0px)' : 'blur(10px)',
-                                transition: 'opacity 0.35s ease-out, transform 0.45s ease-out, filter 0.35s ease-out',
+                                    : `translate3d(${scatterX}px, ${scatterY}px, 0) scale(0.3)`,
+                                filter: isRevealed ? 'blur(0px)' : 'blur(12px)',
+                                transition: 'opacity 0.35s ease-out, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s ease-out',
                                 display: 'inline-block'
                             }}
                         >
@@ -141,55 +152,61 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
 
     return (
         <div className="absolute inset-0 pointer-events-none z-30 select-none overflow-hidden flex flex-col justify-between">
-            {/* 1. Pure Physical Darkness & Matchstick Light Reveal Mask (No fake glowing graphics) */}
+            {/* 1. Pure Physical Darkness & Matchstick Light Reveal Mask */}
             <div 
                 className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out"
                 style={{
                     background: `radial-gradient(
-                        circle at 25% 78%,
+                        circle at 50% 70%,
                         transparent 0%,
-                        transparent ${matchRadius * 0.4}%,
-                        rgba(0, 0, 0, ${ambientDarkness * 0.7}) ${matchRadius * 0.8}%,
+                        transparent ${matchRadius * 0.35}%,
+                        rgba(0, 0, 0, ${ambientDarkness * 0.7}) ${matchRadius * 0.75}%,
                         rgba(0, 0, 0, ${ambientDarkness}) ${matchRadius}%
                     )`
                 }}
             />
 
-            {/* 2. Top-Anchored Progressive Typography (Illuminates in sync with light expansion) */}
-            <div className="w-full flex flex-col items-center px-4 pt-10 sm:pt-14 z-30">
-                <div 
-                    className="w-full max-w-xs sm:max-w-sm flex flex-col items-center"
+            {/* 2. Light-Origin Progressive Typography Cluster */}
+            {/* Squeezed into bottom matchstick light initially, then blooms & expands upwards and outwards with the expanding light! */}
+            <div className="w-full flex-1 flex flex-col items-center justify-center px-4 z-30">
+                <motion.div 
+                    className="w-full max-w-xs sm:max-w-sm flex flex-col items-center text-center"
                     style={{
-                        transform: `perspective(600px) translate3d(${tiltX * 0.2}px, ${tiltY * 0.2}px, 12px) rotateX(${-tiltY * 0.25}deg) rotateY(${tiltX * 0.25}deg)`,
+                        transform: `perspective(600px) translate3d(${tiltX * 0.2}px, ${tiltY * 0.2 + textBloomY}px, 12px) scale(${textBloomScale}) rotateX(${-tiltY * 0.25}deg) rotateY(${tiltX * 0.25}deg)`,
                         transformStyle: 'preserve-3d',
-                        transition: 'transform 0.15s ease-out'
+                        transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                 >
-                    {/* Element A: 01/05 Index */}
-                    <div className="flex items-center gap-3 mb-3 border-b border-white/15 pb-1.5 px-3">
+                    {/* Element A: 01/05 Index & Date Tag (Condensed in flame -> Floating up) */}
+                    <div 
+                        className="flex items-center gap-3 mb-2 border-b border-white/20 pb-1 px-3 transition-all duration-500"
+                        style={{
+                            transform: `translateY(${(1.0 - lightRatio) * 20}px)`,
+                            opacity: Math.max(0.6, lightRatio)
+                        }}
+                    >
                         <motion.span 
                             animate={{ opacity: [0.8, 1, 0.8] }}
                             transition={{ repeat: Infinity, duration: 2.0 }}
-                            className="font-mono font-black text-xs sm:text-sm text-[#E7FF00] tracking-widest uppercase drop-shadow-[0_0_10px_rgba(231,255,0,0.9)]"
+                            className="font-mono font-black text-xs sm:text-sm text-[#E7FF00] tracking-widest uppercase drop-shadow-[0_0_12px_rgba(231,255,0,0.95)]"
                         >
                             {data.num}
                         </motion.span>
                         <span className="w-1 h-1 rounded-full bg-white/40" />
 
-                        {/* Element B: Date Tag */}
                         <span 
                             style={{
-                                opacity: stageProgress >= 0.15 || isCompleted ? 1 : 0,
-                                transform: stageProgress >= 0.15 || isCompleted ? 'translateY(0)' : 'translateY(4px)',
+                                opacity: stageProgress >= 0.12 || isCompleted ? 1 : 0,
+                                transform: stageProgress >= 0.12 || isCompleted ? 'translateY(0)' : 'translateY(6px)',
                                 transition: 'all 0.4s ease-out'
                             }}
-                            className="font-mono text-[10px] sm:text-[11px] font-bold text-white/80 tracking-[0.25em] uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                            className="font-mono text-[10px] sm:text-[11px] font-bold text-white/85 tracking-[0.25em] uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]"
                         >
                             {data.dateTag}
                         </span>
                     </div>
 
-                    {/* Element C: Massive Stacked Title */}
+                    {/* Element B: Massive Stacked Title (Spreads out from flame center) */}
                     <motion.div 
                         animate={isCompleted ? {
                             scale: [1, 1.025, 0.99, 1.02, 1],
@@ -216,15 +233,15 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
                                         lIdx,
                                         startRatio,
                                         endRatio,
-                                        "font-sans font-black text-3xl sm:text-4xl tracking-[0.24em] text-white uppercase leading-none drop-shadow-[0_4px_20px_rgba(0,0,0,1)] drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
+                                        "font-sans font-black text-2xl sm:text-4xl tracking-[0.24em] text-white uppercase leading-none drop-shadow-[0_4px_20px_rgba(0,0,0,1)] drop-shadow-[0_0_18px_rgba(255,255,255,0.45)]"
                                     )}
                                 </div>
                             );
                         })}
                     </motion.div>
 
-                    {/* Element D: Poetic Subtitle */}
-                    <div className="mt-3 min-h-[32px] flex items-center justify-center text-center px-2">
+                    {/* Element C: Poetic Subtitle */}
+                    <div className="mt-2 min-h-[30px] flex items-center justify-center text-center px-2">
                         {renderKineticLine(
                             data.subline,
                             4,
@@ -233,7 +250,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
                             "font-mono text-xs sm:text-[13px] text-neutral-200 font-medium tracking-wide leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,1)]"
                         )}
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             {/* 3. Bottom Action Area (Walk Again & Enter Museum on Stage 05) */}
