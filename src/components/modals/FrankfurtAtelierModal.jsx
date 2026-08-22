@@ -36,8 +36,8 @@ export function FrankfurtAtelierModal({ isOpen, onClose }) {
                             <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-widest uppercase block">
                                 ATELIER HEADQUARTERS
                             </span>
-                            <h2 className="font-sans text-xl sm:text-2xl font-black tracking-tight">
-                                JUST SEAN FLOWS GMBH
+                            <h2 className="font-sans text-lg sm:text-xl font-black tracking-tight text-white leading-tight">
+                                Unternehmergesellschaft (haftungsbeschränkt)
                             </h2>
                         </div>
                     </div>
@@ -46,24 +46,24 @@ export function FrankfurtAtelierModal({ isOpen, onClose }) {
                         <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start gap-3">
                             <MapPin className="w-4 h-4 text-[#E7FF00] shrink-0 mt-0.5" />
                             <div>
-                                <strong className="text-white block font-medium">위치</strong>
-                                <span>독일 헤센주 프랑크푸르트 암 마인 (Frankfurt am Main, Germany)</span>
+                                <strong className="text-white block font-medium uppercase font-mono text-xs tracking-wider text-[#E7FF00]">LOCATION</strong>
+                                <span>Frankfurt am Main, State of Hesse, Germany</span>
                             </div>
                         </div>
 
                         <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start gap-3">
                             <Music className="w-4 h-4 text-[#00F0FF] shrink-0 mt-0.5" />
                             <div>
-                                <strong className="text-white block font-medium">프로젝트 성격</strong>
-                                <span>클래식 바이올린 & 전자 오케스트라 사운드 아틀리에 + 살롱</span>
+                                <strong className="text-white block font-medium uppercase font-mono text-xs tracking-wider text-[#00F0FF]">SANCTUARY PROFILE</strong>
+                                <span>Acoustic Classical Violin & Modular Orchestra Sound Atelier + Analogue Salon</span>
                             </div>
                         </div>
 
                         <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start gap-3">
                             <Sparkles className="w-4 h-4 text-[#FFE082] shrink-0 mt-0.5" />
                             <div>
-                                <strong className="text-white block font-medium">설립 일정</strong>
-                                <span>2026년 8월 계약 및 인허가 진행 중 ➔ <strong>2026년 10월 그랜드 오픈</strong></span>
+                                <strong className="text-white block font-medium uppercase font-mono text-xs tracking-wider text-[#FFE082]">ROADMAP</strong>
+                                <span>Lease Agreement & Official Licensing in Progress ➔ <strong className="text-white">Grand Opening October 2026</strong></span>
                             </div>
                         </div>
                     </div>
@@ -72,7 +72,7 @@ export function FrankfurtAtelierModal({ isOpen, onClose }) {
                         onClick={onClose}
                         className="w-full py-3 rounded-full bg-[#E7FF00] hover:bg-[#F3FF66] text-black font-mono text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_20px_rgba(231,255,0,0.4)] cursor-pointer"
                     >
-                        확인 및 닫기
+                        CONFIRM & CLOSE
                     </button>
                 </motion.div>
             </motion.div>
