@@ -1,3 +1,4 @@
+import { SpatialSalonViewerModal } from './SpatialSalonViewerModal';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, Compass, Music, MapPin, Eye, Radio, Play } from 'lucide-react';
@@ -81,12 +82,15 @@ const MUSEUM_ORBS = [
 export function AtelierMuseumHub({ isOpen, onClose, onReplayWalk }) {
     const [selectedOrb, setSelectedOrb] = useState(null);
     const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
+    const [isSpatialSalonOpen, setIsSpatialSalonOpen] = useState(false);
 
     if (!isOpen) return null;
 
     const handleOrbClick = (orb) => {
         if (orb.id === 'lookbook') {
             setIsLookbookModalOpen(true);
+        } else if (orb.id === 'piano_salon' || orb.id === 'wireframe_studio') {
+            setIsSpatialSalonOpen(true);
         } else if (orb.id === 'midnight_walk') {
             onReplayWalk();
         } else {
@@ -215,6 +219,12 @@ export function AtelierMuseumHub({ isOpen, onClose, onReplayWalk }) {
                 <CoutureLookbookModal 
                     isOpen={isLookbookModalOpen}
                     onClose={() => setIsLookbookModalOpen(false)}
+                />
+
+                {/* 4. Standalone Offline 1st-Person Spatial Salon Modal */}
+                <SpatialSalonViewerModal
+                    isOpen={isSpatialSalonOpen}
+                    onClose={() => setIsSpatialSalonOpen(false)}
                 />
 
                 {/* Generic World Modal for other Orbs */}
