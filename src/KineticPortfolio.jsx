@@ -219,6 +219,9 @@ export default function KineticPortfolio() {
             <FrankfurtAtelierModal 
                 isOpen={isAtelierModalOpen}
                 onClose={() => setIsAtelierModalOpen(false)}
+                tiltX={tiltX}
+                tiltY={tiltY}
+                tilt={tilt}
             />
 
             {/* Top-Level Permanent 3D Header (z-[9999]) with .FLOWS collision response */}
