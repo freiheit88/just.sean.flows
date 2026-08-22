@@ -1,5 +1,5 @@
 import { AtelierMuseumHub } from './components/museum/AtelierMuseumHub';
-import React, { useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FRAMES, MR_AUDIO_SRC } from './constants/frames';
 import { useAudioMaster } from './hooks/useAudioMaster';
@@ -57,6 +57,8 @@ export default function KineticPortfolio() {
         isAudioUnlocked,
         triggerDopamineScrollUp
     });
+
+    const [isMuseumOpen, setIsMuseumOpen] = useState(false);
 
     const handleInitialUnlock = () => {
         forceUnlockAudio();
