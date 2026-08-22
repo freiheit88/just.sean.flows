@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_TIMELINE_STAGES } from '../../constants/timelineStages';
-import { RotateCcw, Sparkles } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
 
 function getCharThreshold(charIndex, lineIndex) {
     const seed = (charIndex * 137 + lineIndex * 269) % 1000;
@@ -16,20 +16,17 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
     const elapsedRef = useRef(0.0);
     const isPausedRef = useRef(false);
 
-    // Current stage (0 to 4) derived from totalElapsed
     const currentStage = Math.min(4, Math.floor(totalElapsed / 12.0));
-    // Stage progress (0.0 to 1.0) within the current 12-second window
-    const stageProgress = Math.min(1.0, (totalElapsed % 12.0) / 10.0); // 10s assemble + 2s reading lock
+    const stageProgress = Math.min(1.0, (totalElapsed % 12.0) / 10.0);
 
     useEffect(() => {
-        if (activeFrameIdx !== 8) {
+        if (activeFrameIdx !== 7) {
             setTotalElapsed(0.0);
             elapsedRef.current = 0.0;
             setIsCompleted(false);
             return;
         }
 
-        // 60-second gentle auto-lighting clock
         const timer = setInterval(() => {
             if (isPausedRef.current) return;
             if (elapsedRef.current < 60.0) {
@@ -45,9 +42,8 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
         return () => clearInterval(timer);
     }, [activeFrameIdx]);
 
-    // Scroll-Driven Hybrid Acceleration (User can scroll to speed up light expansion)
     useEffect(() => {
-        if (activeFrameIdx !== 8) return;
+        if (activeFrameIdx !== 7) return;
 
         let lastTouchY = 0;
 
@@ -97,12 +93,16 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
         };
     }, [activeFrameIdx]);
 
-    if (activeFrameIdx !== 8) return null;
+    if (activeFrameIdx !== 7) return null;
 
     const data = ATELIER_TIMELINE_STAGES[currentStage];
-    const lightRatio = Math.min(1.0, totalElapsed / 60.0); // 0.0 to 1.0 over 60s
+    // Light expansion radius & brightness factor (0.0 to 1.0)
+    const lightRatio = Math.min(1.0, totalElapsed / 60.0);
 
-    // Character Assembly Renderer synced with light cone passage
+    // Dynamic radial mask: Starts as a tiny matchstick point light (radius ~8%) and expands to 130%
+    const matchRadius = 8 + lightRatio * 115; // 8% -> 123%
+    const ambientDarkness = Math.max(0.0, 0.96 - lightRatio * 0.90); // 96% dark -> 6% soft ambient
+
     const renderKineticLine = (text, lineIdx, startThreshold, endThreshold, textClass) => {
         const chars = text.split('');
         const lineSpan = endThreshold - startThreshold;
@@ -141,37 +141,21 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
 
     return (
         <div className="absolute inset-0 pointer-events-none z-30 select-none overflow-hidden flex flex-col justify-between">
-            {/* 1. Volumetric Expanding Amber Light Cone (Originating from Left-Bottom Violin/Wine Table) */}
+            {/* 1. Pure Physical Darkness & Matchstick Light Reveal Mask (No fake glowing graphics) */}
             <div 
                 className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out"
                 style={{
                     background: `radial-gradient(
                         circle at 25% 78%,
-                        rgba(255, 224, 130, ${0.45 + lightRatio * 0.40}) 0%,
-                        rgba(255, 179, 0, ${0.30 + lightRatio * 0.35}) ${20 + lightRatio * 45}%,
-                        rgba(230, 81, 0, ${0.15 + lightRatio * 0.25}) ${45 + lightRatio * 40}%,
-                        rgba(0, 0, 0, ${0.35 - lightRatio * 0.30}) 100%
-                    )`,
-                    mixBlendMode: 'screen'
+                        transparent 0%,
+                        transparent ${matchRadius * 0.4}%,
+                        rgba(0, 0, 0, ${ambientDarkness * 0.7}) ${matchRadius * 0.8}%,
+                        rgba(0, 0, 0, ${ambientDarkness}) ${matchRadius}%
+                    )`
                 }}
             />
 
-            {/* Glowing Tabletop Filament Halo on Violin Table */}
-            <motion.div 
-                animate={{
-                    scale: [1, 1.08 + lightRatio * 0.15, 1],
-                    opacity: [0.75, 1.0, 0.75],
-                    filter: [
-                        `drop-shadow(0 0 ${15 + lightRatio * 20}px rgba(255,224,130,0.8))`,
-                        `drop-shadow(0 0 ${30 + lightRatio * 40}px rgba(255,193,7,1))`,
-                        `drop-shadow(0 0 ${15 + lightRatio * 20}px rgba(255,224,130,0.8))`
-                    ]
-                }}
-                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                className="absolute left-[24%] bottom-[22%] w-12 h-12 rounded-full bg-[#FFF9C4]/40 blur-[12px] pointer-events-none"
-            />
-
-            {/* 2. Top-Anchored Separated Progressive Typography Container */}
+            {/* 2. Top-Anchored Progressive Typography (Illuminates in sync with light expansion) */}
             <div className="w-full flex flex-col items-center px-4 pt-10 sm:pt-14 z-30">
                 <div 
                     className="w-full max-w-xs sm:max-w-sm flex flex-col items-center"
@@ -181,7 +165,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                         transition: 'transform 0.15s ease-out'
                     }}
                 >
-                    {/* Element A: 01/05 Index (Illuminates First) */}
+                    {/* Element A: 01/05 Index */}
                     <div className="flex items-center gap-3 mb-3 border-b border-white/15 pb-1.5 px-3">
                         <motion.span 
                             animate={{ opacity: [0.8, 1, 0.8] }}
@@ -192,7 +176,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                         </motion.span>
                         <span className="w-1 h-1 rounded-full bg-white/40" />
 
-                        {/* Element B: Date Tag (Illuminates Next) */}
+                        {/* Element B: Date Tag */}
                         <span 
                             style={{
                                 opacity: stageProgress >= 0.15 || isCompleted ? 1 : 0,
@@ -205,7 +189,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                         </span>
                     </div>
 
-                    {/* Element C: Massive Stacked Title (Illuminates in sync with light expansion) */}
+                    {/* Element C: Massive Stacked Title */}
                     <motion.div 
                         animate={isCompleted ? {
                             scale: [1, 1.025, 0.99, 1.02, 1],
@@ -239,7 +223,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                         })}
                     </motion.div>
 
-                    {/* Element D: Poetic Subtitle (Illuminates Last) */}
+                    {/* Element D: Poetic Subtitle */}
                     <div className="mt-3 min-h-[32px] flex items-center justify-center text-center px-2">
                         {renderKineticLine(
                             data.subline,
@@ -252,7 +236,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                 </div>
             </div>
 
-            {/* 3. Bottom Finale Action Area (Walk Again Button on 05 Stage) */}
+            {/* 3. Bottom Action Area (Walk Again on Stage 05) */}
             <div className="w-full flex flex-col items-center pb-8 z-30 pointer-events-auto">
                 {currentStage === 4 && (
                     <motion.button

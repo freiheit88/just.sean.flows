@@ -268,18 +268,7 @@ export function FrankfurtAtelierModal({ isOpen, onClose, tiltX = 0, tiltY = 0, t
                         </motion.div>
                     </div>
 
-                    {/* LAYER 3: Interactive Holographic Action Trigger (translateZ: 70px) */}
-                    <div style={{ transform: 'translateZ(70px)' }}>
-                        <motion.button
-                            whileHover={{ scale: 1.025, boxShadow: '0 0 35px rgba(0,255,136,0.8)' }}
-                            whileTap={{ scale: 0.975 }}
-                            onClick={handleHoloClose}
-                            className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#00FF88] via-[#00E5FF] to-[#00FF88] text-black font-mono text-xs font-black tracking-[0.25em] uppercase transition-all shadow-[0_0_25px_rgba(0,255,136,0.55)] cursor-pointer flex items-center justify-center gap-2"
-                        >
-                            <Cpu className="w-4 h-4" />
-                            <span>DISMISS HOLOGRAM // PROCEED</span>
-                        </motion.button>
-                    </div>
+
                 </motion.div>
             </motion.div>
         </AnimatePresence>
