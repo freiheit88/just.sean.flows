@@ -60,6 +60,11 @@ export default function KineticPortfolio() {
         triggerDopamineScrollUp
     });
 
+    const handleInitialUnlock = () => {
+        forceUnlockAudio();
+        if (playFootstepSound) playFootstepSound();
+    };
+
     // Reliable 1-shot video playback on Frame 1 transition
     useEffect(() => {
         if (activeFrameIdx === 2 && videoRef.current) {
