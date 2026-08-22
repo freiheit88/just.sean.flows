@@ -182,12 +182,12 @@ export function useWalkPhysics({ isAudioUnlocked, onFinishWalk, triggerDopamineS
         }, 30);
     };
 
-    // Free Scroll Progression Handler for Stages 4 ~ 7 (Progress 50% ~ 100%)
+    // Free Scroll Progression Handler for Stages 4 ~ 8 (Progress 50% ~ 100% across 5 frames)
     useEffect(() => {
         if (sequenceState !== 'free') return;
 
         const freeProg = Math.max(0, Math.min(1, (progress - 50) / 50));
-        const frameIdx = Math.min(7, Math.max(4, 4 + Math.floor(freeProg * 4)));
+        const frameIdx = Math.min(8, Math.max(4, 4 + Math.floor(freeProg * 5)));
         setActiveFrameIdx(frameIdx);
     }, [progress, sequenceState]);
 

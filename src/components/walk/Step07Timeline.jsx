@@ -18,7 +18,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
     const lockUntilTime = useRef(0);
 
     useEffect(() => {
-        if (activeFrameIdx !== 7) {
+        if (activeFrameIdx !== 8) {
             setCurrentStage(0);
             setStageProgress(0.0);
             setIsCompleted(false);
@@ -33,7 +33,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
     }, [activeFrameIdx]);
 
     useEffect(() => {
-        if (activeFrameIdx !== 7) return;
+        if (activeFrameIdx !== 8) return;
 
         let lastTouchY = 0;
 
@@ -114,7 +114,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
         };
     }, [activeFrameIdx, isCompleted]);
 
-    if (activeFrameIdx !== 7) return null;
+    if (activeFrameIdx !== 8) return null;
 
     const data = ATELIER_TIMELINE_STAGES[currentStage];
 

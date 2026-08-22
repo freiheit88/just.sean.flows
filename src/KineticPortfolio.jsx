@@ -76,7 +76,7 @@ export default function KineticPortfolio() {
     }, [activeFrameIdx]);
 
     // Stained Glass Visibility on Frames 3 & 4
-    const isAtelierOptionVisible = (activeFrameIdx === 4 || activeFrameIdx === 5);
+    const isAtelierOptionVisible = (activeFrameIdx === 5 || activeFrameIdx === 6);
 
     return (
         <div 
