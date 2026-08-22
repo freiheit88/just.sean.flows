@@ -1,3 +1,4 @@
+import { AtelierMuseumHub } from './components/museum/AtelierMuseumHub';
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FRAMES, MR_AUDIO_SRC } from './constants/frames';
@@ -170,6 +171,7 @@ export default function KineticPortfolio() {
                         tiltX={tiltX}
                         tiltY={tiltY}
                         onWalkAgain={resetWalk}
+                        onOpenMuseum={() => setIsMuseumOpen(true)}
                     />
 
                     {/* In-Situ 3D J.A.R.V.I.S. Hologram HUD Projected Directly Over Gothic Arch */}
@@ -209,6 +211,16 @@ export default function KineticPortfolio() {
                 isMuted={isMuted}
                 onToggleMute={handleToggleMute}
                 onFlowsHit={handleFlowsHit}
+            />
+
+            {/* Full-Scale Google Project Genie-Style 3D Crystal Orb Museum Hub */}
+            <AtelierMuseumHub 
+                isOpen={isMuseumOpen}
+                onClose={() => setIsMuseumOpen(false)}
+                onReplayWalk={() => {
+                    setIsMuseumOpen(false);
+                    resetWalk();
+                }}
             />
 
             {/* Welcome Back 5-Second Countdown Resume Modal */}

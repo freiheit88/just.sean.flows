@@ -8,7 +8,7 @@ function getCharThreshold(charIndex, lineIndex) {
     return seed / 1000;
 }
 
-export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
+export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOpenMuseum }) {
     // 60-second total master time (0.0 to 60.0s, ~12.0s per stage)
     const [totalElapsed, setTotalElapsed] = useState(0.0);
     const [isCompleted, setIsCompleted] = useState(false);
@@ -236,25 +236,34 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                 </div>
             </div>
 
-            {/* 3. Bottom Action Area (Walk Again on Stage 05) */}
-            <div className="w-full flex flex-col items-center pb-8 z-30 pointer-events-auto">
+            {/* 3. Bottom Action Area (Walk Again & Enter Museum on Stage 05) */}
+            <div className="w-full flex flex-col items-center gap-2.5 pb-8 z-30 pointer-events-auto px-4">
                 {currentStage === 4 && (
-                    <motion.button
-                        initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                        animate={{ 
-                            opacity: isCompleted ? 1 : 0.6, 
-                            scale: isCompleted ? 1 : 0.95, 
-                            y: isCompleted ? 0 : 5 
-                        }}
-                        transition={{ duration: 0.5 }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={onWalkAgain}
-                        className="px-6 py-2.5 rounded-full bg-[#E7FF00] text-black font-mono font-black text-xs tracking-wider uppercase shadow-[0_0_30px_rgba(231,255,0,0.85)] flex items-center justify-center gap-2 cursor-pointer hover:bg-white transition-all"
-                    >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>WALK AGAIN</span>
-                    </motion.button>
+                    <>
+                        <motion.button
+                            initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                            animate={{ 
+                                opacity: isCompleted ? 1 : 0.8, 
+                                scale: isCompleted ? 1 : 0.96, 
+                                y: 0 
+                            }}
+                            transition={{ duration: 0.5 }}
+                            whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(231,255,0,1)' }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={onOpenMuseum}
+                            className="w-full max-w-xs py-3 rounded-full bg-gradient-to-r from-[#E7FF00] via-[#00E5FF] to-[#E7FF00] text-black font-mono font-black text-xs tracking-[0.2em] uppercase shadow-[0_0_35px_rgba(231,255,0,0.8)] flex items-center justify-center gap-2 cursor-pointer transition-all"
+                        >
+                            <span>✦ ENTER ATELIER MUSEUM ➔</span>
+                        </motion.button>
+
+                        <button
+                            onClick={onWalkAgain}
+                            className="px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white font-mono text-[10px] font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                            <RotateCcw className="w-3 h-3" />
+                            <span>WALK AGAIN</span>
+                        </button>
+                    </>
                 )}
             </div>
         </div>
