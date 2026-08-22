@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_TIMELINE_STAGES } from '../../constants/timelineStages';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Sparkles } from 'lucide-react';
 
 function getCharThreshold(charIndex, lineIndex) {
     const seed = (charIndex * 137 + lineIndex * 269) % 1000;
@@ -9,83 +9,63 @@ function getCharThreshold(charIndex, lineIndex) {
 }
 
 export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
-    const [currentStage, setCurrentStage] = useState(0);
-    const [stageProgress, setStageProgress] = useState(0.0);
+    // 60-second total master time (0.0 to 60.0s, ~12.0s per stage)
+    const [totalElapsed, setTotalElapsed] = useState(0.0);
     const [isCompleted, setIsCompleted] = useState(false);
 
-    const stageRef = useRef(0);
-    const progressRef = useRef(0.0);
-    const lockUntilTime = useRef(0);
+    const elapsedRef = useRef(0.0);
+    const isPausedRef = useRef(false);
+
+    // Current stage (0 to 4) derived from totalElapsed
+    const currentStage = Math.min(4, Math.floor(totalElapsed / 12.0));
+    // Stage progress (0.0 to 1.0) within the current 12-second window
+    const stageProgress = Math.min(1.0, (totalElapsed % 12.0) / 10.0); // 10s assemble + 2s reading lock
 
     useEffect(() => {
         if (activeFrameIdx !== 8) {
-            setCurrentStage(0);
-            setStageProgress(0.0);
+            setTotalElapsed(0.0);
+            elapsedRef.current = 0.0;
             setIsCompleted(false);
-            stageRef.current = 0;
-            progressRef.current = 0.0;
-            lockUntilTime.current = 0;
-        } else {
-            setStageProgress(0.0);
-            progressRef.current = 0.0;
-            setIsCompleted(false);
+            return;
         }
+
+        // 60-second gentle auto-lighting clock
+        const timer = setInterval(() => {
+            if (isPausedRef.current) return;
+            if (elapsedRef.current < 60.0) {
+                const nextTime = Math.min(60.0, elapsedRef.current + 0.05);
+                elapsedRef.current = nextTime;
+                setTotalElapsed(nextTime);
+
+                const withinStageProg = (nextTime % 12.0) / 10.0;
+                setIsCompleted(withinStageProg >= 1.0 || nextTime >= 58.0);
+            }
+        }, 50);
+
+        return () => clearInterval(timer);
     }, [activeFrameIdx]);
 
+    // Scroll-Driven Hybrid Acceleration (User can scroll to speed up light expansion)
     useEffect(() => {
         if (activeFrameIdx !== 8) return;
 
         let lastTouchY = 0;
 
-        const updateScroll = (delta) => {
-            const now = Date.now();
+        const updateScrollDelta = (deltaSeconds) => {
+            isPausedRef.current = true;
+            setTimeout(() => { isPausedRef.current = false; }, 3000);
 
-            if (now < lockUntilTime.current && delta > 0) {
-                return;
-            }
+            const next = Math.max(0.0, Math.min(60.0, elapsedRef.current + deltaSeconds));
+            elapsedRef.current = next;
+            setTotalElapsed(next);
 
-            let newProg = progressRef.current + delta;
-
-            if (newProg >= 1.0) {
-                if (!isCompleted && lockUntilTime.current === 0) {
-                    setIsCompleted(true);
-                    lockUntilTime.current = now + 3000; // 3초 정독 락!
-                    newProg = 1.0;
-                } else if (now >= lockUntilTime.current) {
-                    if (stageRef.current < ATELIER_TIMELINE_STAGES.length - 1) {
-                        stageRef.current += 1;
-                        setCurrentStage(stageRef.current);
-                        newProg = 0.0;
-                        setIsCompleted(false);
-                        lockUntilTime.current = 0;
-                    } else {
-                        newProg = 1.0;
-                    }
-                } else {
-                    newProg = 1.0;
-                }
-            } else if (newProg < 0.0) {
-                if (stageRef.current > 0) {
-                    stageRef.current -= 1;
-                    setCurrentStage(stageRef.current);
-                    newProg = 1.0;
-                    setIsCompleted(true);
-                    lockUntilTime.current = 0;
-                } else {
-                    newProg = 0.0;
-                }
-            } else {
-                setIsCompleted(false);
-                lockUntilTime.current = 0;
-            }
-
-            progressRef.current = newProg;
-            setStageProgress(Math.min(1.0, Math.max(0.0, newProg)));
+            const withinStageProg = (next % 12.0) / 10.0;
+            setIsCompleted(withinStageProg >= 1.0 || next >= 58.0);
         };
 
         const handleWheel = (e) => {
-            const delta = e.deltaY * 0.0014;
-            updateScroll(delta);
+            const deltaSec = (e.deltaY > 0 ? 0.35 : -0.35);
+            updateScrollDelta(deltaSec);
         };
 
         const handleTouchStart = (e) => {
@@ -97,9 +77,12 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
         const handleTouchMove = (e) => {
             if (e.touches && e.touches[0]) {
                 const currentY = e.touches[0].clientY;
-                const deltaY = (lastTouchY - currentY) * 0.0035;
-                updateScroll(deltaY);
-                lastTouchY = currentY;
+                const deltaY = lastTouchY - currentY;
+                if (Math.abs(deltaY) > 8) {
+                    const deltaSec = deltaY > 0 ? 0.45 : -0.45;
+                    updateScrollDelta(deltaSec);
+                    lastTouchY = currentY;
+                }
             }
         };
 
@@ -112,13 +95,14 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
             window.removeEventListener('touchstart', handleTouchStart);
             window.removeEventListener('touchmove', handleTouchMove);
         };
-    }, [activeFrameIdx, isCompleted]);
+    }, [activeFrameIdx]);
 
     if (activeFrameIdx !== 8) return null;
 
     const data = ATELIER_TIMELINE_STAGES[currentStage];
+    const lightRatio = Math.min(1.0, totalElapsed / 60.0); // 0.0 to 1.0 over 60s
 
-    // Character Assembly Renderer for Cinematic Stack
+    // Character Assembly Renderer synced with light cone passage
     const renderKineticLine = (text, lineIdx, startThreshold, endThreshold, textClass) => {
         const chars = text.split('');
         const lineSpan = endThreshold - startThreshold;
@@ -132,7 +116,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
 
                     const rand = getCharThreshold(charIdx, lineIdx);
                     const charTrigger = startThreshold + rand * lineSpan;
-                    const isRevealed = stageProgress >= charTrigger || stageProgress >= 0.98;
+                    const isRevealed = stageProgress >= charTrigger || isCompleted;
 
                     return (
                         <span
@@ -143,7 +127,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
                                     ? 'translate3d(0, 0, 0) scale(1)' 
                                     : `translate3d(${(rand - 0.5) * 35}px, ${(rand - 0.5) * 25}px, 0) scale(0.35)`,
                                 filter: isRevealed ? 'blur(0px)' : 'blur(10px)',
-                                transition: 'opacity 0.25s ease-out, transform 0.35s ease-out, filter 0.25s ease-out',
+                                transition: 'opacity 0.35s ease-out, transform 0.45s ease-out, filter 0.35s ease-out',
                                 display: 'inline-block'
                             }}
                         >
@@ -156,89 +140,136 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain }) {
     };
 
     return (
-        <div className="absolute inset-x-0 top-10 sm:top-14 z-30 pointer-events-none flex flex-col items-center px-4">
-            {/* Cinematic Movie Poster Stack Wrapper */}
+        <div className="absolute inset-0 pointer-events-none z-30 select-none overflow-hidden flex flex-col justify-between">
+            {/* 1. Volumetric Expanding Amber Light Cone (Originating from Left-Bottom Violin/Wine Table) */}
             <div 
-                className="w-full max-w-xs sm:max-w-sm flex flex-col items-center select-none"
+                className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out"
                 style={{
-                    transform: `perspective(600px) translate3d(${tiltX * 0.2}px, ${tiltY * 0.2}px, 12px) rotateX(${-tiltY * 0.25}deg) rotateY(${tiltX * 0.25}deg)`,
-                    transformStyle: 'preserve-3d',
-                    transition: 'transform 0.15s ease-out'
+                    background: `radial-gradient(
+                        circle at 25% 78%,
+                        rgba(255, 224, 130, ${0.45 + lightRatio * 0.40}) 0%,
+                        rgba(255, 179, 0, ${0.30 + lightRatio * 0.35}) ${20 + lightRatio * 45}%,
+                        rgba(230, 81, 0, ${0.15 + lightRatio * 0.25}) ${45 + lightRatio * 40}%,
+                        rgba(0, 0, 0, ${0.35 - lightRatio * 0.30}) 100%
+                    )`,
+                    mixBlendMode: 'screen'
                 }}
-            >
-                {/* 1. Header Index & Sub-Date Tag */}
-                <div className="flex items-center gap-3 mb-3 border-b border-white/15 pb-1.5 px-2">
-                    <span className="font-mono font-black text-xs sm:text-sm text-[#E7FF00] tracking-widest uppercase drop-shadow-[0_0_10px_rgba(231,255,0,0.8)]">
-                        {data.num}
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-white/40" />
-                    <span className="font-mono text-[10px] sm:text-[11px] font-bold text-white/70 tracking-[0.25em] uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
-                        {data.dateTag}
-                    </span>
-                </div>
+            />
 
-                {/* 2. Massive Cinematic Stacked Title (A TWELVE-MINUTE ALIBI Poster Aesthetic) */}
-                <motion.div 
-                    animate={isCompleted ? {
-                        scale: [1, 1.025, 0.99, 1.02, 1],
-                        filter: [
-                            "drop-shadow(0 0 16px rgba(255,255,255,0.75)) drop-shadow(0 0 35px rgba(231,255,0,0.6)) drop-shadow(0 4px 18px rgba(0,0,0,1))",
-                            "drop-shadow(0 0 32px rgba(255,255,255,1)) drop-shadow(0 0 60px rgba(231,255,0,0.9)) drop-shadow(0 4px 18px rgba(0,0,0,1))",
-                            "drop-shadow(0 0 16px rgba(255,255,255,0.75)) drop-shadow(0 0 35px rgba(231,255,0,0.6)) drop-shadow(0 4px 18px rgba(0,0,0,1))"
-                        ]
-                    } : {}}
-                    transition={isCompleted ? {
-                        repeat: Infinity,
-                        duration: 1.6,
-                        ease: "easeInOut"
-                    } : {}}
-                    className="flex flex-col items-center gap-0.5 sm:gap-1 my-1"
+            {/* Glowing Tabletop Filament Halo on Violin Table */}
+            <motion.div 
+                animate={{
+                    scale: [1, 1.08 + lightRatio * 0.15, 1],
+                    opacity: [0.75, 1.0, 0.75],
+                    filter: [
+                        `drop-shadow(0 0 ${15 + lightRatio * 20}px rgba(255,224,130,0.8))`,
+                        `drop-shadow(0 0 ${30 + lightRatio * 40}px rgba(255,193,7,1))`,
+                        `drop-shadow(0 0 ${15 + lightRatio * 20}px rgba(255,224,130,0.8))`
+                    ]
+                }}
+                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                className="absolute left-[24%] bottom-[22%] w-12 h-12 rounded-full bg-[#FFF9C4]/40 blur-[12px] pointer-events-none"
+            />
+
+            {/* 2. Top-Anchored Separated Progressive Typography Container */}
+            <div className="w-full flex flex-col items-center px-4 pt-10 sm:pt-14 z-30">
+                <div 
+                    className="w-full max-w-xs sm:max-w-sm flex flex-col items-center"
+                    style={{
+                        transform: `perspective(600px) translate3d(${tiltX * 0.2}px, ${tiltY * 0.2}px, 12px) rotateX(${-tiltY * 0.25}deg) rotateY(${tiltX * 0.25}deg)`,
+                        transformStyle: 'preserve-3d',
+                        transition: 'transform 0.15s ease-out'
+                    }}
                 >
-                    {data.lines.map((lineText, lIdx) => {
-                        const startRatio = (lIdx / data.lines.length) * 0.75;
-                        const endRatio = ((lIdx + 1) / data.lines.length) * 0.75;
-                        return (
-                            <div key={lIdx}>
-                                {renderKineticLine(
-                                    lineText,
-                                    lIdx,
-                                    startRatio,
-                                    endRatio,
-                                    "font-sans font-black text-3xl sm:text-4xl tracking-[0.24em] text-white uppercase leading-none drop-shadow-[0_4px_20px_rgba(0,0,0,1)] drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
-                                )}
-                            </div>
-                        );
-                    })}
-                </motion.div>
+                    {/* Element A: 01/05 Index (Illuminates First) */}
+                    <div className="flex items-center gap-3 mb-3 border-b border-white/15 pb-1.5 px-3">
+                        <motion.span 
+                            animate={{ opacity: [0.8, 1, 0.8] }}
+                            transition={{ repeat: Infinity, duration: 2.0 }}
+                            className="font-mono font-black text-xs sm:text-sm text-[#E7FF00] tracking-widest uppercase drop-shadow-[0_0_10px_rgba(231,255,0,0.9)]"
+                        >
+                            {data.num}
+                        </motion.span>
+                        <span className="w-1 h-1 rounded-full bg-white/40" />
 
-                {/* 3. Poetic Atmospheric Subtitle */}
-                <div className="mt-3 min-h-[32px] flex items-center justify-center text-center px-2">
-                    {renderKineticLine(
-                        data.subline,
-                        4,
-                        0.70,
-                        0.98,
-                        "font-mono text-xs sm:text-[13px] text-neutral-200 font-medium tracking-wide leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,1)]"
-                    )}
+                        {/* Element B: Date Tag (Illuminates Next) */}
+                        <span 
+                            style={{
+                                opacity: stageProgress >= 0.15 || isCompleted ? 1 : 0,
+                                transform: stageProgress >= 0.15 || isCompleted ? 'translateY(0)' : 'translateY(4px)',
+                                transition: 'all 0.4s ease-out'
+                            }}
+                            className="font-mono text-[10px] sm:text-[11px] font-bold text-white/80 tracking-[0.25em] uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                        >
+                            {data.dateTag}
+                        </span>
+                    </div>
+
+                    {/* Element C: Massive Stacked Title (Illuminates in sync with light expansion) */}
+                    <motion.div 
+                        animate={isCompleted ? {
+                            scale: [1, 1.025, 0.99, 1.02, 1],
+                            filter: [
+                                "drop-shadow(0 0 18px rgba(255,224,130,0.85)) drop-shadow(0 0 35px rgba(231,255,0,0.65)) drop-shadow(0 4px 18px rgba(0,0,0,1))",
+                                "drop-shadow(0 0 35px rgba(255,255,255,1)) drop-shadow(0 0 65px rgba(255,193,7,0.95)) drop-shadow(0 4px 18px rgba(0,0,0,1))",
+                                "drop-shadow(0 0 18px rgba(255,224,130,0.85)) drop-shadow(0 0 35px rgba(231,255,0,0.65)) drop-shadow(0 4px 18px rgba(0,0,0,1))"
+                            ]
+                        } : {}}
+                        transition={isCompleted ? {
+                            repeat: Infinity,
+                            duration: 1.8,
+                            ease: "easeInOut"
+                        } : {}}
+                        className="flex flex-col items-center gap-0.5 sm:gap-1 my-1"
+                    >
+                        {data.lines.map((lineText, lIdx) => {
+                            const startRatio = 0.15 + (lIdx / data.lines.length) * 0.55;
+                            const endRatio = 0.15 + ((lIdx + 1) / data.lines.length) * 0.55;
+                            return (
+                                <div key={lIdx}>
+                                    {renderKineticLine(
+                                        lineText,
+                                        lIdx,
+                                        startRatio,
+                                        endRatio,
+                                        "font-sans font-black text-3xl sm:text-4xl tracking-[0.24em] text-white uppercase leading-none drop-shadow-[0_4px_20px_rgba(0,0,0,1)] drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]"
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </motion.div>
+
+                    {/* Element D: Poetic Subtitle (Illuminates Last) */}
+                    <div className="mt-3 min-h-[32px] flex items-center justify-center text-center px-2">
+                        {renderKineticLine(
+                            data.subline,
+                            4,
+                            0.70,
+                            0.98,
+                            "font-mono text-xs sm:text-[13px] text-neutral-200 font-medium tracking-wide leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,1)]"
+                        )}
+                    </div>
                 </div>
+            </div>
 
-                {/* 4. Final Climax: Walk Again Button */}
-                {data.isFinal && (
+            {/* 3. Bottom Finale Action Area (Walk Again Button on 05 Stage) */}
+            <div className="w-full flex flex-col items-center pb-8 z-30 pointer-events-auto">
+                {currentStage === 4 && (
                     <motion.button
-                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                        initial={{ opacity: 0, scale: 0.9, y: 15 }}
                         animate={{ 
-                            opacity: isCompleted ? 1 : 0, 
-                            scale: isCompleted ? 1 : 0.9, 
-                            y: isCompleted ? 0 : 10 
+                            opacity: isCompleted ? 1 : 0.6, 
+                            scale: isCompleted ? 1 : 0.95, 
+                            y: isCompleted ? 0 : 5 
                         }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.5 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={onWalkAgain}
-                        className="pointer-events-auto mt-6 px-6 py-2.5 rounded-full bg-[#E7FF00] text-black font-mono font-black text-xs tracking-wider uppercase shadow-[0_0_25px_rgba(231,255,0,0.7)] flex items-center justify-center gap-2 cursor-pointer hover:bg-white transition-all"
+                        className="px-6 py-2.5 rounded-full bg-[#E7FF00] text-black font-mono font-black text-xs tracking-wider uppercase shadow-[0_0_30px_rgba(231,255,0,0.85)] flex items-center justify-center gap-2 cursor-pointer hover:bg-white transition-all"
                     >
                         <RotateCcw className="w-3.5 h-3.5" />
-                        WALK AGAIN
+                        <span>WALK AGAIN</span>
                     </motion.button>
                 )}
             </div>
