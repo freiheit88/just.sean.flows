@@ -78,6 +78,12 @@ export default function KineticPortfolio() {
     // Stained Glass Visibility on Frames 3 & 4
     const isAtelierOptionVisible = (activeFrameIdx === 5 || activeFrameIdx === 6);
 
+    useEffect(() => {
+        if (!isAtelierOptionVisible && isAtelierModalOpen) {
+            setIsAtelierModalOpen(false);
+        }
+    }, [activeFrameIdx, isAtelierOptionVisible, isAtelierModalOpen]);
+
     return (
         <div 
             className="fixed inset-0 w-screen h-[100dvh] bg-black text-white select-none overflow-hidden flex flex-col items-center justify-center cursor-default touch-none pt-2 pb-2 px-3"
@@ -169,6 +175,15 @@ export default function KineticPortfolio() {
                         onWalkAgain={resetWalk}
                     />
 
+                    {/* In-Situ 3D J.A.R.V.I.S. Hologram HUD Projected Directly Over Gothic Arch */}
+                    <FrankfurtAtelierModal 
+                        isOpen={isAtelierModalOpen}
+                        onClose={() => setIsAtelierModalOpen(false)}
+                        tiltX={tiltX}
+                        tiltY={tiltY}
+                        tilt={tilt}
+                    />
+
                     {/* Dynamic Stepping Footprints Surge (Only on Scroll Up) */}
                     <SonicFootprints isScrollingUp={isScrollingUp} />
 
@@ -215,14 +230,7 @@ export default function KineticPortfolio() {
                 }}
             />
 
-            {/* Atelier Headquarters Info Modal */}
-            <FrankfurtAtelierModal 
-                isOpen={isAtelierModalOpen}
-                onClose={() => setIsAtelierModalOpen(false)}
-                tiltX={tiltX}
-                tiltY={tiltY}
-                tilt={tilt}
-            />
+
 
             {/* Top-Level Permanent 3D Header (z-[9999]) with .FLOWS collision response */}
             <Header3D isFlowsHit={isFlowsHit} tiltX={tiltX} tiltY={tiltY} />

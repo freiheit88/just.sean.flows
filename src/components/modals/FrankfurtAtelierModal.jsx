@@ -94,7 +94,7 @@ export function FrankfurtAtelierModal({ isOpen, onClose, tiltX = 0, tiltY = 0, t
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.4 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-lg select-none overflow-hidden"
+                className="absolute inset-0 z-40 flex items-center justify-center p-3 sm:p-4 bg-black/35 backdrop-blur-[1.5px] select-none overflow-hidden rounded-[32px]"
                 style={{ perspective: 1200 }}
                 onClick={handleHoloClose}
             >
