@@ -60,6 +60,12 @@ export default function KineticPortfolio() {
     });
 
     const [isMuseumOpen, setIsMuseumOpen] = useState(false);
+    // Explicitly pause background walk audio when Sound Lab or Museum Hub is active
+    useEffect(() => {
+        if ((isSoundLabOpen || isMuseumOpen) && mrAudioRef.current) {
+            mrAudioRef.current.pause();
+        }
+    }, [isSoundLabOpen, isMuseumOpen]);
     const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
 
     const handleInitialUnlock = () => {
@@ -209,10 +215,12 @@ export default function KineticPortfolio() {
                 onUnlock={handleInitialUnlock}
                 onDirectMuseum={() => {
                     forceUnlockAudio();
+                    if (mrAudioRef.current) mrAudioRef.current.pause();
                     setIsMuseumOpen(true);
                 }}
                 onDirectSoundLab={() => {
                     forceUnlockAudio();
+                    if (mrAudioRef.current) mrAudioRef.current.pause();
                     setIsSoundLabOpen(true);
                 }}
                 tilt={tilt}

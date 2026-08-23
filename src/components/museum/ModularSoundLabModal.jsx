@@ -36,6 +36,11 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
             return;
         }
 
+        // Pause all other audio elements on the entire page to guarantee zero overlap
+        document.querySelectorAll('audio').forEach(el => {
+            try { el.pause(); } catch(e) {}
+        });
+
         // Initialize Audio Element
         const audio = new Audio(MR_AUDIO_SRC);
         audioRef.current = audio;
@@ -73,6 +78,7 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
         return () => {
             if (audioRef.current) {
                 audioRef.current.pause();
+                audioRef.current.src = "";
                 audioRef.current = null;
             }
             if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
