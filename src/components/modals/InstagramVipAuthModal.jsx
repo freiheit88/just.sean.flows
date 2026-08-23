@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Instagram, Crown, Sparkles, ShieldCheck, Key, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, Instagram, Crown, Sparkles, ShieldCheck, Key, CheckCircle2, ArrowRight, Camera, Upload } from 'lucide-react';
 
 const STORAGE_KEY = 'jsf_vip_member_profile';
 
@@ -20,6 +20,7 @@ export function saveVipProfile(profile) {
 
 export function InstagramVipAuthModal({ isOpen, onClose, onAuthenticated }) {
     const [instagramHandle, setInstagramHandle] = useState('');
+    const [customAvatarUrl, setCustomAvatarUrl] = useState('');
     const [isScanning, setIsScanning] = useState(false);
     const [scanProgress, setScanProgress] = useState(0);
     const [issuedProfile, setIssuedProfile] = useState(null);
@@ -30,6 +31,7 @@ export function InstagramVipAuthModal({ isOpen, onClose, onAuthenticated }) {
             if (existing) {
                 setIssuedProfile(existing);
                 setInstagramHandle(existing.instagramId);
+                if (existing.avatarUrl) setCustomAvatarUrl(existing.avatarUrl);
             }
         }
     }, [isOpen]);
@@ -42,17 +44,21 @@ export function InstagramVipAuthModal({ isOpen, onClose, onAuthenticated }) {
         setIsScanning(true);
         setScanProgress(0);
 
+        // Auto-resolve avatar: Unavatar with fallback to DiceBear SVG
+        const resolvedAvatar = customAvatarUrl.trim() || `https://unavatar.io/instagram/${cleanHandle}?fallback=https://api.dicebear.com/7.x/micah/svg?seed=${cleanHandle}`;
+
         const interval = setInterval(() => {
             setScanProgress((prev) => {
-                const next = prev + 0.15;
+                const next = prev + 0.18;
                 if (next >= 1.0) {
                     clearInterval(interval);
                     const newProfile = {
                         instagramId: cleanHandle,
+                        avatarUrl: resolvedAvatar,
                         memberNumber: Math.floor(Math.random() * 888) + 100,
                         issueDate: new Date().toISOString(),
                         tier: "FOUNDING_ATELIER_VIP",
-                        visitCount: 1
+                        visitCount: (issuedProfile?.visitCount || 0) + 1
                     };
                     saveVipProfile(newProfile);
                     setIssuedProfile(newProfile);
@@ -62,7 +68,20 @@ export function InstagramVipAuthModal({ isOpen, onClose, onAuthenticated }) {
                 }
                 return next;
             });
-        }, 120);
+        }, 110);
+    };
+
+    const handleFileUpload = (e) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (uploadEvent) => {
+                if (uploadEvent.target?.result) {
+                    setCustomAvatarUrl(uploadEvent.target.result);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     if (!isOpen) return null;
@@ -83,12 +102,12 @@ export function InstagramVipAuthModal({ isOpen, onClose, onAuthenticated }) {
                     onClick={(e) => e.stopPropagation()}
                     className="relative w-full max-w-lg rounded-3xl bg-[#0B0A0D] border border-[#E7FF00]/40 shadow-[0_0_80px_rgba(231,255,0,0.3)] p-6 sm:p-8 flex flex-col items-center text-center overflow-hidden"
                 >
-                    {/* Top Ambient Laser Scan Line during verification */}
+                    {/* Laser Scan Beam */}
                     {isScanning && (
                         <motion.div
-                            animate={{ y: ['0%', '400%', '0%'] }}
-                            transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
-                            className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#E7FF00] to-transparent shadow-[0_0_15px_#E7FF00] pointer-events-none z-30"
+                            animate={{ y: ['0%', '450%', '0%'] }}
+                            transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
+                            className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#E7FF00] to-transparent shadow-[0_0_20px_#E7FF00] pointer-events-none z-30"
                         />
                     )}
 
@@ -100,95 +119,149 @@ export function InstagramVipAuthModal({ isOpen, onClose, onAuthenticated }) {
                         <X className="w-4 h-4" />
                     </button>
 
-                    {/* Header Icon */}
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#E7FF00]/20 to-[#FF0055]/20 border border-[#E7FF00]/50 flex items-center justify-center text-[#E7FF00] mb-4 shadow-[0_0_25px_rgba(231,255,0,0.4)]">
-                        <Crown className="w-7 h-7" />
-                    </div>
-
-                    <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-[0.3em] uppercase block mb-1">
-                        EXCLUSIVE ATELIER MEMBERSHIP
-                    </span>
-                    <h2 className="font-sans text-xl sm:text-2xl font-black text-white tracking-wide">
-                        {issuedProfile ? "VIP ATELIER PASSPORT ISSUED" : "CLAIM YOUR PRIVATE SALON VAULT"}
-                    </h2>
-                    <p className="font-sans text-xs sm:text-sm text-neutral-300 mt-2 max-w-sm leading-relaxed">
-                        {issuedProfile 
-                            ? "Your browser is permanently recognized. Your private atelier vault is unlocked."
-                            : "Register your Instagram to unlock your own private 3D museum chamber and personalized browser entrance."}
-                    </p>
-
-                    {/* Body Form or Issued Golden Passport */}
                     {!issuedProfile ? (
-                        <form onSubmit={handleIssuePassport} className="w-full mt-6 flex flex-col gap-4">
-                            <div className="relative w-full">
-                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-neutral-400">
-                                    <Instagram className="w-5 h-5 text-[#E7FF00]" />
-                                    <span className="ml-2 font-mono font-bold text-white">@</span>
+                        /* Step 1: Input Instagram Handle & Verify */
+                        <div className="w-full flex flex-col items-center">
+                            {/* Instagram Glowing Icon */}
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] p-0.5 shadow-[0_0_30px_rgba(221,42,123,0.5)] mb-4">
+                                <div className="w-full h-full bg-black/80 rounded-[14px] flex items-center justify-center text-white">
+                                    <Instagram className="w-8 h-8" />
                                 </div>
-                                <input
-                                    type="text"
-                                    required
-                                    placeholder="your_instagram_handle"
-                                    value={instagramHandle}
-                                    onChange={(e) => setInstagramHandle(e.target.value)}
+                            </div>
+
+                            <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-[0.25em] uppercase block">
+                                ATELIER PATRON RECOGNITION
+                            </span>
+                            <h2 className="font-sans text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
+                                Instagram VIP Membership
+                            </h2>
+                            <p className="font-sans text-xs text-neutral-300 max-w-sm mt-1.5 leading-relaxed">
+                                인스타그램 계정을 연동하면 실제 프로필 사진이 뮤지엄 허브에 전시되며, 회원 전용 3D 살롱 룸이 영구 개방됩니다.
+                            </p>
+
+                            <form onSubmit={handleIssuePassport} className="w-full mt-5 flex flex-col gap-3.5">
+                                <div className="relative w-full">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 font-mono text-sm font-bold">
+                                        @
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={instagramHandle}
+                                        onChange={(e) => setInstagramHandle(e.target.value)}
+                                        placeholder="instagram_username"
+                                        required
+                                        className="w-full py-3.5 pl-9 pr-4 rounded-2xl bg-white/5 border border-white/20 focus:border-[#E7FF00] focus:ring-1 focus:ring-[#E7FF00] text-white font-mono text-sm tracking-wider outline-none transition-all"
+                                    />
+                                </div>
+
+                                {/* Custom Profile Image / Photo Upload Option */}
+                                <div className="w-full flex items-center justify-between px-2 py-1 bg-white/[0.03] rounded-xl border border-white/10">
+                                    <div className="flex items-center gap-2">
+                                        <Camera className="w-4 h-4 text-[#E7FF00]" />
+                                        <span className="font-mono text-[10px] text-neutral-300">프로필 사진 직접 등록 (선택)</span>
+                                    </div>
+                                    <label className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[10px] font-mono font-bold text-white cursor-pointer transition-all flex items-center gap-1">
+                                        <Upload className="w-3 h-3" />
+                                        <span>사진 선택</span>
+                                        <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+                                    </label>
+                                </div>
+
+                                {customAvatarUrl && (
+                                    <div className="flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-[#E7FF00]/40">
+                                        <img src={customAvatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-[#E7FF00]" />
+                                        <span className="font-mono text-[10px] text-[#E7FF00] truncate">사진 로드 완료</span>
+                                    </div>
+                                )}
+
+                                <motion.button
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
                                     disabled={isScanning}
-                                    className="w-full py-3.5 pl-14 pr-4 rounded-2xl bg-white/5 border border-white/20 focus:border-[#E7FF00] focus:ring-2 focus:ring-[#E7FF00]/40 text-white font-mono text-sm outline-none transition-all"
-                                />
+                                    type="submit"
+                                    className="w-full py-3.5 rounded-2xl bg-[#E7FF00] hover:bg-white text-black font-mono text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_25px_rgba(231,255,0,0.6)] flex items-center justify-center gap-2 cursor-pointer mt-1"
+                                >
+                                    {isScanning ? (
+                                        <>
+                                            <Sparkles className="w-4 h-4 animate-spin text-black" />
+                                            <span>VERIFYING @{instagramHandle} ({Math.floor(scanProgress * 100)}%)...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Crown className="w-4 h-4" />
+                                            <span>ISSUE VIP DIGITAL PASSPORT</span>
+                                        </>
+                                    )}
+                                </motion.button>
+                            </form>
+                        </div>
+                    ) : (
+                        /* Step 2: Digital VIP Passport Card Issued */
+                        <div className="w-full flex flex-col items-center">
+                            <div className="flex items-center gap-2 text-[#E7FF00] mb-2">
+                                <CheckCircle2 className="w-5 h-5" />
+                                <span className="font-mono text-xs font-black tracking-widest uppercase">
+                                    AUTHENTICATION COMPLETE
+                                </span>
+                            </div>
+
+                            {/* Luxury Holographic Passport Card */}
+                            <div className="w-full relative rounded-2xl bg-gradient-to-br from-[#1F1910] via-[#120F0B] to-[#0A0907] border-2 border-[#E7FF00]/70 p-5 shadow-[0_0_35px_rgba(231,255,0,0.35)] flex flex-col items-center text-left overflow-hidden mt-2">
+                                <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/15 to-transparent pointer-events-none" />
+
+                                <div className="w-full flex items-center justify-between border-b border-white/10 pb-3">
+                                    <div className="flex items-center gap-2">
+                                        <Crown className="w-4 h-4 text-[#E7FF00]" />
+                                        <span className="font-mono text-[10px] font-black text-white tracking-widest uppercase">
+                                            JUST SEAN FLOWS ATELIER
+                                        </span>
+                                    </div>
+                                    <span className="font-mono text-[9px] font-bold text-[#E7FF00] px-2 py-0.5 rounded bg-[#E7FF00]/15 border border-[#E7FF00]/40">
+                                        MEMBER #{issuedProfile.memberNumber}
+                                    </span>
+                                </div>
+
+                                <div className="w-full flex items-center gap-4 py-4">
+                                    {/* User's Verified Profile Photo */}
+                                    <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[#E7FF00] shadow-[0_0_20px_rgba(231,255,0,0.7)] shrink-0 bg-black">
+                                        <img 
+                                            src={issuedProfile.avatarUrl} 
+                                            alt="" 
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${issuedProfile.instagramId}`;
+                                            }}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <span className="font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase block">
+                                            VERIFIED PATRON
+                                        </span>
+                                        <h3 className="font-sans text-lg font-black text-white">
+                                            @{issuedProfile.instagramId}
+                                        </h3>
+                                        <span className="font-mono text-[9px] text-neutral-400 block mt-0.5">
+                                            TIER: {issuedProfile.tier}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="w-full pt-3 border-t border-white/10 flex items-center justify-between font-mono text-[9px] text-neutral-400">
+                                    <span>ISSUED: {new Date(issuedProfile.issueDate).toLocaleDateString()}</span>
+                                    <span className="text-[#E7FF00] font-bold">STATUS: ACTIVE</span>
+                                </div>
                             </div>
 
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                type="submit"
-                                disabled={isScanning || !instagramHandle.trim()}
-                                className="w-full py-3.5 px-6 rounded-2xl bg-[#E7FF00] hover:bg-white text-black font-mono text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_30px_rgba(231,255,0,0.8)] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                            >
-                                {isScanning ? (
-                                    <span>HOLOGRAPHIC SCANNING... {Math.floor(scanProgress * 100)}%</span>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-4 h-4" />
-                                        <span>ISSUE VIP DIGITAL PASSPORT</span>
-                                        <ArrowRight className="w-4 h-4" />
-                                    </>
-                                )}
-                            </motion.button>
-                        </form>
-                    ) : (
-                        /* Issued 3D Digital Passport Card */
-                        <div className="w-full mt-6 flex flex-col items-center">
-                            <div className="relative w-full rounded-2xl bg-gradient-to-br from-[#1C1814] via-[#2A231C] to-[#0F0D0B] border-2 border-[#E7FF00] p-5 shadow-[0_0_40px_rgba(231,255,0,0.4)] text-left flex flex-col justify-between">
-                                <div className="flex items-center justify-between pb-3 border-b border-[#E7FF00]/30">
-                                    <div className="flex items-center gap-2">
-                                        <CheckCircle2 className="w-4 h-4 text-[#E7FF00]" />
-                                        <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-widest uppercase">
-                                            FOUNDING VIP MEMBER
-                                        </span>
-                                    </div>
-                                    <span className="font-mono text-[10px] font-bold text-white/60">
-                                        #{issuedProfile.memberNumber}
-                                    </span>
-                                </div>
-
-                                <div className="my-3">
-                                    <span className="font-mono text-[8px] text-neutral-400 uppercase tracking-wider block">IDENTIFIER</span>
-                                    <h3 className="font-mono text-xl font-black text-white tracking-wide">
-                                        @{issuedProfile.instagramId}
-                                    </h3>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[9px] font-mono text-neutral-300">
-                                    <span>STATUS: PERMANENT RECOGNITION</span>
-                                    <span className="text-[#E7FF00] font-bold">VAULT UNLOCKED</span>
-                                </div>
-                            </div>
-
-                            <button
                                 onClick={onClose}
-                                className="mt-5 px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-mono font-bold text-white uppercase transition-all cursor-pointer"
+                                className="w-full py-3.5 rounded-2xl bg-[#E7FF00] hover:bg-white text-black font-mono text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_25px_rgba(231,255,0,0.6)] flex items-center justify-center gap-2 cursor-pointer mt-5"
                             >
-                                ENTER MY ATELIER
-                            </button>
+                                <span>ENTER MUSEUM WITH VIP ACCESS</span>
+                                <ArrowRight className="w-4 h-4" />
+                            </motion.button>
                         </div>
                     )}
                 </motion.div>

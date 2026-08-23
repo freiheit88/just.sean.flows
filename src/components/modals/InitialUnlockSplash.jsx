@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
-import { Compass, Sparkles, Waves } from 'lucide-react';
+import { Compass, Sparkles, Waves, Crown, CheckCircle2 } from 'lucide-react';
+import { getStoredVipProfile } from './InstagramVipAuthModal';
 
 export function InitialUnlockSplash({ 
     isAudioUnlocked, 
@@ -19,12 +20,16 @@ export function InitialUnlockSplash({
     // Stage 2 (4.0s): Background ambient debris emerges softly
     // Stage 3 (5.2s): Bottom navigation buttons slide up separately
     const [unblurStage, setUnblurStage] = useState(0);
+    const [vipProfile, setVipProfile] = useState(null);
 
     // Continuous Organic Idle Ambient Sway Physics (Natural breathing motion when stationary)
     const [idleOffset, setIdleOffset] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
     const animFrameRef = useRef(null);
 
     useEffect(() => {
+        const stored = getStoredVipProfile();
+        if (stored) setVipProfile(stored);
+
         const t1 = setTimeout(() => setUnblurStage(1), 3500); // 3.5s: LET'S GO rises
         const t2 = setTimeout(() => setUnblurStage(2), 4000); // 4.0s: Ambient Debris
         const t3 = setTimeout(() => setUnblurStage(3), 5200); // 5.2s: Action Buttons
@@ -32,7 +37,6 @@ export function InitialUnlockSplash({
         let startTime = Date.now();
         const loop = () => {
             const time = (Date.now() - startTime) * 0.001; // in seconds
-            // Smooth, non-linear multi-sine organic swaying
             const ix = Math.sin(time * 0.8) * 8 + Math.sin(time * 1.5) * 4;
             const iy = Math.cos(time * 0.6) * 7 + Math.cos(time * 1.2) * 3;
             const iRotX = Math.sin(time * 0.5) * 3;
@@ -61,7 +65,7 @@ export function InitialUnlockSplash({
 
     // Dynamic Glitch Spread (Tightly locked when stationary, expanding on movement)
     const gyroSpeed = Math.abs(tilt.x) + Math.abs(tilt.y);
-    const glitchDist = 3 + gyroSpeed * 12; // 3px idle -> 15px moving
+    const glitchDist = 3 + gyroSpeed * 12;
     const glitchAlpha = Math.min(0.75, 0.2 + gyroSpeed * 0.6);
 
     return (
@@ -153,6 +157,23 @@ export function InitialUnlockSplash({
                             }}
                             className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
                         >
+                            {/* Persistent VIP Recognition Floating Badge when Member is authenticated */}
+                            {vipProfile && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    transition={{ duration: 0.8, delay: 0.2 }}
+                                    className="mb-4 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border-2 border-[#E7FF00] shadow-[0_0_30px_rgba(231,255,0,0.6)] flex items-center gap-2.5"
+                                >
+                                    <div className="w-6 h-6 rounded-full overflow-hidden border border-[#E7FF00]">
+                                        <img src={vipProfile.avatarUrl} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${vipProfile.instagramId}`; }} />
+                                    </div>
+                                    <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-wider uppercase">
+                                        ⚜️ WELCOME BACK, @{vipProfile.instagramId} (VIP #{vipProfile.memberNumber})
+                                    </span>
+                                </motion.div>
+                            )}
+
                             {/* LET'S GO Smoothly Rises from Below with ZERO blur at 3.5s */}
                             <motion.div
                                 initial={{ opacity: 0, y: 70, scale: 0.92 }}

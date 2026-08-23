@@ -14,7 +14,7 @@ export function PrivateMemberVaultModal({ isOpen, onClose, vipProfile }) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.frequency.setValueAtTime(432, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3.0);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
@@ -70,28 +70,43 @@ export function PrivateMemberVaultModal({ isOpen, onClose, vipProfile }) {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
 
-                        {/* Central Personalized Wall Engraving */}
+                        {/* Central Personalized Wall Engraving & Verified Photo Medallion */}
                         <div className="relative z-20 flex flex-col items-center text-center my-auto">
                             <motion.div
                                 initial={{ scale: 0.8, opacity: 0 }}
                                 animate={{ scale: 1.0, opacity: 1 }}
                                 transition={{ duration: 0.8, ease: 'easeOut' }}
-                                className="relative p-8 rounded-3xl bg-black/75 backdrop-blur-xl border border-[#E7FF00]/40 shadow-[0_0_60px_rgba(231,255,0,0.25)] max-w-xl"
+                                className="relative p-6 sm:p-8 rounded-3xl bg-black/80 backdrop-blur-xl border border-[#E7FF00]/40 shadow-[0_0_60px_rgba(231,255,0,0.25)] max-w-xl flex flex-col items-center"
                             >
-                                <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-[0.4em] uppercase block mb-2">
+                                {/* Verified Instagram Profile Avatar Medallion */}
+                                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-4 border-[#E7FF00] shadow-[0_0_40px_rgba(231,255,0,0.8)] mb-4 bg-black">
+                                    <img 
+                                        src={vipProfile.avatarUrl} 
+                                        alt={vipProfile.instagramId} 
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                            e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${vipProfile.instagramId}`;
+                                        }}
+                                    />
+                                    <div className="absolute bottom-1 right-1 p-1.5 rounded-full bg-[#E7FF00] text-black shadow-lg">
+                                        <Crown className="w-3.5 h-3.5" />
+                                    </div>
+                                </div>
+
+                                <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-[0.4em] uppercase block mb-1">
                                     SANCTUARY RESTRICTED ACCESS
                                 </span>
-                                <h1 className="font-mono text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E7FF00] to-[#FFE066] drop-shadow-[0_0_25px_rgba(231,255,0,0.8)] tracking-tight">
+                                <h1 className="font-mono text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E7FF00] to-[#FFE066] drop-shadow-[0_0_25px_rgba(231,255,0,0.8)] tracking-tight">
                                     @{vipProfile.instagramId}
                                 </h1>
-                                <p className="font-sans text-xs sm:text-sm text-neutral-300 mt-3 leading-relaxed">
-                                    This sanctuary is permanently reserved for your session. Enjoy the private 432Hz Steinway resonance and midnight Frankfurt terrace skyline.
+                                <p className="font-sans text-xs sm:text-sm text-neutral-300 mt-2.5 leading-relaxed max-w-md">
+                                    인스타그램 @{vipProfile.instagramId} 회원님만을 위해 영구 예약된 프라이빗 성소입니다. 432Hz 하모닉 사운드와 심야 프랑크푸르트 스카이라인을 독점 감상하세요.
                                 </p>
 
-                                <div className="mt-6 flex items-center justify-center gap-3">
+                                <div className="mt-5 flex items-center justify-center gap-3">
                                     <button
                                         onClick={toggleAmbient}
-                                        className="px-5 py-2.5 rounded-2xl bg-[#E7FF00] text-black font-mono text-xs font-black tracking-wider uppercase transition-all shadow-[0_0_20px_#E7FF00] hover:scale-105 cursor-pointer flex items-center gap-2"
+                                        className="px-5 py-2.5 rounded-2xl bg-[#E7FF00] hover:bg-white text-black font-mono text-xs font-black tracking-wider uppercase transition-all shadow-[0_0_20px_#E7FF00] hover:scale-105 cursor-pointer flex items-center gap-2"
                                     >
                                         <Music className="w-4 h-4" />
                                         <span>{isPlayingAmbient ? "🎶 432Hz HARMONIC ACTIVE" : "PLAY 432Hz HARMONIC"}</span>
@@ -104,7 +119,7 @@ export function PrivateMemberVaultModal({ isOpen, onClose, vipProfile }) {
                         <div className="relative z-20 flex items-center justify-between p-4 rounded-2xl bg-black/80 border border-white/10 backdrop-blur-md font-mono text-[10px] text-neutral-400">
                             <div className="flex items-center gap-2 text-white">
                                 <Key className="w-3.5 h-3.5 text-[#E7FF00]" />
-                                <span>TIER: FOUNDING ATELIER MEMBER</span>
+                                <span>TIER: FOUNDING ATELIER MEMBER #{vipProfile.memberNumber}</span>
                             </div>
                             <span className="text-[#E7FF00] font-bold">AUTHENTICATED DIGITAL KEY</span>
                         </div>

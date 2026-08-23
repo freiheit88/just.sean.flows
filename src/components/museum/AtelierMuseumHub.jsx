@@ -290,6 +290,22 @@ export function AtelierMuseumHub({
                                                         CREATE WORLD
                                                     </span>
                                                 </div>
+                                            ) : isVipOrb && vipProfile?.avatarUrl ? (
+                                                /* Verified Instagram Profile Photo Display */
+                                                <div className="relative w-full h-full bg-black flex items-center justify-center">
+                                                    <img
+                                                        src={vipProfile.avatarUrl}
+                                                        alt={vipProfile.instagramId}
+                                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                        onError={(e) => {
+                                                            e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${vipProfile.instagramId}`;
+                                                        }}
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-tr from-black/50 via-transparent to-white/20 pointer-events-none" />
+                                                    <div className="absolute bottom-2 right-2 w-7 h-7 rounded-full bg-[#E7FF00] text-black flex items-center justify-center shadow-[0_0_15px_#E7FF00] border border-black">
+                                                        <Crown className="w-4 h-4" />
+                                                    </div>
+                                                </div>
                                             ) : (
                                                 /* High-Res Photographic Asset Lens */
                                                 <div className="relative w-full h-full bg-black">
@@ -298,7 +314,6 @@ export function AtelierMuseumHub({
                                                         alt={orb.title}
                                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                                                     />
-                                                    {/* Spherical Reflection Glint */}
                                                     <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-white/20 pointer-events-none" />
                                                     {isVipOrb && (
                                                         <div className="absolute inset-0 flex items-center justify-center bg-black/40">
