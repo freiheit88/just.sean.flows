@@ -2,7 +2,7 @@ import { ModularSoundLabModal } from './ModularSoundLabModal';
 import { SpatialSalonViewerModal } from './SpatialSalonViewerModal';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, Compass, Music, MapPin, Eye, Radio, Play, Crown, Key, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Sparkles, Compass, Music, MapPin, Eye, Radio, Play, Crown, Key, Instagram, ChevronLeft, ChevronRight, Globe, Clock, ShieldCheck } from 'lucide-react';
 import { CoutureLookbookModal } from './CoutureLookbookModal';
 
 const MUSEUM_ORBS = [
@@ -164,69 +164,102 @@ export function AtelierMuseumHub({
                 transition={{ duration: 0.4 }}
                 className="fixed inset-0 z-50 bg-[#060606] text-white flex flex-col select-none overflow-hidden"
             >
-                {/* 1. Top Navigation Bar */}
-                <header className="px-5 sm:px-10 py-3.5 border-b border-white/10 flex items-center justify-between shrink-0 bg-black/60 backdrop-blur-md z-20">
-                    <div className="flex items-center gap-3">
-                        <h1 className="font-sans font-black text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
-                            <span>JUST SEAN FLOWS</span>
-                            <span className="px-2 py-0.5 rounded-full bg-white/10 text-neutral-300 font-mono text-[9px] font-bold tracking-widest uppercase border border-white/15">
-                                ATELIER MUSEUM
+                {/* 1. Architectural Gilded Crown Bar & Mobile Notch Safe-Area */}
+                <div className="w-full bg-[#0E0C09] border-b border-[#C8A96E]/30 shrink-0 z-30 pt-[max(env(safe-area-inset-top),6px)]">
+                    {/* Live Frankfurt Atelier Marquee Ticker */}
+                    <div className="w-full py-1 px-4 bg-black/70 border-b border-white/5 flex items-center justify-between text-[8px] sm:text-[9px] font-mono text-neutral-400 overflow-hidden">
+                        <div className="flex items-center gap-2 text-[#E7FF00] shrink-0 font-bold">
+                            <span className="relative flex h-1.5 w-1.5 items-center justify-center">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E7FF00] opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1 w-1 bg-[#E7FF00]"></span>
                             </span>
-                        </h1>
-                        <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-[#E7FF00]/15 text-[#E7FF00] font-mono text-[10px] font-black tracking-widest uppercase">
-                            EXPERIMENT 2026
-                        </span>
+                            <span>LIVE FRANKFURT ATELIER</span>
+                        </div>
+
+                        {/* Running Ticker Info */}
+                        <div className="hidden sm:flex items-center gap-6 text-neutral-300 font-medium tracking-wider">
+                            <span>📍 FRANKFURT AM MAIN, GERMANY</span>
+                            <span>•</span>
+                            <span>🌙 02:00 AM MIDNIGHT SESSION</span>
+                            <span>•</span>
+                            <span>🎻 432Hz STEINWAY ACOUSTIC</span>
+                            <span>•</span>
+                            <span>🏢 UNTERNEHMERGESELLSCHAFT ARCHIVE</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-[#C8A96E] shrink-0 font-bold">
+                            <span>EXPEDITION 2026</span>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        {/* Prominent Instagram VIP Authentication Header Button */}
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => {
-                                if (vipProfile && onOpenPrivateVault) {
-                                    onOpenPrivateVault();
-                                } else if (onOpenVipAuth) {
-                                    onOpenVipAuth();
-                                }
-                            }}
-                            className={`px-3.5 py-1.5 rounded-full font-mono text-xs font-black tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer border ${
-                                vipProfile 
-                                    ? 'bg-[#E7FF00] text-black border-[#E7FF00] shadow-[0_0_20px_rgba(231,255,0,0.8)]' 
-                                    : 'bg-gradient-to-r from-[#1E1912] to-[#2E2519] text-[#E7FF00] border-[#E7FF00]/60 hover:border-[#E7FF00] shadow-[0_0_15px_rgba(231,255,0,0.3)]'
-                            }`}
-                        >
-                            <Crown className="w-3.5 h-3.5" />
-                            <span>
-                                {vipProfile ? `@${vipProfile.instagramId} 👑` : "인스타그램 VIP 인증"}
-                            </span>
-                        </motion.button>
+                    {/* Main Navigation Header Row */}
+                    <header className="px-4 sm:px-10 py-3 flex items-center justify-between bg-black/60 backdrop-blur-md">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FFD700] via-[#C8A96E] to-[#8C6B2D] p-0.5 shadow-[0_0_12px_rgba(200,169,110,0.5)]">
+                                <div className="w-full h-full bg-black rounded-[6px] flex items-center justify-center text-[#E7FF00] font-black text-xs">
+                                    JSF
+                                </div>
+                            </div>
+                            <div>
+                                <h1 className="font-sans font-black text-sm sm:text-lg tracking-tight text-white flex items-center gap-2 leading-none">
+                                    <span>JUST SEAN FLOWS</span>
+                                    <span className="px-2 py-0.5 rounded-full bg-white/10 text-neutral-300 font-mono text-[8px] font-bold tracking-widest uppercase border border-white/15">
+                                        ATELIER
+                                    </span>
+                                </h1>
+                            </div>
+                        </div>
 
-                        <button
-                            onClick={onReplayWalk}
-                            className="px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-200 hover:text-white font-mono text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer border border-white/15"
-                        >
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                            <span>WALK AGAIN</span>
-                        </button>
-                    </div>
-                </header>
+                        <div className="flex items-center gap-2.5">
+                            {/* Instagram VIP Authentication Button */}
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => {
+                                    if (vipProfile && onOpenPrivateVault) {
+                                        onOpenPrivateVault();
+                                    } else if (onOpenVipAuth) {
+                                        onOpenVipAuth();
+                                    }
+                                }}
+                                className={`px-3 py-1.5 rounded-full font-mono text-[11px] font-black tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer border ${
+                                    vipProfile 
+                                        ? 'bg-[#E7FF00] text-black border-[#E7FF00] shadow-[0_0_18px_rgba(231,255,0,0.8)]' 
+                                        : 'bg-gradient-to-r from-[#1E1912] to-[#2E2519] text-[#E7FF00] border-[#E7FF00]/60 hover:border-[#E7FF00] shadow-[0_0_12px_rgba(231,255,0,0.3)]'
+                                }`}
+                            >
+                                <Crown className="w-3.5 h-3.5" />
+                                <span>
+                                    {vipProfile ? `@${vipProfile.instagramId} 👑` : "VIP 인증"}
+                                </span>
+                            </motion.button>
 
-                {/* 2. Main Horizontal Snap Orbit Carousel Stage (Optimized for Mobile Vertical & Desktop) */}
+                            <button
+                                onClick={onReplayWalk}
+                                className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-200 hover:text-white font-mono text-[11px] font-bold tracking-wider uppercase transition-all flex items-center gap-1 cursor-pointer border border-white/15"
+                            >
+                                <ArrowLeft className="w-3 h-3" />
+                                <span>WALK AGAIN</span>
+                            </button>
+                        </div>
+                    </header>
+                </div>
+
+                {/* 2. Main Horizontal Snap Orbit Carousel Stage */}
                 <main className="flex-1 flex flex-col justify-center px-4 sm:px-12 py-4 overflow-hidden relative">
-                    <div className="max-w-6xl w-full mx-auto flex flex-col gap-4">
+                    <div className="max-w-6xl w-full mx-auto flex flex-col gap-3 sm:gap-4">
                         {/* Section Header with Left/Right Nav Arrows */}
                         <div className="flex items-end justify-between px-2">
                             <div>
-                                <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-[0.25em] uppercase block">
+                                <span className="font-mono text-[9px] sm:text-[10px] font-black text-[#E7FF00] tracking-[0.25em] uppercase block">
                                     SWIPE HORIZONTALLY // EXPEDITION ORBS
                                 </span>
-                                <h2 className="font-sans text-2xl sm:text-3xl font-black text-white tracking-tight mt-0.5">
+                                <h2 className="font-sans text-xl sm:text-3xl font-black text-white tracking-tight mt-0.5">
                                     The Frankfurt Atelier Archive
                                 </h2>
                             </div>
 
-                            {/* Left / Right Fast Navigation Controls */}
+                            {/* Left / Right Navigation Controls */}
                             <div className="hidden sm:flex items-center gap-2">
                                 <button
                                     onClick={() => scrollByStep(-1)}
@@ -247,7 +280,7 @@ export function AtelierMuseumHub({
                         <div 
                             ref={scrollTrackRef}
                             onScroll={handleTrackScroll}
-                            className="flex items-center gap-6 sm:gap-10 overflow-x-auto snap-x snap-mandatory scroll-smooth py-6 px-4 select-none"
+                            className="flex items-center gap-6 sm:gap-10 overflow-x-auto snap-x snap-mandatory scroll-smooth py-5 px-4 select-none"
                             style={{
                                 scrollbarWidth: 'none',
                                 msOverflowStyle: 'none'
@@ -263,13 +296,13 @@ export function AtelierMuseumHub({
                                 return (
                                     <motion.div
                                         key={orb.id}
-                                        whileHover={{ y: -10, scale: 1.04 }}
-                                        whileTap={{ scale: 0.96 }}
+                                        whileHover={{ y: -8, scale: 1.03 }}
+                                        whileTap={{ scale: 0.97 }}
                                         onClick={() => handleOrbClick(orb)}
-                                        className="snap-center shrink-0 w-56 sm:w-64 flex flex-col items-center text-center cursor-pointer group select-none"
+                                        className="snap-center shrink-0 w-52 sm:w-64 flex flex-col items-center text-center cursor-pointer group select-none"
                                     >
                                         {/* Circular Sphere Lens */}
-                                        <div className={`relative w-44 h-44 sm:w-52 sm:h-52 rounded-full overflow-hidden border-2 shadow-2xl transition-all duration-300 ${
+                                        <div className={`relative w-40 h-40 sm:w-52 sm:h-52 rounded-full overflow-hidden border-2 shadow-2xl transition-all duration-300 ${
                                             isVipOrb 
                                                 ? 'border-[#E7FF00] shadow-[0_0_40px_rgba(231,255,0,0.6)] group-hover:shadow-[0_0_60px_#E7FF00]' 
                                                 : isSelected
@@ -283,10 +316,10 @@ export function AtelierMuseumHub({
                                                     <div className="w-12 h-12 rounded-full border-2 border-[#E7FF00] border-dashed flex items-center justify-center text-[#E7FF00] mb-2 animate-spin-slow">
                                                         <Compass className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-sans text-sm font-black text-white z-10">
+                                                    <span className="font-sans text-xs sm:text-sm font-black text-white z-10">
                                                         직접 만들기
                                                     </span>
-                                                    <span className="font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase z-10 mt-0.5">
+                                                    <span className="font-mono text-[8px] sm:text-[9px] text-[#E7FF00] tracking-widest uppercase z-10 mt-0.5">
                                                         CREATE WORLD
                                                     </span>
                                                 </div>
@@ -326,20 +359,20 @@ export function AtelierMuseumHub({
                                             )}
 
                                             {/* Top Pill Badge */}
-                                            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-black/85 backdrop-blur-md border border-white/20 text-[8px] font-mono font-bold text-[#E7FF00] tracking-wider uppercase whitespace-nowrap">
+                                            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-black/85 backdrop-blur-md border border-white/20 text-[8px] font-mono font-bold text-[#E7FF00] tracking-wider uppercase whitespace-nowrap">
                                                 {orb.badge}
                                             </div>
                                         </div>
 
                                         {/* Meta Label Info */}
-                                        <div className="mt-3.5 flex flex-col items-center max-w-[220px]">
-                                            <span className="font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase block">
+                                        <div className="mt-3 flex flex-col items-center max-w-[200px]">
+                                            <span className="font-mono text-[8px] sm:text-[9px] text-[#E7FF00] tracking-widest uppercase block">
                                                 {displayTag}
                                             </span>
-                                            <h3 className="font-sans text-base font-bold text-white group-hover:text-[#E7FF00] transition-colors mt-0.5">
+                                            <h3 className="font-sans text-sm sm:text-base font-bold text-white group-hover:text-[#E7FF00] transition-colors mt-0.5">
                                                 {displayTitle}
                                             </h3>
-                                            <p className="font-sans text-xs text-neutral-400 line-clamp-2 mt-0.5">
+                                            <p className="font-sans text-[11px] text-neutral-400 line-clamp-2 mt-0.5">
                                                 {displaySub}
                                             </p>
                                         </div>
@@ -348,9 +381,9 @@ export function AtelierMuseumHub({
                             })}
                         </div>
 
-                        {/* Bottom Orbit Pagination Dots & Quick Indicator */}
-                        <div className="flex items-center justify-between px-4 pt-1">
-                            <span className="font-mono text-[10px] text-neutral-400 uppercase tracking-wider">
+                        {/* Bottom Orbit Pagination Dots */}
+                        <div className="flex items-center justify-between px-3 pt-1">
+                            <span className="font-mono text-[9px] text-neutral-400 uppercase tracking-wider">
                                 {activeOrbIndex + 1} / {MUSEUM_ORBS.length} ORBS
                             </span>
 
@@ -361,15 +394,15 @@ export function AtelierMuseumHub({
                                         onClick={() => scrollToIndex(idx)}
                                         className={`transition-all duration-300 rounded-full cursor-pointer ${
                                             activeOrbIndex === idx 
-                                                ? 'w-6 h-2 bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]' 
-                                                : 'w-2 h-2 bg-white/25 hover:bg-white/60'
+                                                ? 'w-6 h-1.5 bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]' 
+                                                : 'w-1.5 h-1.5 bg-white/25 hover:bg-white/60'
                                         }`}
                                     />
                                 ))}
                             </div>
 
-                            <span className="font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase hidden sm:inline-block">
-                                TOUCH & DRAG TO EXPLORE
+                            <span className="font-mono text-[8px] text-[#E7FF00] tracking-widest uppercase hidden sm:inline-block">
+                                SWIPE / DRAG TO EXPLORE
                             </span>
                         </div>
                     </div>
