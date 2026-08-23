@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Compass, Sparkles, MapPin, Music, Volume2, Move, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Eye, ShieldCheck, Crown } from 'lucide-react';
+import { X, Compass, Sparkles, MapPin, Music, Move, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Eye, ShieldCheck, Crown } from 'lucide-react';
 
 const SPATIAL_NODES = {
     center: {
@@ -10,9 +10,9 @@ const SPATIAL_NODES = {
         image: "/assets/spatial/spot_a_center.jpg",
         desc: "Late Romantic noble salon with vaulted stucco ceiling, crystal chandeliers, and Steinway grand piano.",
         exits: [
-            { target: 'piano', label: "Steinway Piano", x: '49%', y: '58%', key: 'W', angleHint: "▲ Walk to Piano" },
-            { target: 'violin', label: "Violin Table", x: '24%', y: '78%', key: 'A', angleHint: "◀ Inspect Violin" },
-            { target: 'terrace', label: "Night Terrace", x: '76%', y: '50%', key: 'D', angleHint: "▶ View Frankfurt Terrace" }
+            { target: 'piano', label: "Steinway Piano", x: '50%', y: '56%', key: 'W', angleHint: "▲ Walk to Piano" },
+            { target: 'violin', label: "Violin Table", x: '28%', y: '74%', key: 'A', angleHint: "◀ Inspect Violin" },
+            { target: 'terrace', label: "Night Terrace", x: '74%', y: '52%', key: 'D', angleHint: "▶ View Frankfurt Terrace" }
         ],
         mapX: 50, mapY: 70
     },
@@ -23,8 +23,8 @@ const SPATIAL_NODES = {
         image: "/assets/spatial/spot_b_piano.jpg",
         desc: "First-person seat at the 1924 vintage Steinway grand piano. Sheet music of 'A TWELVE-MINUTE ALIBI' resting on the stand.",
         exits: [
-            { target: 'center', label: "Salon Center", x: '18%', y: '85%', key: 'S', angleHint: "▼ Step Back to Center" },
-            { target: 'terrace', label: "Night Terrace", x: '82%', y: '45%', key: 'D', angleHint: "▶ Step to Terrace" }
+            { target: 'center', label: "Salon Center", x: '22%', y: '82%', key: 'S', angleHint: "▼ Step Back to Center" },
+            { target: 'terrace', label: "Night Terrace", x: '80%', y: '46%', key: 'D', angleHint: "▶ Step to Terrace" }
         ],
         interactiveObject: {
             title: "Steinway Key Action",
@@ -40,8 +40,8 @@ const SPATIAL_NODES = {
         image: "/assets/spatial/spot_c_violin.jpg",
         desc: "Handcrafted violin, crystal Bordeaux decanter, and authentic manuscript score under warm candlelight.",
         exits: [
-            { target: 'center', label: "Salon Center", x: '75%', y: '85%', key: 'S', angleHint: "▼ Step Back to Center" },
-            { target: 'piano', label: "Steinway Piano", x: '52%', y: '42%', key: 'W', angleHint: "▲ Walk to Piano" }
+            { target: 'center', label: "Salon Center", x: '72%', y: '82%', key: 'S', angleHint: "▼ Step Back to Center" },
+            { target: 'piano', label: "Steinway Piano", x: '50%', y: '42%', key: 'W', angleHint: "▲ Walk to Piano" }
         ],
         interactiveObject: {
             title: "Inspect A TWELVE-MINUTE ALIBI Score",
@@ -57,8 +57,8 @@ const SPATIAL_NODES = {
         image: "/assets/spatial/spot_d_terrace.jpg",
         desc: "French terrace window overlooking the misty skyscrapers of Frankfurt am Main at 02:00 AM.",
         exits: [
-            { target: 'center', label: "Salon Center", x: '50%', y: '88%', key: 'S', angleHint: "▼ Return to Salon Center" },
-            { target: 'piano', label: "Steinway Piano", x: '22%', y: '55%', key: 'A', angleHint: "◀ Walk back to Piano" }
+            { target: 'center', label: "Salon Center", x: '50%', y: '85%', key: 'S', angleHint: "▼ Return to Salon Center" },
+            { target: 'piano', label: "Steinway Piano", x: '25%', y: '54%', key: 'A', angleHint: "◀ Walk back to Piano" }
         ],
         interactiveObject: {
             title: "Frankfurt Skyline",
@@ -69,6 +69,8 @@ const SPATIAL_NODES = {
     }
 };
 
+const HOLD_DURATION_MS = 2400; // 2.4s Smooth Cinematic Hold-to-Walk
+
 export function SpatialSalonViewerModal({ isOpen, onClose }) {
     const [currentNodeId, setCurrentNodeId] = useState('center');
     const [isTransitioning, setIsTransitioning] = useState(false);
@@ -78,28 +80,34 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
     const [inspectedObject, setInspectedObject] = useState(null);
     const [soundNoteActive, setSoundNoteActive] = useState(false);
 
-    // Active Key & Hover Preview
+    // 3-Second Hold-to-Walk State & Progress
+    const [activeHoldingKey, setActiveHoldingKey] = useState(null);
+    const [holdProgress, setHoldProgress] = useState(0.0);
     const [hoveredExitTarget, setHoveredExitTarget] = useState(null);
-    const [activeKeyPulse, setActiveKeyPulse] = useState(null);
+
+    const holdStartTimeRef = useRef(null);
+    const holdIntervalRef = useRef(null);
 
     const currentNode = SPATIAL_NODES[currentNodeId] || SPATIAL_NODES.center;
 
-    // Keyboard (W, A, S, D) Instant & Responsive Navigation Engine
+    // Keyboard Hold-to-Walk Navigation Engine
     useEffect(() => {
         if (!isOpen) return;
 
         const handleKeyDown = (e) => {
+            if (e.repeat) return; // Prevent OS repeat flickering
             const key = e.key.toUpperCase();
             const exit = currentNode.exits.find(ex => ex.key === key);
-            if (exit && !isTransitioning) {
-                setActiveKeyPulse(key);
-                setHoveredExitTarget(exit.target);
-                transitionToNode(exit.target);
+            if (exit && !isTransitioning && activeHoldingKey !== key) {
+                startHoldKey(key, exit.target);
             }
         };
 
-        const handleKeyUp = () => {
-            setActiveKeyPulse(null);
+        const handleKeyUp = (e) => {
+            const key = e.key.toUpperCase();
+            if (activeHoldingKey === key) {
+                cancelHoldKey();
+            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
@@ -108,8 +116,42 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
+            cancelHoldKey();
         };
-    }, [isOpen, currentNodeId, isTransitioning]);
+    }, [isOpen, currentNodeId, activeHoldingKey, isTransitioning]);
+
+    const startHoldKey = (key, targetId) => {
+        if (isTransitioning) return;
+        setActiveHoldingKey(key);
+        setHoveredExitTarget(targetId);
+        holdStartTimeRef.current = Date.now();
+
+        if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
+
+        holdIntervalRef.current = setInterval(() => {
+            const elapsed = Date.now() - holdStartTimeRef.current;
+            const prog = Math.min(1.0, elapsed / HOLD_DURATION_MS);
+            setHoldProgress(prog);
+
+            if (prog >= 1.0) {
+                clearInterval(holdIntervalRef.current);
+                holdIntervalRef.current = null;
+                setActiveHoldingKey(null);
+                setHoldProgress(0.0);
+                transitionToNode(targetId);
+            }
+        }, 30);
+    };
+
+    const cancelHoldKey = () => {
+        if (holdIntervalRef.current) {
+            clearInterval(holdIntervalRef.current);
+            holdIntervalRef.current = null;
+        }
+        setActiveHoldingKey(null);
+        setHoldProgress(0.0);
+        setHoveredExitTarget(null);
+    };
 
     const transitionToNode = (targetId) => {
         if (isTransitioning || targetId === currentNodeId) return;
@@ -123,21 +165,22 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.frequency.setValueAtTime(85, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(32, audioCtx.currentTime + 0.16);
-            gain.gain.setValueAtTime(0.22, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.16);
+            osc.frequency.exponentialRampToValueAtTime(32, audioCtx.currentTime + 0.18);
+            gain.gain.setValueAtTime(0.24, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.16);
+            osc.stop(audioCtx.currentTime + 0.18);
         } catch (e) {}
 
         setTimeout(() => {
             setCurrentNodeId(targetId);
             setPanOffset({ x: 0, y: 0 });
             setIsTransitioning(false);
-            setActiveKeyPulse(null);
-        }, 380);
+            setActiveHoldingKey(null);
+            setHoldProgress(0.0);
+        }, 420);
     };
 
     const playPianoChord = () => {
@@ -170,8 +213,8 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
 
     const handleMouseMove = (e) => {
         if (!isDragging) return;
-        const newX = Math.max(-100, Math.min(100, e.clientX - dragStart.x));
-        const newY = Math.max(-50, Math.min(50, e.clientY - dragStart.y));
+        const newX = Math.max(-120, Math.min(120, e.clientX - dragStart.x));
+        const newY = Math.max(-60, Math.min(60, e.clientY - dragStart.y));
         setPanOffset({ x: newX, y: newY });
     };
 
@@ -180,8 +223,6 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
     };
 
     if (!isOpen) return null;
-
-    const activePreviewNode = hoveredExitTarget ? SPATIAL_NODES[hoveredExitTarget] : null;
 
     return (
         <AnimatePresence>
@@ -212,22 +253,12 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                             </div>
                         </div>
 
-                        {/* WASD Keyboard Controller Indicator */}
+                        {/* Hold Key / Button Indicator */}
                         <div className="hidden sm:flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 font-mono text-[10px] text-neutral-300">
-                            <span className="font-bold text-white">CONTROLS:</span>
-                            {['W', 'A', 'S', 'D'].map((k) => (
-                                <span 
-                                    key={k}
-                                    className={`px-2 py-0.5 rounded font-black transition-all ${
-                                        activeKeyPulse === k 
-                                            ? 'bg-[#E7FF00] text-black shadow-[0_0_10px_#E7FF00] scale-110' 
-                                            : 'bg-white/10 text-neutral-300'
-                                    }`}
-                                >
-                                    {k}
-                                </span>
-                            ))}
-                            <span>/ Click Gateway to Walk</span>
+                            <span className="font-bold text-[#E7FF00]">HOLD KEY (W, A, S, D) OR BUTTON:</span>
+                            <span className="px-2 py-0.5 rounded bg-white/10 text-white font-black">
+                                {activeHoldingKey ? `${activeHoldingKey} (${Math.floor(holdProgress * 100)}%)` : "HOLD TO WALK"}
+                            </span>
                         </div>
 
                         <button
@@ -238,7 +269,7 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                         </button>
                     </div>
 
-                    {/* 2. Main 1st-Person Photographic Spatial Viewport (Full 16:9 Crisp Un-cropped Stage) */}
+                    {/* 2. Main Full-Bleed 1st-Person Photographic Stage (Zero Black Bars) */}
                     <div 
                         onMouseDown={handleMouseDown}
                         onMouseMove={handleMouseMove}
@@ -246,13 +277,13 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                         onMouseLeave={handleMouseUp}
                         className="relative flex-1 bg-black overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing"
                     >
-                        {/* 1st-Person Image Stage */}
+                        {/* 1st-Person Edge-to-Edge Image Stage */}
                         <motion.div
                             animate={{
-                                scale: isTransitioning ? 1.08 : 1.0,
-                                opacity: isTransitioning ? 0.3 : 1.0,
-                                x: panOffset.x * 0.3,
-                                y: panOffset.y * 0.3
+                                scale: isTransitioning ? 1.1 : (1.0 + holdProgress * 0.04),
+                                opacity: isTransitioning ? 0.25 : 1.0,
+                                x: panOffset.x * 0.25,
+                                y: panOffset.y * 0.25
                             }}
                             transition={{ duration: 0.35, ease: 'easeOut' }}
                             className="absolute inset-0 w-full h-full flex items-center justify-center"
@@ -260,16 +291,20 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                             <img
                                 src={currentNode.image}
                                 alt={currentNode.name}
-                                className="w-full h-full object-cover sm:object-contain select-none pointer-events-none"
+                                className="w-full h-full object-cover select-none pointer-events-none"
                             />
-                            {/* Subtle Ambient Vignette */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none" />
                         </motion.div>
 
-                        {/* Interactive Spatial Exit Gateways & Floating Preview Lenses */}
+                        {/* Interactive Spatial Gateways with 360° Circular SVG Hold Charge & Ethereal Preview Lens */}
                         {!isTransitioning && currentNode.exits.map((exit) => {
+                            const isBeingHeld = activeHoldingKey === exit.key;
                             const isHovered = hoveredExitTarget === exit.target;
                             const targetNode = SPATIAL_NODES[exit.target];
+                            const radius = 24;
+                            const circumference = 2 * Math.PI * radius;
+                            const currentProgress = isBeingHeld ? holdProgress : 0.0;
+                            const strokeDashoffset = circumference - (currentProgress * circumference);
 
                             return (
                                 <div
@@ -281,20 +316,26 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                                     }}
                                     className="absolute z-20 flex flex-col items-center pointer-events-auto"
                                     onMouseEnter={() => setHoveredExitTarget(exit.target)}
-                                    onMouseLeave={() => setHoveredExitTarget(null)}
+                                    onMouseLeave={() => {
+                                        if (!activeHoldingKey) setHoveredExitTarget(null);
+                                    }}
                                 >
-                                    {/* Ethereal Floating Holographic Room Preview Lens on Hover/Focus */}
+                                    {/* Ethereal Floating Holographic Room Preview Lens on Hold / Hover */}
                                     <AnimatePresence>
-                                        {isHovered && (
+                                        {(isBeingHeld || isHovered) && (
                                             <motion.div
-                                                initial={{ opacity: 0, scale: 0.7, y: 10 }}
-                                                animate={{ opacity: 1, scale: 1.0, y: -68 }}
-                                                exit={{ opacity: 0, scale: 0.7, y: 10 }}
+                                                initial={{ opacity: 0, scale: 0.6, y: 15 }}
+                                                animate={{ 
+                                                    opacity: isBeingHeld ? (0.45 + holdProgress * 0.55) : 0.75, 
+                                                    scale: isBeingHeld ? (1.0 + holdProgress * 0.18) : 0.95, 
+                                                    y: -75 
+                                                }}
+                                                exit={{ opacity: 0, scale: 0.6, y: 10 }}
                                                 transition={{ duration: 0.25 }}
                                                 className="absolute pointer-events-none flex flex-col items-center z-30"
                                             >
                                                 {/* Circular Refractive Preview Portal */}
-                                                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-2 border-[#E7FF00] shadow-[0_0_35px_rgba(231,255,0,0.75)] bg-black">
+                                                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-2 border-[#E7FF00] shadow-[0_0_40px_rgba(231,255,0,0.8)] bg-black">
                                                     <img 
                                                         src={targetNode.image} 
                                                         alt="" 
@@ -309,32 +350,58 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                                                     />
                                                     <div className="absolute top-1 left-2 w-8 h-4 rounded-full bg-white/60 blur-[1px] transform -rotate-45" />
                                                 </div>
-                                                {/* Lens Label */}
-                                                <span className="mt-1 px-2.5 py-0.5 rounded-full bg-black/90 border border-[#E7FF00]/50 text-[9px] font-mono font-bold text-[#E7FF00] uppercase tracking-wider whitespace-nowrap shadow-lg">
+                                                <span className="mt-1 px-2.5 py-0.5 rounded-full bg-black/90 border border-[#E7FF00]/60 text-[9px] font-mono font-bold text-[#E7FF00] uppercase tracking-wider whitespace-nowrap shadow-lg">
                                                     {targetNode.name}
                                                 </span>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
 
-                                    {/* Tactile Clickable Waypoint Button */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.15 }}
-                                        whileTap={{ scale: 0.92 }}
-                                        onClick={() => transitionToNode(exit.target)}
-                                        className="relative flex flex-col items-center cursor-pointer group"
+                                    {/* Waypoint Hold Trigger Button with 360° Circular SVG Progress Ring */}
+                                    <button
+                                        onMouseDown={() => startHoldKey(exit.key, exit.target)}
+                                        onMouseUp={cancelHoldKey}
+                                        onTouchStart={() => startHoldKey(exit.key, exit.target)}
+                                        onTouchEnd={cancelHoldKey}
+                                        className="relative flex items-center justify-center cursor-pointer group"
                                     >
-                                        {/* Glowing Beacon Ring */}
-                                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-black/85 border-2 border-[#E7FF00] shadow-[0_0_25px_#E7FF00] group-hover:bg-[#E7FF00] group-hover:text-black text-white flex items-center justify-center transition-all duration-200">
-                                            <span className="font-mono font-black text-sm sm:text-base">
+                                        {/* Circular Radial SVG Charge Progress (0 to 360 deg) */}
+                                        <svg className="w-16 h-16 sm:w-18 sm:h-18 transform -rotate-90 pointer-events-none">
+                                            <circle
+                                                cx="32" cy="32" r={radius}
+                                                className="text-white/20"
+                                                strokeWidth="3.5"
+                                                stroke="currentColor"
+                                                fill="transparent"
+                                            />
+                                            <circle
+                                                cx="32" cy="32" r={radius}
+                                                stroke="#E7FF00"
+                                                strokeWidth="4"
+                                                strokeDasharray={circumference}
+                                                strokeDashoffset={strokeDashoffset}
+                                                strokeLinecap="round"
+                                                fill="transparent"
+                                                style={{ filter: 'drop-shadow(0 0 8px #E7FF00)' }}
+                                                className="transition-all duration-75"
+                                            />
+                                        </svg>
+
+                                        {/* Inner Center Key Button */}
+                                        <div className={`absolute inset-2.5 rounded-full flex flex-col items-center justify-center transition-all ${
+                                            isBeingHeld 
+                                                ? 'bg-[#E7FF00] text-black shadow-[0_0_25px_#E7FF00] scale-110' 
+                                                : 'bg-black/85 text-white border border-[#E7FF00]/50 group-hover:border-[#E7FF00] group-hover:shadow-[0_0_15px_#E7FF00]'
+                                        }`}>
+                                            <span className="font-mono font-black text-sm sm:text-base leading-none">
                                                 {exit.key}
                                             </span>
                                         </div>
+                                    </button>
 
-                                        <div className="mt-1 px-2.5 py-0.5 rounded-lg bg-black/80 backdrop-blur-md border border-white/20 text-[9px] font-mono font-bold text-neutral-200 group-hover:text-white group-hover:border-[#E7FF00] whitespace-nowrap shadow-md transition-all">
-                                            {exit.label}
-                                        </div>
-                                    </motion.button>
+                                    <div className="mt-1 px-2.5 py-0.5 rounded-lg bg-black/85 backdrop-blur-md border border-white/20 text-[9px] font-mono font-bold text-neutral-200 group-hover:text-[#E7FF00] group-hover:border-[#E7FF00] whitespace-nowrap shadow-md transition-all">
+                                        {exit.label}
+                                    </div>
                                 </div>
                             );
                         })}
@@ -435,7 +502,7 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
 
                         <div className="flex items-center gap-2">
                             <span className="px-2.5 py-0.5 rounded bg-white/5 border border-white/10 text-white font-bold">
-                                CLICK OR PRESS WASD TO STEP // 60 FPS
+                                HOLD KEY (W, A, S, D) OR BUTTON TO STEP // 60 FPS
                             </span>
                         </div>
                     </div>
