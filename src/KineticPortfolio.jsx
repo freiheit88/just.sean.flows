@@ -1,3 +1,4 @@
+import { WalkRadarMap } from './components/walk/WalkRadarMap';
 import { ModularSoundLabModal } from './components/museum/ModularSoundLabModal';
 import { AtelierMuseumHub } from './components/museum/AtelierMuseumHub';
 import React, { useState, useRef, useEffect } from 'react';
@@ -183,6 +184,12 @@ export default function KineticPortfolio() {
                         tiltY={tiltY}
                         onWalkAgain={resetWalk}
                         onOpenMuseum={() => setIsMuseumOpen(true)}
+                    />
+
+                    {/* Real-time 7-Stage Architectural Walk Radar Mini-Map */}
+                    <WalkRadarMap 
+                        activeFrameIdx={activeFrameIdx}
+                        isVisible={isAudioUnlocked && !isMuseumOpen && !isSoundLabOpen && !showWelcomeBack}
                     />
 
                     {/* In-Situ 3D J.A.R.V.I.S. Hologram HUD Projected Directly Over Gothic Arch */}
