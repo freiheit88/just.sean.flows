@@ -1,3 +1,4 @@
+import { ModularSoundLabModal } from './ModularSoundLabModal';
 import { SpatialSalonViewerModal } from './SpatialSalonViewerModal';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -83,6 +84,7 @@ export function AtelierMuseumHub({ isOpen, onClose, onReplayWalk }) {
     const [selectedOrb, setSelectedOrb] = useState(null);
     const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
     const [isSpatialSalonOpen, setIsSpatialSalonOpen] = useState(false);
+    const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
 
     if (!isOpen) return null;
 
@@ -91,6 +93,8 @@ export function AtelierMuseumHub({ isOpen, onClose, onReplayWalk }) {
             setIsLookbookModalOpen(true);
         } else if (orb.id === 'piano_salon' || orb.id === 'wireframe_studio') {
             setIsSpatialSalonOpen(true);
+        } else if (orb.id === 'sound_lab' || orb.id === 'amber_speakeasy') {
+            setIsSoundLabOpen(true);
         } else if (orb.id === 'midnight_walk') {
             onReplayWalk();
         } else {
@@ -225,6 +229,12 @@ export function AtelierMuseumHub({ isOpen, onClose, onReplayWalk }) {
                 <SpatialSalonViewerModal
                     isOpen={isSpatialSalonOpen}
                     onClose={() => setIsSpatialSalonOpen(false)}
+                />
+
+                {/* 5. Remastered 3D Modular Sound Lab Visualizer Modal */}
+                <ModularSoundLabModal
+                    isOpen={isSoundLabOpen}
+                    onClose={() => setIsSoundLabOpen(false)}
                 />
 
                 {/* Generic World Modal for other Orbs */}

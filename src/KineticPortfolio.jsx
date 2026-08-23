@@ -1,3 +1,4 @@
+import { ModularSoundLabModal } from './components/museum/ModularSoundLabModal';
 import { AtelierMuseumHub } from './components/museum/AtelierMuseumHub';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -59,6 +60,7 @@ export default function KineticPortfolio() {
     });
 
     const [isMuseumOpen, setIsMuseumOpen] = useState(false);
+    const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
 
     const handleInitialUnlock = () => {
         forceUnlockAudio();
@@ -213,6 +215,12 @@ export default function KineticPortfolio() {
                 isMuted={isMuted}
                 onToggleMute={handleToggleMute}
                 onFlowsHit={handleFlowsHit}
+            />
+
+            {/* Direct Remastered 3D Modular Sound Lab Visualizer Modal */}
+            <ModularSoundLabModal
+                isOpen={isSoundLabOpen}
+                onClose={() => setIsSoundLabOpen(false)}
             />
 
             {/* Full-Scale Google Project Genie-Style 3D Crystal Orb Museum Hub */}

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
 
 
-export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, tiltY, ghostOffsetX, ghostOffsetY, isMuted, onToggleMute, onFlowsHit }) {
+export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, onDirectMuseum, onDirectSoundLab, tilt, tiltX, tiltY, ghostOffsetX, ghostOffsetY, isMuted, onToggleMute, onFlowsHit }) {
     if (isAudioUnlocked) return null;
 
     return (
@@ -155,13 +155,34 @@ export function InitialUnlockSplash({ isAudioUnlocked, onUnlock, tilt, tiltX, ti
                     </div>
 
                     {/* Touch to Enter Guidance Text */}
-                    <div className="mt-8 font-mono text-[10px] sm:text-xs text-white/50 tracking-[0.3em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,1)] animate-pulse">
-                        TOUCH TO ENTER
+                    <div className="mt-6 font-mono text-[10px] sm:text-xs text-white/50 tracking-[0.3em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,1)] animate-pulse">
+                        TOUCH TO START WALK
+                    </div>
+
+                    {/* Direct Shortcut Jump Buttons */}
+                    <div className="mt-5 flex flex-col sm:flex-row items-center gap-2.5 z-30 pointer-events-auto">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDirectMuseum) onDirectMuseum();
+                            }}
+                            className="px-4 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 hover:border-[#E7FF00] text-neutral-200 hover:text-white font-mono text-[10px] font-black tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(0,0,0,0.8)] cursor-pointer"
+                        >
+                            <span>🏛️ DIRECT ATELIER MUSEUM ➔</span>
+                        </button>
+
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onDirectSoundLab) onDirectSoundLab();
+                            }}
+                            className="px-4 py-1.5 rounded-full bg-[#E7FF00]/15 hover:bg-[#E7FF00]/30 border border-[#E7FF00]/40 text-[#E7FF00] font-mono text-[10px] font-black tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(231,255,0,0.3)] cursor-pointer"
+                        >
+                            <span>🎧 3D SOUND LAB & MR MIXER ➔</span>
+                        </button>
                     </div>
                 </motion.div>
             </div>
-
-
         </motion.div>
     );
 }
