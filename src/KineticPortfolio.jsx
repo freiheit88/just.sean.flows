@@ -1,3 +1,6 @@
+import { WalkingGlassActionCard } from './components/walk/WalkingGlassActionCard';
+import { InstagramVipAuthModal, getStoredVipProfile } from './components/modals/InstagramVipAuthModal';
+import { PrivateMemberVaultModal } from './components/museum/PrivateMemberVaultModal';
 import { WalkRadarMap } from './components/walk/WalkRadarMap';
 import { ModularSoundLabModal } from './components/museum/ModularSoundLabModal';
 import { AtelierMuseumHub } from './components/museum/AtelierMuseumHub';
@@ -210,6 +213,19 @@ export default function KineticPortfolio() {
 
                     {/* Restored Minimal Text-Free Progress Gauge Bar */}
                     <EvolutionGauge progress={progress} isAudioUnlocked={isAudioUnlocked} />
+                    {/* 1:1 Exact Frosted Glass Action Card (Option 1) on Walk Scene */}
+                    <WalkingGlassActionCard 
+                        isVisible={isAudioUnlocked && (activeFrameIdx === 1 || activeFrameIdx === 2)}
+                        onOpenInfo={() => {
+                            if (mrAudioRef.current) mrAudioRef.current.pause();
+                            setIsMuseumOpen(true);
+                        }}
+                        onOpenSoundLab={() => {
+                            if (mrAudioRef.current) mrAudioRef.current.pause();
+                            setIsSoundLabOpen(true);
+                        }}
+                    />
+
                 </main>
 
                 {/* Frame-Anchored Volume Calibrator & Morphing Top-Right Mute Button (z-[9998]) */}
