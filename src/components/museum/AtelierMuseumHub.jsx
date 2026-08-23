@@ -1,3 +1,4 @@
+import { BrandCiBiModal } from '../modals/BrandCiBiModal';
 import { ModularSoundLabModal } from './ModularSoundLabModal';
 import { SpatialSalonViewerModal } from './SpatialSalonViewerModal';
 import React, { useState, useRef, useEffect } from 'react';
@@ -81,11 +82,11 @@ const MUSEUM_ORBS = [
     },
     {
         id: 'leather_journal',
-        title: "Atelier Records & Journal",
-        sub: "Official German Licensing & Architectural Blueprints",
+        title: "CI / BI Brand Identity System",
+        sub: "3D Wine Glass Emblem, Official Color System & 432Hz Acoustics",
         tag: "LEGAL ARCHIVE",
         img: "/assets/lookbook/lookbook_14_journal.jpg",
-        badge: "DOCUMENTS",
+        badge: "BRAND CI/BI",
         isInteractive: false
     }
 ];
@@ -102,6 +103,7 @@ export function AtelierMuseumHub({
     const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
     const [isSpatialSalonOpen, setIsSpatialSalonOpen] = useState(false);
     const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
+    const [isCiBiModalOpen, setIsCiBiModalOpen] = useState(false);
     const [activeOrbIndex, setActiveOrbIndex] = useState(0);
 
     const scrollTrackRef = useRef(null);
@@ -123,6 +125,8 @@ export function AtelierMuseumHub({
             setIsSoundLabOpen(true);
         } else if (orb.id === 'midnight_walk') {
             onReplayWalk();
+        } else if (orb.id === 'leather_journal' || orb.id === 'stained_glass') {
+            setIsCiBiModalOpen(true);
         } else {
             setSelectedOrb(orb);
         }
@@ -422,6 +426,11 @@ export function AtelierMuseumHub({
                 <ModularSoundLabModal
                     isOpen={isSoundLabOpen}
                     onClose={() => setIsSoundLabOpen(false)}
+                />
+
+                <BrandCiBiModal
+                    isOpen={isCiBiModalOpen}
+                    onClose={() => setIsCiBiModalOpen(false)}
                 />
             </motion.div>
         </AnimatePresence>
