@@ -87,7 +87,7 @@ export function WalkRadarMap({ activeFrameIdx = 0, isVisible = true }) {
                                 <div className="flex items-center gap-1.5">
                                     <Footprints className="w-3.5 h-3.5 text-[#00FF88]" />
                                     <span className="font-sans text-[10px] font-bold text-white tracking-tight">
-                                        Step {activeFrameIdx + 1} / 7
+                                        Step {Math.min(7, activeFrameIdx + 1)} / 7
                                     </span>
                                 </div>
                                 <span className="font-mono text-[8px] font-black text-[#00FF88] tracking-wider uppercase">

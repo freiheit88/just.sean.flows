@@ -152,19 +152,23 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
 
     return (
         <div className="absolute inset-0 pointer-events-none z-30 select-none overflow-hidden flex flex-col justify-between">
-            {/* 1. Pure Physical Darkness & Matchstick Light Reveal Mask */}
+            {/* 1. Natural Organic Chiaroscuro Candlelight & Deep Velvet Shadow Mask */}
             <div 
                 className="absolute inset-0 pointer-events-none transition-all duration-700 ease-out"
                 style={{
                     background: `radial-gradient(
-                        circle at 50% 70%,
-                        transparent 0%,
-                        transparent ${matchRadius * 0.35}%,
-                        rgba(0, 0, 0, ${ambientDarkness * 0.7}) ${matchRadius * 0.75}%,
-                        rgba(0, 0, 0, ${ambientDarkness}) ${matchRadius}%
+                        ellipse ${38 + lightRatio * 82}% ${28 + lightRatio * 72}% at 50% 74%,
+                        rgba(255, 235, 170, ${0.15 * (1.0 - lightRatio)}) 0%,
+                        transparent 22%,
+                        rgba(120, 80, 25, 0.05) ${35 + lightRatio * 25}%,
+                        rgba(0, 0, 0, 0.75) ${55 + lightRatio * 35}%,
+                        rgba(0, 0, 0, 0.96) ${75 + lightRatio * 25}%,
+                        #000000 100%
                     )`
                 }}
             />
+            {/* Ambient Deep Vignette Rim */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.92)_85%,#000000_100%)] pointer-events-none" />
 
             {/* 2. Light-Origin Progressive Typography Cluster */}
             {/* Squeezed into bottom matchstick light initially, then blooms & expands upwards and outwards with the expanding light! */}
