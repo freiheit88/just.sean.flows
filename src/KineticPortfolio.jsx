@@ -207,6 +207,14 @@ export default function KineticPortfolio() {
             <InitialUnlockSplash 
                 isAudioUnlocked={isAudioUnlocked}
                 onUnlock={handleInitialUnlock}
+                onDirectMuseum={() => {
+                    forceUnlockAudio();
+                    setIsMuseumOpen(true);
+                }}
+                onDirectSoundLab={() => {
+                    forceUnlockAudio();
+                    setIsSoundLabOpen(true);
+                }}
                 tilt={tilt}
                 tiltX={tiltX}
                 tiltY={tiltY}
