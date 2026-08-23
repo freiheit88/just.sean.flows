@@ -1,8 +1,8 @@
 import { ModularSoundLabModal } from './ModularSoundLabModal';
 import { SpatialSalonViewerModal } from './SpatialSalonViewerModal';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, Compass, Music, MapPin, Eye, Radio, Play, Crown, Key, Instagram } from 'lucide-react';
+import { ArrowLeft, Sparkles, Compass, Music, MapPin, Eye, Radio, Play, Crown, Key, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CoutureLookbookModal } from './CoutureLookbookModal';
 
 const MUSEUM_ORBS = [
@@ -102,6 +102,9 @@ export function AtelierMuseumHub({
     const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
     const [isSpatialSalonOpen, setIsSpatialSalonOpen] = useState(false);
     const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
+    const [activeOrbIndex, setActiveOrbIndex] = useState(0);
+
+    const scrollTrackRef = useRef(null);
 
     if (!isOpen) return null;
 
@@ -125,6 +128,33 @@ export function AtelierMuseumHub({
         }
     };
 
+    const scrollByStep = (direction) => {
+        if (!scrollTrackRef.current) return;
+        const width = 280;
+        scrollTrackRef.current.scrollBy({
+            left: direction * width,
+            behavior: 'smooth'
+        });
+    };
+
+    const scrollToIndex = (idx) => {
+        if (!scrollTrackRef.current) return;
+        const width = 280;
+        scrollTrackRef.current.scrollTo({
+            left: idx * width,
+            behavior: 'smooth'
+        });
+        setActiveOrbIndex(idx);
+    };
+
+    const handleTrackScroll = () => {
+        if (!scrollTrackRef.current) return;
+        const scrollLeft = scrollTrackRef.current.scrollLeft;
+        const width = 280;
+        const idx = Math.round(scrollLeft / width);
+        setActiveOrbIndex(Math.min(MUSEUM_ORBS.length - 1, Math.max(0, idx)));
+    };
+
     return (
         <AnimatePresence>
             <motion.div
@@ -134,7 +164,7 @@ export function AtelierMuseumHub({
                 transition={{ duration: 0.4 }}
                 className="fixed inset-0 z-50 bg-[#060606] text-white flex flex-col select-none overflow-hidden"
             >
-                {/* 1. Top Google Project Genie-Style Navigation Bar */}
+                {/* 1. Top Navigation Bar */}
                 <header className="px-5 sm:px-10 py-3.5 border-b border-white/10 flex items-center justify-between shrink-0 bg-black/60 backdrop-blur-md z-20">
                     <div className="flex items-center gap-3">
                         <h1 className="font-sans font-black text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
@@ -182,51 +212,81 @@ export function AtelierMuseumHub({
                     </div>
                 </header>
 
-                {/* 2. Main 3D Crystal Orb Portal Grid (Scrollable) */}
-                <main className="flex-1 overflow-y-auto p-6 sm:p-12">
-                    <div className="max-w-6xl mx-auto flex flex-col gap-6">
-                        <div>
-                            <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-[0.25em] uppercase block">
-                                SELECT AN EXPEDITION ORB
-                            </span>
-                            <h2 className="font-sans text-2xl sm:text-4xl font-black text-white tracking-tight mt-1">
-                                The Frankfurt Atelier Archive
-                            </h2>
+                {/* 2. Main Horizontal Snap Orbit Carousel Stage (Optimized for Mobile Vertical & Desktop) */}
+                <main className="flex-1 flex flex-col justify-center px-4 sm:px-12 py-4 overflow-hidden relative">
+                    <div className="max-w-6xl w-full mx-auto flex flex-col gap-4">
+                        {/* Section Header with Left/Right Nav Arrows */}
+                        <div className="flex items-end justify-between px-2">
+                            <div>
+                                <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-[0.25em] uppercase block">
+                                    SWIPE HORIZONTALLY // EXPEDITION ORBS
+                                </span>
+                                <h2 className="font-sans text-2xl sm:text-3xl font-black text-white tracking-tight mt-0.5">
+                                    The Frankfurt Atelier Archive
+                                </h2>
+                            </div>
+
+                            {/* Left / Right Fast Navigation Controls */}
+                            <div className="hidden sm:flex items-center gap-2">
+                                <button
+                                    onClick={() => scrollByStep(-1)}
+                                    className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 hover:border-[#E7FF00] text-neutral-300 hover:text-[#E7FF00] flex items-center justify-center transition-all cursor-pointer shadow-lg"
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                <button
+                                    onClick={() => scrollByStep(1)}
+                                    className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 border border-white/15 hover:border-[#E7FF00] text-neutral-300 hover:text-[#E7FF00] flex items-center justify-center transition-all cursor-pointer shadow-lg"
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
+                            </div>
                         </div>
 
-                        {/* 4-Column Responsive Circular Portals */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pt-4">
-                            {MUSEUM_ORBS.map((orb) => {
+                        {/* Horizontal Snap Scroll Track */}
+                        <div 
+                            ref={scrollTrackRef}
+                            onScroll={handleTrackScroll}
+                            className="flex items-center gap-6 sm:gap-10 overflow-x-auto snap-x snap-mandatory scroll-smooth py-6 px-4 select-none"
+                            style={{
+                                scrollbarWidth: 'none',
+                                msOverflowStyle: 'none'
+                            }}
+                        >
+                            {MUSEUM_ORBS.map((orb, index) => {
                                 const isVipOrb = orb.id === 'vip_vault';
                                 const displayTitle = isVipOrb && vipProfile ? `@${vipProfile.instagramId}'s Vault` : orb.title;
                                 const displaySub = isVipOrb && vipProfile ? `MEMBER #${vipProfile.memberNumber} // UNLOCKED` : orb.sub;
                                 const displayTag = isVipOrb && vipProfile ? "VAULT UNLOCKED" : orb.tag;
+                                const isSelected = activeOrbIndex === index;
 
                                 return (
                                     <motion.div
                                         key={orb.id}
-                                        whileHover={{ y: -8, scale: 1.03 }}
-                                        whileTap={{ scale: 0.97 }}
+                                        whileHover={{ y: -10, scale: 1.04 }}
+                                        whileTap={{ scale: 0.96 }}
                                         onClick={() => handleOrbClick(orb)}
-                                        className="flex flex-col items-center text-center cursor-pointer group select-none"
+                                        className="snap-center shrink-0 w-56 sm:w-64 flex flex-col items-center text-center cursor-pointer group select-none"
                                     >
                                         {/* Circular Sphere Lens */}
-                                        <div className={`relative w-36 h-36 sm:w-44 sm:h-44 rounded-full overflow-hidden border-2 shadow-2xl transition-all duration-300 ${
+                                        <div className={`relative w-44 h-44 sm:w-52 sm:h-52 rounded-full overflow-hidden border-2 shadow-2xl transition-all duration-300 ${
                                             isVipOrb 
-                                                ? 'border-[#E7FF00] shadow-[0_0_35px_rgba(231,255,0,0.6)] group-hover:shadow-[0_0_50px_#E7FF00]' 
+                                                ? 'border-[#E7FF00] shadow-[0_0_40px_rgba(231,255,0,0.6)] group-hover:shadow-[0_0_60px_#E7FF00]' 
+                                                : isSelected
+                                                ? 'border-white/50 shadow-[0_0_30px_rgba(255,255,255,0.3)]'
                                                 : 'border-white/20 group-hover:border-[#E7FF00] group-hover:shadow-[0_0_30px_rgba(231,255,0,0.4)]'
                                         }`}>
                                             {orb.isWireframe ? (
                                                 /* 직접 만들기 Wireframe Sandbox */
                                                 <div className="w-full h-full bg-[#0E0E0C] flex flex-col items-center justify-center p-4 relative overflow-hidden">
                                                     <div className="absolute inset-0 bg-[radial-gradient(#E7FF00_1px,transparent_1px)] [background-size:12px_12px] opacity-25" />
-                                                    <div className="w-10 h-10 rounded-full border-2 border-[#E7FF00] border-dashed flex items-center justify-center text-[#E7FF00] mb-2 animate-spin-slow">
-                                                        <Compass className="w-5 h-5" />
+                                                    <div className="w-12 h-12 rounded-full border-2 border-[#E7FF00] border-dashed flex items-center justify-center text-[#E7FF00] mb-2 animate-spin-slow">
+                                                        <Compass className="w-6 h-6" />
                                                     </div>
-                                                    <span className="font-sans text-xs font-black text-white z-10">
+                                                    <span className="font-sans text-sm font-black text-white z-10">
                                                         직접 만들기
                                                     </span>
-                                                    <span className="font-mono text-[8px] text-[#E7FF00] tracking-widest uppercase z-10 mt-0.5">
+                                                    <span className="font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase z-10 mt-0.5">
                                                         CREATE WORLD
                                                     </span>
                                                 </div>
@@ -242,8 +302,8 @@ export function AtelierMuseumHub({
                                                     <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-transparent to-white/20 pointer-events-none" />
                                                     {isVipOrb && (
                                                         <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                                                            <div className="w-12 h-12 rounded-full bg-[#E7FF00] text-black flex items-center justify-center shadow-[0_0_20px_#E7FF00]">
-                                                                <Crown className="w-6 h-6" />
+                                                            <div className="w-14 h-14 rounded-full bg-[#E7FF00] text-black flex items-center justify-center shadow-[0_0_25px_#E7FF00]">
+                                                                <Crown className="w-7 h-7" />
                                                             </div>
                                                         </div>
                                                     )}
@@ -251,26 +311,51 @@ export function AtelierMuseumHub({
                                             )}
 
                                             {/* Top Pill Badge */}
-                                            <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-[8px] font-mono font-bold text-[#E7FF00] tracking-wider uppercase whitespace-nowrap">
+                                            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-black/85 backdrop-blur-md border border-white/20 text-[8px] font-mono font-bold text-[#E7FF00] tracking-wider uppercase whitespace-nowrap">
                                                 {orb.badge}
                                             </div>
                                         </div>
 
                                         {/* Meta Label Info */}
-                                        <div className="mt-3 flex flex-col items-center">
-                                            <span className="font-mono text-[8px] text-[#E7FF00] tracking-widest uppercase block">
+                                        <div className="mt-3.5 flex flex-col items-center max-w-[220px]">
+                                            <span className="font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase block">
                                                 {displayTag}
                                             </span>
-                                            <h3 className="font-sans text-sm sm:text-base font-bold text-white group-hover:text-[#E7FF00] transition-colors mt-0.5">
+                                            <h3 className="font-sans text-base font-bold text-white group-hover:text-[#E7FF00] transition-colors mt-0.5">
                                                 {displayTitle}
                                             </h3>
-                                            <p className="font-sans text-[11px] text-neutral-400 max-w-[170px] line-clamp-2 mt-0.5">
+                                            <p className="font-sans text-xs text-neutral-400 line-clamp-2 mt-0.5">
                                                 {displaySub}
                                             </p>
                                         </div>
                                     </motion.div>
                                 );
                             })}
+                        </div>
+
+                        {/* Bottom Orbit Pagination Dots & Quick Indicator */}
+                        <div className="flex items-center justify-between px-4 pt-1">
+                            <span className="font-mono text-[10px] text-neutral-400 uppercase tracking-wider">
+                                {activeOrbIndex + 1} / {MUSEUM_ORBS.length} ORBS
+                            </span>
+
+                            <div className="flex items-center gap-2">
+                                {MUSEUM_ORBS.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => scrollToIndex(idx)}
+                                        className={`transition-all duration-300 rounded-full cursor-pointer ${
+                                            activeOrbIndex === idx 
+                                                ? 'w-6 h-2 bg-[#E7FF00] shadow-[0_0_10px_#E7FF00]' 
+                                                : 'w-2 h-2 bg-white/25 hover:bg-white/60'
+                                        }`}
+                                    />
+                                ))}
+                            </div>
+
+                            <span className="font-mono text-[9px] text-[#E7FF00] tracking-widest uppercase hidden sm:inline-block">
+                                TOUCH & DRAG TO EXPLORE
+                            </span>
                         </div>
                     </div>
                 </main>
