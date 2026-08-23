@@ -99,56 +99,12 @@ export function InitialUnlockSplash({
                     transition={{ duration: 0.8, ease: 'easeOut' }}
                     className="relative flex flex-col items-center text-center cursor-pointer select-none"
                 >
-                    {/* Ambient Warm Glow Halo */}
-                    <div 
-                        className="absolute inset-0 bg-[#E7FF00]/25 filter blur-3xl rounded-full scale-150 pointer-events-none"
-                        style={{
-                            transform: `translate3d(${ghostOffsetX * -0.6}px, ${ghostOffsetY * -0.6}px, -25px)`
-                        }}
-                    />
-
-                    {/* Glitch Ghost Layer 1: Red/Magenta */}
-                    <div 
-                        style={{
-                            transform: `translate3d(${ghostOffsetX * 0.45}px, ${ghostOffsetY * 0.45}px, -10px)`,
-                            opacity: Math.min(0.65, Math.abs(tilt.x) + Math.abs(tilt.y) + 0.15)
-                        }}
-                        className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#FF0055] filter blur-[1px] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
-                    >
+                    {/* Dim Ambient Silhouette for LET'S GO in Deep Background */}
+                    <div className="relative opacity-15 filter blur-[6px] font-mono font-black text-5xl sm:text-6xl text-[#E7FF00]/40 grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none scale-90">
                         <span>L</span><span>E</span><span>T</span>
                         <span></span><span className="text-4xl sm:text-5xl">'</span><span>S</span>
                         <span></span><span>G</span><span>O</span>
                         <span></span><span></span><span className="text-4xl sm:text-5xl font-black">!</span>
-                    </div>
-
-                    {/* Glitch Ghost Layer 2: Cyan/Blue */}
-                    <div 
-                        style={{
-                            transform: `translate3d(${-ghostOffsetX * 0.45}px, ${-ghostOffsetY * 0.45}px, -10px)`,
-                            opacity: Math.min(0.65, Math.abs(tilt.x) + Math.abs(tilt.y) + 0.15)
-                        }}
-                        className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#00F0FF] filter blur-[1px] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
-                    >
-                        <span>L</span><span>E</span><span>T</span>
-                        <span></span><span className="text-4xl sm:text-5xl">'</span><span>S</span>
-                        <span></span><span>G</span><span>O</span>
-                        <span></span><span></span><span className="text-4xl sm:text-5xl font-black">!</span>
-                    </div>
-
-                    {/* Main Sharp Neon Gold 3-Column Grid */}
-                    <div className="relative font-mono font-black text-5xl sm:text-6xl text-[#E7FF00] drop-shadow-[0_0_35px_rgba(231,255,0,0.9)] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64">
-                        <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">L</span>
-                        <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">E</span>
-                        <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">T</span>
-                        <span></span>
-                        <span className="text-4xl sm:text-5xl drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">'</span>
-                        <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">S</span>
-                        <span></span>
-                        <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">G</span>
-                        <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">O</span>
-                        <span></span>
-                        <span></span>
-                        <span className="text-4xl sm:text-5xl font-black drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">!</span>
                     </div>
 
                     {/* Touch to Start Walk Hint */}
