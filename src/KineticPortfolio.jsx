@@ -33,6 +33,7 @@ export default function KineticPortfolio() {
         isMuted,
         showWelcomeBack,
         isFlowsHit,
+        setIsModalActive,
         forceUnlockAudio,
         handleToggleMute,
         handleFlowsHit,
@@ -63,12 +64,15 @@ export default function KineticPortfolio() {
     const [isMuseumOpen, setIsMuseumOpen] = useState(false);
     const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
 
-    // Explicitly pause background walk audio when Sound Lab or Museum Hub is active
+    // Bulletproof Master Audio Lock: Completely silence background walk audio when any modal/lab is open
     useEffect(() => {
-        if ((isSoundLabOpen || isMuseumOpen) && mrAudioRef.current) {
+        const isAnyModalOpen = isSoundLabOpen || isMuseumOpen || isAtelierModalOpen;
+        setIsModalActive(isAnyModalOpen);
+        if (isAnyModalOpen && mrAudioRef.current) {
             mrAudioRef.current.pause();
+            mrAudioRef.current.muted = true;
         }
-    }, [isSoundLabOpen, isMuseumOpen]);
+    }, [isSoundLabOpen, isMuseumOpen, isAtelierModalOpen]);
 
     const handleInitialUnlock = () => {
         forceUnlockAudio();

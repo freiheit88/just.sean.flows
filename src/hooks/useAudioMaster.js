@@ -6,12 +6,26 @@ export function useAudioMaster() {
     const [isMuted, setIsMuted] = useState(false);
     const [showWelcomeBack, setShowWelcomeBack] = useState(false);
     const [isFlowsHit, setIsFlowsHit] = useState(false);
+    const [isModalActive, setIsModalActive] = useState(false);
     const mrAudioRef = useRef(null);
     const hasLeftRef = useRef(false);
+    const isModalActiveRef = useRef(false);
+
+    useEffect(() => {
+        isModalActiveRef.current = isModalActive;
+        if (isModalActive && mrAudioRef.current) {
+            mrAudioRef.current.pause();
+            mrAudioRef.current.muted = true;
+        } else if (!isModalActive && mrAudioRef.current && isAudioUnlocked && !isMuted) {
+            mrAudioRef.current.muted = false;
+        }
+    }, [isModalActive, isAudioUnlocked, isMuted]);
 
     // Bulletproof Mobile Native Gesture Audio Unlocker
     useEffect(() => {
         const unlock = () => {
+            if (isModalActiveRef.current) return; // Never auto-play if in modal
+
             if (mrAudioRef.current && !isAudioUnlocked) {
                 mrAudioRef.current.volume = 0.85;
                 const playPromise = mrAudioRef.current.play();
@@ -44,14 +58,12 @@ export function useAudioMaster() {
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.hidden) {
-                // User pressed home key or changed tab -> Pause immediately
                 if (mrAudioRef.current && isAudioUnlocked) {
                     mrAudioRef.current.pause();
                     hasLeftRef.current = true;
                 }
             } else {
-                // User returned to the app -> Trigger Welcome Back 5s countdown
-                if (hasLeftRef.current && isAudioUnlocked) {
+                if (hasLeftRef.current && isAudioUnlocked && !isModalActiveRef.current) {
                     setShowWelcomeBack(true);
                 }
             }
@@ -65,7 +77,7 @@ export function useAudioMaster() {
         };
 
         const handleFocus = () => {
-            if (hasLeftRef.current && isAudioUnlocked) {
+            if (hasLeftRef.current && isAudioUnlocked && !isModalActiveRef.current) {
                 setShowWelcomeBack(true);
             }
         };
@@ -82,13 +94,11 @@ export function useAudioMaster() {
     }, [isAudioUnlocked]);
 
     const forceUnlockAudio = () => {
-        if (mrAudioRef.current) {
-            mrAudioRef.current.volume = 0.85;
-            mrAudioRef.current.play().then(() => {
-                setIsAudioUnlocked(true);
-            }).catch(() => {});
-        }
         setIsAudioUnlocked(true);
+        if (!isModalActiveRef.current && mrAudioRef.current) {
+            mrAudioRef.current.volume = 0.85;
+            mrAudioRef.current.play().catch(() => {});
+        }
     };
 
     const handleFlowsHit = () => {
@@ -106,11 +116,10 @@ export function useAudioMaster() {
         });
     };
 
-    // Resume Audio after Welcome Back Countdown finishes
     const handleResumeFromWelcomeBack = () => {
         setShowWelcomeBack(false);
         hasLeftRef.current = false;
-        if (mrAudioRef.current && !isMuted) {
+        if (mrAudioRef.current && !isMuted && !isModalActiveRef.current) {
             mrAudioRef.current.play().catch(() => {});
         }
     };
@@ -120,6 +129,8 @@ export function useAudioMaster() {
         isMuted,
         showWelcomeBack,
         isFlowsHit,
+        isModalActive,
+        setIsModalActive,
         handleFlowsHit,
         mrAudioRef,
         forceUnlockAudio,

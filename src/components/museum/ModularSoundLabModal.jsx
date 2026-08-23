@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, Pause, Download, Volume2, VolumeX, Sparkles, Sliders, Music, Mic, Layers, Disc, Radio } from 'lucide-react';
+import { X, Play, Pause, Download, Volume2, VolumeX, Sparkles, Sliders, Music, Mic, Layers, Disc, Radio, Eye, Orbit, Zap } from 'lucide-react';
 import { MR_AUDIO_SRC } from '../../constants/frames';
 
+const FULL_VOCAL_AUDIO_SRC = "/assets/manual_upload/A Twelve-minute Alibi/A Twelve-minute Alibi_MV.mp4";
 const SONG_DURATION = 126.79; // Exact 2:06.79
 
 const ALIBI_SECTIONS = [
@@ -85,6 +86,8 @@ const INSTRUMENT_NODES = [
 export function ModularSoundLabModal({ isOpen, onClose }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
+    const [isVocalTrack, setIsVocalTrack] = useState(true); // Default to FULL VOCAL SESSION
+    const [visualMode, setVisualMode] = useState('sphere'); // 'sphere' | 'fluid' | 'nebula'
     const [focusedInstrument, setFocusedInstrument] = useState(null);
     const [audioEnergy, setAudioEnergy] = useState({ bass: 0, mid: 0, high: 0, peak: 0 });
 
@@ -95,32 +98,30 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
     const analyserRef = useRef(null);
     const sourceNodeRef = useRef(null);
 
+    // Audio Track Source Selection
+    const activeAudioSrc = isVocalTrack ? FULL_VOCAL_AUDIO_SRC : MR_AUDIO_SRC;
+
     useEffect(() => {
         if (!isOpen) {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.src = "";
-                audioRef.current = null;
-            }
-            if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
-                audioCtxRef.current.close().catch(() => {});
-                audioCtxRef.current = null;
-            }
-            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-            setIsPlaying(false);
-            setCurrentTime(0);
+            cleanUpAudio();
             return;
         }
 
-        // Pause all other audio on page
-        document.querySelectorAll('audio').forEach(el => {
-            try { el.pause(); } catch(e) {}
+        // Hard Silence ALL other audio elements on page
+        document.querySelectorAll('audio, video').forEach(el => {
+            try { 
+                if (el !== audioRef.current) {
+                    el.pause();
+                    el.muted = true;
+                }
+            } catch(e) {}
         });
 
-        // Initialize Audio Element with Master MR track
-        const audio = new Audio(MR_AUDIO_SRC);
+        // Initialize Audio Element with Full Vocal Track or MR
+        const audio = new Audio(activeAudioSrc);
         audioRef.current = audio;
         audio.preload = "auto";
+        audio.currentTime = currentTime > 0 ? currentTime : 0;
 
         audio.addEventListener('timeupdate', () => {
             setCurrentTime(audio.currentTime);
@@ -138,7 +139,7 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
 
             const analyser = ctx.createAnalyser();
             analyser.fftSize = 256;
-            analyser.smoothingTimeConstant = 0.85;
+            analyser.smoothingTimeConstant = 0.82;
             analyserRef.current = analyser;
 
             const source = ctx.createMediaElementSource(audio);
@@ -146,7 +147,7 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
             source.connect(analyser);
             analyser.connect(ctx.destination);
         } catch (err) {
-            console.warn("Web Audio Context initialization:", err);
+            console.warn("Web Audio API Connection:", err);
         }
 
         // Auto-play audio safely
@@ -157,20 +158,29 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
             }
         }).catch(err => console.log('Autoplay blocked:', err));
 
-        // Start 3D Holographic Spatial Visualizer
-        start3DVisualizer();
+        // Start 2026 Spectacular 3D Visualizer
+        start2026Visualizer();
 
         return () => {
-            if (audioRef.current) {
-                audioRef.current.pause();
-                audioRef.current.src = "";
-                audioRef.current = null;
-            }
-            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+            cleanUpAudio();
         };
-    }, [isOpen]);
+    }, [isOpen, isVocalTrack]);
 
-    const start3DVisualizer = () => {
+    const cleanUpAudio = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = "";
+            audioRef.current = null;
+        }
+        if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+            audioCtxRef.current.close().catch(() => {});
+            audioCtxRef.current = null;
+        }
+        if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+        setIsPlaying(false);
+    };
+
+    const start2026Visualizer = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -186,27 +196,26 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
 
         const dataArray = new Uint8Array(128);
         let angle = 0;
+        let rotY = 0;
 
-        // 3D Orbiting Particle Nodes
-        const particles = Array.from({ length: 100 }, (_, i) => ({
-            dist: 60 + Math.random() * 220,
-            angle: Math.random() * Math.PI * 2,
+        // 120 Cosmic 3D Floating Photons
+        const photons = Array.from({ length: 120 }, (_, i) => ({
+            radius: 80 + Math.random() * 240,
+            theta: Math.random() * Math.PI * 2,
+            phi: (Math.random() - 0.5) * Math.PI,
             speed: (Math.random() - 0.5) * 0.02,
-            y: (Math.random() - 0.5) * 140,
-            size: Math.random() * 2.5 + 1,
-            hue: i % 2 === 0 ? 55 : 45
+            size: Math.random() * 2.8 + 1,
+            hue: i % 3 === 0 ? 55 : i % 3 === 1 ? 180 : 340
         }));
 
         const render = () => {
-            // Semi-transparent fade for motion blur
-            ctx.fillStyle = 'rgba(6, 5, 8, 0.28)';
+            ctx.fillStyle = 'rgba(7, 6, 10, 0.25)';
             ctx.fillRect(0, 0, width, height);
 
             let bass = 0, mid = 0, high = 0;
 
             if (analyserRef.current) {
                 analyserRef.current.getByteFrequencyData(dataArray);
-                // Calculate frequency bands
                 for (let i = 0; i < 15; i++) bass += dataArray[i];
                 for (let i = 15; i < 50; i++) mid += dataArray[i];
                 for (let i = 50; i < 100; i++) high += dataArray[i];
@@ -218,57 +227,82 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
                 bass = 0.3; mid = 0.4; high = 0.2;
             }
 
-            const masterPulse = (bass * 0.5 + mid * 0.3 + high * 0.2);
+            const masterPulse = (bass * 0.45 + mid * 0.35 + high * 0.2);
             setAudioEnergy({ bass, mid, high, peak: masterPulse });
 
             const centerX = width / 2;
             const centerY = height / 2;
             angle += 0.015 + masterPulse * 0.02;
+            rotY += 0.01 + bass * 0.015;
 
-            // 1. Draw 3D Central Holographic Vocal Core (Pulsing Concentric Glass Rings)
-            const coreRadius = 45 + masterPulse * 55;
-            const gradient = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, coreRadius * 1.8);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-            gradient.addColorStop(0.3, 'rgba(231, 255, 0, 0.7)');
-            gradient.addColorStop(0.7, 'rgba(200, 169, 110, 0.25)');
-            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            // 1. Draw 3D Orbiting Frequency Rings & Torus (3D Spatial Geometry)
+            const ringTiers = 3;
+            for (let r = 0; r < ringTiers; r++) {
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle * (r % 2 === 0 ? 1 : -1) + r * 0.4);
+
+                ctx.beginPath();
+                const radiusX = (60 + r * 45) * (1 + masterPulse * 0.3);
+                const radiusY = (28 + r * 22) * (1 + bass * 0.4);
+
+                ctx.ellipse(0, 0, radiusX, radiusY, rotY + r * 0.5, 0, Math.PI * 2);
+                ctx.lineWidth = r === 0 ? 3 : 1.5;
+                ctx.strokeStyle = r === 0 
+                    ? `hsla(55, 100%, 65%, ${0.6 + mid * 0.4})` 
+                    : r === 1 
+                    ? `hsla(180, 100%, 60%, ${0.4 + bass * 0.5})` 
+                    : `hsla(340, 100%, 65%, ${0.3 + high * 0.5})`;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = r === 0 ? '#E7FF00' : '#00F0FF';
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 2. Central 3D Glowing Vocal Core
+            const coreRadius = 42 + masterPulse * 50;
+            const coreGrad = ctx.createRadialGradient(centerX, centerY, 4, centerX, centerY, coreRadius * 1.8);
+            coreGrad.addColorStop(0, '#FFFFFF');
+            coreGrad.addColorStop(0.25, '#E7FF00');
+            coreGrad.addColorStop(0.6, 'rgba(200, 169, 110, 0.3)');
+            coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
             ctx.beginPath();
-            ctx.arc(centerX, centerY, coreRadius * 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = gradient;
+            ctx.arc(centerX, centerY, coreRadius * 1.6, 0, Math.PI * 2);
+            ctx.fillStyle = coreGrad;
             ctx.fill();
 
-            // 2. Multi-Layer Frequency Circular Waveform Spokes
-            const spokes = 48;
-            ctx.lineWidth = 2;
+            // 3. Multi-Spoke 3D Chromatic Waveform
+            const spokes = 56;
             for (let i = 0; i < spokes; i++) {
                 const spokeAngle = (i / spokes) * Math.PI * 2 + angle;
                 const freqVal = dataArray[i % dataArray.length] / 255;
-                const rInner = coreRadius;
-                const rOuter = coreRadius + freqVal * (80 + bass * 60);
+                const rInner = coreRadius * 0.9;
+                const rOuter = coreRadius + freqVal * (90 + bass * 70);
 
                 const x1 = centerX + Math.cos(spokeAngle) * rInner;
-                const y1 = centerY + Math.sin(spokeAngle) * rInner * 0.7; // 3D Isometric tilt
+                const y1 = centerY + Math.sin(spokeAngle) * rInner * 0.7;
                 const x2 = centerX + Math.cos(spokeAngle) * rOuter;
                 const y2 = centerY + Math.sin(spokeAngle) * rOuter * 0.7;
 
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
                 ctx.lineTo(x2, y2);
-                ctx.strokeStyle = `hsla(${45 + freqVal * 30}, 100%, 65%, ${0.3 + freqVal * 0.7})`;
+                ctx.lineWidth = 2.2;
+                ctx.strokeStyle = `hsla(${50 + freqVal * 40}, 100%, 65%, ${0.4 + freqVal * 0.6})`;
                 ctx.stroke();
             }
 
-            // 3. 3D Orbiting Golden Star Particles
-            particles.forEach((p) => {
-                p.angle += p.speed + (isPlaying ? masterPulse * 0.03 : 0.005);
-                const px = centerX + Math.cos(p.angle) * p.dist;
-                const py = centerY + Math.sin(p.angle) * (p.dist * 0.45) + p.y * (1 + bass * 0.4);
+            // 4. 3D Floating Photons
+            photons.forEach((p) => {
+                p.theta += p.speed + (isPlaying ? masterPulse * 0.02 : 0.005);
+                const px = centerX + Math.cos(p.theta) * p.radius;
+                const py = centerY + Math.sin(p.theta) * (p.radius * 0.42) + Math.sin(p.phi) * 45;
 
                 ctx.beginPath();
-                ctx.arc(px, py, p.size * (1 + high * 1.5), 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${p.hue}, 95%, 70%, ${0.4 + high * 0.6})`;
-                ctx.shadowBlur = 12;
+                ctx.arc(px, py, p.size * (1 + high * 1.8), 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${p.hue}, 95%, 70%, ${0.5 + high * 0.5})`;
+                ctx.shadowBlur = 10;
                 ctx.shadowColor = '#E7FF00';
                 ctx.fill();
             });
@@ -321,7 +355,6 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
 
     if (!isOpen) return null;
 
-    // Find active section based on exact current time
     const activeSection = ALIBI_SECTIONS.find(
         s => currentTime >= s.startTime && currentTime < s.endTime
     ) || ALIBI_SECTIONS[0];
@@ -349,7 +382,7 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
                             </span>
                             <div>
                                 <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-widest uppercase block">
-                                    3D HOLOGRAPHIC STEM ACOUSTIC LAB // 44.1kHz MASTER
+                                    2026 CYBER-ACOUSTIC 3D LAB // FULL VOCAL STUDIO SESSION
                                 </span>
                                 <h2 className="font-sans text-sm sm:text-base font-black text-white tracking-wide flex items-center gap-2">
                                     <span>A TWELVE-MINUTE ALIBI</span>
@@ -358,15 +391,19 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            <a
-                                href={MR_AUDIO_SRC}
-                                download="JUST_SEAN_FLOWS_A_TWELVE_MINUTE_ALIBI_MASTER.wav"
-                                className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-[10px] font-mono font-bold text-white uppercase transition-all cursor-pointer shadow-lg"
+                        {/* Vocal / Instrumental Switcher & Close */}
+                        <div className="flex items-center gap-2.5">
+                            <button
+                                onClick={() => setIsVocalTrack(!isVocalTrack)}
+                                className={`px-3 py-1 rounded-full font-mono text-[10px] font-black tracking-widest uppercase transition-all flex items-center gap-1.5 cursor-pointer border ${
+                                    isVocalTrack 
+                                        ? 'bg-[#E7FF00] text-black border-[#E7FF00] shadow-[0_0_15px_rgba(231,255,0,0.6)]' 
+                                        : 'bg-white/10 text-neutral-300 border-white/20 hover:text-white'
+                                }`}
                             >
-                                <Download className="w-3.5 h-3.5 text-[#E7FF00]" />
-                                <span>DOWNLOAD MASTER WAV</span>
-                            </a>
+                                <Mic className="w-3 h-3" />
+                                <span>{isVocalTrack ? "🎤 FULL VOCAL SESSION" : "🎻 INSTRUMENTAL MR"}</span>
+                            </button>
 
                             <button
                                 onClick={onClose}
@@ -514,7 +551,7 @@ export function ModularSoundLabModal({ isOpen, onClose }) {
 
                                 <div className="flex items-center gap-2">
                                     <span className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[10px] font-mono text-[#E7FF00] font-bold">
-                                        128-BAND FFT // 3D SPATIAL
+                                        128-BAND 3D SPATIAL // VOCAL STUDIO MASTER
                                     </span>
                                 </div>
                             </div>
