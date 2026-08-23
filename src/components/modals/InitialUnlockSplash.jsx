@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
 import { Compass, Sparkles, Waves } from 'lucide-react';
@@ -14,28 +14,55 @@ export function InitialUnlockSplash({
     ghostOffsetX = 0, 
     ghostOffsetY = 0 
 }) {
-    // Staggered Unblur Stages:
-    // Stage 1 (3.5s): LET'S GO unblurs with 3D RGB Chromatic Glitch Parallax
-    // Stage 2 (4.0s): Diverse 3D Debris unblurs into floating cosmos
-    // Stage 3 (4.8s): Bottom Navigation Buttons unblur separately
+    // Staggered Staging Timers:
+    // Stage 1 (3.5s): LET'S GO smoothly rises from below with crisp neon gold
+    // Stage 2 (4.0s): Background ambient debris emerges softly
+    // Stage 3 (5.2s): Bottom navigation buttons slide up separately
     const [unblurStage, setUnblurStage] = useState(0);
 
+    // Continuous Organic Idle Ambient Sway Physics (Natural breathing motion when stationary)
+    const [idleOffset, setIdleOffset] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
+    const animFrameRef = useRef(null);
+
     useEffect(() => {
-        const t1 = setTimeout(() => setUnblurStage(1), 3500); // 3.5s: LET'S GO
-        const t2 = setTimeout(() => setUnblurStage(2), 4000); // 4.0s: Debris
-        const t3 = setTimeout(() => setUnblurStage(3), 4800); // 4.8s: Action Buttons
+        const t1 = setTimeout(() => setUnblurStage(1), 3500); // 3.5s: LET'S GO rises
+        const t2 = setTimeout(() => setUnblurStage(2), 4000); // 4.0s: Ambient Debris
+        const t3 = setTimeout(() => setUnblurStage(3), 5200); // 5.2s: Action Buttons
+
+        let startTime = Date.now();
+        const loop = () => {
+            const time = (Date.now() - startTime) * 0.001; // in seconds
+            // Smooth, non-linear multi-sine organic swaying
+            const ix = Math.sin(time * 0.8) * 8 + Math.sin(time * 1.5) * 4;
+            const iy = Math.cos(time * 0.6) * 7 + Math.cos(time * 1.2) * 3;
+            const iRotX = Math.sin(time * 0.5) * 3;
+            const iRotY = Math.cos(time * 0.7) * 3;
+
+            setIdleOffset({ x: ix, y: iy, rotX: iRotX, rotY: iRotY });
+            animFrameRef.current = requestAnimationFrame(loop);
+        };
+        animFrameRef.current = requestAnimationFrame(loop);
 
         return () => {
             clearTimeout(t1);
             clearTimeout(t2);
             clearTimeout(t3);
+            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
         };
     }, []);
 
     if (isAudioUnlocked) return null;
 
-    // Dynamic Gyro Glitch Magnitude
-    const glitchIntensity = Math.min(0.85, Math.abs(tilt.x) + Math.abs(tilt.y) + 0.25);
+    // INVERTED Gyro Physics + Organic Idle Floating Coordinates
+    const targetRotX = (tiltY * 0.45) + idleOffset.rotX;
+    const targetRotY = (-tiltX * 0.45) + idleOffset.rotY;
+    const targetTransX = (-ghostOffsetX * 0.4) + idleOffset.x;
+    const targetTransY = (-ghostOffsetY * 0.4) + idleOffset.y;
+
+    // Dynamic Glitch Spread (Tightly locked when stationary, expanding on movement)
+    const gyroSpeed = Math.abs(tilt.x) + Math.abs(tilt.y);
+    const glitchDist = 3 + gyroSpeed * 12; // 3px idle -> 15px moving
+    const glitchAlpha = Math.min(0.75, 0.2 + gyroSpeed * 0.6);
 
     return (
         <motion.div
@@ -44,13 +71,12 @@ export function InitialUnlockSplash({
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
             onClick={onUnlock}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-black/88 cursor-pointer overflow-hidden select-none"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-black/90 cursor-pointer overflow-hidden select-none"
             style={{
-                perspective: '900px',
+                perspective: '1000px',
                 transformStyle: 'preserve-3d'
             }}
         >
-            {/* Ambient Lighting Vignette */}
             <div className="absolute inset-0 bg-black/40 pointer-events-none z-10" />
 
             <AnimatePresence>
@@ -61,18 +87,18 @@ export function InitialUnlockSplash({
                         className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
                         style={{ transformStyle: 'preserve-3d' }}
                     >
-                        {/* 1. Diverse Floating 3D Debris (Unblurs in Stage 2 at 4.0s) */}
+                        {/* 1. Soft Ambient Background Debris (Emerges softly at 4.0s) */}
                         {unblurStage >= 2 && (
                             <motion.div 
-                                initial={{ opacity: 0, filter: 'blur(10px)' }}
-                                animate={{ opacity: 1, filter: 'blur(0px)' }}
-                                transition={{ duration: 1.0, ease: 'easeOut' }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 0.65 }}
+                                transition={{ duration: 1.4, ease: 'easeOut' }}
                                 className="absolute inset-0 pointer-events-none overflow-hidden z-0" 
                                 style={{ transformStyle: 'preserve-3d' }}
                             >
                                 {ATELIER_DEBRIS_100.map((item) => {
-                                    const tiltXVal = tilt.x * 24 * item.tiltMult;
-                                    const tiltYVal = tilt.y * 24 * item.tiltMult;
+                                    const tiltXVal = -tilt.x * 20 * item.tiltMult + idleOffset.x * 0.5;
+                                    const tiltYVal = -tilt.y * 20 * item.tiltMult + idleOffset.y * 0.5;
                                     const startY = item.isLarge ? '85vh' : '108vh';
                                     const endY = item.isLarge ? '10vh' : '-28vh';
 
@@ -104,7 +130,7 @@ export function InitialUnlockSplash({
                                                 top: 0,
                                                 transform: `translate3d(${tiltXVal}px, ${tiltYVal}px, ${item.zDepth}px)`
                                             }}
-                                            className="absolute select-none flex items-center justify-center pointer-events-none"
+                                            className="absolute select-none flex items-center justify-center pointer-events-none filter blur-[0.5px]"
                                         >
                                             <div 
                                                 className={item.styleClass}
@@ -118,37 +144,34 @@ export function InitialUnlockSplash({
                             </motion.div>
                         )}
 
-                        {/* 2. Central 3D Gyro Rigid Body Container for LET'S GO */}
+                        {/* 2. Central 3D Container with INVERTED Gyro + Organic Idle Floating Physics */}
                         <div
                             style={{
-                                transform: `perspective(900px) rotateX(${-tiltY * 0.4}deg) rotateY(${tiltX * 0.4}deg) translate3d(${ghostOffsetX * 0.32}px, ${ghostOffsetY * 0.32}px, 20px)`,
+                                transform: `perspective(1000px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 20px)`,
                                 transformStyle: 'preserve-3d',
-                                transition: 'transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1)'
+                                transition: 'transform 0.1s linear'
                             }}
                             className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
                         >
-                            {/* LET'S GO Unblurs at Stage 1 (3.5s) */}
+                            {/* LET'S GO Smoothly Rises from Below with ZERO blur at 3.5s */}
                             <motion.div
-                                initial={{ opacity: 0, filter: 'blur(14px)', scale: 0.9 }}
-                                animate={{ opacity: 1, filter: 'blur(0px)', scale: 1.0 }}
-                                transition={{ duration: 0.85, ease: 'easeOut' }}
+                                initial={{ opacity: 0, y: 70, scale: 0.92 }}
+                                animate={{ opacity: 1, y: 0, scale: 1.0 }}
+                                transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
                                 className="relative flex flex-col items-center text-center cursor-pointer select-none"
                             >
                                 {/* Ambient Warm Glow Halo */}
                                 <div 
                                     className="absolute inset-0 bg-[#E7FF00]/25 filter blur-3xl rounded-full scale-150 pointer-events-none"
-                                    style={{
-                                        transform: `translate3d(${ghostOffsetX * -0.6}px, ${ghostOffsetY * -0.6}px, -25px)`
-                                    }}
                                 />
 
-                                {/* 🔴 RGB Chromatic Glitch Layer 1: Red/Magenta Parallax Shift */}
+                                {/* 🔴 RGB Chromatic Glitch Layer 1: Red/Magenta (Inverted Parallax Shift) */}
                                 <div 
                                     style={{
-                                        transform: `translate3d(${ghostOffsetX * 0.65}px, ${ghostOffsetY * 0.65}px, -12px)`,
-                                        opacity: glitchIntensity
+                                        transform: `translate3d(${-glitchDist}px, ${-glitchDist * 0.4}px, -10px)`,
+                                        opacity: glitchAlpha
                                     }}
-                                    className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#FF0055] filter blur-[0.6px] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
+                                    className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#FF0055] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
                                 >
                                     <span>L</span><span>E</span><span>T</span>
                                     <span></span><span className="text-4xl sm:text-5xl">'</span><span>S</span>
@@ -156,13 +179,13 @@ export function InitialUnlockSplash({
                                     <span></span><span></span><span className="text-4xl sm:text-5xl font-black">!</span>
                                 </div>
 
-                                {/* 🔵 RGB Chromatic Glitch Layer 2: Cyan/Blue Parallax Shift */}
+                                {/* 🔵 RGB Chromatic Glitch Layer 2: Cyan/Blue (Inverted Parallax Shift) */}
                                 <div 
                                     style={{
-                                        transform: `translate3d(${-ghostOffsetX * 0.65}px, ${-ghostOffsetY * 0.65}px, -12px)`,
-                                        opacity: glitchIntensity
+                                        transform: `translate3d(${glitchDist}px, ${glitchDist * 0.4}px, -10px)`,
+                                        opacity: glitchAlpha
                                     }}
-                                    className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#00F0FF] filter blur-[0.6px] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
+                                    className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#00F0FF] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
                                 >
                                     <span>L</span><span>E</span><span>T</span>
                                     <span></span><span className="text-4xl sm:text-5xl">'</span><span>S</span>
@@ -170,7 +193,7 @@ export function InitialUnlockSplash({
                                     <span></span><span></span><span className="text-4xl sm:text-5xl font-black">!</span>
                                 </div>
 
-                                {/* 🟡 Main Sharp Neon Gold 3-Column Grid */}
+                                {/* 🟡 Main Razor-Sharp Ultra-Crisp Neon Gold Grid (Zero Blur) */}
                                 <div className="relative font-mono font-black text-5xl sm:text-6xl text-[#E7FF00] drop-shadow-[0_0_35px_rgba(231,255,0,0.95)] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64">
                                     <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">L</span>
                                     <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">E</span>
@@ -186,17 +209,17 @@ export function InitialUnlockSplash({
                                     <span className="text-4xl sm:text-5xl font-black drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">!</span>
                                 </div>
 
-                                <div className="mt-4 font-mono text-[10px] sm:text-xs text-white/70 tracking-[0.3em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,1)] animate-pulse">
+                                <div className="mt-4 font-mono text-[10px] sm:text-xs text-white/80 tracking-[0.3em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,1)] animate-pulse">
                                     TOUCH SCREEN TO WALK FROM 02:00 AM
                                 </div>
                             </motion.div>
 
-                            {/* 3. Bottom Action Portals (Unblurs separately in Stage 3 at 4.8s) */}
+                            {/* 3. Bottom Action Portals (Unblurs & Slides Up separately at 5.2s) */}
                             {unblurStage >= 3 && (
                                 <motion.div 
-                                    initial={{ opacity: 0, filter: 'blur(10px)', y: 22 }}
+                                    initial={{ opacity: 0, filter: 'blur(8px)', y: 35 }}
                                     animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-                                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                                     onClick={(e) => e.stopPropagation()}
                                     onPointerDown={(e) => e.stopPropagation()}
                                     onTouchStart={(e) => e.stopPropagation()}
