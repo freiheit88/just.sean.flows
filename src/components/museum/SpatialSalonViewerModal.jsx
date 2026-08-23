@@ -69,6 +69,8 @@ const SPATIAL_NODES = {
     }
 };
 
+const HOLD_DURATION_MS = 3000; // 3.0 Seconds Hold-to-Walk
+
 export function SpatialSalonViewerModal({ isOpen, onClose }) {
     const [currentNodeId, setCurrentNodeId] = useState('center');
     const [isTransitioning, setIsTransitioning] = useState(false);
@@ -78,42 +80,98 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
     const [inspectedObject, setInspectedObject] = useState(null);
     const [soundNoteActive, setSoundNoteActive] = useState(false);
 
+    // 3-Second Hold-to-Walk State
+    const [activeHoldingKey, setActiveHoldingKey] = useState(null);
+    const [holdProgress, setHoldProgress] = useState(0.0);
+    const [hoveredExitTarget, setHoveredExitTarget] = useState(null);
+
+    const holdStartTimeRef = useRef(null);
+    const holdIntervalRef = useRef(null);
+
     const currentNode = SPATIAL_NODES[currentNodeId] || SPATIAL_NODES.center;
 
-    // Keyboard WASD Navigation
+    // Keyboard 3-Second Hold Navigation Engine
     useEffect(() => {
         if (!isOpen) return;
 
         const handleKeyDown = (e) => {
+            if (e.repeat) return; // Ignore browser auto-repeat
             const key = e.key.toUpperCase();
             const exit = currentNode.exits.find(ex => ex.key === key);
-            if (exit) {
-                transitionToNode(exit.target);
+            if (exit && !isTransitioning) {
+                startHoldKey(key, exit.target);
+            }
+        };
+
+        const handleKeyUp = (e) => {
+            const key = e.key.toUpperCase();
+            if (activeHoldingKey === key) {
+                cancelHoldKey();
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen, currentNodeId]);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+            cancelHoldKey();
+        };
+    }, [isOpen, currentNodeId, activeHoldingKey, isTransitioning]);
+
+    const startHoldKey = (key, targetId) => {
+        if (isTransitioning) return;
+        setActiveHoldingKey(key);
+        setHoveredExitTarget(targetId);
+        holdStartTimeRef.current = Date.now();
+
+        if (holdIntervalRef.current) clearInterval(holdIntervalRef.current);
+
+        holdIntervalRef.current = setInterval(() => {
+            const elapsed = Date.now() - holdStartTimeRef.current;
+            const prog = Math.min(1.0, elapsed / HOLD_DURATION_MS);
+            setHoldProgress(prog);
+
+            if (prog >= 1.0) {
+                clearInterval(holdIntervalRef.current);
+                holdIntervalRef.current = null;
+                setActiveHoldingKey(null);
+                setHoldProgress(0.0);
+                transitionToNode(targetId);
+            }
+        }, 30);
+    };
+
+    const cancelHoldKey = () => {
+        if (holdIntervalRef.current) {
+            clearInterval(holdIntervalRef.current);
+            holdIntervalRef.current = null;
+        }
+        setActiveHoldingKey(null);
+        setHoldProgress(0.0);
+        setHoveredExitTarget(null);
+    };
 
     const transitionToNode = (targetId) => {
         if (isTransitioning || targetId === currentNodeId) return;
         setIsTransitioning(true);
         setInspectedObject(null);
+        setHoveredExitTarget(null);
         
-        // Footstep Audio Simulation
+        // Footstep Reverb Synthesis
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            osc.frequency.setValueAtTime(80, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.15);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.frequency.setValueAtTime(90, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(32, audioCtx.currentTime + 0.18);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
             osc.connect(gain);
             gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.15);
+            osc.stop(audioCtx.currentTime + 0.18);
         } catch (e) {}
 
         setTimeout(() => {
@@ -129,7 +187,6 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
 
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            // 432Hz Tuned A-Major Triad (A4: 432Hz, C#5: 544.29Hz, E5: 647.27Hz)
             const freqs = [432.0, 544.29, 647.27];
             freqs.forEach((f, idx) => {
                 const osc = audioCtx.createOscillator();
@@ -165,6 +222,9 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
 
     if (!isOpen) return null;
 
+    // Active preview node data for the held direction
+    const activePreviewNode = hoveredExitTarget ? SPATIAL_NODES[hoveredExitTarget] : null;
+
     return (
         <AnimatePresence>
             <motion.div
@@ -194,14 +254,21 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                             </div>
                         </div>
 
-                        {/* WASD Keyboard Controller Indicator */}
-                        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 font-mono text-[10px] text-neutral-300">
-                            <span className="font-bold text-white">CONTROLS:</span>
-                            <span className="px-1.5 py-0.5 rounded bg-white/10 text-[#E7FF00] font-bold">W</span>
-                            <span className="px-1.5 py-0.5 rounded bg-white/10 text-[#E7FF00] font-bold">A</span>
-                            <span className="px-1.5 py-0.5 rounded bg-white/10 text-[#E7FF00] font-bold">S</span>
-                            <span className="px-1.5 py-0.5 rounded bg-white/10 text-[#E7FF00] font-bold">D</span>
-                            <span>/ Drag to Look</span>
+                        {/* Hold Key Indicator HUD */}
+                        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 font-mono text-[10px] text-neutral-300">
+                            <span className="font-bold text-white">HOLD KEY 3 SECONDS:</span>
+                            {['W', 'A', 'S', 'D'].map((k) => (
+                                <span 
+                                    key={k}
+                                    className={`px-2 py-0.5 rounded font-black transition-all ${
+                                        activeHoldingKey === k 
+                                            ? 'bg-[#E7FF00] text-black shadow-[0_0_10px_#E7FF00] scale-110' 
+                                            : 'bg-white/10 text-neutral-400'
+                                    }`}
+                                >
+                                    {k}
+                                </span>
+                            ))}
                         </div>
 
                         <button
@@ -220,15 +287,15 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                         onMouseLeave={handleMouseUp}
                         className="relative flex-1 bg-black overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing"
                     >
-                        {/* 1st-Person Photographic Spatial Viewport with Camera Dolly & Parallax */}
+                        {/* 1st-Person Camera with Smooth Lean when Holding Key */}
                         <motion.div
                             animate={{
-                                scale: isTransitioning ? 1.15 : 1.05,
+                                scale: isTransitioning ? 1.18 : (1.05 + holdProgress * 0.05),
                                 opacity: isTransitioning ? 0.2 : 1,
                                 x: panOffset.x * 0.4,
                                 y: panOffset.y * 0.4
                             }}
-                            transition={{ duration: 0.4, ease: 'easeOut' }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
                             className="absolute inset-0 w-full h-full"
                         >
                             <img
@@ -236,38 +303,112 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                                 alt={currentNode.name}
                                 className="w-full h-full object-cover select-none pointer-events-none"
                             />
-                            {/* Realistic Ambient Lighting Tint */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
                         </motion.div>
 
-                        {/* Interactive Spatial Exit Gateways (Floating Waypoints in 3D Space) */}
-                        {!isTransitioning && currentNode.exits.map((exit) => (
-                            <motion.button
-                                key={exit.target}
-                                initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                transition={{ duration: 0.3 }}
-                                onClick={() => transitionToNode(exit.target)}
-                                style={{
-                                    left: exit.x,
-                                    top: exit.y,
-                                    transform: `translate(-50%, -50%) translate3d(${panOffset.x * 0.2}px, ${panOffset.y * 0.2}px, 0)`
-                                }}
-                                className="absolute group z-20 flex flex-col items-center cursor-pointer pointer-events-auto"
-                            >
-                                <span className="relative flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E7FF00] opacity-50"></span>
-                                    <span className="relative inline-flex rounded-2xl h-8 w-8 sm:h-9 sm:w-9 bg-black/85 border-2 border-[#E7FF00] items-center justify-center shadow-[0_0_25px_#E7FF00] group-hover:scale-110 group-hover:bg-[#E7FF00] group-hover:text-black transition-all">
-                                        <ArrowUp className="w-4 h-4 text-[#E7FF00] group-hover:text-black transition-colors" />
-                                    </span>
-                                </span>
+                        {/* Interactive Spatial Exit Gateways with 3s Radial Progress & Ethereal Mirage Preview */}
+                        {!isTransitioning && currentNode.exits.map((exit) => {
+                            const isBeingHeld = activeHoldingKey === exit.key;
+                            const isHovered = hoveredExitTarget === exit.target;
+                            const targetNode = SPATIAL_NODES[exit.target];
 
-                                <div className="mt-1.5 px-3 py-1 rounded-xl bg-black/80 backdrop-blur-md border border-white/20 text-[10px] sm:text-xs font-mono font-bold text-white whitespace-nowrap group-hover:border-[#E7FF00] group-hover:text-[#E7FF00] shadow-lg transition-all flex items-center gap-1.5">
-                                    <span className="px-1.5 py-0.2 rounded bg-white/10 text-[#E7FF00] font-black">{exit.key}</span>
-                                    <span>{exit.label}</span>
+                            return (
+                                <div
+                                    key={exit.target}
+                                    style={{
+                                        left: exit.x,
+                                        top: exit.y,
+                                        transform: `translate(-50%, -50%) translate3d(${panOffset.x * 0.2}px, ${panOffset.y * 0.2}px, 0)`
+                                    }}
+                                    className="absolute z-20 flex flex-col items-center pointer-events-auto"
+                                    onMouseEnter={() => setHoveredExitTarget(exit.target)}
+                                    onMouseLeave={() => {
+                                        if (!activeHoldingKey) setHoveredExitTarget(null);
+                                    }}
+                                >
+                                    {/* Ethereal Floating Holographic Room Preview Lens (No text, pure visual mirage) */}
+                                    <AnimatePresence>
+                                        {(isBeingHeld || isHovered) && (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.6, y: 15 }}
+                                                animate={{ 
+                                                    opacity: isBeingHeld ? (0.4 + holdProgress * 0.55) : 0.65, 
+                                                    scale: isBeingHeld ? (1.0 + holdProgress * 0.15) : 0.9, 
+                                                    y: -65 
+                                                }}
+                                                exit={{ opacity: 0, scale: 0.6, y: 10 }}
+                                                transition={{ duration: 0.25 }}
+                                                className="absolute pointer-events-none flex flex-col items-center"
+                                            >
+                                                {/* Circular Refractive Preview Portal */}
+                                                <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full overflow-hidden border-2 border-[#E7FF00] shadow-[0_0_35px_rgba(231,255,0,0.6)] bg-black/80">
+                                                    <img 
+                                                        src={targetNode.image} 
+                                                        alt="" 
+                                                        className="w-full h-full object-cover transform scale-110"
+                                                    />
+                                                    {/* Spherical Glint & Gradient Mask */}
+                                                    <div 
+                                                        className="absolute inset-0"
+                                                        style={{
+                                                            background: 'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.9) 100%)',
+                                                            mixBlendMode: 'overlay'
+                                                        }}
+                                                    />
+                                                    <div className="absolute top-1 left-2 w-8 h-4 rounded-full bg-white/60 blur-[1px] transform -rotate-45" />
+                                                </div>
+                                                {/* Ambient Beacon Pulse beneath the orb */}
+                                                <div className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] mt-1.5 shadow-[0_0_8px_#E7FF00] animate-ping" />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Waypoint Action Trigger Button with 360° Circular SVG Progress Ring */}
+                                    <button
+                                        onMouseDown={() => startHoldKey(exit.key, exit.target)}
+                                        onMouseUp={cancelHoldKey}
+                                        onTouchStart={() => startHoldKey(exit.key, exit.target)}
+                                        onTouchEnd={cancelHoldKey}
+                                        className="relative flex items-center justify-center cursor-pointer group"
+                                    >
+                                        {/* Circular Radial SVG Charge Progress (0 to 360 deg) */}
+                                        <svg className="w-14 h-14 sm:w-16 sm:h-16 transform -rotate-90 pointer-events-none">
+                                            <circle
+                                                cx="30" cy="30" r="24"
+                                                className="text-white/15"
+                                                strokeWidth="3.5"
+                                                stroke="currentColor"
+                                                fill="transparent"
+                                            />
+                                            {isBeingHeld && (
+                                                <circle
+                                                    cx="30" cy="30" r="24"
+                                                    className="text-[#E7FF00]"
+                                                    strokeWidth="4"
+                                                    strokeDasharray={150}
+                                                    strokeDashoffset={150 * (1 - holdProgress)}
+                                                    strokeLinecap="round"
+                                                    stroke="currentColor"
+                                                    fill="transparent"
+                                                    style={{ filter: 'drop-shadow(0 0 8px #E7FF00)' }}
+                                                />
+                                            )}
+                                        </svg>
+
+                                        {/* Center Key Icon */}
+                                        <div className={`absolute w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center border-2 transition-all ${
+                                            isBeingHeld 
+                                                ? 'bg-[#E7FF00] text-black border-white scale-110 shadow-[0_0_20px_#E7FF00]' 
+                                                : 'bg-black/85 text-white border-[#E7FF00]/70 group-hover:border-[#E7FF00]'
+                                        }`}>
+                                            <span className="font-mono font-black text-sm sm:text-base">
+                                                {exit.key}
+                                            </span>
+                                        </div>
+                                    </button>
                                 </div>
-                            </motion.button>
-                        ))}
+                            );
+                        })}
 
                         {/* Interactive Object Trigger at Piano */}
                         {currentNode.interactiveObject && !isTransitioning && (
@@ -302,11 +443,9 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                                 SALON RADAR MAP
                             </span>
                             <div className="relative w-24 h-24 rounded-xl border border-white/15 bg-white/[0.03] overflow-hidden">
-                                {/* Floor Plan Outline */}
                                 <div className="absolute inset-2 border border-white/10 rounded" />
                                 <div className="absolute top-3 left-1/2 -translate-x-1/2 w-8 h-4 border border-[#E7FF00]/40 rounded-t" />
 
-                                {/* Node Indicators */}
                                 {Object.values(SPATIAL_NODES).map((node) => (
                                     <div
                                         key={node.id}
@@ -350,7 +489,7 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                         </AnimatePresence>
                     </div>
 
-                    {/* 3. Bottom Spatial Status Bar & Mobile Directional Pad */}
+                    {/* 3. Bottom Spatial Status Bar */}
                     <div className="px-5 py-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 bg-black/60 text-neutral-400 font-mono text-[11px] shrink-0 z-30">
                         <div className="flex items-center gap-3">
                             <span className="flex items-center gap-1.5 text-[#E7FF00] font-bold">
@@ -363,17 +502,10 @@ export function SpatialSalonViewerModal({ isOpen, onClose }) {
                             </span>
                         </div>
 
-                        {/* Mobile Touch Navigation Pad */}
-                        <div className="flex sm:hidden items-center gap-2">
-                            {currentNode.exits.map((exit) => (
-                                <button
-                                    key={exit.target}
-                                    onClick={() => transitionToNode(exit.target)}
-                                    className="px-3 py-1 rounded-lg bg-[#E7FF00]/20 border border-[#E7FF00] text-[#E7FF00] font-mono text-xs font-black"
-                                >
-                                    {exit.key}: {exit.target}
-                                </button>
-                            ))}
+                        <div className="flex items-center gap-2">
+                            <span className="px-2.5 py-0.5 rounded bg-white/5 border border-white/10 text-white font-bold">
+                                HOLD 3s TO WALK // 60 FPS
+                            </span>
                         </div>
                     </div>
                 </div>
