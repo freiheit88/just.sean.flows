@@ -13,10 +13,9 @@ export function InitialUnlockSplash({
     ghostOffsetX = 0, 
     ghostOffsetY = 0 
 }) {
-    // Exact requested timing orchestration:
     // 0.0s ~ 3.5s: Top JUST SEAN FLOWS & Volume interaction window
-    // 3.5s: Main Logo Card begins unblurring over 1.5s (3.5s ~ 5.0s)
-    // 7.0s (3.5s + 1.5s + 2.0s delay): Bottom Enter Atelier Button unblurs & emerges
+    // 3.5s: Main Logo Card unblurs over 1.5s (Button appears softly with subtle blur)
+    // 7.0s: Button fully unblurs into 100% crisp active state
     const [cardUnblurStage, setCardUnblurStage] = useState(false);
     const [buttonUnblurStage, setButtonUnblurStage] = useState(false);
     const [debrisStage, setDebrisStage] = useState(false);
@@ -40,7 +39,7 @@ export function InitialUnlockSplash({
             setDebrisStage(true);
         }, 4000);
 
-        // 7.0s: Bottom Button unblurs (3.5s + 1.5s + 2.0s delay)
+        // 7.0s: Bottom Button fully unblurs (3.5s + 1.5s + 2.0s delay)
         const tButton = setTimeout(() => {
             setButtonUnblurStage(true);
         }, 7000);
@@ -91,7 +90,7 @@ export function InitialUnlockSplash({
             <div 
                 className="absolute inset-0 pointer-events-none z-0 opacity-85"
                 style={{
-                    background: 'radial-gradient(circle at center, #52111E 0%, #29080E 50%, #060405 100%)'
+                    background: 'radial-gradient(circle at center, #480B1B 0%, #25060E 55%, #060405 100%)'
                 }}
             />
 
@@ -183,7 +182,7 @@ export function InitialUnlockSplash({
                         </motion.div>
                     )}
 
-                    {/* MAIN LOGO CARD: Unblurs smoothly over 1.5s at 3.5s */}
+                    {/* MAIN CARD: 100% Solid Exact Left-Side Bordeaux Color (#480B1B) with NO seam lines! */}
                     <motion.div
                         initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
                         animate={{ 
@@ -196,39 +195,41 @@ export function InitialUnlockSplash({
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={onUnlock}
-                        className="relative rounded-[32px] bg-gradient-to-b from-[#58111E] via-[#4A0E17] to-[#360810] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 w-72 sm:w-80 h-96 sm:h-[410px] group cursor-pointer pointer-events-auto"
+                        style={{ backgroundColor: '#480B1B' }}
+                        className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 w-72 sm:w-80 h-96 sm:h-[410px] group cursor-pointer pointer-events-auto"
                     >
                         {/* Top Specular Light Glint */}
-                        <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/25 via-white/5 to-transparent rounded-t-[32px] pointer-events-none" />
+                        <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/20 via-transparent to-transparent rounded-t-[32px] pointer-events-none" />
 
-                        {/* 1. REFINED SCALE OFFICIAL EMBLEM (Balanced, elegant size in center) */}
+                        {/* 1. SEAMLESS EMBLEM ON EXACT #480B1B BACKGROUND (Exact requested size, seamlessly integrated) */}
                         <div className="w-full flex-1 flex flex-col items-center justify-center relative z-10 py-2">
                             <motion.div 
                                 animate={{
                                     filter: [
-                                        "drop-shadow(0 0 12px rgba(247,235,225,0.4))",
-                                        "drop-shadow(0 0 28px rgba(231,255,0,0.7))",
-                                        "drop-shadow(0 0 12px rgba(247,235,225,0.4))"
+                                        "drop-shadow(0 0 10px rgba(247,235,225,0.35))",
+                                        "drop-shadow(0 0 24px rgba(231,255,0,0.65))",
+                                        "drop-shadow(0 0 10px rgba(247,235,225,0.35))"
                                     ]
                                 }}
                                 transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                                className="w-28 sm:w-32 aspect-square flex items-center justify-center rounded-xl overflow-hidden shadow-2xl"
+                                className="w-28 sm:w-32 aspect-square flex items-center justify-center select-none"
                             >
                                 <img 
                                     src="/assets/logo/jsf_official_logo.jpg" 
                                     alt="Just Sean Flows Official Logo" 
-                                    className="w-full h-full object-cover select-none"
+                                    className="w-full h-full object-contain rounded-xl select-none"
+                                    style={{ backgroundColor: '#480B1B' }}
                                 />
                             </motion.div>
                         </div>
 
-                        {/* 2. [🏛️] | ENTER ATELIER Button: Unblurs at 7.0s with 2s extra delay */}
+                        {/* 2. [🏛️] | ENTER ATELIER Button: Subtly visible during 3.5s~7.0s, fully unblurs at 7.0s */}
                         <motion.div 
-                            initial={{ opacity: 0, filter: 'blur(12px)', y: 15 }}
+                            initial={{ opacity: 0, filter: 'blur(10px)', y: 15 }}
                             animate={{
-                                opacity: buttonUnblurStage ? 1 : 0,
-                                filter: buttonUnblurStage ? 'blur(0px)' : 'blur(12px)',
-                                y: buttonUnblurStage ? 0 : 15
+                                opacity: buttonUnblurStage ? 1.0 : cardUnblurStage ? 0.40 : 0,
+                                filter: buttonUnblurStage ? 'blur(0px)' : 'blur(5px)',
+                                y: cardUnblurStage ? 0 : 15
                             }}
                             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
                             className="w-full relative z-20 mt-auto"
