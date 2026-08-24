@@ -39,7 +39,7 @@ const MASTER_EXHIBITS = [
         title: "CI / BI Brand Identity System",
         sub: "3D 와인잔 엠블럼, 공식 컬러 시스템 & 432Hz 음향 명세",
         tag: "EXHIBIT 03 // BRAND CI/BI",
-        img: "/assets/lookbook/lookbook_14_journal.jpg",
+        img: "/assets/logo/jsf_official_logo.jpg",
         badge: "BRAND CI/BI"
     },
     {

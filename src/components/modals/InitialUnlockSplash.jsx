@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
-import { Compass, Sparkles, Waves, Crown, CheckCircle2 } from 'lucide-react';
+import { Compass, Sparkles, Waves, Crown, CheckCircle2, Play, Volume2 } from 'lucide-react';
 import { getStoredVipProfile } from './InstagramVipAuthModal';
 
 export function InitialUnlockSplash({ 
@@ -15,14 +15,11 @@ export function InitialUnlockSplash({
     ghostOffsetX = 0, 
     ghostOffsetY = 0 
 }) {
-    // Staggered Staging Timers:
-    // Stage 1 (3.5s): LET'S GO smoothly rises from below with crisp neon gold
-    // Stage 2 (4.0s): Background ambient debris emerges softly
-    // Stage 3 (5.2s): Bottom navigation buttons slide up separately
     const [unblurStage, setUnblurStage] = useState(0);
     const [vipProfile, setVipProfile] = useState(null);
+    const [isHovered, setIsHovered] = useState(false);
 
-    // Continuous Organic Idle Ambient Sway Physics (Natural breathing motion when stationary)
+    // Continuous Organic Idle Ambient Sway Physics
     const [idleOffset, setIdleOffset] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
     const animFrameRef = useRef(null);
 
@@ -30,17 +27,17 @@ export function InitialUnlockSplash({
         const stored = getStoredVipProfile();
         if (stored) setVipProfile(stored);
 
-        const t1 = setTimeout(() => setUnblurStage(1), 3500); // 3.5s: LET'S GO rises
-        const t2 = setTimeout(() => setUnblurStage(2), 4000); // 4.0s: Ambient Debris
-        const t3 = setTimeout(() => setUnblurStage(3), 5200); // 5.2s: Action Buttons
+        const t1 = setTimeout(() => setUnblurStage(1), 1800); // Emblem emerges
+        const t2 = setTimeout(() => setUnblurStage(2), 2600); // Ambient Debris
+        const t3 = setTimeout(() => setUnblurStage(3), 3800); // Action Buttons
 
         let startTime = Date.now();
         const loop = () => {
-            const time = (Date.now() - startTime) * 0.001; // in seconds
-            const ix = Math.sin(time * 0.8) * 8 + Math.sin(time * 1.5) * 4;
-            const iy = Math.cos(time * 0.6) * 7 + Math.cos(time * 1.2) * 3;
-            const iRotX = Math.sin(time * 0.5) * 3;
-            const iRotY = Math.cos(time * 0.7) * 3;
+            const time = (Date.now() - startTime) * 0.001;
+            const ix = Math.sin(time * 0.8) * 6 + Math.sin(time * 1.5) * 3;
+            const iy = Math.cos(time * 0.6) * 5 + Math.cos(time * 1.2) * 2;
+            const iRotX = Math.sin(time * 0.5) * 2.5;
+            const iRotY = Math.cos(time * 0.7) * 2.5;
 
             setIdleOffset({ x: ix, y: iy, rotX: iRotX, rotY: iRotY });
             animFrameRef.current = requestAnimationFrame(loop);
@@ -58,15 +55,10 @@ export function InitialUnlockSplash({
     if (isAudioUnlocked) return null;
 
     // INVERTED Gyro Physics + Organic Idle Floating Coordinates
-    const targetRotX = (tiltY * 0.45) + idleOffset.rotX;
-    const targetRotY = (-tiltX * 0.45) + idleOffset.rotY;
-    const targetTransX = (-ghostOffsetX * 0.4) + idleOffset.x;
-    const targetTransY = (-ghostOffsetY * 0.4) + idleOffset.y;
-
-    // Dynamic Glitch Spread (Tightly locked when stationary, expanding on movement)
-    const gyroSpeed = Math.abs(tilt.x) + Math.abs(tilt.y);
-    const glitchDist = 3 + gyroSpeed * 12;
-    const glitchAlpha = Math.min(0.75, 0.2 + gyroSpeed * 0.6);
+    const targetRotX = (tiltY * 0.35) + idleOffset.rotX;
+    const targetRotY = (-tiltX * 0.35) + idleOffset.rotY;
+    const targetTransX = (-ghostOffsetX * 0.35) + idleOffset.x;
+    const targetTransY = (-ghostOffsetY * 0.35) + idleOffset.y;
 
     return (
         <motion.div
@@ -75,34 +67,40 @@ export function InitialUnlockSplash({
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
             onClick={onUnlock}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-black/90 cursor-pointer overflow-hidden select-none"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-[#070506] cursor-pointer overflow-hidden select-none"
             style={{
                 perspective: '1000px',
                 transformStyle: 'preserve-3d'
             }}
         >
-            <div className="absolute inset-0 bg-black/40 pointer-events-none z-10" />
+            {/* Rich Bordeaux Velvet Vignette Background */}
+            <div 
+                className="absolute inset-0 pointer-events-none z-0 opacity-80"
+                style={{
+                    background: 'radial-gradient(circle at center, #52111E 0%, #29080E 50%, #080305 100%)'
+                }}
+            />
 
             <AnimatePresence>
                 {unblurStage >= 1 && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+                        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10"
                         style={{ transformStyle: 'preserve-3d' }}
                     >
-                        {/* 1. Soft Ambient Background Debris (Emerges softly at 4.0s) */}
+                        {/* 1. Soft Ambient Background Debris */}
                         {unblurStage >= 2 && (
                             <motion.div 
                                 initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.65 }}
+                                animate={{ opacity: 0.45 }}
                                 transition={{ duration: 1.4, ease: 'easeOut' }}
                                 className="absolute inset-0 pointer-events-none overflow-hidden z-0" 
                                 style={{ transformStyle: 'preserve-3d' }}
                             >
                                 {ATELIER_DEBRIS_100.map((item) => {
-                                    const tiltXVal = -tilt.x * 20 * item.tiltMult + idleOffset.x * 0.5;
-                                    const tiltYVal = -tilt.y * 20 * item.tiltMult + idleOffset.y * 0.5;
+                                    const tiltXVal = -tilt.x * 15 * item.tiltMult + idleOffset.x * 0.4;
+                                    const tiltYVal = -tilt.y * 15 * item.tiltMult + idleOffset.y * 0.4;
                                     const startY = item.isLarge ? '85vh' : '108vh';
                                     const endY = item.isLarge ? '10vh' : '-28vh';
 
@@ -148,7 +146,7 @@ export function InitialUnlockSplash({
                             </motion.div>
                         )}
 
-                        {/* 2. Central 3D Container with INVERTED Gyro + Organic Idle Floating Physics */}
+                        {/* 2. Master Interactive Bordeaux Wine Glass + G-Clef Emblem Hero Button */}
                         <div
                             style={{
                                 transform: `perspective(1000px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 20px)`,
@@ -157,13 +155,13 @@ export function InitialUnlockSplash({
                             }}
                             className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
                         >
-                            {/* Persistent VIP Recognition Floating Badge when Member is authenticated */}
+                            {/* VIP Welcome Badge */}
                             {vipProfile && (
                                 <motion.div
                                     initial={{ opacity: 0, y: -20, scale: 0.9 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     transition={{ duration: 0.8, delay: 0.2 }}
-                                    className="mb-4 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border-2 border-[#E7FF00] shadow-[0_0_30px_rgba(231,255,0,0.6)] flex items-center gap-2.5"
+                                    className="mb-5 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border-2 border-[#E7FF00] shadow-[0_0_30px_rgba(231,255,0,0.6)] flex items-center gap-2.5"
                                 >
                                     <div className="w-6 h-6 rounded-full overflow-hidden border border-[#E7FF00]">
                                         <img src={vipProfile.avatarUrl} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${vipProfile.instagramId}`; }} />
@@ -174,105 +172,132 @@ export function InitialUnlockSplash({
                                 </motion.div>
                             )}
 
-                            {/* LET'S GO Smoothly Rises from Below with ZERO blur at 3.5s */}
+                            {/* Top Elegant Brand Wordmark */}
                             <motion.div
-                                initial={{ opacity: 0, y: 70, scale: 0.92 }}
-                                animate={{ opacity: 1, y: 0, scale: 1.0 }}
-                                transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-                                className="relative flex flex-col items-center text-center cursor-pointer select-none"
+                                initial={{ opacity: 0, y: -15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.8 }}
+                                className="flex flex-col items-center gap-1 mb-6 text-center"
                             >
-                                {/* Ambient Warm Glow Halo */}
+                                <span className="font-mono text-[9px] sm:text-[10px] font-black text-[#F7EBE1]/70 tracking-[0.4em] uppercase">
+                                    FRANKFURT AM MAIN • ATELIER
+                                </span>
+                                <h1 className="font-mono text-xl sm:text-2xl font-black text-[#F7EBE1] tracking-[0.25em] drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]">
+                                    JUST SEAN FLOWS
+                                </h1>
+                            </motion.div>
+
+                            {/* THE MASTER EMBLEM BUTTON (Vector Wine Glass + G-Clef + J.S.F) */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.85, y: 30 }}
+                                animate={{ opacity: 1, scale: 1.0, y: 0 }}
+                                transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                                whileHover={{ scale: 1.06 }}
+                                whileTap={{ scale: 0.96 }}
+                                onHoverStart={() => setIsHovered(true)}
+                                onHoverEnd={() => setIsHovered(false)}
+                                className="relative flex flex-col items-center cursor-pointer pointer-events-auto group p-6 rounded-[36px] bg-black/35 backdrop-blur-xl border border-[#F7EBE1]/25 hover:border-[#F7EBE1] shadow-[0_20px_80px_rgba(0,0,0,0.95)] hover:shadow-[0_0_60px_rgba(247,235,225,0.4)] transition-all duration-500"
+                            >
+                                {/* Radial Glow Behind Emblem */}
                                 <div 
-                                    className="absolute inset-0 bg-[#E7FF00]/25 filter blur-3xl rounded-full scale-150 pointer-events-none"
+                                    className="absolute inset-0 rounded-[36px] bg-[#E7FF00]/10 filter blur-2xl pointer-events-none group-hover:bg-[#E7FF00]/25 transition-all duration-500"
                                 />
 
-                                {/* 🔴 RGB Chromatic Glitch Layer 1: Red/Magenta (Inverted Parallax Shift) */}
-                                <div 
-                                    style={{
-                                        transform: `translate3d(${-glitchDist}px, ${-glitchDist * 0.4}px, -10px)`,
-                                        opacity: glitchAlpha
-                                    }}
-                                    className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#FF0055] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
-                                >
-                                    <span>L</span><span>E</span><span>T</span>
-                                    <span></span><span className="text-4xl sm:text-5xl">'</span><span>S</span>
-                                    <span></span><span>G</span><span>O</span>
-                                    <span></span><span></span><span className="text-4xl sm:text-5xl font-black">!</span>
+                                {/* High-Precision Vector SVG: Bordeaux Glass + Fluid G-Clef Synthesis */}
+                                <div className="w-28 sm:w-36 h-36 sm:h-48 relative flex items-center justify-center">
+                                    <svg viewBox="0 0 200 260" className="w-full h-full drop-shadow-[0_4px_25px_rgba(0,0,0,0.9)]">
+                                        {/* Wine Glass Bowl Outline */}
+                                        <path 
+                                            d="M 68 30 L 132 30 C 145 70, 140 100, 100 115 C 60 100, 55 70, 68 30 Z" 
+                                            fill="none" 
+                                            stroke="#F7EBE1" 
+                                            strokeWidth="7" 
+                                            strokeLinecap="round" 
+                                            strokeLinejoin="round" 
+                                        />
+
+                                        {/* Dynamic Curved Wave of Pinot Noir Wine inside */}
+                                        <motion.path 
+                                            d="M 65 58 Q 88 74, 102 62 Q 118 50, 135 60 C 135 90, 65 90, 65 58 Z" 
+                                            fill="#F7EBE1"
+                                            animate={{
+                                                d: isHovered 
+                                                    ? "M 65 54 Q 85 64, 102 70 Q 120 74, 135 56 C 135 90, 65 90, 65 54 Z"
+                                                    : "M 65 58 Q 88 74, 102 62 Q 118 50, 135 60 C 135 90, 65 90, 65 58 Z"
+                                            }}
+                                            transition={{ repeat: Infinity, repeatType: "reverse", duration: 2.2, ease: "easeInOut" }}
+                                        />
+
+                                        {/* Organic Flowing G-Clef Stem */}
+                                        <path 
+                                            d="M 100 115 C 72 135, 70 185, 102 185 C 130 185, 132 155, 108 145 C 84 135, 80 160, 95 168 M 100 78 L 100 215 C 100 236, 76 234, 82 216" 
+                                            fill="none" 
+                                            stroke="#F7EBE1" 
+                                            strokeWidth="7" 
+                                            strokeLinecap="round" 
+                                        />
+
+                                        {/* Terminus Dot */}
+                                        <circle cx="82" cy="216" r="8" fill="#F7EBE1" />
+                                    </svg>
                                 </div>
 
-                                {/* 🔵 RGB Chromatic Glitch Layer 2: Cyan/Blue (Inverted Parallax Shift) */}
-                                <div 
-                                    style={{
-                                        transform: `translate3d(${glitchDist}px, ${glitchDist * 0.4}px, -10px)`,
-                                        opacity: glitchAlpha
-                                    }}
-                                    className="absolute inset-0 font-mono font-black text-5xl sm:text-6xl text-[#00F0FF] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64 pointer-events-none"
-                                >
-                                    <span>L</span><span>E</span><span>T</span>
-                                    <span></span><span className="text-4xl sm:text-5xl">'</span><span>S</span>
-                                    <span></span><span>G</span><span>O</span>
-                                    <span></span><span></span><span className="text-4xl sm:text-5xl font-black">!</span>
+                                {/* J · S · F Classical Roman Serif Lettering */}
+                                <div className="mt-4 flex items-center justify-center gap-3 font-serif font-black text-2xl sm:text-3xl text-[#F7EBE1] tracking-[0.25em] drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+                                    <span>J</span>
+                                    <span className="text-sm sm:text-base text-[#C8A96E] font-sans">•</span>
+                                    <span>S</span>
+                                    <span className="text-sm sm:text-base text-[#C8A96E] font-sans">•</span>
+                                    <span>F</span>
                                 </div>
 
-                                {/* 🟡 Main Razor-Sharp Ultra-Crisp Neon Gold Grid (Zero Blur) */}
-                                <div className="relative font-mono font-black text-5xl sm:text-6xl text-[#E7FF00] drop-shadow-[0_0_35px_rgba(231,255,0,0.95)] grid grid-cols-3 gap-x-5 gap-y-1 text-center w-52 sm:w-64">
-                                    <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">L</span>
-                                    <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">E</span>
-                                    <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">T</span>
-                                    <span></span>
-                                    <span className="text-4xl sm:text-5xl drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">'</span>
-                                    <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">S</span>
-                                    <span></span>
-                                    <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">G</span>
-                                    <span className="drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">O</span>
-                                    <span></span>
-                                    <span></span>
-                                    <span className="text-4xl sm:text-5xl font-black drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">!</span>
-                                </div>
-
-                                <div className="mt-4 font-mono text-[10px] sm:text-xs text-white/80 tracking-[0.3em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,1)] animate-pulse">
-                                    TOUCH SCREEN TO WALK FROM 02:00 AM
+                                {/* Tap to Walk Live Indicator */}
+                                <div className="mt-3 px-4 py-1 rounded-full bg-white/10 border border-white/15 flex items-center gap-2 group-hover:bg-[#E7FF00] group-hover:text-black group-hover:border-[#E7FF00] transition-all">
+                                    <Play className="w-3 h-3 fill-current text-[#E7FF00] group-hover:text-black" />
+                                    <span className="font-mono text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-neutral-200 group-hover:text-black">
+                                        TAP EMBLEM TO ENTER (432Hz)
+                                    </span>
                                 </div>
                             </motion.div>
 
-                            {/* 3. Bottom Action Portals (Unblurs & Slides Up separately at 5.2s) */}
+                            {/* 3. Bottom Direct Action Portals */}
                             {unblurStage >= 3 && (
                                 <motion.div 
-                                    initial={{ opacity: 0, filter: 'blur(8px)', y: 35 }}
+                                    initial={{ opacity: 0, filter: 'blur(8px)', y: 25 }}
                                     animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
                                     transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                                     onClick={(e) => e.stopPropagation()}
                                     onPointerDown={(e) => e.stopPropagation()}
                                     onTouchStart={(e) => e.stopPropagation()}
-                                    className="mt-7 flex flex-col sm:flex-row items-center gap-3.5 z-40 pointer-events-auto w-full max-w-md px-2"
+                                    className="mt-6 flex flex-col sm:flex-row items-center gap-3 z-40 pointer-events-auto w-full max-w-sm px-2"
                                 >
-                                    {/* Button 1: Direct Museum Hub */}
+                                    {/* Direct Museum Hub */}
                                     <motion.button
-                                        whileHover={{ scale: 1.05, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.04, y: -2 }}
+                                        whileTap={{ scale: 0.96 }}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             if (onDirectMuseum) onDirectMuseum();
                                         }}
-                                        className="w-full sm:flex-1 py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#181512] to-[#25201A] hover:from-[#25201A] hover:to-[#352D24] border-2 border-[#E7FF00]/50 hover:border-[#E7FF00] text-white font-mono text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_25px_rgba(0,0,0,0.9)] hover:shadow-[0_0_30px_rgba(231,255,0,0.5)] flex items-center justify-center gap-2 cursor-pointer"
+                                        className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-black/60 hover:bg-black/90 border border-[#F7EBE1]/40 hover:border-[#E7FF00] text-[#F7EBE1] hover:text-[#E7FF00] font-mono text-xs font-black tracking-wider uppercase transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                        <Compass className="w-4 h-4 text-[#E7FF00]" />
-                                        <span>🏛️ ATELIER MUSEUM ➔</span>
+                                        <Compass className="w-3.5 h-3.5" />
+                                        <span>🏛️ ATELIER HUB ➔</span>
                                     </motion.button>
 
-                                    {/* Button 2: Direct 3D Sound Lab */}
+                                    {/* Direct 3D Sound Lab */}
                                     <motion.button
-                                        whileHover={{ scale: 1.05, y: -2 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.04, y: -2 }}
+                                        whileTap={{ scale: 0.96 }}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             if (onDirectSoundLab) onDirectSoundLab();
                                         }}
-                                        className="w-full sm:flex-1 py-3.5 px-5 rounded-2xl bg-[#E7FF00] hover:bg-white text-black font-mono text-xs font-black tracking-widest uppercase transition-all shadow-[0_0_30px_rgba(231,255,0,0.85)] hover:shadow-[0_0_40px_rgba(255,255,255,0.9)] flex items-center justify-center gap-2 cursor-pointer"
+                                        className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-[#E7FF00] hover:bg-white text-black font-mono text-xs font-black tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(231,255,0,0.6)] flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                        <Waves className="w-4 h-4" />
+                                        <Waves className="w-3.5 h-3.5" />
                                         <span>🎧 3D SOUND LAB ➔</span>
                                     </motion.button>
                                 </motion.div>

@@ -68,39 +68,20 @@ export function BrandCiBiModal({ isOpen, onClose }) {
                     <div className="flex-1 overflow-y-auto p-6 sm:p-10 flex flex-col gap-8">
                         {/* Section A: 3D Master Symbol & Philosophy */}
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center p-6 rounded-3xl bg-white/[0.02] border border-white/10">
-                            <div className="md:col-span-4 flex flex-col items-center justify-center p-6 rounded-2xl bg-black border border-[#C8A96E]/40 shadow-[0_0_40px_rgba(200,169,110,0.25)]">
-                                {/* Interactive 3D Gold Wine Glass + G-Clef Emblem */}
+                            <div className="md:col-span-4 flex flex-col items-center justify-center p-4 rounded-2xl bg-[#3D0A14] border border-[#F7EBE1]/40 shadow-[0_0_40px_rgba(247,235,225,0.25)]">
+                                {/* Official Master JSF Logo Image */}
                                 <motion.div
-                                    animate={{
-                                        rotateY: [-8, 8, -8],
-                                        filter: [
-                                            "drop-shadow(0 0 20px rgba(255,215,0,0.5))",
-                                            "drop-shadow(0 0 35px rgba(231,255,0,0.8))",
-                                            "drop-shadow(0 0 20px rgba(255,215,0,0.5))"
-                                        ]
-                                    }}
-                                    transition={{ repeat: Infinity, duration: 4.5, ease: 'easeInOut' }}
-                                    className="w-32 h-40 flex items-center justify-center"
+                                    whileHover={{ scale: 1.05 }}
+                                    className="w-full max-w-[200px] aspect-square rounded-xl overflow-hidden border border-[#F7EBE1]/30 shadow-2xl bg-[#4A0E17] flex items-center justify-center"
                                 >
-                                    <svg viewBox="0 0 100 130" className="w-full h-full">
-                                        <defs>
-                                            <linearGradient id="cibiGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                <stop offset="0%" stopColor="#FFF2B2" />
-                                                <stop offset="35%" stopColor="#FFD700" />
-                                                <stop offset="70%" stopColor="#C8A96E" />
-                                                <stop offset="100%" stopColor="#8C6B2D" />
-                                            </linearGradient>
-                                        </defs>
-                                        {/* Bordeaux Glass Bowl */}
-                                        <path d="M 30 15 C 30 50, 70 50, 70 15 Z" fill="none" stroke="url(#cibiGoldGrad)" strokeWidth="6" />
-                                        {/* Aged Crimson Pinot Noir Liquid */}
-                                        <path d="M 34 26 Q 50 38, 66 26 C 66 38, 34 38, 34 26 Z" fill="#7A1526" />
-                                        {/* Seamless Treble Clef Intertwined Stem */}
-                                        <path d="M 50 46 C 32 62, 32 90, 52 90 C 66 90, 68 76, 56 70 C 44 64, 42 76, 49 80 M 50 30 L 50 105 C 50 118, 38 116, 40 108" fill="none" stroke="url(#cibiGoldGrad)" strokeWidth="5.5" strokeLinecap="round" />
-                                    </svg>
+                                    <img 
+                                        src="/assets/logo/jsf_official_logo.jpg" 
+                                        alt="Official JSF Logo" 
+                                        className="w-full h-full object-cover"
+                                    />
                                 </motion.div>
-                                <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-widest uppercase mt-3">
-                                    MASTER EMBLEM // 3D FUSION
+                                <span className="font-mono text-[9px] font-black text-[#F7EBE1] tracking-widest uppercase mt-3">
+                                    OFFICIAL MASTER EMBLEM // J • S • F
                                 </span>
                             </div>
 
