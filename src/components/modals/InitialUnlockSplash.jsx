@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
-import { Compass, Sparkles, Waves, Crown, CheckCircle2, Play, Volume2 } from 'lucide-react';
+import { Compass, Sparkles, Waves, Crown, Play, Volume2, Footprints } from 'lucide-react';
 import { getStoredVipProfile } from './InstagramVipAuthModal';
 
 export function InitialUnlockSplash({ 
@@ -17,7 +17,6 @@ export function InitialUnlockSplash({
 }) {
     const [unblurStage, setUnblurStage] = useState(0);
     const [vipProfile, setVipProfile] = useState(null);
-    const [isHovered, setIsHovered] = useState(false);
 
     // Continuous Organic Idle Ambient Sway Physics
     const [idleOffset, setIdleOffset] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
@@ -27,9 +26,9 @@ export function InitialUnlockSplash({
         const stored = getStoredVipProfile();
         if (stored) setVipProfile(stored);
 
-        const t1 = setTimeout(() => setUnblurStage(1), 1800); // Emblem emerges
-        const t2 = setTimeout(() => setUnblurStage(2), 2600); // Ambient Debris
-        const t3 = setTimeout(() => setUnblurStage(3), 3800); // Action Buttons
+        const t1 = setTimeout(() => setUnblurStage(1), 1200); // 1.2s Card Emerges
+        const t2 = setTimeout(() => setUnblurStage(2), 1800); // 1.8s Ambient Debris
+        const t3 = setTimeout(() => setUnblurStage(3), 2800); // 2.8s Action Buttons
 
         let startTime = Date.now();
         const loop = () => {
@@ -54,7 +53,7 @@ export function InitialUnlockSplash({
 
     if (isAudioUnlocked) return null;
 
-    // INVERTED Gyro Physics + Organic Idle Floating Coordinates
+    // Inverted Gyro + Organic Idle Floating Physics
     const targetRotX = (tiltY * 0.35) + idleOffset.rotX;
     const targetRotY = (-tiltX * 0.35) + idleOffset.rotY;
     const targetTransX = (-ghostOffsetX * 0.35) + idleOffset.x;
@@ -67,7 +66,7 @@ export function InitialUnlockSplash({
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
             onClick={onUnlock}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-[#070506] cursor-pointer overflow-hidden select-none"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-[#060405] cursor-pointer overflow-hidden select-none"
             style={{
                 perspective: '1000px',
                 transformStyle: 'preserve-3d'
@@ -77,7 +76,7 @@ export function InitialUnlockSplash({
             <div 
                 className="absolute inset-0 pointer-events-none z-0 opacity-80"
                 style={{
-                    background: 'radial-gradient(circle at center, #52111E 0%, #29080E 50%, #080305 100%)'
+                    background: 'radial-gradient(circle at center, #52111E 0%, #29080E 50%, #060405 100%)'
                 }}
             />
 
@@ -146,7 +145,7 @@ export function InitialUnlockSplash({
                             </motion.div>
                         )}
 
-                        {/* 2. Master Interactive Bordeaux Wine Glass + G-Clef Emblem Hero Button */}
+                        {/* 2. Central 3D Container with WalkRadar 1:1 Frosted Glass Card Design */}
                         <div
                             style={{
                                 transform: `perspective(1000px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 20px)`,
@@ -155,13 +154,13 @@ export function InitialUnlockSplash({
                             }}
                             className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
                         >
-                            {/* VIP Welcome Badge */}
+                            {/* VIP Recognition Badge */}
                             {vipProfile && (
                                 <motion.div
                                     initial={{ opacity: 0, y: -20, scale: 0.9 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     transition={{ duration: 0.8, delay: 0.2 }}
-                                    className="mb-5 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border-2 border-[#E7FF00] shadow-[0_0_30px_rgba(231,255,0,0.6)] flex items-center gap-2.5"
+                                    className="mb-4 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border-2 border-[#E7FF00] shadow-[0_0_30px_rgba(231,255,0,0.6)] flex items-center gap-2.5"
                                 >
                                     <div className="w-6 h-6 rounded-full overflow-hidden border border-[#E7FF00]">
                                         <img src={vipProfile.avatarUrl} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${vipProfile.instagramId}`; }} />
@@ -172,104 +171,78 @@ export function InitialUnlockSplash({
                                 </motion.div>
                             )}
 
-                            {/* Top Elegant Brand Wordmark */}
+                            {/* 1:1 Translucent Frosted Glass Card (Walk Radar Design Language) */}
                             <motion.div
-                                initial={{ opacity: 0, y: -15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.8 }}
-                                className="flex flex-col items-center gap-1 mb-6 text-center"
-                            >
-                                <span className="font-mono text-[9px] sm:text-[10px] font-black text-[#F7EBE1]/70 tracking-[0.4em] uppercase">
-                                    FRANKFURT AM MAIN • ATELIER
-                                </span>
-                                <h1 className="font-mono text-xl sm:text-2xl font-black text-[#F7EBE1] tracking-[0.25em] drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]">
-                                    JUST SEAN FLOWS
-                                </h1>
-                            </motion.div>
-
-                            {/* THE MASTER EMBLEM BUTTON (Vector Wine Glass + G-Clef + J.S.F) */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.85, y: 30 }}
+                                initial={{ opacity: 0, scale: 0.9, y: 25 }}
                                 animate={{ opacity: 1, scale: 1.0, y: 0 }}
-                                transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
-                                whileHover={{ scale: 1.06 }}
-                                whileTap={{ scale: 0.96 }}
-                                onHoverStart={() => setIsHovered(true)}
-                                onHoverEnd={() => setIsHovered(false)}
-                                className="relative flex flex-col items-center cursor-pointer pointer-events-auto group p-6 rounded-[36px] bg-black/35 backdrop-blur-xl border border-[#F7EBE1]/25 hover:border-[#F7EBE1] shadow-[0_20px_80px_rgba(0,0,0,0.95)] hover:shadow-[0_0_60px_rgba(247,235,225,0.4)] transition-all duration-500"
+                                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+                                whileHover={{ scale: 1.04 }}
+                                whileTap={{ scale: 0.97 }}
+                                className="relative rounded-[28px] bg-black/40 backdrop-blur-md border-2 border-[#C8A96E]/80 shadow-[0_20px_60px_rgba(0,0,0,0.95),0_0_30px_rgba(200,169,110,0.3)] p-5 sm:p-7 flex flex-col items-center overflow-hidden transition-all duration-300 w-72 sm:w-84 group cursor-pointer pointer-events-auto"
                             >
-                                {/* Radial Glow Behind Emblem */}
-                                <div 
-                                    className="absolute inset-0 rounded-[36px] bg-[#E7FF00]/10 filter blur-2xl pointer-events-none group-hover:bg-[#E7FF00]/25 transition-all duration-500"
-                                />
+                                {/* Top Specular Light Glint */}
+                                <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/25 via-white/5 to-transparent rounded-t-[28px] pointer-events-none" />
 
-                                {/* High-Precision Vector SVG: Bordeaux Glass + Fluid G-Clef Synthesis */}
-                                <div className="w-28 sm:w-36 h-36 sm:h-48 relative flex items-center justify-center">
-                                    <svg viewBox="0 0 200 260" className="w-full h-full drop-shadow-[0_4px_25px_rgba(0,0,0,0.9)]">
-                                        {/* Wine Glass Bowl Outline */}
-                                        <path 
-                                            d="M 68 30 L 132 30 C 145 70, 140 100, 100 115 C 60 100, 55 70, 68 30 Z" 
-                                            fill="none" 
-                                            stroke="#F7EBE1" 
-                                            strokeWidth="7" 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round" 
-                                        />
-
-                                        {/* Dynamic Curved Wave of Pinot Noir Wine inside */}
-                                        <motion.path 
-                                            d="M 65 58 Q 88 74, 102 62 Q 118 50, 135 60 C 135 90, 65 90, 65 58 Z" 
-                                            fill="#F7EBE1"
-                                            animate={{
-                                                d: isHovered 
-                                                    ? "M 65 54 Q 85 64, 102 70 Q 120 74, 135 56 C 135 90, 65 90, 65 54 Z"
-                                                    : "M 65 58 Q 88 74, 102 62 Q 118 50, 135 60 C 135 90, 65 90, 65 58 Z"
-                                            }}
-                                            transition={{ repeat: Infinity, repeatType: "reverse", duration: 2.2, ease: "easeInOut" }}
-                                        />
-
-                                        {/* Organic Flowing G-Clef Stem */}
-                                        <path 
-                                            d="M 100 115 C 72 135, 70 185, 102 185 C 130 185, 132 155, 108 145 C 84 135, 80 160, 95 168 M 100 78 L 100 215 C 100 236, 76 234, 82 216" 
-                                            fill="none" 
-                                            stroke="#F7EBE1" 
-                                            strokeWidth="7" 
-                                            strokeLinecap="round" 
-                                        />
-
-                                        {/* Terminus Dot */}
-                                        <circle cx="82" cy="216" r="8" fill="#F7EBE1" />
-                                    </svg>
-                                </div>
-
-                                {/* J · S · F Classical Roman Serif Lettering */}
-                                <div className="mt-4 flex items-center justify-center gap-3 font-serif font-black text-2xl sm:text-3xl text-[#F7EBE1] tracking-[0.25em] drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
-                                    <span>J</span>
-                                    <span className="text-sm sm:text-base text-[#C8A96E] font-sans">•</span>
-                                    <span>S</span>
-                                    <span className="text-sm sm:text-base text-[#C8A96E] font-sans">•</span>
-                                    <span>F</span>
-                                </div>
-
-                                {/* Tap to Walk Live Indicator */}
-                                <div className="mt-3 px-4 py-1 rounded-full bg-white/10 border border-white/15 flex items-center gap-2 group-hover:bg-[#E7FF00] group-hover:text-black group-hover:border-[#E7FF00] transition-all">
-                                    <Play className="w-3 h-3 fill-current text-[#E7FF00] group-hover:text-black" />
-                                    <span className="font-mono text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-neutral-200 group-hover:text-black">
-                                        TAP EMBLEM TO ENTER (432Hz)
+                                {/* 1. Header Bar with Gold Emblem Tag & Status */}
+                                <div className="w-full flex items-center justify-between pb-3 border-b border-[#C8A96E]/35 relative z-10">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_10px_#E7FF00] animate-pulse" />
+                                        <span className="font-mono text-[10px] sm:text-[11px] font-black text-white tracking-[0.2em] uppercase">
+                                            JUST SEAN FLOWS
+                                        </span>
+                                    </div>
+                                    <span className="px-2 py-0.5 rounded-full bg-[#C8A96E]/20 border border-[#C8A96E]/50 font-mono text-[8px] font-black text-[#E7FF00] tracking-widest uppercase">
+                                        432Hz ATELIER
                                     </span>
                                 </div>
+
+                                {/* 2. THE EXACT HIGH-RES OFFICIAL LOGO EMBLEM */}
+                                <div className="my-5 w-full flex flex-col items-center justify-center relative z-10">
+                                    {/* High-Resolution Emblem with Physical Depth & Specular Lighting */}
+                                    <motion.div 
+                                        animate={{
+                                            filter: [
+                                                "drop-shadow(0 0 15px rgba(247,235,225,0.4))",
+                                                "drop-shadow(0 0 30px rgba(231,255,0,0.7))",
+                                                "drop-shadow(0 0 15px rgba(247,235,225,0.4))"
+                                            ]
+                                        }}
+                                        transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+                                        className="w-32 sm:w-40 aspect-square flex items-center justify-center rounded-2xl overflow-hidden shadow-2xl"
+                                    >
+                                        <img 
+                                            src="/assets/logo/jsf_official_logo.jpg" 
+                                            alt="Just Sean Flows Official Emblem" 
+                                            className="w-full h-full object-cover select-none"
+                                        />
+                                    </motion.div>
+                                </div>
+
+                                {/* 3. Radar-Style Electric Glowing Action Capsule */}
+                                <div className="w-full relative z-10">
+                                    <div className="w-full py-2.5 px-4 rounded-full bg-black/65 border-2 border-[#00FF88] shadow-[0_0_22px_rgba(0,255,136,0.95)] flex items-center justify-center gap-2 group-hover:bg-[#00FF88] group-hover:text-black transition-all">
+                                        <Footprints className="w-4 h-4 text-[#00FF88] group-hover:text-black animate-bounce" />
+                                        <span className="font-mono text-xs sm:text-sm font-black text-white group-hover:text-black tracking-widest uppercase">
+                                            TAP TO ENTER // 02:00 AM
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <span className="font-mono text-[9px] text-neutral-400 mt-3 tracking-widest uppercase block relative z-10">
+                                    HOLD ANYWHERE OR TAP TO WALK
+                                </span>
                             </motion.div>
 
                             {/* 3. Bottom Direct Action Portals */}
                             {unblurStage >= 3 && (
                                 <motion.div 
-                                    initial={{ opacity: 0, filter: 'blur(8px)', y: 25 }}
+                                    initial={{ opacity: 0, filter: 'blur(8px)', y: 20 }}
                                     animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
                                     transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
                                     onClick={(e) => e.stopPropagation()}
                                     onPointerDown={(e) => e.stopPropagation()}
                                     onTouchStart={(e) => e.stopPropagation()}
-                                    className="mt-6 flex flex-col sm:flex-row items-center gap-3 z-40 pointer-events-auto w-full max-w-sm px-2"
+                                    className="mt-6 flex flex-col sm:flex-row items-center gap-3 z-40 pointer-events-auto w-full max-w-xs sm:max-w-sm px-2"
                                 >
                                     {/* Direct Museum Hub */}
                                     <motion.button
@@ -280,7 +253,7 @@ export function InitialUnlockSplash({
                                             e.stopPropagation();
                                             if (onDirectMuseum) onDirectMuseum();
                                         }}
-                                        className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-black/60 hover:bg-black/90 border border-[#F7EBE1]/40 hover:border-[#E7FF00] text-[#F7EBE1] hover:text-[#E7FF00] font-mono text-xs font-black tracking-wider uppercase transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+                                        className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-black/60 hover:bg-black/90 border border-[#C8A96E]/50 hover:border-[#E7FF00] text-white hover:text-[#E7FF00] font-mono text-xs font-black tracking-wider uppercase transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer"
                                     >
                                         <Compass className="w-3.5 h-3.5" />
                                         <span>🏛️ ATELIER HUB ➔</span>
