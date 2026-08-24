@@ -98,10 +98,10 @@ export function InitialUnlockSplash({
                                 style={{ transformStyle: 'preserve-3d' }}
                             >
                                 {ATELIER_DEBRIS_100.map((item) => {
-                                    const tiltXVal = -tilt.x * 15 * item.tiltMult + idleOffset.x * 0.4;
-                                    const tiltYVal = -tilt.y * 15 * item.tiltMult + idleOffset.y * 0.4;
-                                    const startY = item.isLarge ? '85vh' : '108vh';
-                                    const endY = item.isLarge ? '10vh' : '-28vh';
+                                    const tiltXVal = -tilt.x * 18 * item.tiltMult + idleOffset.x * 0.4;
+                                    const tiltYVal = -tilt.y * 18 * item.tiltMult + idleOffset.y * 0.4;
+                                    const startY = item.isSuperLargeEmoji ? '95vh' : '110vh';
+                                    const endY = item.isSuperLargeEmoji ? '-15vh' : '-30vh';
 
                                     return (
                                         <motion.div
@@ -110,15 +110,15 @@ export function InitialUnlockSplash({
                                                 y: startY,
                                                 x: 0,
                                                 opacity: 0,
-                                                scale: 0.6,
+                                                scale: item.scaleRange[0],
                                                 rotate: item.rotation
                                             }}
                                             animate={{
                                                 y: [startY, endY],
-                                                x: [0, item.pullXPx],
-                                                opacity: [0, item.opacityMax, 0],
-                                                scale: [0.6, 1.15, 0.5],
-                                                rotate: [item.rotation, item.rotation * -0.5, item.rotation]
+                                                x: [0, item.pullXPx * 0.6, -item.pullXPx * 0.4, item.pullXPx],
+                                                opacity: [0, item.opacityMax, item.opacityMax * 0.85, item.opacityMax * 0.3, 0],
+                                                scale: [item.scaleRange[0], item.scaleRange[1], item.scaleRange[2]],
+                                                rotate: [item.rotation, item.rotation + 25, item.rotation - 15, item.rotation]
                                             }}
                                             transition={{
                                                 duration: item.duration,
@@ -131,7 +131,7 @@ export function InitialUnlockSplash({
                                                 top: 0,
                                                 transform: `translate3d(${tiltXVal}px, ${tiltYVal}px, ${item.zDepth}px)`
                                             }}
-                                            className="absolute select-none flex items-center justify-center pointer-events-none filter blur-[0.5px]"
+                                            className="absolute select-none flex items-center justify-center pointer-events-none"
                                         >
                                             <div 
                                                 className={item.styleClass}
