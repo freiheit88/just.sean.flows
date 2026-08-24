@@ -3,11 +3,10 @@ import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 
 export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
-    // phase: 'oscillating' (0-3.4s) -> 'shrinking' (3.4-4.2s) -> 'ricochet' (4.2-6.8s) -> 'docked' (6.8s+)
+    // phase: 'oscillating' (0-3.4s) -> 'shrinking' (3.4-4.2s) -> 'ricochet' (4.2-5.5s) -> 'docked' (5.5s+)
     const [phase, setPhase] = useState('oscillating');
     const [liveVolNum, setLiveVolNum] = useState(30);
     const [breakGlow, setBreakGlow] = useState(false);
-    const [reboundGlow, setReboundGlow] = useState(false);
     const onFlowsHitRef = useRef(onFlowsHit);
     onFlowsHitRef.current = onFlowsHit;
 
@@ -25,17 +24,17 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             }
         }, 300);
 
-        // Stage 1: At 3.4s, smoothly shrink from bottom upward to a perfect cue ball in place
+        // Stage 1: At 3.4s, shrink into cue ball
         const shrinkTimer = setTimeout(() => {
             setPhase('shrinking');
         }, 3400);
 
-        // Stage 2: At 4.2s, launch billiard cue strike
+        // Stage 2: At 4.2s, launch billiard strike toward Header3D
         const ricochetTimer = setTimeout(() => {
             setPhase('ricochet');
         }, 4200);
 
-        // Break Shot Impact at 4.75s (Ball hits JUST.SEAN.FLOWS)
+        // Break Shot Impact at 4.75s (Ball hits Header3D)
         const breakTimer = setTimeout(() => {
             setBreakGlow(true);
             if (onFlowsHitRef.current) {
@@ -44,23 +43,16 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             setTimeout(() => setBreakGlow(false), 500);
         }, 4750);
 
-        // Rebound Cushion Tap at 5.5s (Decelerated bounce on right frame)
-        const reboundTimer = setTimeout(() => {
-            setReboundGlow(true);
-            setTimeout(() => setReboundGlow(false), 400);
-        }, 5500);
-
-        // Stage 3: At 6.8s, smoothly dock into the permanent top-right button
+        // Stage 3: At 5.5s, smoothly dock into top-right permanent button
         const dockTimer = setTimeout(() => {
             setPhase('docked');
-        }, 6800);
+        }, 5500);
 
         return () => {
             clearInterval(numInterval);
             clearTimeout(shrinkTimer);
             clearTimeout(ricochetTimer);
             clearTimeout(breakTimer);
-            clearTimeout(reboundTimer);
             clearTimeout(dockTimer);
         };
     }, []);
@@ -70,18 +62,18 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             {/* 1. FULL TALL VOLUME CAPSULE (0s ~ 3.4s) */}
             {phase === 'oscillating' && (
                 <motion.div
-                    initial={{ opacity: 0, x: 50, scale: 0.96 }}
+                    initial={{ opacity: 0, x: 40, scale: 0.96 }}
                     animate={{ opacity: 1, x: 0, scale: 1.0 }}
                     exit={{ opacity: 0 }}
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
                     style={{
                         position: 'absolute',
-                        top: '24%',
+                        top: '22%',
                         right: '16px',
-                        width: '44px',
-                        height: '185px'
+                        width: '42px',
+                        height: '175px'
                     }}
-                    className="z-[9998] bg-black/90 backdrop-blur-2xl rounded-[22px] border-2 border-white/30 p-2 flex flex-col items-center justify-between shadow-[0_15px_45px_rgba(0,0,0,0.95),0_0_30px_rgba(255,255,255,0.3)] pointer-events-none"
+                    className="z-[9998] bg-black/90 backdrop-blur-2xl rounded-[22px] border-2 border-white/30 p-2 flex flex-col items-center justify-between shadow-[0_15px_45px_rgba(0,0,0,0.95),0_0_25px_rgba(255,255,255,0.2)] pointer-events-none"
                 >
                     <Volume2 className="w-5 h-5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse shrink-0" />
 
@@ -99,7 +91,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         />
                     </div>
 
-                    <span className="font-mono text-[11px] font-black text-white tracking-tighter drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] shrink-0">
+                    <span className="font-mono text-[10px] font-black text-white tracking-tighter drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] shrink-0">
                         {liveVolNum}%
                     </span>
                 </motion.div>
@@ -109,173 +101,105 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             {phase === 'shrinking' && (
                 <motion.div
                     initial={{
-                        height: "185px",
-                        width: "44px",
+                        height: "175px",
+                        width: "42px",
                         borderRadius: "22px",
-                        borderColor: "rgba(255,255,255,0.3)",
-                        boxShadow: "0 0 25px rgba(255,255,255,0.3)"
+                        borderColor: "rgba(255,255,255,0.3)"
                     }}
                     animate={{
-                        height: "44px",
-                        width: "44px",
+                        height: "40px",
+                        width: "40px",
                         borderRadius: "50%",
                         borderColor: "#FFF9A6",
-                        boxShadow: "0 0 30px rgba(255,249,166,0.85)"
+                        boxShadow: "0 0 25px rgba(255,249,166,0.85)"
                     }}
-                    transition={{
-                        duration: 0.8,
-                        ease: [0.25, 1, 0.5, 1]
-                    }}
+                    transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
                     style={{
                         position: 'absolute',
-                        top: '24%',
+                        top: '22%',
                         right: '16px',
                         transformOrigin: 'top center'
                     }}
                     className="z-[9998] bg-black/90 backdrop-blur-2xl border-2 flex flex-col items-center justify-center pointer-events-none overflow-hidden"
                 >
-                    <Volume2 className="w-5 h-5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                    <Volume2 className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                 </motion.div>
             )}
 
-            {/* 3. PHYSICAL BREAK-SHOT WITH 3-TIER SUBTLE GLOWING COMET TAILS (4.2s ~ 6.8s) */}
+            {/* 3. CONTROLLED IN-BOUNDS BILLIARD SHOT (4.2s ~ 5.5s) */}
             {phase === 'ricochet' && (
-                <>
-                    {/* Tail 3: Faintest outer micro dust (Delayed 70ms) */}
-                    <motion.div
-                        initial={{ x: 0, y: 0, opacity: 0 }}
-                        animate={{
-                            x: [0, -140, 6, -15, 0],
-                            y: [0, -135, -80, -135, -155],
-                            opacity: [0, 0.25, 0.15, 0.05, 0]
-                        }}
-                        transition={{
-                            duration: 2.6,
-                            delay: 0.07,
-                            times: [0, 0.22, 0.52, 0.78, 1.0],
-                            ease: [0.18, 0.8, 0.25, 1.0]
-                        }}
-                        style={{ top: '24%', right: '16px' }}
-                        className="absolute z-[9995] w-3 h-3 rounded-full bg-[#E7FF00]/40 filter blur-[4px] pointer-events-none -translate-x-1/2 -translate-y-1/2 left-5 top-5"
-                    />
-
-                    {/* Tail 2: Soft glowing amber ghost (Delayed 45ms) */}
-                    <motion.div
-                        initial={{ x: 0, y: 0, opacity: 0 }}
-                        animate={{
-                            x: [0, -140, 6, -15, 0],
-                            y: [0, -135, -80, -135, -155],
-                            opacity: [0, 0.4, 0.22, 0.08, 0]
-                        }}
-                        transition={{
-                            duration: 2.6,
-                            delay: 0.045,
-                            times: [0, 0.22, 0.52, 0.78, 1.0],
-                            ease: [0.18, 0.8, 0.25, 1.0]
-                        }}
-                        style={{ top: '24%', right: '16px' }}
-                        className="absolute z-[9996] w-5 h-5 rounded-full bg-[#FFF9A6]/50 filter blur-[3px] pointer-events-none -translate-x-1/2 -translate-y-1/2 left-5 top-5"
-                    />
-
-                    {/* Tail 1: Close trailing soft light sphere (Delayed 20ms) */}
-                    <motion.div
-                        initial={{ x: 0, y: 0, opacity: 0 }}
-                        animate={{
-                            x: [0, -140, 6, -15, 0],
-                            y: [0, -135, -80, -135, -155],
-                            opacity: [0, 0.6, 0.35, 0.12, 0]
-                        }}
-                        transition={{
-                            duration: 2.6,
-                            delay: 0.02,
-                            times: [0, 0.22, 0.52, 0.78, 1.0],
-                            ease: [0.18, 0.8, 0.25, 1.0]
-                        }}
-                        style={{ top: '24%', right: '16px' }}
-                        className="absolute z-[9997] w-7 h-7 rounded-full bg-[#FFFDE7]/60 filter blur-[2px] pointer-events-none -translate-x-1/2 -translate-y-1/2 left-5 top-5"
-                    />
-
-                    {/* Main Billiard Cue Ball: Directly smashes into JUST.SEAN.FLOWS */}
-                    <motion.div
-                        initial={{
-                            x: 0,
-                            y: 0,
-                            rotate: 0,
-                            width: "44px",
-                            height: "44px",
-                            borderRadius: "50%",
-                            top: "24%",
-                            right: "16px",
-                            borderColor: "#FFF9A6",
-                            color: "#FFF9A6",
-                            boxShadow: "0 0 30px rgba(255,249,166,0.85)"
-                        }}
-                        animate={{
-                            x: [0, -140, 6, -15, 0],
-                            y: [0, -135, -80, -135, -155],
-                            rotate: [0, -360, -520, -640, -720],
-                            width: ["44px", "44px", "42px", "40px", "40px"],
-                            height: ["44px", "44px", "42px", "40px", "40px"],
-                            borderColor: [
-                                "#FFF9A6",
-                                "#E7FF00",
-                                "#FFE082",
-                                "#E7FF00",
-                                "#E7FF00"
-                            ],
-                            color: [
-                                "#FFF9A6",
-                                "#E7FF00",
-                                "#FFE082",
-                                "#E7FF00",
-                                "#E7FF00"
-                            ],
-                            boxShadow: [
-                                "0 0 30px rgba(255,249,166,0.85)",
-                                "0 0 45px rgba(231,255,0,0.9)",
-                                "0 0 25px rgba(255,224,130,0.7)",
-                                "0 0 20px rgba(231,255,0,0.5)",
-                                "0 0 15px rgba(231,255,0,0.4)"
-                            ]
-                        }}
-                        transition={{
-                            duration: 2.6,
-                            times: [0, 0.22, 0.52, 0.78, 1.0],
-                            ease: [0.18, 0.8, 0.25, 1.0]
-                        }}
-                        className="absolute z-[9998] bg-black/90 border-2 flex items-center justify-center pointer-events-none"
-                    >
-                        <Volume2 className="w-5 h-5" />
-                    </motion.div>
-
-                    {/* Break Shot Impact Radial Halo Bloom behind JUST.SEAN.FLOWS */}
-                    {breakGlow && (
-                        <div className="absolute top-1 left-[50%] w-36 h-20 -translate-x-1/2 rounded-full bg-[#E7FF00]/35 filter blur-2xl pointer-events-none animate-pulse" />
-                    )}
-
-                    {/* Right Frame Cushion Rebound Soft Halo */}
-                    {reboundGlow && (
-                        <div className="absolute top-[14%] right-1 w-16 h-20 rounded-full bg-[#FFE082]/20 filter blur-xl pointer-events-none" />
-                    )}
-                </>
+                <motion.div
+                    initial={{
+                        x: 0,
+                        y: 0,
+                        rotate: 0,
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        top: "22%",
+                        right: "16px",
+                        borderColor: "#FFF9A6",
+                        boxShadow: "0 0 25px rgba(255,249,166,0.85)"
+                    }}
+                    animate={{
+                        // Strictly clamped trajectory: Hits Header3D at center-top (-110px x, -95px y), cushions lightly, docks neatly at top-right
+                        x: [0, -115, -20, 0],
+                        y: [0, -95, -55, -110],
+                        rotate: [0, -360, -540, -720],
+                        borderColor: ["#FFF9A6", "#E7FF00", "#FFE082", "#E7FF00"],
+                        boxShadow: [
+                            "0 0 25px rgba(255,249,166,0.85)",
+                            "0 0 35px rgba(231,255,0,0.9)",
+                            "0 0 20px rgba(255,224,130,0.6)",
+                            "0 0 15px rgba(231,255,0,0.4)"
+                        ]
+                    }}
+                    transition={{
+                        duration: 1.3,
+                        times: [0, 0.42, 0.75, 1.0],
+                        ease: [0.2, 0.8, 0.25, 1.0]
+                    }}
+                    style={{
+                        position: 'absolute',
+                        top: '22%',
+                        right: '16px'
+                    }}
+                    className="z-[9998] bg-black/90 backdrop-blur-2xl border-2 flex items-center justify-center pointer-events-none overflow-hidden"
+                >
+                    <Volume2 className="w-4 h-4 text-white" />
+                </motion.div>
             )}
 
-            {/* 4. PERMANENT TOP-RIGHT MUTE BUTTON (6.8s onward) */}
+            {/* 4. PERMANENT TOP-RIGHT DOCKED SPEAKER BUTTON (5.5s+) */}
             {phase === 'docked' && (
-                <motion.button
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={onToggleMute}
-                    className="absolute top-3.5 right-3.5 z-[9999] pointer-events-auto w-10 h-10 rounded-full bg-black/85 border-2 border-[#E7FF00] shadow-[0_0_25px_rgba(231,255,0,0.45)] backdrop-blur-2xl flex items-center justify-center cursor-pointer transition-all group"
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1.0 }}
+                    transition={{ duration: 0.4 }}
+                    style={{
+                        position: 'absolute',
+                        top: '16px',
+                        right: '16px'
+                    }}
+                    className="z-[9998] pointer-events-auto"
                 >
-                    {isMuted ? (
-                        <VolumeX className="w-5 h-5 text-neutral-400 group-hover:text-red-400 transition-colors" />
-                    ) : (
-                        <Volume2 className="w-5 h-5 text-[#E7FF00] drop-shadow-[0_0_8px_#E7FF00] group-hover:scale-110 transition-transform" />
-                    )}
-                </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.92 }}
+                        onClick={onToggleMute}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 shadow-xl cursor-pointer ${
+                            isMuted 
+                                ? 'bg-neutral-900/90 border-neutral-600 text-neutral-400' 
+                                : 'bg-black/80 border-[#E7FF00] text-[#E7FF00] shadow-[0_0_20px_rgba(231,255,0,0.5)]'
+                        }`}
+                    >
+                        {isMuted ? (
+                            <VolumeX className="w-4 h-4" />
+                        ) : (
+                            <Volume2 className="w-4 h-4" />
+                        )}
+                    </motion.button>
+                </motion.div>
             )}
         </div>
     );
