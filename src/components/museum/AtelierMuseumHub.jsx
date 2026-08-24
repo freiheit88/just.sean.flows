@@ -1,12 +1,13 @@
 import { BrandCiBiModal } from '../modals/BrandCiBiModal';
 import { ModularSoundLabModal } from './ModularSoundLabModal';
 import { SpatialSalonViewerModal } from './SpatialSalonViewerModal';
+import { OctoberPartyModal } from '../modals/OctoberPartyModal';
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Sparkles, Compass, Music, MapPin, Eye, Crown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { CoutureLookbookModal } from './CoutureLookbookModal';
 
-// 4 Master Core Exhibition Contents
+// EXACT 5 Master Core Contents
 const MASTER_EXHIBITS = [
     {
         id: 'vip_vault',
@@ -27,19 +28,27 @@ const MASTER_EXHIBITS = [
     },
     {
         id: 'piano_salon',
-        title: "Golden Steinway Salon",
-        sub: "1924 Vintage Steinway & 432Hz Acoustic Sanctuary",
-        tag: "EXHIBIT 02 // SANCTUARY",
+        title: "3D Spatial Salon & Steinway",
+        sub: "1924 Vintage Steinway & 432Hz 1인칭 가상 세계 탐험",
+        tag: "EXHIBIT 02 // 3D SPATIAL",
         img: "/assets/walk_story_07_grand_piano_salon.jpg",
-        badge: "02:00 AM SALON"
+        badge: "3D SALON"
     },
     {
-        id: 'midnight_walk',
-        title: "Frankfurt Midnight Walk",
-        sub: "1st-Person Interactive Atmospheric Walkthrough",
-        tag: "EXHIBIT 03 // EXPERIENCE",
-        img: "/assets/walk_story_01_far_alley.jpg",
-        badge: "FRANKFURT NOIR"
+        id: 'brand_cibi',
+        title: "CI / BI Brand Identity System",
+        sub: "3D 와인잔 엠블럼, 공식 컬러 시스템 & 432Hz 음향 명세",
+        tag: "EXHIBIT 03 // BRAND CI/BI",
+        img: "/assets/lookbook/lookbook_14_journal.jpg",
+        badge: "BRAND CI/BI"
+    },
+    {
+        id: 'october_party',
+        title: "October Private Salon Gala",
+        sub: "10월 프라이빗 살롱 파티 // COMING SOON",
+        tag: "OCTOBER 2026 // FRANKFURT",
+        img: "/assets/events/october_party_2026.jpg",
+        badge: "✦ COMING SOON"
     }
 ];
 
@@ -55,6 +64,7 @@ export function AtelierMuseumHub({
     const [isSpatialSalonOpen, setIsSpatialSalonOpen] = useState(false);
     const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
     const [isCiBiModalOpen, setIsCiBiModalOpen] = useState(false);
+    const [isOctoberPartyOpen, setIsOctoberPartyOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
 
     const scrollTrackRef = useRef(null);
@@ -72,8 +82,10 @@ export function AtelierMuseumHub({
             setIsLookbookModalOpen(true);
         } else if (exhibit.id === 'piano_salon') {
             setIsSpatialSalonOpen(true);
-        } else if (exhibit.id === 'midnight_walk') {
-            onReplayWalk();
+        } else if (exhibit.id === 'brand_cibi') {
+            setIsCiBiModalOpen(true);
+        } else if (exhibit.id === 'october_party') {
+            setIsOctoberPartyOpen(true);
         }
     };
 
@@ -161,7 +173,7 @@ export function AtelierMuseumHub({
                     </div>
                 </header>
 
-                {/* 2. Main Full-Screen Immersive 4-Card Horizontal Snap Carousel */}
+                {/* 2. Main Full-Screen Immersive 5-Card Horizontal Snap Carousel */}
                 <main className="flex-1 flex flex-col justify-center items-center px-4 sm:px-10 py-3 overflow-hidden relative">
                     {/* Left / Right Quick Arrows (Desktop) */}
                     <button
@@ -189,6 +201,7 @@ export function AtelierMuseumHub({
                     >
                         {MASTER_EXHIBITS.map((item, index) => {
                             const isVipItem = item.id === 'vip_vault';
+                            const isOctober = item.id === 'october_party';
                             const displayTitle = isVipItem && vipProfile ? `@${vipProfile.instagramId}'s Vault` : item.title;
                             const displaySub = isVipItem && vipProfile ? `MEMBER #${vipProfile.memberNumber} // UNLOCKED` : item.sub;
                             const displayTag = isVipItem && vipProfile ? "RESTRICTED ACCESS // UNLOCKED" : item.tag;
@@ -203,6 +216,8 @@ export function AtelierMuseumHub({
                                     className={`snap-center shrink-0 w-[84vw] max-w-[380px] sm:max-w-[420px] h-[68vh] sm:h-[72vh] rounded-[32px] overflow-hidden relative cursor-pointer group shadow-[0_20px_60px_rgba(0,0,0,0.95)] border-2 transition-all duration-300 flex flex-col justify-between ${
                                         isVipItem 
                                             ? 'border-[#E7FF00] shadow-[0_0_40px_rgba(231,255,0,0.35)]' 
+                                            : isOctober
+                                            ? 'border-[#FFD700] shadow-[0_0_35px_rgba(255,215,0,0.35)]'
                                             : isSelected
                                             ? 'border-[#C8A96E]'
                                             : 'border-white/20 group-hover:border-[#E7FF00]'
@@ -223,7 +238,11 @@ export function AtelierMuseumHub({
 
                                     {/* Top Pill Badge */}
                                     <div className="relative z-10 p-5 flex items-center justify-between">
-                                        <span className="px-3.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-[9px] sm:text-[10px] font-mono font-bold text-[#E7FF00] tracking-wider uppercase shadow-lg">
+                                        <span className={`px-3.5 py-1 rounded-full backdrop-blur-md border text-[9px] sm:text-[10px] font-mono font-bold tracking-wider uppercase shadow-lg ${
+                                            isOctober 
+                                                ? 'bg-[#FFD700]/20 border-[#FFD700] text-[#FFD700]' 
+                                                : 'bg-black/80 border-white/20 text-[#E7FF00]'
+                                        }`}>
                                             {item.badge}
                                         </span>
                                         {isVipItem && (
@@ -233,7 +252,7 @@ export function AtelierMuseumHub({
                                         )}
                                     </div>
 
-                                    {/* Bottom Frosted Glass Action Info Panel */}
+                                    {/* Bottom Frosted Glass Action Info Panel (Very simple, minimal text) */}
                                     <div className="relative z-10 p-6 bg-black/75 backdrop-blur-xl border-t border-white/15 flex flex-col gap-1.5">
                                         <span className="font-mono text-[9px] sm:text-[10px] font-black text-[#E7FF00] tracking-widest uppercase block">
                                             {displayTag}
@@ -246,7 +265,7 @@ export function AtelierMuseumHub({
                                         </p>
 
                                         <div className="mt-3 flex items-center justify-between pt-2.5 border-t border-white/10 text-white font-mono text-xs font-black tracking-wider uppercase text-[#E7FF00] group-hover:translate-x-1 transition-transform">
-                                            <span>ENTER EXPERIENCE</span>
+                                            <span>{isOctober ? "VIEW DETAILS" : "ENTER EXPERIENCE"}</span>
                                             <ArrowRight className="w-4 h-4" />
                                         </div>
                                     </div>
@@ -255,7 +274,7 @@ export function AtelierMuseumHub({
                         })}
                     </div>
 
-                    {/* 3. Bottom Minimal Orbit Indicator (● ○ ○ ○) */}
+                    {/* 3. Bottom Minimal Orbit Indicator (● ○ ○ ○ ○) */}
                     <div className="flex items-center gap-3 pt-3">
                         {MASTER_EXHIBITS.map((_, idx) => (
                             <button
@@ -290,6 +309,11 @@ export function AtelierMuseumHub({
                 <BrandCiBiModal
                     isOpen={isCiBiModalOpen}
                     onClose={() => setIsCiBiModalOpen(false)}
+                />
+
+                <OctoberPartyModal
+                    isOpen={isOctoberPartyOpen}
+                    onClose={() => setIsOctoberPartyOpen(false)}
                 />
             </motion.div>
         </AnimatePresence>
