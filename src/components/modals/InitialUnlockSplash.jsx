@@ -182,7 +182,7 @@ export function InitialUnlockSplash({
                         </motion.div>
                     )}
 
-                    {/* MAIN CARD: 100% Solid Exact Left-Side Bordeaux Color (#480B1B) with NO seam lines! */}
+                    {/* MAIN CARD: The ENTIRE Card IS the Master Bordeaux Photo Canvas (jsf_card_master.jpg) */}
                     <motion.div
                         initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
                         animate={{ 
@@ -195,35 +195,20 @@ export function InitialUnlockSplash({
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={onUnlock}
-                        style={{ backgroundColor: '#480B1B' }}
-                        className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 w-72 sm:w-80 h-96 sm:h-[410px] group cursor-pointer pointer-events-auto"
+                        className="relative rounded-[32px] border-2 border-[#C8A96E]/85 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-end overflow-hidden transition-all duration-300 w-[290px] sm:w-[330px] aspect-[4/5] group cursor-pointer pointer-events-auto"
                     >
-                        {/* Top Specular Light Glint */}
-                        <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/20 via-transparent to-transparent rounded-t-[32px] pointer-events-none" />
-
-                        {/* 1. SEAMLESS EMBLEM ON EXACT #480B1B BACKGROUND (Exact requested size, seamlessly integrated) */}
-                        <div className="w-full flex-1 flex flex-col items-center justify-center relative z-10 py-2">
-                            <motion.div 
-                                animate={{
-                                    filter: [
-                                        "drop-shadow(0 0 10px rgba(247,235,225,0.35))",
-                                        "drop-shadow(0 0 24px rgba(231,255,0,0.65))",
-                                        "drop-shadow(0 0 10px rgba(247,235,225,0.35))"
-                                    ]
-                                }}
-                                transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                                className="w-28 sm:w-32 aspect-square flex items-center justify-center select-none"
-                            >
-                                <img 
-                                    src="/assets/logo/jsf_official_logo.jpg" 
-                                    alt="Just Sean Flows Official Logo" 
-                                    className="w-full h-full object-contain rounded-xl select-none"
-                                    style={{ backgroundColor: '#480B1B' }}
-                                />
-                            </motion.div>
+                        {/* Master High-Res Photo Background: Authentic Bordeaux Texture Expanded Edge-to-Edge with Emblem Centered */}
+                        <div className="absolute inset-0 w-full h-full rounded-[30px] overflow-hidden">
+                            <img 
+                                src="/assets/logo/jsf_card_master.jpg" 
+                                alt="Just Sean Flows Master Card" 
+                                className="w-full h-full object-cover select-none group-hover:scale-105 transition-transform duration-700"
+                            />
+                            {/* Top Delicate Specular Light Glint */}
+                            <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none" />
                         </div>
 
-                        {/* 2. [🏛️] | ENTER ATELIER Button: Subtly visible during 3.5s~7.0s, fully unblurs at 7.0s */}
+                        {/* [🏛️] | ENTER ATELIER Button: Subtly visible during 3.5s~7.0s, fully unblurs at 7.0s */}
                         <motion.div 
                             initial={{ opacity: 0, filter: 'blur(10px)', y: 15 }}
                             animate={{
