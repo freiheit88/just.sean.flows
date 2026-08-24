@@ -26,9 +26,8 @@ export function InitialUnlockSplash({
         const stored = getStoredVipProfile();
         if (stored) setVipProfile(stored);
 
-        const t1 = setTimeout(() => setUnblurStage(1), 1200); // 1.2s Card Emerges
-        const t2 = setTimeout(() => setUnblurStage(2), 1800); // 1.8s Ambient Debris
-        const t3 = setTimeout(() => setUnblurStage(3), 2800); // 2.8s Action Buttons
+        const t1 = setTimeout(() => setUnblurStage(1), 1000); // 1.0s Card Emerges
+        const t2 = setTimeout(() => setUnblurStage(2), 1600); // 1.6s Ambient Debris
 
         let startTime = Date.now();
         const loop = () => {
@@ -46,7 +45,6 @@ export function InitialUnlockSplash({
         return () => {
             clearTimeout(t1);
             clearTimeout(t2);
-            clearTimeout(t3);
             if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
         };
     }, []);
@@ -88,11 +86,11 @@ export function InitialUnlockSplash({
                         className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10"
                         style={{ transformStyle: 'preserve-3d' }}
                     >
-                        {/* 1. Soft Ambient Background Debris */}
+                        {/* 1. Soft Ambient Background Debris with 3X Super-Large Music Emojis */}
                         {unblurStage >= 2 && (
                             <motion.div 
                                 initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.45 }}
+                                animate={{ opacity: 0.50 }}
                                 transition={{ duration: 1.4, ease: 'easeOut' }}
                                 className="absolute inset-0 pointer-events-none overflow-hidden z-0" 
                                 style={{ transformStyle: 'preserve-3d' }}
@@ -145,7 +143,7 @@ export function InitialUnlockSplash({
                             </motion.div>
                         )}
 
-                        {/* 2. Central 3D Container with WalkRadar 1:1 Frosted Glass Card Design */}
+                        {/* 2. Central 3D Container: The Master Card IS the Walk Button */}
                         <div
                             style={{
                                 transform: `perspective(1000px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 20px)`,
@@ -171,19 +169,20 @@ export function InitialUnlockSplash({
                                 </motion.div>
                             )}
 
-                            {/* 1:1 Translucent Frosted Glass Card (Walk Radar Design Language) */}
+                            {/* 1:1 Translucent Frosted Glass Card: The entire box is the Walk Button */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9, y: 25 }}
                                 animate={{ opacity: 1, scale: 1.0, y: 0 }}
                                 transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
                                 whileHover={{ scale: 1.04 }}
                                 whileTap={{ scale: 0.97 }}
+                                onClick={onUnlock}
                                 className="relative rounded-[28px] bg-black/40 backdrop-blur-md border-2 border-[#C8A96E]/80 shadow-[0_20px_60px_rgba(0,0,0,0.95),0_0_30px_rgba(200,169,110,0.3)] p-5 sm:p-7 flex flex-col items-center overflow-hidden transition-all duration-300 w-72 sm:w-84 group cursor-pointer pointer-events-auto"
                             >
                                 {/* Top Specular Light Glint */}
                                 <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/25 via-white/5 to-transparent rounded-t-[28px] pointer-events-none" />
 
-                                {/* 1. Header Bar with Gold Emblem Tag & Status */}
+                                {/* 1. Header Bar with Gold Status */}
                                 <div className="w-full flex items-center justify-between pb-3 border-b border-[#C8A96E]/35 relative z-10">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_10px_#E7FF00] animate-pulse" />
@@ -198,7 +197,6 @@ export function InitialUnlockSplash({
 
                                 {/* 2. THE EXACT HIGH-RES OFFICIAL LOGO EMBLEM */}
                                 <div className="my-5 w-full flex flex-col items-center justify-center relative z-10">
-                                    {/* High-Resolution Emblem with Physical Depth & Specular Lighting */}
                                     <motion.div 
                                         animate={{
                                             filter: [
@@ -218,63 +216,27 @@ export function InitialUnlockSplash({
                                     </motion.div>
                                 </div>
 
-                                {/* 3. Radar-Style Electric Glowing Action Capsule */}
-                                <div className="w-full relative z-10">
-                                    <div className="w-full py-2.5 px-4 rounded-full bg-black/65 border-2 border-[#00FF88] shadow-[0_0_22px_rgba(0,255,136,0.95)] flex items-center justify-center gap-2 group-hover:bg-[#00FF88] group-hover:text-black transition-all">
-                                        <Footprints className="w-4 h-4 text-[#00FF88] group-hover:text-black animate-bounce" />
-                                        <span className="font-mono text-xs sm:text-sm font-black text-white group-hover:text-black tracking-widest uppercase">
-                                            TAP TO ENTER // 02:00 AM
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <span className="font-mono text-[9px] text-neutral-400 mt-3 tracking-widest uppercase block relative z-10">
-                                    HOLD ANYWHERE OR TAP TO WALK
-                                </span>
-                            </motion.div>
-
-                            {/* 3. Bottom Direct Action Portals */}
-                            {unblurStage >= 3 && (
-                                <motion.div 
-                                    initial={{ opacity: 0, filter: 'blur(8px)', y: 20 }}
-                                    animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
-                                    transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-                                    onClick={(e) => e.stopPropagation()}
-                                    onPointerDown={(e) => e.stopPropagation()}
-                                    onTouchStart={(e) => e.stopPropagation()}
-                                    className="mt-6 flex flex-col sm:flex-row items-center gap-3 z-40 pointer-events-auto w-full max-w-xs sm:max-w-sm px-2"
-                                >
-                                    {/* Direct Museum Hub */}
+                                {/* 3. Enter Atelier Direct Action Button inside the card */}
+                                <div className="w-full relative z-20">
                                     <motion.button
-                                        whileHover={{ scale: 1.04, y: -2 }}
+                                        whileHover={{ scale: 1.04 }}
                                         whileTap={{ scale: 0.96 }}
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
                                             if (onDirectMuseum) onDirectMuseum();
                                         }}
-                                        className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-black/60 hover:bg-black/90 border border-[#C8A96E]/50 hover:border-[#E7FF00] text-white hover:text-[#E7FF00] font-mono text-xs font-black tracking-wider uppercase transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+                                        className="w-full py-2.5 px-4 rounded-full bg-black/75 hover:bg-[#E7FF00] text-white hover:text-black border-2 border-[#C8A96E]/70 hover:border-[#E7FF00] shadow-[0_0_20px_rgba(200,169,110,0.3)] hover:shadow-[0_0_25px_#E7FF00] flex items-center justify-center gap-2 transition-all cursor-pointer font-mono text-xs sm:text-sm font-black tracking-widest uppercase group/btn"
                                     >
-                                        <Compass className="w-3.5 h-3.5" />
-                                        <span>🏛️ ATELIER HUB ➔</span>
+                                        <Compass className="w-4 h-4 text-[#E7FF00] group-hover/btn:text-black" />
+                                        <span>ENTER ATELIER ➔</span>
                                     </motion.button>
+                                </div>
 
-                                    {/* Direct 3D Sound Lab */}
-                                    <motion.button
-                                        whileHover={{ scale: 1.04, y: -2 }}
-                                        whileTap={{ scale: 0.96 }}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            if (onDirectSoundLab) onDirectSoundLab();
-                                        }}
-                                        className="w-full sm:flex-1 py-3 px-4 rounded-2xl bg-[#E7FF00] hover:bg-white text-black font-mono text-xs font-black tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(231,255,0,0.6)] flex items-center justify-center gap-2 cursor-pointer"
-                                    >
-                                        <Waves className="w-3.5 h-3.5" />
-                                        <span>🎧 3D SOUND LAB ➔</span>
-                                    </motion.button>
-                                </motion.div>
-                            )}
+                                <span className="font-mono text-[9px] text-neutral-400 mt-3 tracking-widest uppercase block relative z-10">
+                                    TAP CARD TO WALK // 02:00 AM
+                                </span>
+                            </motion.div>
                         </div>
                     </motion.div>
                 )}
