@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
-import { Compass, Sparkles, Waves, Crown, Play, Volume2, Footprints } from 'lucide-react';
+import { Compass, Sparkles, Crown, Play, ArrowRight } from 'lucide-react';
 import { getStoredVipProfile } from './InstagramVipAuthModal';
 
 export function InitialUnlockSplash({ 
@@ -26,8 +26,8 @@ export function InitialUnlockSplash({
         const stored = getStoredVipProfile();
         if (stored) setVipProfile(stored);
 
-        const t1 = setTimeout(() => setUnblurStage(1), 1000); // 1.0s Card Emerges
-        const t2 = setTimeout(() => setUnblurStage(2), 1600); // 1.6s Ambient Debris
+        const t1 = setTimeout(() => setUnblurStage(1), 800);  // 0.8s Card Emerges
+        const t2 = setTimeout(() => setUnblurStage(2), 1400); // 1.4s Ambient Debris
 
         let startTime = Date.now();
         const loop = () => {
@@ -72,7 +72,7 @@ export function InitialUnlockSplash({
         >
             {/* Rich Bordeaux Velvet Vignette Background */}
             <div 
-                className="absolute inset-0 pointer-events-none z-0 opacity-80"
+                className="absolute inset-0 pointer-events-none z-0 opacity-85"
                 style={{
                     background: 'radial-gradient(circle at center, #52111E 0%, #29080E 50%, #060405 100%)'
                 }}
@@ -86,12 +86,12 @@ export function InitialUnlockSplash({
                         className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10"
                         style={{ transformStyle: 'preserve-3d' }}
                     >
-                        {/* 1. Soft Ambient Background Debris with 3X Super-Large Music Emojis */}
+                        {/* 1. Soft Ambient Background Debris (22 Curated 60FPS Particles) */}
                         {unblurStage >= 2 && (
                             <motion.div 
                                 initial={{ opacity: 0 }}
-                                animate={{ opacity: 0.50 }}
-                                transition={{ duration: 1.4, ease: 'easeOut' }}
+                                animate={{ opacity: 0.45 }}
+                                transition={{ duration: 1.2, ease: 'easeOut' }}
                                 className="absolute inset-0 pointer-events-none overflow-hidden z-0" 
                                 style={{ transformStyle: 'preserve-3d' }}
                             >
@@ -144,7 +144,7 @@ export function InitialUnlockSplash({
                             </motion.div>
                         )}
 
-                        {/* 2. Central 3D Container: The Master Card IS the Walk Button */}
+                        {/* 2. Central Pure Glass Card: Official Logo Emblem & Remastered Button */}
                         <div
                             style={{
                                 transform: `perspective(1000px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 20px)`,
@@ -170,44 +170,31 @@ export function InitialUnlockSplash({
                                 </motion.div>
                             )}
 
-                            {/* 1:1 Translucent Frosted Glass Card: The entire box is the Walk Button */}
+                            {/* Clean 1:1 Translucent Frosted Glass Card: NO cluttered text, just Pure Official Logo & Remastered Button */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9, y: 25 }}
                                 animate={{ opacity: 1, scale: 1.0, y: 0 }}
                                 transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
-                                whileHover={{ scale: 1.04 }}
+                                whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.97 }}
                                 onClick={onUnlock}
-                                className="relative rounded-[28px] bg-black/40 backdrop-blur-md border-2 border-[#C8A96E]/80 shadow-[0_20px_60px_rgba(0,0,0,0.95),0_0_30px_rgba(200,169,110,0.3)] p-5 sm:p-7 flex flex-col items-center overflow-hidden transition-all duration-300 w-72 sm:w-84 group cursor-pointer pointer-events-auto"
+                                className="relative rounded-[30px] bg-black/40 backdrop-blur-md border-2 border-[#C8A96E]/80 shadow-[0_20px_60px_rgba(0,0,0,0.95),0_0_30px_rgba(200,169,110,0.35)] p-6 sm:p-8 flex flex-col items-center overflow-hidden transition-all duration-300 w-72 sm:w-84 group cursor-pointer pointer-events-auto"
                             >
                                 {/* Top Specular Light Glint */}
-                                <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/25 via-white/5 to-transparent rounded-t-[28px] pointer-events-none" />
+                                <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/25 via-white/5 to-transparent rounded-t-[30px] pointer-events-none" />
 
-                                {/* 1. Header Bar with Gold Status */}
-                                <div className="w-full flex items-center justify-between pb-3 border-b border-[#C8A96E]/35 relative z-10">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-[#E7FF00] shadow-[0_0_10px_#E7FF00] animate-pulse" />
-                                        <span className="font-mono text-[10px] sm:text-[11px] font-black text-white tracking-[0.2em] uppercase">
-                                            JUST SEAN FLOWS
-                                        </span>
-                                    </div>
-                                    <span className="px-2 py-0.5 rounded-full bg-[#C8A96E]/20 border border-[#C8A96E]/50 font-mono text-[8px] font-black text-[#E7FF00] tracking-widest uppercase">
-                                        432Hz ATELIER
-                                    </span>
-                                </div>
-
-                                {/* 2. THE EXACT HIGH-RES OFFICIAL LOGO EMBLEM */}
-                                <div className="my-5 w-full flex flex-col items-center justify-center relative z-10">
+                                {/* 1. THE EXACT HIGH-RES OFFICIAL MASTER LOGO */}
+                                <div className="w-full flex flex-col items-center justify-center relative z-10 py-2">
                                     <motion.div 
                                         animate={{
                                             filter: [
                                                 "drop-shadow(0 0 15px rgba(247,235,225,0.4))",
-                                                "drop-shadow(0 0 30px rgba(231,255,0,0.7))",
+                                                "drop-shadow(0 0 32px rgba(231,255,0,0.75))",
                                                 "drop-shadow(0 0 15px rgba(247,235,225,0.4))"
                                             ]
                                         }}
                                         transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                                        className="w-32 sm:w-40 aspect-square flex items-center justify-center rounded-2xl overflow-hidden shadow-2xl"
+                                        className="w-36 sm:w-44 aspect-square flex items-center justify-center rounded-2xl overflow-hidden shadow-2xl"
                                     >
                                         <img 
                                             src="/assets/logo/jsf_official_logo.jpg" 
@@ -217,8 +204,8 @@ export function InitialUnlockSplash({
                                     </motion.div>
                                 </div>
 
-                                {/* 3. Enter Atelier Direct Action Button inside the card */}
-                                <div className="w-full relative z-20">
+                                {/* 2. Remastered ENTER ATELIER Button inside the card (18K Gold Liquid Glass Shimmer) */}
+                                <div className="w-full relative z-20 mt-4">
                                     <motion.button
                                         whileHover={{ scale: 1.04 }}
                                         whileTap={{ scale: 0.96 }}
@@ -227,16 +214,13 @@ export function InitialUnlockSplash({
                                             e.stopPropagation();
                                             if (onDirectMuseum) onDirectMuseum();
                                         }}
-                                        className="w-full py-2.5 px-4 rounded-full bg-black/75 hover:bg-[#E7FF00] text-white hover:text-black border-2 border-[#C8A96E]/70 hover:border-[#E7FF00] shadow-[0_0_20px_rgba(200,169,110,0.3)] hover:shadow-[0_0_25px_#E7FF00] flex items-center justify-center gap-2 transition-all cursor-pointer font-mono text-xs sm:text-sm font-black tracking-widest uppercase group/btn"
+                                        className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-[#1F1913] via-[#2A2218] to-[#1F1913] hover:from-[#E7FF00] hover:via-[#FFF2B2] hover:to-[#E7FF00] text-[#F7EBE1] hover:text-black border-2 border-[#C8A96E]/80 hover:border-[#E7FF00] shadow-[0_0_20px_rgba(200,169,110,0.35)] hover:shadow-[0_0_30px_rgba(231,255,0,0.85)] flex items-center justify-center gap-2.5 transition-all duration-300 cursor-pointer font-mono text-xs sm:text-sm font-black tracking-widest uppercase group/btn"
                                     >
-                                        <Compass className="w-4 h-4 text-[#E7FF00] group-hover/btn:text-black" />
-                                        <span>ENTER ATELIER ➔</span>
+                                        <Compass className="w-4 h-4 text-[#E7FF00] group-hover/btn:text-black transition-colors" />
+                                        <span>ENTER ATELIER</span>
+                                        <ArrowRight className="w-4 h-4 text-[#C8A96E] group-hover/btn:text-black group-hover/btn:translate-x-1 transition-all" />
                                     </motion.button>
                                 </div>
-
-                                <span className="font-mono text-[9px] text-neutral-400 mt-3 tracking-widest uppercase block relative z-10">
-                                    TAP CARD TO WALK // 02:00 AM
-                                </span>
                             </motion.div>
                         </div>
                     </motion.div>

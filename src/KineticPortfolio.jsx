@@ -276,7 +276,7 @@ export default function KineticPortfolio() {
 
 
             {/* Top-Level Permanent 3D Header (z-[9999]) with .FLOWS collision response (Hidden when Museum or SoundLab is open) */}
-            {(!isMuseumOpen && !isSoundLabOpen && isAudioUnlocked && !showWelcomeBack) && (
+            {(!isMuseumOpen && !isSoundLabOpen) && (
                 <Header3D isFlowsHit={isFlowsHit} tiltX={tiltX} tiltY={tiltY} />
             )}
         </div>
