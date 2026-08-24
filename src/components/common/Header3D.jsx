@@ -25,7 +25,7 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed top-2.5 sm:top-3 left-0 right-0 z-[9999] px-6 py-2 flex items-center justify-center pointer-events-none select-none pt-[max(env(safe-area-inset-top),8px)]"
+            className="fixed top-7 sm:top-9 left-0 right-0 z-[9999] px-6 py-2 flex items-center justify-center pointer-events-none select-none pt-[max(env(safe-area-inset-top),16px)]"
         >
             <motion.div 
                 animate={{
