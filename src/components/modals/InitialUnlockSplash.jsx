@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
-import { Compass, Sparkles, Crown, Play, ArrowRight } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { getStoredVipProfile } from './InstagramVipAuthModal';
 
 export function InitialUnlockSplash({ 
@@ -26,8 +26,8 @@ export function InitialUnlockSplash({
         const stored = getStoredVipProfile();
         if (stored) setVipProfile(stored);
 
-        const t1 = setTimeout(() => setUnblurStage(1), 800);  // 0.8s Card Emerges
-        const t2 = setTimeout(() => setUnblurStage(2), 1400); // 1.4s Ambient Debris
+        const t1 = setTimeout(() => setUnblurStage(1), 600);  // 0.6s Card Emerges
+        const t2 = setTimeout(() => setUnblurStage(2), 1200); // 1.2s Ambient Debris
 
         let startTime = Date.now();
         const loop = () => {
@@ -144,7 +144,7 @@ export function InitialUnlockSplash({
                             </motion.div>
                         )}
 
-                        {/* 2. Central Pure Glass Card: Official Logo Emblem & Remastered Button */}
+                        {/* 2. Central 3D Container: Full Wine/Bordeaux Filled Master Card */}
                         <div
                             style={{
                                 transform: `perspective(1000px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 20px)`,
@@ -170,7 +170,7 @@ export function InitialUnlockSplash({
                                 </motion.div>
                             )}
 
-                            {/* Clean 1:1 Translucent Frosted Glass Card: NO cluttered text, just Pure Official Logo & Remastered Button */}
+                            {/* Full Bordeaux Wine Color Filled Card (Edge-to-Edge Wine Color, Logo Perfectly Centered) */}
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9, y: 25 }}
                                 animate={{ opacity: 1, scale: 1.0, y: 0 }}
@@ -178,13 +178,13 @@ export function InitialUnlockSplash({
                                 whileHover={{ scale: 1.03 }}
                                 whileTap={{ scale: 0.97 }}
                                 onClick={onUnlock}
-                                className="relative rounded-[30px] bg-black/40 backdrop-blur-md border-2 border-[#C8A96E]/80 shadow-[0_20px_60px_rgba(0,0,0,0.95),0_0_30px_rgba(200,169,110,0.35)] p-6 sm:p-8 flex flex-col items-center overflow-hidden transition-all duration-300 w-72 sm:w-84 group cursor-pointer pointer-events-auto"
+                                className="relative rounded-[32px] bg-gradient-to-b from-[#58111E] via-[#4A0E17] to-[#360810] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-8 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 w-72 sm:w-84 group cursor-pointer pointer-events-auto"
                             >
                                 {/* Top Specular Light Glint */}
-                                <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/25 via-white/5 to-transparent rounded-t-[30px] pointer-events-none" />
+                                <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/25 via-white/5 to-transparent rounded-t-[32px] pointer-events-none" />
 
-                                {/* 1. THE EXACT HIGH-RES OFFICIAL MASTER LOGO */}
-                                <div className="w-full flex flex-col items-center justify-center relative z-10 py-2">
+                                {/* 1. THE EXACT HIGH-RES OFFICIAL LOGO EMBLEM (Purely Centered, Blended Edge-to-Edge) */}
+                                <div className="w-full flex flex-col items-center justify-center relative z-10 py-3">
                                     <motion.div 
                                         animate={{
                                             filter: [
@@ -204,8 +204,8 @@ export function InitialUnlockSplash({
                                     </motion.div>
                                 </div>
 
-                                {/* 2. Remastered ENTER ATELIER Button inside the card (18K Gold Liquid Glass Shimmer) */}
-                                <div className="w-full relative z-20 mt-4">
+                                {/* 2. [🏛️] | ENTER ATELIER Action Button */}
+                                <div className="w-full relative z-20 mt-3">
                                     <motion.button
                                         whileHover={{ scale: 1.04 }}
                                         whileTap={{ scale: 0.96 }}
@@ -214,11 +214,11 @@ export function InitialUnlockSplash({
                                             e.stopPropagation();
                                             if (onDirectMuseum) onDirectMuseum();
                                         }}
-                                        className="w-full py-3 px-5 rounded-full bg-gradient-to-r from-[#1F1913] via-[#2A2218] to-[#1F1913] hover:from-[#E7FF00] hover:via-[#FFF2B2] hover:to-[#E7FF00] text-[#F7EBE1] hover:text-black border-2 border-[#C8A96E]/80 hover:border-[#E7FF00] shadow-[0_0_20px_rgba(200,169,110,0.35)] hover:shadow-[0_0_30px_rgba(231,255,0,0.85)] flex items-center justify-center gap-2.5 transition-all duration-300 cursor-pointer font-mono text-xs sm:text-sm font-black tracking-widest uppercase group/btn"
+                                        className="w-full py-2.5 px-4 rounded-full bg-black/65 hover:bg-[#E7FF00] text-[#F7EBE1] hover:text-black border-2 border-[#C8A96E]/70 hover:border-[#E7FF00] shadow-[0_0_20px_rgba(0,0,0,0.8)] hover:shadow-[0_0_30px_rgba(231,255,0,0.85)] flex items-center justify-center gap-2.5 transition-all duration-300 cursor-pointer font-mono text-xs sm:text-sm font-black tracking-widest uppercase group/btn"
                                     >
-                                        <Compass className="w-4 h-4 text-[#E7FF00] group-hover/btn:text-black transition-colors" />
-                                        <span>ENTER ATELIER</span>
-                                        <ArrowRight className="w-4 h-4 text-[#C8A96E] group-hover/btn:text-black group-hover/btn:translate-x-1 transition-all" />
+                                        <span className="text-base leading-none">🏛️</span>
+                                        <span className="text-neutral-400 group-hover/btn:text-black font-light">|</span>
+                                        <span className="group-hover/btn:text-black tracking-[0.18em]">ENTER ATELIER</span>
                                     </motion.button>
                                 </div>
                             </motion.div>
