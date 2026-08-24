@@ -96,10 +96,10 @@ export function InitialUnlockSplash({
                                 style={{ transformStyle: 'preserve-3d' }}
                             >
                                 {ATELIER_DEBRIS_100.map((item) => {
-                                    const tiltXVal = -tilt.x * 18 * item.tiltMult + idleOffset.x * 0.4;
-                                    const tiltYVal = -tilt.y * 18 * item.tiltMult + idleOffset.y * 0.4;
-                                    const startY = item.isSuperLargeEmoji ? '95vh' : '110vh';
-                                    const endY = item.isSuperLargeEmoji ? '-15vh' : '-30vh';
+                                    const tiltXVal = -tilt.x * 12 * item.tiltMult + idleOffset.x * 0.3;
+                                    const tiltYVal = -tilt.y * 12 * item.tiltMult + idleOffset.y * 0.3;
+                                    const startY = '105vh';
+                                    const endY = '-25vh';
 
                                     return (
                                         <motion.div
@@ -113,21 +113,22 @@ export function InitialUnlockSplash({
                                             }}
                                             animate={{
                                                 y: [startY, endY],
-                                                x: [0, item.pullXPx * 0.6, -item.pullXPx * 0.4, item.pullXPx],
-                                                opacity: [0, item.opacityMax, item.opacityMax * 0.85, item.opacityMax * 0.3, 0],
+                                                x: [0, item.pullXPx, 0],
+                                                opacity: [0, item.opacityMax, item.opacityMax * 0.8, 0],
                                                 scale: [item.scaleRange[0], item.scaleRange[1], item.scaleRange[2]],
-                                                rotate: [item.rotation, item.rotation + 25, item.rotation - 15, item.rotation]
+                                                rotate: [item.rotation, item.rotation + 15, item.rotation]
                                             }}
                                             transition={{
                                                 duration: item.duration,
                                                 repeat: Infinity,
                                                 delay: item.delay,
-                                                ease: 'easeInOut'
+                                                ease: 'linear'
                                             }}
                                             style={{
                                                 left: item.left,
                                                 top: 0,
-                                                transform: `translate3d(${tiltXVal}px, ${tiltYVal}px, ${item.zDepth}px)`
+                                                transform: `translate3d(${tiltXVal}px, ${tiltYVal}px, ${item.zDepth}px)`,
+                                                willChange: 'transform, opacity'
                                             }}
                                             className="absolute select-none flex items-center justify-center pointer-events-none"
                                         >
