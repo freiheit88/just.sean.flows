@@ -13,6 +13,7 @@ import { useTrailCursor } from './hooks/useTrailCursor';
 import { useWalkPhysics } from './hooks/useWalkPhysics';
 import { getWaveformHarmonicState, PHOTO_ATMOSPHERE_PALETTE } from './constants/guitarWaveformEngine';
 import { HarmonicFlowField } from './components/common/HarmonicFlowField';
+import { unlockTitle } from './constants/titles';
 
 // Core Dynamic Components
 import { Header3D } from './components/common/Header3D';
@@ -251,6 +252,34 @@ export default function KineticPortfolio() {
                             </motion.div>
                         );
                     })}
+
+                    {/* Step 4 & Step 5 Floating Interactive Company Storefront Logo Badge */}
+                    {(activeFrameIdx === 3 || activeFrameIdx === 4) && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                            animate={{ opacity: 1, scale: 1.0, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            style={{
+                                transform: `translate3d(${tiltX * 0.4}px, ${tiltY * 0.4}px, 0)`
+                            }}
+                            className="absolute top-[28%] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center pointer-events-auto cursor-pointer group"
+                            onClick={() => {
+                                if (typeof unlockTitle === 'function') {
+                                    unlockTitle('ug_founding_archive');
+                                }
+                            }}
+                        >
+                            <div className="relative flex items-center justify-center">
+                                <div className="absolute w-16 h-16 rounded-full bg-[#00E5FF]/25 blur-md group-hover:blur-xl transition-all animate-pulse" />
+                                <div className="relative w-12 h-12 rounded-2xl bg-black/85 border-2 border-[#00E5FF] shadow-[0_0_25px_#00E5FF] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <span className="text-xl">🏢</span>
+                                </div>
+                            </div>
+                            <span className="mt-1.5 px-3 py-0.5 rounded-full bg-black/90 backdrop-blur-md border border-[#00E5FF]/60 font-mono text-[9px] font-black text-[#00E5FF] tracking-widest uppercase shadow-[0_0_12px_rgba(0,229,255,0.4)] group-hover:border-[#00E5FF] transition-all">
+                                JUST SEAN FLOWS UG
+                            </span>
+                        </motion.div>
+                    )}
 
                     {/* Step 2.5 Quest Popup (Appears between Step 2 and Step 3) */}
                     <Step25QuestPopup 

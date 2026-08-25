@@ -235,7 +235,7 @@ export function WalkRadarMap({
                     </button>
                 </div>
 
-                {/* 2. Bottom Contextual Info Row */}
+                {/* 2. Subtitle Drawer (Toggle) */}
                 <AnimatePresence>
                     {!isCollapsed && (
                         <motion.div
@@ -246,33 +246,27 @@ export function WalkRadarMap({
                             className="w-full flex items-center justify-between pt-1.5 mt-1.5 border-t border-white/10 overflow-hidden"
                         >
                             <div className="flex items-center gap-1.5 overflow-hidden">
-                                <span className="text-[11px]">{currentNode.emoji}</span>
+                                <span className="text-[11px]">{WALK_ROUTE_NODES[activeFrameIdx].emoji}</span>
                                 <span className="font-sans text-[10px] font-bold text-[#F0EAE0] truncate tracking-tight">
-                                    {currentNode.label}
+                                    {WALK_ROUTE_NODES[activeFrameIdx].label}
                                 </span>
                             </div>
 
                             <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (currentNode.hasCompanyArchive) {
-                                        setIsArchiveDismissed(!isArchiveDismissed);
-                                    }
-                                }}
                                 style={{ 
-                                    color: currentNode.badgeColor,
-                                    borderColor: `${currentNode.badgeColor}40`,
-                                    backgroundColor: `${currentNode.badgeColor}15`
+                                    color: WALK_ROUTE_NODES[activeFrameIdx].badgeColor,
+                                    borderColor: `${WALK_ROUTE_NODES[activeFrameIdx].badgeColor}40`,
+                                    backgroundColor: `${WALK_ROUTE_NODES[activeFrameIdx].badgeColor}15`
                                 }}
-                                className="font-mono text-[8px] font-black px-2 py-0.5 rounded-full border uppercase tracking-wider shrink-0 cursor-pointer hover:brightness-125 transition-all"
+                                className="font-mono text-[8px] font-black px-2 py-0.5 rounded-full border uppercase tracking-wider shrink-0"
                             >
-                                {currentNode.tag}
+                                {WALK_ROUTE_NODES[activeFrameIdx].tag}
                             </button>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* 3. ULTRA-COMPACT INTEGRATED UG CORPORATE HUD DRAWER (Appears in Step 4) */}
+                {/* 3. ULTRA-COMPACT INTEGRATED UG CORPORATE HUD DRAWER (Appears in Step 4 & Step 5) */}
                 <AnimatePresence>
                     {showCompanyDrawer && !isCollapsed && (
                         <motion.div
@@ -301,40 +295,24 @@ export function WalkRadarMap({
                                 </button>
                             </div>
 
-                            {/* 3 Concise 1-Line Key Descriptors (Half-Size Layout) */}
-                            <div className="grid grid-cols-1 gap-1 text-[9px] font-sans">
-                                
-                                {/* 01. LOCATION */}
-                                <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white/[0.04] border border-white/5">
-                                    <div className="flex items-center gap-1.5 text-neutral-400">
-                                        <MapPin className="w-3 h-3 text-[#00FF88] shrink-0" />
-                                        <span className="font-mono text-[7.5px] font-bold uppercase tracking-wider text-neutral-400">LOCATION</span>
-                                    </div>
-                                    <span className="font-semibold text-white truncate text-right">
-                                        Frankfurt am Main, Hesse, DE
-                                    </span>
+                            {/* 3 Concise 1-Line Key Timeline Descriptors */}
+                            <div className="grid grid-cols-1 gap-1 text-[9.5px] font-mono font-bold">
+                                {/* 01. JUL 2026 */}
+                                <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/10">
+                                    <span className="text-[#00E5FF]">JUL 2026</span>
+                                    <span className="text-white">UG Application Filed</span>
                                 </div>
 
-                                {/* 02. SANCTUARY */}
-                                <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white/[0.04] border border-white/5">
-                                    <div className="flex items-center gap-1.5 text-neutral-400">
-                                        <Music className="w-3 h-3 text-[#00E5FF] shrink-0" />
-                                        <span className="font-mono text-[7.5px] font-bold uppercase tracking-wider text-neutral-400">PROFILE</span>
-                                    </div>
-                                    <span className="font-semibold text-[#00E5FF] truncate text-right">
-                                        Acoustic Modular Salon & Orchestra
-                                    </span>
+                                {/* 02. AUG 2026 */}
+                                <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/10">
+                                    <span className="text-[#00FF88]">AUG 2026</span>
+                                    <span className="text-white">Document Approval & Notary Passed</span>
                                 </div>
 
-                                {/* 03. ROADMAP */}
-                                <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white/[0.04] border border-white/5">
-                                    <div className="flex items-center gap-1.5 text-neutral-400">
-                                        <Sparkles className="w-3 h-3 text-[#FFD700] shrink-0" />
-                                        <span className="font-mono text-[7.5px] font-bold uppercase tracking-wider text-neutral-400">ROADMAP</span>
-                                    </div>
-                                    <span className="font-bold text-[#FFD700] truncate text-right">
-                                        Grand Opening October 2026
-                                    </span>
+                                {/* 03. SEP 2026 */}
+                                <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-white/[0.05] border border-white/10">
+                                    <span className="text-[#FFD700]">SEP 2026</span>
+                                    <span className="text-white">Official UG Commercial Registration</span>
                                 </div>
                             </div>
                         </motion.div>
