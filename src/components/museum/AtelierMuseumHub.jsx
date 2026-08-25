@@ -1,7 +1,7 @@
 import { InteractiveSheetMusicModal } from '../modals/InteractiveSheetMusicModal';
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, Compass, Music, MapPin, Eye, Crown, ChevronLeft, ChevronRight, X, Lock, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, Compass, Music, MapPin, Eye, Crown, ChevronLeft, ChevronRight, X, Lock, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 import { TitleMuseumModal } from '../modals/TitleMuseumModal';
 import { ATELIER_TITLES, unlockTitle, getAcquiredTitles } from '../../constants/titles';
 import { BrandCiBiModal } from '../modals/BrandCiBiModal';
@@ -55,7 +55,110 @@ const MASTER_EXHIBITS = [
     }
 ];
 
-const STRINGS_AUDIO_SRC = '/assets/manual_upload/A twelve-alibi_Strings.wav';
+const PLAYLIST = [
+    {
+        id: 'strings_432',
+        title: "A Twelve-minute Alibi (432Hz Strings)",
+        src: "/assets/manual_upload/A twelve-alibi_Strings.wav"
+    },
+    {
+        id: 'capriccio_op1',
+        title: "Capriccio in A minor Op.1 (Violin & Orch)",
+        src: "/assets/manual_upload/A Twelve-minute Alibi_classic/FINAL_MASTER_ASSETS/J_SEAN_F_Capriccio_in_A_minor_Op1_FINAL_MASTER.wav"
+    },
+    {
+        id: 'grand_master',
+        title: "A Twelve-minute Alibi (Grand Single Master)",
+        src: "/assets/manual_upload/A Twelve-minute Alibi_classic/A_Twelve_minute_Alibi_GRAND_SINGLE_MASTER.wav"
+    }
+];
+
+function formatTime(seconds) {
+    if (isNaN(seconds) || seconds < 0) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+// CADENZA-432 Harmonic Real-time Waveform Canvas Fill Component
+function Cadenza432WaveCanvas({ isPlaying }) {
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let animId;
+        let phase = 0;
+
+        const render = () => {
+            const width = canvas.width;
+            const height = canvas.height;
+            ctx.clearRect(0, 0, width, height);
+
+            if (!isPlaying) {
+                ctx.beginPath();
+                ctx.moveTo(0, height / 2);
+                ctx.lineTo(width, height / 2);
+                ctx.strokeStyle = 'rgba(200, 169, 110, 0.15)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                return;
+            }
+
+            phase += 0.08;
+
+            // Background Harmonic Gradient Glow Fill
+            const grad = ctx.createLinearGradient(0, 0, width, 0);
+            grad.addColorStop(0, 'rgba(231, 255, 0, 0.20)');
+            grad.addColorStop(0.5, 'rgba(0, 255, 136, 0.28)');
+            grad.addColorStop(1, 'rgba(200, 169, 110, 0.20)');
+
+            // Harmonic 432Hz Resonance Sine Wave Fill
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            for (let x = 0; x <= width; x += 3) {
+                const f1 = Math.sin(x * 0.05 + phase) * 6;
+                const f2 = Math.sin(x * 0.12 - phase * 1.5) * 3;
+                const f3 = Math.cos(x * 0.03 + phase * 0.7) * 2;
+                const y = height / 2 + (f1 + f2 + f3);
+                ctx.lineTo(x, y);
+            }
+            ctx.lineTo(width, height);
+            ctx.closePath();
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Neon Sine Stroke Line
+            ctx.beginPath();
+            for (let x = 0; x <= width; x += 3) {
+                const f1 = Math.sin(x * 0.05 + phase) * 6;
+                const f2 = Math.sin(x * 0.12 - phase * 1.5) * 3;
+                const f3 = Math.cos(x * 0.03 + phase * 0.7) * 2;
+                const y = height / 2 + (f1 + f2 + f3);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = 'rgba(231, 255, 0, 0.65)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            animId = requestAnimationFrame(render);
+        };
+
+        animId = requestAnimationFrame(render);
+        return () => cancelAnimationFrame(animId);
+    }, [isPlaying]);
+
+    return (
+        <canvas 
+            ref={canvasRef} 
+            width={280} 
+            height={38} 
+            className="absolute inset-0 w-full h-full pointer-events-none opacity-85"
+        />
+    );
+}
 
 export function AtelierMuseumHub({ 
     isOpen, 
@@ -75,12 +178,17 @@ export function AtelierMuseumHub({
     const [acquiredTitles, setAcquiredTitles] = useState([]);
     const [activeIndex, setActiveIndex] = useState(0);
 
-    // Micro Strings Player States
+    // Multi-Track Micro Player States
+    const [trackIdx, setTrackIdx] = useState(0);
     const [isStringsPlaying, setIsStringsPlaying] = useState(false);
     const [isStringsMuted, setIsStringsMuted] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
     const stringsAudioRef = useRef(null);
 
     const scrollTrackRef = useRef(null);
+
+    const currentTrack = PLAYLIST[trackIdx] || PLAYLIST[0];
 
     useEffect(() => {
         if (isOpen) {
@@ -100,12 +208,48 @@ export function AtelierMuseumHub({
         }
     };
 
+    const handlePrevTrack = (e) => {
+        e.stopPropagation();
+        const nextIdx = (trackIdx - 1 + PLAYLIST.length) % PLAYLIST.length;
+        setTrackIdx(nextIdx);
+        setCurrentTime(0);
+        setTimeout(() => {
+            if (stringsAudioRef.current) {
+                stringsAudioRef.current.currentTime = 0;
+                stringsAudioRef.current.play().then(() => setIsStringsPlaying(true)).catch(() => {});
+            }
+        }, 100);
+    };
+
+    const handleNextTrack = (e) => {
+        e.stopPropagation();
+        const nextIdx = (trackIdx + 1) % PLAYLIST.length;
+        setTrackIdx(nextIdx);
+        setCurrentTime(0);
+        setTimeout(() => {
+            if (stringsAudioRef.current) {
+                stringsAudioRef.current.currentTime = 0;
+                stringsAudioRef.current.play().then(() => setIsStringsPlaying(true)).catch(() => {});
+            }
+        }, 100);
+    };
+
     const toggleStringsMute = (e) => {
         e.stopPropagation();
         if (!stringsAudioRef.current) return;
         const newMuted = !isStringsMuted;
         stringsAudioRef.current.muted = newMuted;
         setIsStringsMuted(newMuted);
+    };
+
+    const handleTimeUpdate = () => {
+        if (!stringsAudioRef.current) return;
+        setCurrentTime(stringsAudioRef.current.currentTime);
+    };
+
+    const handleLoadedMetadata = () => {
+        if (!stringsAudioRef.current) return;
+        setDuration(stringsAudioRef.current.duration);
     };
 
     if (!isOpen) return null;
@@ -150,6 +294,8 @@ export function AtelierMuseumHub({
         setActiveIndex(idx);
     };
 
+    const playbackPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
     return (
         <AnimatePresence>
             <motion.div
@@ -161,9 +307,11 @@ export function AtelierMuseumHub({
                 {/* Audio Element for Micro Strings Player */}
                 <audio 
                     ref={stringsAudioRef} 
-                    src={STRINGS_AUDIO_SRC} 
-                    loop 
+                    src={currentTrack.src} 
                     preload="auto"
+                    onTimeUpdate={handleTimeUpdate}
+                    onLoadedMetadata={handleLoadedMetadata}
+                    onEnded={handleNextTrack}
                 />
 
                 {/* ========================================================================= */}
@@ -189,25 +337,42 @@ export function AtelierMuseumHub({
                             <span>🎼</span>
                         </button>
 
-                        {/* 2. Title Museum Button */}
+                        {/* 2. Minimal Numeric Title Badge [ 🏆 2/9 ] */}
                         <button
                             onClick={() => setIsTitleModalOpen(true)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#E7FF00]/60 bg-[#E7FF00]/15 hover:bg-[#E7FF00]/30 text-[#E7FF00] font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(231,255,0,0.35)] shrink-0 hover:scale-105"
+                            className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-[#E7FF00]/60 bg-[#E7FF00]/15 hover:bg-[#E7FF00]/30 text-[#E7FF00] font-mono text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(231,255,0,0.35)] shrink-0 hover:scale-105"
+                            title="Atelier Title Museum"
                         >
-                            <span>🏆 TITLES</span>
-                            <span className="px-1.5 py-0.2 rounded-full bg-[#E7FF00] text-black font-black text-[9px]">
+                            <span>🏆</span>
+                            <span className="text-[#E7FF00] font-mono font-black">
                                 {acquiredTitles.length}/{ATELIER_TITLES.length}
                             </span>
                         </button>
 
-                        {/* 3. Ultra-Compact Strings Micro-Player with Rolling Marquee Ticker */}
+                        {/* 3. CADENZA-432 Micro-Player Capsule with Prev/Next, Time, and Waveform */}
                         <div 
                             onClick={toggleStringsPlayback}
-                            className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.09] border border-[#C8A96E]/50 cursor-pointer transition-all shadow-[0_0_15px_rgba(200,169,110,0.2)] shrink-0 group"
-                            title={isStringsPlaying ? "Pause Strings Ensemble" : "Play Strings Ensemble"}
+                            className={`relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full border transition-all cursor-pointer shadow-[0_0_15px_rgba(200,169,110,0.25)] shrink-0 overflow-hidden group ${
+                                isStringsPlaying 
+                                    ? 'bg-black/90 border-[#E7FF00] shadow-[0_0_20px_rgba(231,255,0,0.4)]' 
+                                    : 'bg-white/[0.05] hover:bg-white/[0.09] border-[#C8A96E]/50'
+                            }`}
+                            title={isStringsPlaying ? "Pause Track" : "Play Track"}
                         >
+                            {/* Real-Time Harmonic 432Hz Background Waveform Canvas */}
+                            <Cadenza432WaveCanvas isPlaying={isStringsPlaying} />
+
+                            {/* Previous Track Button */}
+                            <button
+                                onClick={handlePrevTrack}
+                                className="relative z-10 text-neutral-400 hover:text-[#E7FF00] p-0.5 transition-colors cursor-pointer shrink-0"
+                                title="Previous Track"
+                            >
+                                <SkipBack className="w-3 h-3 fill-current" />
+                            </button>
+
                             {/* Play/Pause Button Icon */}
-                            <div className="w-5 h-5 rounded-full bg-[#E7FF00]/20 border border-[#E7FF00]/60 flex items-center justify-center text-[#E7FF00] shrink-0">
+                            <div className="relative z-10 w-5 h-5 rounded-full bg-[#E7FF00]/20 border border-[#E7FF00]/70 flex items-center justify-center text-[#E7FF00] shrink-0 group-hover:scale-105 transition-transform">
                                 {isStringsPlaying ? (
                                     <Pause className="w-2.5 h-2.5 fill-[#E7FF00]" />
                                 ) : (
@@ -215,21 +380,35 @@ export function AtelierMuseumHub({
                                 )}
                             </div>
 
+                            {/* Next Track Button */}
+                            <button
+                                onClick={handleNextTrack}
+                                className="relative z-10 text-neutral-400 hover:text-[#E7FF00] p-0.5 transition-colors cursor-pointer shrink-0"
+                                title="Next Track"
+                            >
+                                <SkipForward className="w-3 h-3 fill-current" />
+                            </button>
+
                             {/* Rolling Marquee Track Title Ticker */}
-                            <div className="w-32 sm:w-44 overflow-hidden relative h-4 flex items-center select-none">
+                            <div className="relative z-10 w-28 sm:w-36 overflow-hidden h-4 flex items-center select-none">
                                 <motion.div
                                     animate={isStringsPlaying ? { x: ['100%', '-100%'] } : { x: '0%' }}
-                                    transition={isStringsPlaying ? { repeat: Infinity, duration: 9, ease: 'linear' } : { duration: 0 }}
-                                    className="font-mono text-[10px] text-[#E7FF00] font-bold tracking-wide whitespace-nowrap flex items-center gap-2"
+                                    transition={isStringsPlaying ? { repeat: Infinity, duration: 8.5, ease: 'linear' } : { duration: 0 }}
+                                    className="font-mono text-[9.5px] sm:text-[10px] text-[#E7FF00] font-bold tracking-wide whitespace-nowrap flex items-center gap-1.5"
                                 >
-                                    <span>🎻 A Twelve-minute Alibi (Strings Ensemble)</span>
+                                    <span>🎻 {currentTrack.title}</span>
                                 </motion.div>
                             </div>
+
+                            {/* Real-time Time Duration Display (e.g. 0:15 / 2:38) */}
+                            <span className="relative z-10 font-mono text-[9px] font-bold text-neutral-300 bg-black/60 px-1.5 py-0.5 rounded border border-white/10 shrink-0">
+                                {formatTime(currentTime)} / {formatTime(duration)}
+                            </span>
 
                             {/* Volume Mute/Unmute Toggle */}
                             <button
                                 onClick={toggleStringsMute}
-                                className="text-neutral-400 hover:text-white p-0.5 shrink-0 transition-colors cursor-pointer"
+                                className="relative z-10 text-neutral-400 hover:text-white p-0.5 shrink-0 transition-colors cursor-pointer"
                                 title={isStringsMuted ? "Unmute" : "Mute"}
                             >
                                 {isStringsMuted ? (
@@ -238,6 +417,14 @@ export function AtelierMuseumHub({
                                     <Volume2 className="w-3 h-3 text-[#E7FF00]" />
                                 )}
                             </button>
+
+                            {/* Bottom Real-time Playback Progress Line */}
+                            {isStringsPlaying && (
+                                <div 
+                                    className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#E7FF00] to-[#00FF88] shadow-[0_0_6px_#00FF88] transition-all duration-200"
+                                    style={{ width: `${playbackPercent}%` }}
+                                />
+                            )}
                         </div>
                     </div>
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
 import { getStoredVipProfile } from './InstagramVipAuthModal';
 import { unlockTitle } from '../../constants/titles';
-import { GoldEmblem3DCanvas } from '../common/GoldEmblem3DCanvas';
 
 export function InitialUnlockSplash({ 
     isAudioUnlocked, 
@@ -15,75 +15,90 @@ export function InitialUnlockSplash({
     ghostOffsetY = 0 
 }) {
     const [cardUnblurStage, setCardUnblurStage] = useState(false);
+    const [debrisStage, setDebrisStage] = useState(false);
     const [vipProfile, setVipProfile] = useState(null);
-    const [isCardHovered, setIsCardHovered] = useState(false);
-
-    // 1. Shake trigger locked during first 3.5s
-    const [canShakeTrigger, setCanShakeTrigger] = useState(false);
     const [isQuestUnlocked, setIsQuestUnlocked] = useState(false);
+    const [resonancePercent, setResonancePercent] = useState(30);
 
-    // 2. Gyro Motion Resonance Growth: +3.5% scale per stage (Max 5 stages, purely visual growth)
-    const [growthStage, setGrowthStage] = useState(0);
-    const growthStageRef = useRef(0);
-    growthStageRef.current = growthStage;
+    const canShakeTriggerRef = useRef(false);
 
-    const activeMotionTimeRef = useRef(0);
-
-    // Continuous Organic Idle Ambient Sway Physics (Calibrated 1/3)
+    // Continuous Organic Idle Ambient Sway Physics
     const [idleOffset, setIdleOffset] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
     const animFrameRef = useRef(null);
+
+    const triggerShortcutUnlock = () => {
+        setIsQuestUnlocked(true);
+        setResonancePercent(100);
+        if (typeof unlockTitle === 'function') {
+            unlockTitle('hidden_atelier_key');
+        }
+        if (navigator.vibrate) {
+            try { navigator.vibrate([50, 40, 70]); } catch (e) {}
+        }
+    };
 
     useEffect(() => {
         const stored = getStoredVipProfile();
         if (stored) setVipProfile(stored);
 
-        // First 3.5s shake lock (Wait until main card finishes opening)
+        // Immediate unlock eligibility after 300ms
         const tLock = setTimeout(() => {
-            setCanShakeTrigger(true);
-        }, 3500);
+            canShakeTriggerRef.current = true;
+        }, 300);
 
-        // 3.5s: Main Logo Card unblurs over 1.5s
+        // 1.0s: Main Logo Card unblurs
         const tCard = setTimeout(() => {
             setCardUnblurStage(true);
-        }, 3500);
+        }, 1000);
 
-        // Mobile Device Shake Sensor (devicemotion) - Intentional Deliberate Shake Only
+        // 1.4s: Ambient Debris fades in
+        const tDebris = setTimeout(() => {
+            setDebrisStage(true);
+        }, 1400);
+
+        // Precise Mobile Device Shake Sensor (4 spikes within 0.4s)
         let mobileSpikeTimestamps = [];
         let lastAcc = { x: 0, y: 0, z: 0 };
         let lastMotionTime = Date.now();
 
         const handleMotion = (e) => {
-            const acc = e.acceleration || e.accelerationIncludingGravity;
+            const acc = e.accelerationIncludingGravity || e.acceleration;
             if (!acc) return;
+
             const now = Date.now();
             const dt = Math.max(16, now - lastMotionTime);
             lastMotionTime = now;
 
-            const deltaX = Math.abs((acc.x || 0) - lastAcc.x);
-            const deltaY = Math.abs((acc.y || 0) - lastAcc.y);
-            const deltaZ = Math.abs((acc.z || 0) - lastAcc.z);
-            const jerk = (deltaX + deltaY + deltaZ);
+            const curX = acc.x || 0;
+            const curY = acc.y || 0;
+            const curZ = acc.z || 0;
 
-            // Light motion for resonance growth
-            if (jerk > 6.0) {
-                accumulateMotionProgress(dt);
+            const deltaX = Math.abs(curX - lastAcc.x);
+            const deltaY = Math.abs(curY - lastAcc.y);
+            const deltaZ = Math.abs(curZ - lastAcc.z);
+            const totalDelta = deltaX + deltaY + deltaZ;
+
+            // Subtle resonance increment on any active hand movement
+            if (totalDelta > 1.2) {
+                setResonancePercent(prev => Math.min(95, prev + 1));
             }
 
-            // DELIBERATE INTENTIONAL SHAKE DETECTION:
-            // Requires strong rapid shake (jerk > 20.0 m/s²) and 4 genuine spikes within 1.0s
-            if (jerk > 20.0) {
+            // High-speed Shake Spike Detection (4 spikes in 0.4s)
+            if (canShakeTriggerRef.current && (totalDelta > 5.2 || deltaX > 3.6 || deltaY > 3.6)) {
                 mobileSpikeTimestamps.push(now);
-                mobileSpikeTimestamps = mobileSpikeTimestamps.filter(t => (now - t) <= 1000);
+                // 0.4s (400ms) sliding window
+                mobileSpikeTimestamps = mobileSpikeTimestamps.filter(t => (now - t) <= 400);
+
                 if (mobileSpikeTimestamps.length >= 4) {
                     triggerShortcutUnlock();
                     mobileSpikeTimestamps = [];
                 }
             }
 
-            lastAcc = { x: acc.x || 0, y: acc.y || 0, z: acc.z || 0 };
+            lastAcc = { x: curX, y: curY, z: curZ };
         };
 
-        // Desktop Mouse 500ms Shake Detection
+        // Desktop Mouse Rapid Shake Detection (5 reversals in 400ms)
         let mouseReversalTimestamps = [];
         let lastMouseX = 0;
         let lastDir = 0;
@@ -92,21 +107,16 @@ export function InitialUnlockSplash({
         const handleMouseMove = (e) => {
             const now = Date.now();
             const dx = e.clientX - lastMouseX;
-            const dt = Math.max(16, now - lastMouseMoveTime);
-            lastMouseMoveTime = now;
-            const mouseSpeed = Math.abs(dx) / dt;
-
-            if (mouseSpeed > 0.8) {
-                accumulateMotionProgress(dt);
-            }
-
             const currentDir = dx > 0 ? 1 : dx < 0 ? -1 : 0;
-            if (currentDir !== 0 && currentDir !== lastDir && Math.abs(dx) > 15) {
+
+            if (currentDir !== 0 && currentDir !== lastDir && Math.abs(dx) > 12) {
                 lastDir = currentDir;
-                if (canShakeTrigger) {
+                if (canShakeTriggerRef.current) {
                     mouseReversalTimestamps.push(now);
-                    mouseReversalTimestamps = mouseReversalTimestamps.filter(t => (now - t) <= 500);
-                    if (mouseReversalTimestamps.length >= 5) {
+                    // 400ms sliding window
+                    mouseReversalTimestamps = mouseReversalTimestamps.filter(t => (now - t) <= 400);
+
+                    if (mouseReversalTimestamps.length >= 4) {
                         triggerShortcutUnlock();
                         mouseReversalTimestamps = [];
                     }
@@ -115,201 +125,233 @@ export function InitialUnlockSplash({
             lastMouseX = e.clientX;
         };
 
-        window.addEventListener('devicemotion', handleMotion);
+        window.addEventListener('devicemotion', handleMotion, true);
         window.addEventListener('mousemove', handleMouseMove);
+
+        let startTime = Date.now();
+        const loop = () => {
+            const time = (Date.now() - startTime) * 0.001;
+            const ix = Math.sin(time * 0.8) * 5 + Math.sin(time * 1.5) * 2.5;
+            const iy = Math.cos(time * 0.6) * 4 + Math.cos(time * 1.2) * 2;
+            const iRotX = Math.sin(time * 0.5) * 2.0;
+            const iRotY = Math.cos(time * 0.7) * 2.0;
+
+            setIdleOffset({ x: ix, y: iy, rotX: iRotX, rotY: iRotY });
+            animFrameRef.current = requestAnimationFrame(loop);
+        };
+        animFrameRef.current = requestAnimationFrame(loop);
 
         return () => {
             clearTimeout(tLock);
             clearTimeout(tCard);
-            window.removeEventListener('devicemotion', handleMotion);
+            clearTimeout(tDebris);
+            window.removeEventListener('devicemotion', handleMotion, true);
             window.removeEventListener('mousemove', handleMouseMove);
-        };
-    }, [canShakeTrigger]);
-
-    // Motion Resonance Growth (Pure Visual Scaling)
-    const accumulateMotionProgress = (dtMs) => {
-        if (growthStageRef.current >= 5) return;
-        activeMotionTimeRef.current += dtMs;
-        const newStage = Math.min(5, Math.floor(activeMotionTimeRef.current / 1000));
-        if (newStage > growthStageRef.current) {
-            setGrowthStage(newStage);
-        }
-    };
-
-    // Shortcut Unlock Trigger
-    const triggerShortcutUnlock = () => {
-        if (isQuestUnlocked) return;
-        setIsQuestUnlocked(true);
-        if (typeof unlockTitle === 'function') {
-            unlockTitle('shortcut_master');
-        }
-    };
-
-    // Continuous Idle Ambient Sway Loop (1/3 Amplitude)
-    useEffect(() => {
-        let startTime = Date.now();
-        const loop = () => {
-            const elapsed = (Date.now() - startTime) / 1000;
-            const x = Math.sin(elapsed * 0.9) * 1.5 + Math.cos(elapsed * 0.45) * 0.8;
-            const y = Math.cos(elapsed * 0.75) * 1.2 + Math.sin(elapsed * 0.35) * 0.6;
-            const rotX = Math.sin(elapsed * 0.6) * 0.6;
-            const rotY = Math.cos(elapsed * 0.7) * 0.8;
-
-            setIdleOffset({ x, y, rotX, rotY });
-            animFrameRef.current = requestAnimationFrame(loop);
-        };
-        animFrameRef.current = requestAnimationFrame(loop);
-        return () => {
             if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
         };
     }, []);
 
-    // 3D Parallax Calculation for the Card
-    const targetRotX = (-tiltY * 1.6) + idleOffset.rotX;
-    const targetRotY = (tiltX * 1.6) + idleOffset.rotY;
-    const targetTransX = (tiltX * 1.8) + ghostOffsetX * 0.35 + idleOffset.x;
-    const targetTransY = (tiltY * 1.8) + ghostOffsetY * 0.35 + idleOffset.y;
+    if (isAudioUnlocked) return null;
 
-    const currentCardScale = 1.0 + (growthStage * 0.035);
+    // Organic Gyro + Idle Floating 3D Physics
+    const targetRotX = (-tiltY * 0.65) + idleOffset.rotX;
+    const targetRotY = (tiltX * 0.65) + idleOffset.rotY;
+    const targetTransX = (tiltX * 0.85) + idleOffset.x;
+    const targetTransY = (tiltY * 0.85) + idleOffset.y;
 
     return (
-        <AnimatePresence>
-            {!isAudioUnlocked && (
-                <motion.div 
-                    initial={{ opacity: 1 }}
-                    exit={{ 
-                        opacity: 0, 
-                        scale: 1.12, 
-                        filter: "blur(18px)",
-                        transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } 
-                    }}
-                    className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none select-none overflow-hidden"
-                >
-                    {/* Dark Vignette Overlay */}
-                    <div className="absolute inset-0 bg-[#050507]/60 pointer-events-none" />
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            onClick={onUnlock}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-[#060405] cursor-pointer overflow-hidden select-none"
+            style={{
+                perspective: '1000px',
+                transformStyle: 'preserve-3d'
+            }}
+        >
+            {/* Rich Bordeaux Velvet Vignette Background */}
+            <div 
+                className="absolute inset-0 pointer-events-none z-0 opacity-90"
+                style={{
+                    background: 'radial-gradient(circle at center, #480B1B 0%, #25060E 55%, #060405 100%)'
+                }}
+            />
 
-                    {/* Borderless Floating Toast Notification in Upper-Right */}
-                    <AnimatePresence>
-                        {isQuestUnlocked && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 18, x: 0 }}
-                                animate={{ 
-                                    opacity: [0, 1, 1, 0], 
-                                    y: [18, 0, -4, -28] 
-                                }}
-                                transition={{ 
-                                    duration: 1.5, 
-                                    times: [0, 0.18, 0.7, 1.0],
-                                    ease: "easeOut" 
-                                }}
-                                className="fixed top-[18%] sm:top-[20%] right-[6%] sm:right-[12%] z-[9999] pointer-events-none flex items-center gap-1.5 font-mono text-xs sm:text-sm font-black text-[#E7FF00] drop-shadow-[0_0_15px_rgba(231,255,0,0.9)] tracking-wider uppercase select-none"
-                            >
-                                <span className="text-sm">🗝️</span>
-                                <span>+ SHORTCUT UNLOCKED!</span>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {/* Central 3D Container with Clean Luxury Staging */}
-                    <div
-                        style={{
-                            transform: `perspective(1200px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 15px)`,
-                            transformStyle: 'preserve-3d',
-                            transition: 'transform 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
-                        }}
-                        className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
-                    >
-                        {/* VIP Recognition Badge */}
-                        {vipProfile && cardUnblurStage && (
-                            <motion.div
-                                initial={{ opacity: 0, y: -20, scale: 0.9 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                transition={{ duration: 0.8, delay: 0.2 }}
-                                className="mb-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-[#E7FF00]/50 shadow-[0_0_25px_rgba(231,255,0,0.5)] flex items-center gap-2.5 z-30"
-                            >
-                                <div className="w-6 h-6 rounded-full overflow-hidden border border-[#E7FF00]">
-                                    <img src={vipProfile.avatarUrl} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${vipProfile.instagramId}`; }} />
-                                </div>
-                                <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-wider uppercase">
-                                    ⚜️ WELCOME BACK, @{vipProfile.instagramId} (VIP #{vipProfile.memberNumber})
-                                </span>
-                            </motion.div>
-                        )}
-
-                        {/* MAIN MASTER PHOTO CARD: Seamless Bordeaux Velvet + 3D Gold WebGL Emblem */}
+            {/* Background 22 Floating Particles */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
+                {debrisStage && ATELIER_DEBRIS_100.map((item) => {
+                    const tiltXVal = -tilt.x * 12 * item.tiltMult + idleOffset.x * 0.3;
+                    const tiltYVal = -tilt.y * 12 * item.tiltMult + idleOffset.y * 0.3;
+                    return (
                         <motion.div
-                            initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
-                            animate={{ 
-                                opacity: cardUnblurStage ? 1 : 0, 
-                                filter: cardUnblurStage ? 'blur(0px)' : 'blur(22px)',
-                                scale: cardUnblurStage ? currentCardScale : 0.92,
-                                y: cardUnblurStage ? 0 : 20
+                            key={item.id}
+                            initial={{ y: '105vh', x: 0, opacity: 0, scale: item.scaleRange[0], rotate: item.rotation }}
+                            animate={{
+                                y: ['105vh', '-25vh'],
+                                x: [0, item.pullXPx, 0],
+                                opacity: [0, item.opacityMax, item.opacityMax * 0.8, 0],
+                                scale: [item.scaleRange[0], item.scaleRange[1], item.scaleRange[2]],
+                                rotate: [item.rotation, item.rotation + 15, item.rotation]
                             }}
-                            transition={{ 
-                                scale: { type: "spring", stiffness: 200, damping: 18 },
-                                filter: { duration: 1.5, ease: [0.16, 1, 0.3, 1] }
-                            }}
-                            onMouseEnter={() => setIsCardHovered(true)}
-                            onMouseLeave={() => setIsCardHovered(false)}
-                            whileHover={{ scale: currentCardScale * 1.015 }}
-                            whileTap={{ scale: currentCardScale * 0.98 }}
-                            onClick={onUnlock}
+                            transition={{ duration: item.duration, repeat: Infinity, delay: item.delay, ease: 'linear' }}
                             style={{
-                                transformStyle: 'preserve-3d'
+                                left: item.left,
+                                top: 0,
+                                transform: `translate3d(${tiltXVal}px, ${tiltYVal}px, ${item.zDepth}px)`,
+                                willChange: 'transform, opacity'
                             }}
-                            className="relative rounded-[32px] border-2 border-[#C8A96E]/85 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 w-[290px] sm:w-[330px] aspect-[4/5] group cursor-pointer pointer-events-auto z-10"
+                            className="absolute select-none flex items-center justify-center pointer-events-none"
                         >
-                            {/* Layer 1: Clean Seamless Bordeaux Velvet Canvas Background */}
-                            <div className="absolute inset-0 w-full h-full rounded-[30px] overflow-hidden">
-                                <img 
-                                    src="/assets/logo/jsf_card_velvet_pure.jpg" 
-                                    alt="Bordeaux Velvet Card Canvas" 
-                                    className="w-full h-full object-cover select-none"
-                                />
-                                <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none" />
-                            </div>
+                            <div className={item.styleClass} style={{ color: item.color }}>{item.text}</div>
+                        </motion.div>
+                    );
+                })}
+            </div>
 
-                            {/* Layer 2: REAL THREE.JS WEBGL 3D GOLD EMBLEM (TOP-DOWN LIGHTING & PERFECTLY CENTERED) */}
-                            <div className="relative z-20 w-[140px] sm:w-[160px] aspect-[3/4] flex items-center justify-center my-auto pointer-events-none select-none">
-                                <div className="absolute inset-0 bg-[#FFD700]/15 rounded-full blur-2xl pointer-events-none scale-110" />
-                                
-                                <GoldEmblem3DCanvas 
-                                    tiltX={tiltX} 
-                                    tiltY={tiltY} 
-                                    isHovered={isCardHovered}
-                                />
-                            </div>
+            {/* Top-Right Shortcut Notification Toast */}
+            <AnimatePresence>
+                {isQuestUnlocked && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 18 }}
+                        animate={{ opacity: [0, 1, 1, 0], y: [18, 0, -4, -28] }}
+                        transition={{ duration: 1.5, times: [0, 0.18, 0.7, 1.0], ease: "easeOut" }}
+                        className="fixed top-[12%] sm:top-[14%] right-[6%] sm:right-[10%] z-[9999] pointer-events-none flex items-center gap-1.5 font-mono text-xs sm:text-sm font-black text-[#E7FF00] drop-shadow-[0_0_15px_rgba(231,255,0,0.9)] tracking-wider uppercase select-none"
+                    >
+                        <span className="text-sm">🗝️</span>
+                        <span>+ SHORTCUT UNLOCKED!</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-                            {/* Layer 3: [ 🏛️ | ENTER ATELIER ] Button (Appears on Shortcut Unlock) */}
-                            <AnimatePresence>
-                                {isQuestUnlocked && (
-                                    <motion.div 
-                                        initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1.0 }}
-                                        exit={{ opacity: 0, y: 15 }}
-                                        transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                                        onPointerDown={(e) => e.stopPropagation()}
-                                        onTouchStart={(e) => e.stopPropagation()}
+            {/* Central 3D Container with Parallax Tilt */}
+            <div
+                style={{
+                    transform: `perspective(1000px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 20px)`,
+                    transformStyle: 'preserve-3d'
+                }}
+                className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
+            >
+                {/* VIP Recognition Badge */}
+                {vipProfile && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="mb-3 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-[#E7FF00]/50 shadow-[0_0_25px_rgba(231,255,0,0.5)] flex items-center gap-2.5 z-30"
+                    >
+                        <div className="w-6 h-6 rounded-full overflow-hidden border border-[#E7FF00]">
+                            <img src={vipProfile.avatarUrl} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${vipProfile.instagramId}`; }} />
+                        </div>
+                        <span className="font-mono text-[10px] font-black text-[#E7FF00] tracking-wider uppercase">
+                            ⚜️ WELCOME BACK, @{vipProfile.instagramId} (VIP #{vipProfile.memberNumber})
+                        </span>
+                    </motion.div>
+                )}
+
+                {/* V04 MASTER CARD: Bordeaux Velvet + Alpha Cutout 18K Gold + 4-Shake [ENTER ATELIER] Reveal */}
+                <motion.div
+                    initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
+                    animate={{ 
+                        opacity: cardUnblurStage ? 1 : 0, 
+                        filter: cardUnblurStage ? 'blur(0px)' : 'blur(22px)',
+                        scale: cardUnblurStage ? 1.0 : 0.92,
+                        y: cardUnblurStage ? 0 : 20
+                    }}
+                    transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={onUnlock}
+                    className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 w-[290px] sm:w-[330px] aspect-[4/5] bg-gradient-to-b from-[#4A0D1D]/95 via-[#25060E]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
+                >
+                    {/* Top Delicate Specular Light Glint */}
+                    <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
+
+                    {/* Top Card Header */}
+                    <div className="relative z-10 w-full flex items-center justify-between">
+                        <span className="font-mono text-[9.5px] font-black tracking-[0.25em] text-[#C8A96E] uppercase">
+                            JUST • SEAN • FLOWS
+                        </span>
+                        <span className="font-mono text-[8px] font-bold text-[#E7FF00] px-2 py-0.5 rounded-full bg-black/60 border border-[#E7FF00]/40">
+                            EST. 2026
+                        </span>
+                    </div>
+
+                    {/* Center 18K Gold Cutout Emblem with Radiant Pulsing Halo */}
+                    <div className="relative z-20 flex flex-col items-center justify-center my-auto py-2">
+                        <div className="absolute w-36 h-36 rounded-full bg-[#FFD700]/20 blur-2xl pointer-events-none animate-pulse" />
+                        <motion.img
+                            src="/assets/logo/jsf_emblem_transparent.png"
+                            alt="Just Sean Flows 18K Gold Emblem"
+                            animate={{
+                                filter: [
+                                    "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))",
+                                    "drop-shadow(0 0 32px rgba(231,255,0,0.9)) drop-shadow(0 6px 24px rgba(0,0,0,0.95))",
+                                    "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))"
+                                ]
+                            }}
+                            transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+                            className="w-28 sm:w-36 object-contain pointer-events-none select-none drop-shadow-2xl"
+                        />
+                    </div>
+
+                    {/* Resonance Indicator */}
+                    <div className="relative z-20 mb-2 px-3 py-1 rounded-full bg-black/80 border border-[#E7FF00]/40 flex items-center gap-2 shadow-[0_0_15px_rgba(231,255,0,0.2)]">
+                        <span className="font-mono text-[9px] font-black text-[#E7FF00] uppercase tracking-wider">
+                            RESONANCE +{resonancePercent}%
+                        </span>
+                        <div className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]" />
+                            <span className={`w-1.5 h-1.5 rounded-full ${resonancePercent >= 60 ? 'bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]' : 'bg-white/20'}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${resonancePercent >= 100 ? 'bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]' : 'bg-white/20'}`} />
+                        </div>
+                    </div>
+
+                    {/* Bottom Action Area: Appears on 4-Shake in 0.4s OR Tap Prompt */}
+                    <div className="w-full relative z-20 min-h-[44px] flex items-center justify-center">
+                        <AnimatePresence mode="wait">
+                            {isQuestUnlocked ? (
+                                <motion.div
+                                    key="atelier_btn"
+                                    initial={{ opacity: 0, y: 15, scale: 0.92 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1.0 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                                    className="w-full"
+                                >
+                                    <button
                                         onClick={(e) => {
-                                            e.stopPropagation();
                                             e.preventDefault();
+                                            e.stopPropagation();
                                             if (onDirectMuseum) onDirectMuseum();
                                         }}
-                                        className="w-full relative z-30 mt-auto pointer-events-auto"
+                                        className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#FFD700] to-[#E5A93C] hover:brightness-110 text-black font-mono text-xs font-black tracking-widest uppercase shadow-[0_0_30px_rgba(255,215,0,0.85)] border border-white/60 flex items-center justify-center gap-2 transition-all cursor-pointer group/btn"
                                     >
-                                        <button 
-                                            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#FFD700] to-[#AA771C] text-black font-mono text-[11px] font-black tracking-widest uppercase shadow-[0_0_25px_rgba(255,215,0,0.8)] border border-white/60 flex items-center justify-center gap-2 hover:brightness-110 active:scale-98 transition-all cursor-pointer"
-                                        >
-                                            <span>🏛️</span>
-                                            <span>| ENTER ATELIER</span>
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
+                                        <span className="text-base leading-none">🏛️</span>
+                                        <span className="text-neutral-700 font-light">|</span>
+                                        <span>ENTER ATELIER</span>
+                                    </button>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="walk_prompt"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="text-center"
+                                >
+                                    <span className="font-mono text-[9px] text-[#C8A96E] font-black tracking-[0.2em] uppercase">
+                                        TAP CARD TO WALK // 02:00 AM
+                                    </span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </motion.div>
-            )}
-        </AnimatePresence>
+            </div>
+        </motion.div>
     );
 }
