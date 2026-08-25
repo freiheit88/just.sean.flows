@@ -47,13 +47,13 @@ export function InitialUnlockSplash({
             setCardUnblurStage(true);
         }, 3500);
 
-        // Mobile Device Shake Sensor (devicemotion) - 0.5s sliding window
+        // Mobile Device Shake Sensor (devicemotion) - Intentional Deliberate Shake Only
         let mobileSpikeTimestamps = [];
         let lastAcc = { x: 0, y: 0, z: 0 };
         let lastMotionTime = Date.now();
 
         const handleMotion = (e) => {
-            const acc = e.accelerationIncludingGravity || e.acceleration;
+            const acc = e.acceleration || e.accelerationIncludingGravity;
             if (!acc) return;
             const now = Date.now();
             const dt = Math.max(16, now - lastMotionTime);
@@ -62,15 +62,18 @@ export function InitialUnlockSplash({
             const deltaX = Math.abs((acc.x || 0) - lastAcc.x);
             const deltaY = Math.abs((acc.y || 0) - lastAcc.y);
             const deltaZ = Math.abs((acc.z || 0) - lastAcc.z);
-            const instantSpeed = (deltaX + deltaY + deltaZ) / dt * 10000;
+            const jerk = (deltaX + deltaY + deltaZ);
 
-            if (instantSpeed > 220) {
+            // Light motion for resonance growth
+            if (jerk > 6.0) {
                 accumulateMotionProgress(dt);
             }
 
-            if (canShakeTrigger && instantSpeed > 600) {
+            // DELIBERATE INTENTIONAL SHAKE DETECTION:
+            // Requires strong rapid shake (jerk > 20.0 m/s²) and 4 genuine spikes within 1.0s
+            if (jerk > 20.0) {
                 mobileSpikeTimestamps.push(now);
-                mobileSpikeTimestamps = mobileSpikeTimestamps.filter(t => (now - t) <= 400);
+                mobileSpikeTimestamps = mobileSpikeTimestamps.filter(t => (now - t) <= 1000);
                 if (mobileSpikeTimestamps.length >= 4) {
                     triggerShortcutUnlock();
                     mobileSpikeTimestamps = [];

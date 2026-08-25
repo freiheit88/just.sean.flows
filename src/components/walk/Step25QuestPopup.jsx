@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Building2, Music2 } from 'lucide-react';
 
 export function Step25QuestPopup({ 
     isOpen = false, 
@@ -42,9 +43,9 @@ export function Step25QuestPopup({
                 onClick={onComplete}
             >
                 {/* 1. Frosted Translucent Backdrop Overlay */}
-                <div className="absolute inset-0 bg-black/35 backdrop-blur-[1.5px] pointer-events-none" />
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] pointer-events-none" />
 
-                {/* 2. Main 1:1 Pixel-Perfect Glassmorphic Card */}
+                {/* 2. Pure Authentic Web Glassmorphic Card (Real Transparency & Zero Artifacts) */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.90, y: 12 }}
                     animate={{ opacity: 1, scale: 1.0, y: 0 }}
@@ -55,34 +56,58 @@ export function Step25QuestPopup({
                         transform: `perspective(1000px) rotateX(${-tiltY * 0.45}deg) rotateY(${tiltX * 0.45}deg) translate3d(${tiltX * 0.5}px, ${tiltY * 0.5}px, 10px)`,
                         transformStyle: 'preserve-3d'
                     }}
-                    className="relative w-[240px] sm:w-[260px] aspect-[232/340] rounded-[28px] overflow-hidden border border-[#D4AF37]/80 shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_35px_rgba(212,175,55,0.35)] cursor-pointer group"
+                    className="relative w-[250px] sm:w-[270px] aspect-[232/340] rounded-[28px] p-5 flex flex-col items-center justify-between bg-black/65 backdrop-blur-2xl border border-[#D4AF37]/80 shadow-[0_25px_60px_rgba(0,0,0,0.95),0_0_35px_rgba(212,175,55,0.35),inset_0_1px_2px_rgba(255,255,255,0.25)] cursor-pointer group"
                 >
-                    {/* Layer A: Authentic High-Res Card Graphic with Frosted Glass & Gold Emblem */}
-                    <img 
-                        src="/assets/quest_card_exact_cutout.png" 
-                        alt="Quest Card" 
-                        className="w-full h-full object-cover select-none pointer-events-none drop-shadow-2xl"
-                    />
-
-                    {/* Layer B: Live Countdown Pulse Badge over Green Button */}
-                    <div 
-                        onClick={onComplete}
-                        className="absolute bottom-[36%] inset-x-[8%] h-[15%] rounded-full flex items-center justify-end pr-3 cursor-pointer hover:bg-white/10 transition-colors"
-                    >
-                        <span className="font-mono text-[9px] font-black text-[#00FF88] uppercase tracking-wider bg-black/60 px-1.5 py-0.5 rounded-full border border-[#00FF88]/50 shadow-[0_0_8px_#00FF88]">
-                            {countdown}s
-                        </span>
+                    {/* Top: 18K Gold Emblem with Warm Halo */}
+                    <div className="flex-1 flex flex-col items-center justify-center relative w-full pt-1">
+                        <div className="absolute w-24 h-24 rounded-full bg-[#E5A93C]/20 blur-xl pointer-events-none" />
+                        <img 
+                            src="/assets/logo/jsf_emblem_transparent.png" 
+                            alt="18K Gold Emblem" 
+                            className="relative z-10 w-20 sm:w-24 object-contain drop-shadow-[0_6px_16px_rgba(255,215,0,0.45)] select-none pointer-events-none"
+                        />
                     </div>
 
-                    {/* Layer C: Interactive Touch Zones */}
-                    <div 
+                    {/* Middle: Crisp Neon Green Glowing Pulse Button */}
+                    <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                         onClick={onComplete}
-                        className="absolute bottom-[18%] inset-x-[8%] h-[14%] rounded-xl cursor-pointer hover:bg-white/10 transition-colors"
-                    />
-                    <div 
-                        onClick={onComplete}
-                        className="absolute bottom-[4%] inset-x-[8%] h-[14%] rounded-xl cursor-pointer hover:bg-white/10 transition-colors"
-                    />
+                        className="w-full py-2 px-3 rounded-full border-2 border-[#00FF88] bg-[#00FF88]/15 hover:bg-[#00FF88]/25 shadow-[0_0_20px_rgba(0,255,136,0.4)] flex items-center justify-center gap-2.5 transition-all cursor-pointer my-2.5 shrink-0"
+                    >
+                        <span className="text-base animate-bounce">🐾</span>
+                        <div className="flex flex-col text-left">
+                            <span className="font-sans text-xs font-black text-white tracking-wide leading-tight">
+                                Keep Swiping Upward
+                            </span>
+                            <span className="font-mono text-[9px] font-black text-[#00FF88] tracking-wider uppercase leading-none">
+                                IN PROGRESS · {countdown}s
+                            </span>
+                        </div>
+                    </motion.button>
+
+                    {/* Bottom: Luxury Option List */}
+                    <div className="w-full space-y-2 pb-1 shrink-0">
+                        <div 
+                            onClick={onComplete}
+                            className="w-full px-2.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/10 border border-white/10 flex items-center gap-2 text-left cursor-pointer transition-colors"
+                        >
+                            <Building2 className="w-4 h-4 text-neutral-300 shrink-0" />
+                            <span className="font-sans text-[11px] font-bold text-neutral-200 leading-tight">
+                                See the info? or Enter directly (Next)
+                            </span>
+                        </div>
+
+                        <div 
+                            onClick={onComplete}
+                            className="w-full px-2.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/10 border border-white/10 flex items-center gap-2 text-left cursor-pointer transition-colors"
+                        >
+                            <Music2 className="w-4 h-4 text-[#E7FF00] shrink-0" />
+                            <span className="font-sans text-[11px] font-bold text-neutral-200 leading-tight">
+                                Enjoy Classical Music
+                            </span>
+                        </div>
+                    </div>
                 </motion.div>
             </motion.div>
         </AnimatePresence>
