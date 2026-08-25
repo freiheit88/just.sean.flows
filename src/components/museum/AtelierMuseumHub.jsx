@@ -1,10 +1,13 @@
+import { InteractiveSheetMusicModal } from '../modals/InteractiveSheetMusicModal';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, ArrowRight, Sparkles, Compass, Music, MapPin, Eye, Crown, ChevronLeft, ChevronRight, X, Lock } from 'lucide-react';
+import { TitleMuseumModal } from '../modals/TitleMuseumModal';
+import { ATELIER_TITLES, unlockTitle, getAcquiredTitles } from '../../constants/titles';
 import { BrandCiBiModal } from '../modals/BrandCiBiModal';
 import { ModularSoundLabModal } from './ModularSoundLabModal';
 import { SpatialSalonViewerModal } from './SpatialSalonViewerModal';
 import { OctoberPartyModal } from '../modals/OctoberPartyModal';
-import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Sparkles, Compass, Music, MapPin, Eye, Crown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { CoutureLookbookModal } from './CoutureLookbookModal';
 
 // EXACT 5 Master Core Contents
@@ -65,11 +68,22 @@ export function AtelierMuseumHub({
     const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
     const [isCiBiModalOpen, setIsCiBiModalOpen] = useState(false);
     const [isOctoberPartyOpen, setIsOctoberPartyOpen] = useState(false);
+    const [isSheetMusicOpen, setIsSheetMusicOpen] = useState(false);
+    const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
+    const [acquiredTitles, setAcquiredTitles] = useState([]);
     const [activeIndex, setActiveIndex] = useState(0);
 
     const scrollTrackRef = useRef(null);
 
+    useEffect(() => {
+        if (isOpen) {
+            setAcquiredTitles(getAcquiredTitles());
+        }
+    }, [isOpen, isTitleModalOpen]);
+
     if (!isOpen) return null;
+
+    const acquiredIds = new Set(acquiredTitles.map(a => a.id));
 
     const handleExhibitClick = (exhibit) => {
         if (exhibit.id === 'vip_vault') {
@@ -81,10 +95,13 @@ export function AtelierMuseumHub({
         } else if (exhibit.id === 'lookbook') {
             setIsLookbookModalOpen(true);
         } else if (exhibit.id === 'piano_salon') {
+            unlockTitle('steinway_virtuoso');
             setIsSpatialSalonOpen(true);
         } else if (exhibit.id === 'brand_cibi') {
+            unlockTitle('founding_member_2026');
             setIsCiBiModalOpen(true);
         } else if (exhibit.id === 'october_party') {
+            unlockTitle('october_gala_vip');
             setIsOctoberPartyOpen(true);
         }
     };
@@ -108,104 +125,125 @@ export function AtelierMuseumHub({
         setActiveIndex(idx);
     };
 
-    const handleTrackScroll = () => {
-        if (!scrollTrackRef.current) return;
-        const scrollLeft = scrollTrackRef.current.scrollLeft;
-        const cardWidth = scrollTrackRef.current.offsetWidth * 0.85;
-        const idx = Math.round(scrollLeft / cardWidth);
-        setActiveIndex(Math.min(MASTER_EXHIBITS.length - 1, Math.max(0, idx)));
-    };
-
     return (
         <AnimatePresence>
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.35 }}
-                className="fixed inset-0 z-50 bg-[#060606] text-white flex flex-col select-none overflow-hidden"
+                className="fixed inset-0 z-[9990] bg-[#0A0708] flex flex-col justify-between overflow-hidden select-none"
             >
-                {/* 1. Ultra-Clean Minimal Top Header: ONLY JUST SEAN FLOWS & VIP */}
-                <header className="w-full px-5 sm:px-10 py-4 flex items-center justify-between shrink-0 bg-black/80 backdrop-blur-md border-b border-white/10 z-30 pt-[max(env(safe-area-inset-top),12px)]">
-                    {/* Brand Wordmark */}
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FFD700] via-[#C8A96E] to-[#8C6B2D] p-0.5 shadow-[0_0_12px_rgba(200,169,110,0.5)]">
-                            <div className="w-full h-full bg-black rounded-[6px] flex items-center justify-center text-[#E7FF00] font-black text-xs">
-                                ⚜️
-                            </div>
-                        </div>
-                        <h1 className="font-mono font-black text-base sm:text-lg tracking-[0.2em] text-white">
+                {/* ========================================================================= */}
+                {/* 1. HAUTE COUTURE EDITORIAL TOP HEADER WITH SCROLLABLE TITLE RIBBON */}
+                {/* ========================================================================= */}
+                <header className="relative z-20 w-full px-4 sm:px-6 py-2.5 flex items-center justify-between border-b border-white/10 bg-black/60 backdrop-blur-xl shrink-0 gap-2">
+                    {/* Left Fixed Brand Name Anchor */}
+                    <div className="flex items-center gap-2.5 shrink-0 pr-3 border-r border-[#C8A96E]/40">
+                        <div className="w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_8px_#E7FF00] animate-pulse" />
+                        <span className="font-mono text-xs sm:text-sm font-black tracking-[0.22em] text-[#F7EBE1] uppercase whitespace-nowrap">
                             JUST SEAN FLOWS
-                        </h1>
+                        </span>
                     </div>
 
-                    {/* Right VIP & Navigation */}
-                    <div className="flex items-center gap-2.5">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => {
-                                if (vipProfile && onOpenPrivateVault) {
-                                    onOpenPrivateVault();
-                                } else if (onOpenVipAuth) {
-                                    onOpenVipAuth();
-                                }
-                            }}
-                            className={`px-3.5 py-1.5 rounded-full font-mono text-xs font-black tracking-wider uppercase transition-all flex items-center gap-1.5 cursor-pointer border ${
-                                vipProfile 
-                                    ? 'bg-[#E7FF00] text-black border-[#E7FF00] shadow-[0_0_18px_rgba(231,255,0,0.8)]' 
-                                    : 'bg-gradient-to-r from-[#1E1912] to-[#2E2519] text-[#E7FF00] border-[#E7FF00]/60 hover:border-[#E7FF00] shadow-[0_0_12px_rgba(231,255,0,0.3)]'
-                            }`}
-                        >
-                            <Crown className="w-3.5 h-3.5" />
-                            <span>
-                                {vipProfile ? `@${vipProfile.instagramId} 👑` : "VIP 인증"}
+                    {/* Middle Horizontal Scrollable Ribbon: Magazine Quote & Title Badges */}
+                    <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar flex items-center gap-3.5 py-1 px-1">
+                        {/* Magazine Editorial Teaser */}
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-[#C8A96E]/40 shrink-0">
+                            <Sparkles className="w-3 h-3 text-[#E7FF00] animate-spin" />
+                            <span className="font-serif italic text-xs sm:text-sm font-bold text-[#E7FF00] tracking-wide whitespace-nowrap">
+                                "Music & Velvet Gala Plan"
                             </span>
-                        </motion.button>
+                            <span className="font-mono text-[8px] text-[#C8A96E] uppercase font-bold tracking-widest pl-1.5 border-l border-white/20 whitespace-nowrap">
+                                OCTOBER 2026
+                            </span>
+                        </div>
 
+                        {/* Interactive Emoticon Title Badges: Glowing if unlocked / Unlit + 5% blur if locked */}
+                        <div className="flex items-center gap-2 shrink-0">
+                            {ATELIER_TITLES.map((title) => {
+                                const isEarned = acquiredIds.has(title.id);
+                                return (
+                                    <motion.button
+                                        key={title.id}
+                                        whileHover={{ scale: isEarned ? 1.18 : 1.08 }}
+                                        whileTap={{ scale: 0.92 }}
+                                        onClick={() => setIsTitleModalOpen(true)}
+                                        title={`${title.name} (${isEarned ? '✨ 획득 완료' : '🔒 미획득'})`}
+                                        className={`relative w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all duration-300 cursor-pointer ${
+                                            isEarned
+                                                ? 'bg-gradient-to-br from-[#2D1B22] to-[#120B0F] border-2 border-[#E7FF00] shadow-[0_0_15px_rgba(231,255,0,0.65)] text-white scale-105'
+                                                : 'bg-black/50 border border-white/10 opacity-35 grayscale blur-[0.8px] hover:opacity-80 hover:blur-0'
+                                        }`}
+                                    >
+                                        <span>{title.emoji}</span>
+                                        {isEarned && (
+                                            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#00FF88] shadow-[0_0_6px_#00FF88]" />
+                                        )}
+                                    </motion.button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Right Control Actions */}
+                    <div className="flex items-center gap-2 shrink-0 pl-3 border-l border-white/10">
                         <button
-                            onClick={onReplayWalk}
-                            className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-200 hover:text-white font-mono text-xs font-bold tracking-wider uppercase transition-all flex items-center gap-1 cursor-pointer border border-white/15"
+                            onClick={() => setIsSheetMusicOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#C8A96E]/50 bg-[#C8A96E]/10 hover:bg-[#C8A96E]/25 text-[#F7EBE1] font-mono text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(200,169,110,0.3)]"
                         >
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                            <span>WALK</span>
+                            <span>🎼 악보 스튜디오</span>
+                        </button>
+                        <button
+                            onClick={() => setIsTitleModalOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#E7FF00]/50 bg-[#E7FF00]/10 hover:bg-[#E7FF00]/25 text-[#E7FF00] font-mono text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(231,255,0,0.3)]"
+                        >
+                            <span>🏆 칭호</span>
+                            <span className="px-1.5 py-0.2 rounded-full bg-[#E7FF00] text-black font-black text-[9px]">
+                                {acquiredTitles.length}/{ATELIER_TITLES.length}
+                            </span>
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/15 text-neutral-300 hover:text-white font-mono text-[10px] uppercase tracking-wider transition-all cursor-pointer"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                            <span>CLOSE</span>
                         </button>
                     </div>
                 </header>
 
-                {/* 2. Main Full-Screen Immersive 5-Card Horizontal Snap Carousel */}
-                <main className="flex-1 flex flex-col justify-center items-center px-4 sm:px-10 py-3 overflow-hidden relative">
-                    {/* Left / Right Quick Arrows (Desktop) */}
+                {/* ========================================================================= */}
+                {/* 2. 5-CARD HORIZONTAL CAROUSEL EXHIBITS */}
+                {/* ========================================================================= */}
+                <main className="relative flex-1 w-full flex flex-col items-center justify-center overflow-hidden py-2 px-3 sm:px-6">
+                    {/* Floating Navigation Arrows */}
                     <button
                         onClick={() => scrollByStep(-1)}
-                        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 hover:border-[#E7FF00] text-white hover:text-[#E7FF00] items-center justify-center transition-all cursor-pointer shadow-2xl"
+                        className="hidden md:flex absolute left-4 z-30 w-12 h-12 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-[#E7FF00] text-white hover:text-[#E7FF00] items-center justify-center transition-all cursor-pointer shadow-2xl backdrop-blur-md"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
+
                     <button
                         onClick={() => scrollByStep(1)}
-                        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 hover:border-[#E7FF00] text-white hover:text-[#E7FF00] items-center justify-center transition-all cursor-pointer shadow-2xl"
+                        className="hidden md:flex absolute right-4 z-30 w-12 h-12 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-[#E7FF00] text-white hover:text-[#E7FF00] items-center justify-center transition-all cursor-pointer shadow-2xl backdrop-blur-md"
                     >
                         <ChevronRight className="w-6 h-6" />
                     </button>
 
-                    {/* Horizontal Snap Scroll Track */}
-                    <div 
+                    {/* Horizontal Scroll Track */}
+                    <div
                         ref={scrollTrackRef}
-                        onScroll={handleTrackScroll}
-                        className="w-full flex items-center gap-5 sm:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth py-2 px-2 select-none justify-start md:justify-center"
-                        style={{
-                            scrollbarWidth: 'none',
-                            msOverflowStyle: 'none'
+                        onScroll={(e) => {
+                            const track = e.currentTarget;
+                            const idx = Math.round(track.scrollLeft / (track.offsetWidth * 0.85));
+                            setActiveIndex(idx);
                         }}
+                        className="w-full h-[72vh] sm:h-[76vh] flex items-center gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar px-4 sm:px-12 py-2"
+                        style={{ scrollSnapType: 'x mandatory' }}
                     >
                         {MASTER_EXHIBITS.map((item, index) => {
-                            const isVipItem = item.id === 'vip_vault';
-                            const isOctober = item.id === 'october_party';
-                            const displayTitle = isVipItem && vipProfile ? `@${vipProfile.instagramId}'s Vault` : item.title;
-                            const displaySub = isVipItem && vipProfile ? `MEMBER #${vipProfile.memberNumber} // UNLOCKED` : item.sub;
-                            const displayTag = isVipItem && vipProfile ? "RESTRICTED ACCESS // UNLOCKED" : item.tag;
-                            const isSelected = activeIndex === index;
+                            const isActive = activeIndex === index;
 
                             return (
                                 <motion.div
@@ -213,60 +251,48 @@ export function AtelierMuseumHub({
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     onClick={() => handleExhibitClick(item)}
-                                    className={`snap-center shrink-0 w-[84vw] max-w-[380px] sm:max-w-[420px] h-[68vh] sm:h-[72vh] rounded-[32px] overflow-hidden relative cursor-pointer group shadow-[0_20px_60px_rgba(0,0,0,0.95)] border-2 transition-all duration-300 flex flex-col justify-between ${
-                                        isVipItem 
-                                            ? 'border-[#E7FF00] shadow-[0_0_40px_rgba(231,255,0,0.35)]' 
-                                            : isOctober
-                                            ? 'border-[#FFD700] shadow-[0_0_35px_rgba(255,215,0,0.35)]'
-                                            : isSelected
-                                            ? 'border-[#C8A96E]'
-                                            : 'border-white/20 group-hover:border-[#E7FF00]'
+                                    className={`snap-center shrink-0 w-[84vw] max-w-[360px] sm:max-w-[400px] h-full rounded-[28px] sm:rounded-[32px] overflow-hidden border-2 transition-all duration-500 cursor-pointer flex flex-col justify-between p-6 relative group select-none ${
+                                        isActive 
+                                            ? 'border-[#C8A96E] shadow-[0_20px_50px_rgba(0,0,0,0.9),0_0_30px_rgba(200,169,110,0.35)]' 
+                                            : 'border-white/20 opacity-85'
                                     }`}
+                                    style={{
+                                        backgroundImage: `linear-gradient(to top, rgba(6,4,5,0.95) 0%, rgba(6,4,5,0.4) 50%, rgba(6,4,5,0.7) 100%), url(${item.img})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center'
+                                    }}
                                 >
-                                    {/* Edge-to-Edge Photographic Image Fill */}
-                                    <div className="absolute inset-0 bg-black">
-                                        <img 
-                                            src={isVipItem && vipProfile?.avatarUrl ? vipProfile.avatarUrl : item.img} 
-                                            alt={item.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 select-none"
-                                            onError={(e) => {
-                                                if (isVipItem) e.target.src = item.img;
-                                            }}
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/20" />
-                                    </div>
-
-                                    {/* Top Pill Badge */}
-                                    <div className="relative z-10 p-5 flex items-center justify-between">
-                                        <span className={`px-3.5 py-1 rounded-full backdrop-blur-md border text-[9px] sm:text-[10px] font-mono font-bold tracking-wider uppercase shadow-lg ${
-                                            isOctober 
-                                                ? 'bg-[#FFD700]/20 border-[#FFD700] text-[#FFD700]' 
-                                                : 'bg-black/80 border-white/20 text-[#E7FF00]'
-                                        }`}>
+                                    {/* Top Card Badges */}
+                                    <div className="w-full flex items-center justify-between z-10">
+                                        <span className="px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 font-mono text-[9px] font-bold text-[#E7FF00] tracking-widest uppercase">
                                             {item.badge}
                                         </span>
-                                        {isVipItem && (
-                                            <div className="w-8 h-8 rounded-full bg-[#E7FF00] text-black flex items-center justify-center shadow-[0_0_15px_#E7FF00]">
-                                                <Crown className="w-4 h-4" />
-                                            </div>
-                                        )}
+                                        <span className="font-mono text-[9px] text-neutral-400 font-bold">
+                                            0{index + 1} / 05
+                                        </span>
                                     </div>
 
-                                    {/* Bottom Frosted Glass Action Info Panel (Very simple, minimal text) */}
-                                    <div className="relative z-10 p-6 bg-black/75 backdrop-blur-xl border-t border-white/15 flex flex-col gap-1.5">
-                                        <span className="font-mono text-[9px] sm:text-[10px] font-black text-[#E7FF00] tracking-widest uppercase block">
-                                            {displayTag}
+                                    {/* Bottom Info & Action Button */}
+                                    <div className="w-full flex flex-col z-10">
+                                        <span className="font-mono text-[9px] font-bold text-[#C8A96E] tracking-widest uppercase mb-1">
+                                            {item.tag}
                                         </span>
-                                        <h3 className="font-sans text-xl sm:text-2xl font-black text-white group-hover:text-[#E7FF00] transition-colors leading-tight">
-                                            {displayTitle}
+                                        <h3 className="font-serif text-xl sm:text-2xl font-bold text-white tracking-wide leading-tight group-hover:text-[#E7FF00] transition-colors">
+                                            {item.title}
                                         </h3>
-                                        <p className="font-sans text-xs text-neutral-300 line-clamp-2 mt-0.5 leading-relaxed">
-                                            {displaySub}
+                                        <p className="font-sans text-xs text-neutral-300 mt-1.5 line-clamp-2 leading-relaxed">
+                                            {item.sub}
                                         </p>
 
-                                        <div className="mt-3 flex items-center justify-between pt-2.5 border-t border-white/10 text-white font-mono text-xs font-black tracking-wider uppercase text-[#E7FF00] group-hover:translate-x-1 transition-transform">
-                                            <span>{isOctober ? "VIEW DETAILS" : "ENTER EXPERIENCE"}</span>
-                                            <ArrowRight className="w-4 h-4" />
+                                        {/* Action Button */}
+                                        <div className="mt-4 pt-3 border-t border-white/15 flex items-center justify-between">
+                                            <span className="font-mono text-[10px] font-bold text-white group-hover:text-[#E7FF00] tracking-wider uppercase flex items-center gap-1.5">
+                                                <span>EXPLORE EXHIBIT</span>
+                                                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                                            </span>
+                                            <div className="w-7 h-7 rounded-full bg-white/10 group-hover:bg-[#E7FF00] group-hover:text-black text-white flex items-center justify-center transition-all">
+                                                <Compass className="w-3.5 h-3.5" />
+                                            </div>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -274,16 +300,16 @@ export function AtelierMuseumHub({
                         })}
                     </div>
 
-                    {/* 3. Bottom Minimal Orbit Indicator (● ○ ○ ○ ○) */}
-                    <div className="flex items-center gap-3 pt-3">
+                    {/* Pagination Indicators */}
+                    <div className="flex items-center gap-2 mt-2 z-20">
                         {MASTER_EXHIBITS.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => scrollToIndex(idx)}
-                                className={`transition-all duration-300 rounded-full cursor-pointer ${
+                                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                                     activeIndex === idx 
-                                        ? 'w-8 h-2 bg-[#E7FF00] shadow-[0_0_12px_#E7FF00]' 
-                                        : 'w-2 h-2 bg-white/30 hover:bg-white/70'
+                                        ? 'w-8 bg-[#E7FF00] shadow-[0_0_8px_#E7FF00]' 
+                                        : 'w-2 bg-white/25 hover:bg-white/50'
                                 }`}
                             />
                         ))}
@@ -314,6 +340,15 @@ export function AtelierMuseumHub({
                 <OctoberPartyModal
                     isOpen={isOctoberPartyOpen}
                     onClose={() => setIsOctoberPartyOpen(false)}
+                />
+
+                <TitleMuseumModal 
+                    isOpen={isTitleModalOpen} 
+                    onClose={() => setIsTitleModalOpen(false)} 
+                />
+                <InteractiveSheetMusicModal 
+                    isOpen={isSheetMusicOpen} 
+                    onClose={() => setIsSheetMusicOpen(false)} 
                 />
             </motion.div>
         </AnimatePresence>

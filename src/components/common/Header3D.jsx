@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
 
 const HEADER_LETTERS = [
     { char: 'J', group: 0, xSpread: -24 },
@@ -19,9 +20,16 @@ const HEADER_LETTERS = [
     { char: 'S', group: 2, xSpread: 64 }
 ];
 
-export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
+export function Header3D({ 
+    isFlowsHit, 
+    tiltX = 0, 
+    tiltY = 0,
+    isMuted = false,
+    onToggleMute
+}) {
     // phase: 'center' (0.0s - 2.6s) -> 'ascending' (2.6s - 3.5s) -> 'docked' (3.5s+)
     const [phase, setPhase] = useState('center');
+    const [isVolumeSwallowed, setIsVolumeSwallowed] = useState(false);
 
     useEffect(() => {
         // 2.6s: Start ascending to the top dock
@@ -29,16 +37,29 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
             setPhase('ascending');
         }, 2600);
 
-        // 3.5s: Fully docked at top as Logo Card unblurs
+        // 3.5s: Fully docked at top
         const dockTimer = setTimeout(() => {
             setPhase('docked');
         }, 3500);
 
+        // 4.8s: Billiard ball merges into Header3D -> 432Hz morphs into Volume Toggle Button
+        const swallowTimer = setTimeout(() => {
+            setIsVolumeSwallowed(true);
+        }, 4800);
+
         return () => {
             clearTimeout(ascendTimer);
             clearTimeout(dockTimer);
+            clearTimeout(swallowTimer);
         };
     }, []);
+
+    // Also trigger volume swallowed immediately if flows hit is triggered
+    useEffect(() => {
+        if (isFlowsHit) {
+            setIsVolumeSwallowed(true);
+        }
+    }, [isFlowsHit]);
 
     const isCenter = phase === 'center';
 
@@ -74,7 +95,7 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
                         : '0 4px 25px rgba(0,0,0,0.8), 0 0 15px rgba(200,169,110,0.2)'
                 }}
                 transition={{ type: "spring", stiffness: 180, damping: 18 }}
-                className="pointer-events-auto flex items-center justify-center gap-2 sm:gap-2.5 px-6 py-2.5 rounded-full bg-black/75 backdrop-blur-xl border shadow-2xl transition-all duration-300 group cursor-default"
+                className="pointer-events-auto flex items-center justify-center gap-2 sm:gap-2.5 px-5 py-2 rounded-full bg-black/75 backdrop-blur-xl border shadow-2xl transition-all duration-300 group cursor-default"
             >
                 {/* 18K Champagne Gold Glowing Indicator Dot */}
                 <motion.span 
@@ -87,7 +108,7 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                 />
 
-                {/* 2-Second Dedicated Letter-by-Letter Kinetic 3D Reveal & Soundwave Cascade */}
+                {/* 2-Second Letter-by-Letter Kinetic 3D Reveal */}
                 <div className="flex items-center gap-[3px] sm:gap-1.5 font-mono text-xs sm:text-sm font-black tracking-widest text-[#F7EBE1]">
                     {HEADER_LETTERS.map((item, idx) => {
                         const hitScatterY = isFlowsHit ? (item.group === 2 ? -18 : item.group === 1 ? -8 : -3) : 0;
@@ -113,7 +134,7 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
                                 }}
                                 transition={{
                                     duration: 0.9,
-                                    delay: idx * 0.065, // Staggered 2-second cascade across letters
+                                    delay: idx * 0.065,
                                     ease: [0.22, 1, 0.36, 1]
                                 }}
                                 whileHover={{ y: -3, color: '#E7FF00', scale: 1.25 }}
@@ -129,9 +150,43 @@ export function Header3D({ isFlowsHit, tiltX = 0, tiltY = 0 }) {
                     })}
                 </div>
 
-                <span className="hidden sm:inline-block font-mono text-[9px] font-bold text-[#E7FF00]/80 tracking-widest uppercase ml-1.5 pl-2 border-l border-white/20">
-                    432Hz
-                </span>
+                {/* Right Edge: Morphs from 432Hz to Interactive Volume Speaker Button when Ball Merges */}
+                <div className="ml-1 pl-2 border-l border-white/20 flex items-center">
+                    <AnimatePresence mode="wait">
+                        {!isVolumeSwallowed ? (
+                            <motion.span
+                                key="432hz"
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.5 }}
+                                transition={{ duration: 0.3 }}
+                                className="font-mono text-[9px] font-bold text-[#E7FF00]/80 tracking-widest uppercase"
+                            >
+                                432Hz
+                            </motion.span>
+                        ) : (
+                            <motion.button
+                                key="volume-btn"
+                                initial={{ opacity: 0, scale: 0.4, rotate: -45 }}
+                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                                exit={{ opacity: 0, scale: 0.4 }}
+                                transition={{ type: "spring", stiffness: 350, damping: 18 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (onToggleMute) onToggleMute();
+                                }}
+                                title={isMuted ? "음소거 해제 (Unmute)" : "음소거 (Mute)"}
+                                className="p-1 rounded-full text-[#E7FF00] hover:text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer flex items-center justify-center"
+                            >
+                                {isMuted ? (
+                                    <VolumeX className="w-3.5 h-3.5 text-red-400 drop-shadow-[0_0_6px_rgba(255,0,0,0.8)]" />
+                                ) : (
+                                    <Volume2 className="w-3.5 h-3.5 text-[#E7FF00] drop-shadow-[0_0_6px_rgba(231,255,0,0.8)]" />
+                                )}
+                            </motion.button>
+                        )}
+                    </AnimatePresence>
+                </div>
             </motion.div>
         </motion.header>
     );

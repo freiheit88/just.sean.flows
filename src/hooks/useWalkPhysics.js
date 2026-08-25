@@ -1,121 +1,160 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { FRAMES } from '../constants/frames';
 
 export function useWalkPhysics({ isAudioUnlocked, triggerDopamineScrollUp }) {
     const [progress, setProgress] = useState(0);
     const [activeFrameIdx, setActiveFrameIdx] = useState(0);
+    const [isStep25Active, setIsStep25Active] = useState(false);
+    const [stepSubCount, setStepSubCount] = useState(0);
+    const [walkBobTrigger, setWalkBobTrigger] = useState(0);
     const [isAtelierModalOpen, setIsAtelierModalOpen] = useState(false);
 
     const progressRef = useRef(0);
-    const isHoldingTouchRef = useRef(false);
-    const touchHoldIntervalRef = useRef(null);
+    const activeFrameIdxRef = useRef(0);
+    const lastStepChangeTimeRef = useRef(Date.now());
+    const stepClickCounterRef = useRef(0);
 
-    const audioCtxRef = useRef(null);
-    const footstepAudioRef = useRef(null);
-    const footstepBufferRef = useRef(null);
-    const isFetchingRef = useRef(false);
-    const lastFootstepTimeRef = useRef(0);
-
-    // 1. Audio Engine Preload
+    // Reset Step Timer when Audio Unlocks
     useEffect(() => {
-        const initAudio = async () => {
-            if (isFetchingRef.current) return;
-            isFetchingRef.current = true;
-            try {
-                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-                if (AudioCtxClass) {
-                    audioCtxRef.current = new AudioCtxClass();
-                    const resp = await fetch('/assets/footstep_crunch.mp3').catch(() => null);
-                    if (resp && resp.ok) {
-                        const arrayBuffer = await resp.arrayBuffer();
-                        footstepBufferRef.current = await audioCtxRef.current.decodeAudioData(arrayBuffer);
-                    }
-                }
-            } catch (e) {
-                console.warn("Footstep buffer load:", e);
-            }
-            try {
-                footstepAudioRef.current = new Audio('/assets/footstep_crunch.mp3');
-                footstepAudioRef.current.volume = 0.18;
-            } catch (e) {}
-        };
-        initAudio();
-    }, []);
-
-    const playFootstepSound = useCallback(() => {
-        if (!isAudioUnlocked) return;
-        const now = Date.now();
-        if (now - lastFootstepTimeRef.current < 180) return; // Debounce rapid footsteps
-        lastFootstepTimeRef.current = now;
-
-        if (audioCtxRef.current && footstepBufferRef.current) {
-            try {
-                if (audioCtxRef.current.state === 'suspended') {
-                    audioCtxRef.current.resume();
-                }
-                const source = audioCtxRef.current.createBufferSource();
-                source.buffer = footstepBufferRef.current;
-                const gainNode = audioCtxRef.current.createGain();
-                gainNode.gain.value = 0.18;
-                source.connect(gainNode);
-                gainNode.connect(audioCtxRef.current.destination);
-                source.start(0);
-                return;
-            } catch (e) {}
-        }
-        if (footstepAudioRef.current) {
-            try {
-                footstepAudioRef.current.currentTime = 0;
-                footstepAudioRef.current.volume = 0.18;
-                footstepAudioRef.current.play().catch(() => {});
-            } catch (e) {}
+        if (isAudioUnlocked) {
+            lastStepChangeTimeRef.current = Date.now();
+            stepClickCounterRef.current = 0;
+            setStepSubCount(0);
+            setIsStep25Active(false);
         }
     }, [isAudioUnlocked]);
 
-    // 2. Map Progress (0 ~ 100) to Active Frame Index (0 ~ 7)
-    const updateProgress = useCallback((delta) => {
-        setProgress((prev) => {
-            const next = Math.max(0, Math.min(100, prev + delta));
-            progressRef.current = next;
+    // 1. EXPLICIT STEP JUMP
+    const goToStep = useCallback((stepIdx) => {
+        const clampedIdx = Math.max(0, Math.min(6, stepIdx));
+        activeFrameIdxRef.current = clampedIdx;
+        setActiveFrameIdx(clampedIdx);
+        setIsStep25Active(false);
+        lastStepChangeTimeRef.current = Date.now();
+        stepClickCounterRef.current = 0;
+        setStepSubCount(0);
+        setWalkBobTrigger(prev => prev + 1);
 
-            // Frame mapping: 8 frames (0 to 7) distributed evenly across 100%
-            let frameIdx = Math.min(7, Math.floor((next / 100) * 8));
-            setActiveFrameIdx(frameIdx);
-            return next;
-        });
+        const targetProgress = (clampedIdx / 6) * 100;
+        progressRef.current = targetProgress;
+        setProgress(targetProgress);
     }, []);
 
-    // 3. Gentle Ambient Drift (0.04% per 50ms)
-    useEffect(() => {
+    const stepForward = useCallback(() => {
+        if (activeFrameIdxRef.current === 1) return;
+        goToStep(activeFrameIdxRef.current + 1);
+    }, [goToStep]);
+
+    const stepBackward = useCallback(() => {
+        if (activeFrameIdxRef.current === 1) return;
+        goToStep(activeFrameIdxRef.current - 1);
+    }, [goToStep]);
+
+    // 2. VIDEO PROGRESS SYNC FOR STEP 2 (Strictly follows video duration)
+    const handleVideoTimeUpdate = useCallback((currentTime, duration) => {
+        if (activeFrameIdxRef.current !== 1 || !duration || duration <= 0) return;
+        const videoFraction = Math.min(1.0, Math.max(0, currentTime / duration));
+        const videoProgress = (1 / 6) * 100 + videoFraction * (100 / 6);
+        progressRef.current = videoProgress;
+        setProgress(videoProgress);
+    }, []);
+
+    // 3. STEP 2 VIDEO COMPLETED -> OPEN STEP 2.5 POPUP (5.0s DWELL)
+    const handleVideoCompleted = useCallback(() => {
+        setIsStep25Active(true);
+    }, []);
+
+    const handleCompleteStep25 = useCallback(() => {
+        setIsStep25Active(false);
+        goToStep(2); // Advance to Step 3
+    }, [goToStep]);
+
+    // 4. 24-CLICK ARCHITECTURE WITH 1ST-PERSON FORWARD STEP ZOOM
+    const handleStepInput = useCallback((points = 4) => {
         if (!isAudioUnlocked) return;
 
-        const autoDriftInterval = setInterval(() => {
-            if (progressRef.current < 100) {
-                updateProgress(0.045);
+        const currentIdx = activeFrameIdxRef.current;
+
+        // RULE: During Step 2 Video (idx 1) or Step 2.5 Popup, inputs are frozen
+        if (currentIdx === 1 || isStep25Active) {
+            return;
+        }
+
+        const now = Date.now();
+        const timeInStep = (now - lastStepChangeTimeRef.current) / 1000;
+
+        if (triggerDopamineScrollUp) triggerDopamineScrollUp();
+
+        const requiredFreeze = (currentIdx === 0) ? 2.0 : 1.0;
+        if (timeInStep < requiredFreeze) {
+            return;
+        }
+
+        stepClickCounterRef.current += points;
+        const currentSub = Math.min(4, Math.floor(stepClickCounterRef.current / 4));
+        setStepSubCount(currentSub);
+        setWalkBobTrigger(prev => prev + 1);
+
+        const baseProgress = (currentIdx / 6) * 100;
+        const subStepProgress = (Math.min(16, stepClickCounterRef.current) / 16) * (100 / 6);
+        const liveProgress = Math.min(100, baseProgress + subStepProgress);
+        progressRef.current = liveProgress;
+        setProgress(liveProgress);
+
+        if (stepClickCounterRef.current >= 16) {
+            const nextIdx = Math.min(6, currentIdx + 1);
+            if (nextIdx !== currentIdx) {
+                goToStep(nextIdx);
+            } else {
+                stepClickCounterRef.current = 0;
             }
-        }, 50);
+        }
+    }, [isAudioUnlocked, isStep25Active, triggerDopamineScrollUp, goToStep]);
 
-        return () => clearInterval(autoDriftInterval);
-    }, [isAudioUnlocked, updateProgress]);
-
-    // 4. Robust Wheel, Touch & Mobile Gesture Handler
+    // 5. AUTOMATIC PASSIVE DRIFT (4.0s Fixed Dwell per Step, Step 2 is 100% Video-Driven)
     useEffect(() => {
         if (!isAudioUnlocked) return;
 
-        // Mouse Wheel Scroll Handler
+        const autoStepInterval = setInterval(() => {
+            const currentIdx = activeFrameIdxRef.current;
+            if (currentIdx === 1 || currentIdx >= 6 || isStep25Active) return;
+
+            const now = Date.now();
+            const timeSinceStepChange = (now - lastStepChangeTimeRef.current) / 1000;
+
+            const baseProgress = (currentIdx / 6) * 100;
+            const autoDwellTime = 4.0;
+            const liveFraction = Math.min(1.0, timeSinceStepChange / autoDwellTime);
+            const liveProgress = Math.min(100, baseProgress + liveFraction * (100 / 6));
+            progressRef.current = liveProgress;
+            setProgress(liveProgress);
+
+            if (timeSinceStepChange >= autoDwellTime) {
+                goToStep(currentIdx + 1);
+            }
+        }, 80);
+
+        return () => clearInterval(autoStepInterval);
+    }, [isAudioUnlocked, isStep25Active, goToStep]);
+
+    // 6. GLOBAL CLICK, WHEEL & TOUCH HANDLERS
+    useEffect(() => {
+        if (!isAudioUnlocked) return;
+
+        const handleClick = (e) => {
+            const isInteractive = e.target.closest('button, input, a, .overflow-x-auto, .overflow-y-auto');
+            if (isInteractive) return;
+            handleStepInput(4);
+        };
+
         const handleWheel = (e) => {
             const isScrollableChild = e.target.closest('.overflow-y-auto, .overflow-x-auto, button, input');
             if (isScrollableChild) return;
 
-            if (e.deltaY > 0) {
-                if (triggerDopamineScrollUp) triggerDopamineScrollUp();
-                playFootstepSound();
-                const deltaProgress = Math.min(e.deltaY * 0.0035, 1.5);
-                updateProgress(deltaProgress);
+            if (e.deltaY > 15) {
+                handleStepInput(8);
             }
         };
 
-        // Mobile Touch Gesture & Hold Handler
         let touchStartY = 0;
         let touchStartX = 0;
 
@@ -126,83 +165,56 @@ export function useWalkPhysics({ isAudioUnlocked, triggerDopamineScrollUp }) {
             if (e.touches && e.touches[0]) {
                 touchStartY = e.touches[0].clientY;
                 touchStartX = e.touches[0].clientX;
-                isHoldingTouchRef.current = true;
-
-                // Immediate step on tap
-                if (triggerDopamineScrollUp) triggerDopamineScrollUp();
-                playFootstepSound();
-                updateProgress(0.6);
-
-                // Continuous Hold-to-Walk Loop
-                if (touchHoldIntervalRef.current) clearInterval(touchHoldIntervalRef.current);
-                touchHoldIntervalRef.current = setInterval(() => {
-                    if (isHoldingTouchRef.current && progressRef.current < 100) {
-                        playFootstepSound();
-                        updateProgress(0.75); // Continuous advance while finger is held
-                    }
-                }, 120);
             }
         };
 
-        const handleTouchMove = (e) => {
-            if (e.touches && e.touches[0]) {
-                const currentY = e.touches[0].clientY;
-                const deltaY = touchStartY - currentY;
-                const currentX = e.touches[0].clientX;
-                const deltaX = Math.abs(touchStartX - currentX);
+        const handleTouchEnd = (e) => {
+            const isInteractive = e.target.closest('button, input, a, .overflow-x-auto');
+            if (isInteractive) return;
 
-                // If vertical swipe up or down
-                if (Math.abs(deltaY) > 4 && deltaX < Math.abs(deltaY) * 1.8) {
-                    if (triggerDopamineScrollUp) triggerDopamineScrollUp();
-                    playFootstepSound();
-                    const swipeProgress = Math.min(Math.abs(deltaY) * 0.015, 2.5);
-                    updateProgress(swipeProgress);
-                    touchStartY = currentY;
+            if (e.changedTouches && e.changedTouches[0]) {
+                const deltaY = touchStartY - e.changedTouches[0].clientY;
+                const deltaX = Math.abs(touchStartX - e.changedTouches[0].clientX);
+
+                if (deltaY > 30 && deltaX < deltaY * 1.5) {
+                    handleStepInput(8);
+                } else if (Math.abs(deltaY) < 10 && deltaX < 10) {
+                    handleStepInput(4);
                 }
             }
         };
 
-        const handleTouchEnd = () => {
-            isHoldingTouchRef.current = false;
-            if (touchHoldIntervalRef.current) {
-                clearInterval(touchHoldIntervalRef.current);
-                touchHoldIntervalRef.current = null;
-            }
-        };
-
+        window.addEventListener('click', handleClick);
         window.addEventListener('wheel', handleWheel, { passive: true });
         window.addEventListener('touchstart', handleTouchStart, { passive: true });
-        window.addEventListener('touchmove', handleTouchMove, { passive: true });
         window.addEventListener('touchend', handleTouchEnd, { passive: true });
-        window.addEventListener('touchcancel', handleTouchEnd, { passive: true });
 
         return () => {
+            window.removeEventListener('click', handleClick);
             window.removeEventListener('wheel', handleWheel);
             window.removeEventListener('touchstart', handleTouchStart);
-            window.removeEventListener('touchmove', handleTouchMove);
             window.removeEventListener('touchend', handleTouchEnd);
-            window.removeEventListener('touchcancel', handleTouchEnd);
-            if (touchHoldIntervalRef.current) clearInterval(touchHoldIntervalRef.current);
         };
-    }, [isAudioUnlocked, triggerDopamineScrollUp, playFootstepSound, updateProgress]);
-
-    const handleVideoCompleted = () => {
-        updateProgress(15);
-    };
+    }, [isAudioUnlocked, handleStepInput]);
 
     const resetWalk = () => {
-        setProgress(0);
-        progressRef.current = 0;
-        setActiveFrameIdx(0);
+        goToStep(0);
     };
 
     return {
         progress,
         activeFrameIdx,
+        isStep25Active,
+        stepSubCount,
+        walkBobTrigger,
         isAtelierModalOpen,
-        playFootstepSound,
         setIsAtelierModalOpen,
+        handleVideoTimeUpdate,
         handleVideoCompleted,
-        resetWalk
+        handleCompleteStep25,
+        resetWalk,
+        goToStep,
+        stepForward,
+        stepBackward
     };
 }

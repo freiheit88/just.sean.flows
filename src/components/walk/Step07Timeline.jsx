@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_TIMELINE_STAGES } from '../../constants/timelineStages';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Sparkles } from 'lucide-react';
 
 function getCharThreshold(charIndex, lineIndex) {
     const seed = (charIndex * 137 + lineIndex * 269) % 1000;
@@ -16,11 +16,13 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
     const elapsedRef = useRef(0.0);
     const isPausedRef = useRef(false);
 
+    const isStep7 = (activeFrameIdx === 6);
+
     const currentStage = Math.min(4, Math.floor(totalElapsed / 12.0));
     const stageProgress = Math.min(1.0, (totalElapsed % 12.0) / 10.0);
 
     useEffect(() => {
-        if (activeFrameIdx !== 7) {
+        if (!isStep7) {
             setTotalElapsed(0.0);
             elapsedRef.current = 0.0;
             setIsCompleted(false);
@@ -40,10 +42,10 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
         }, 50);
 
         return () => clearInterval(timer);
-    }, [activeFrameIdx]);
+    }, [isStep7]);
 
     useEffect(() => {
-        if (activeFrameIdx !== 7) return;
+        if (!isStep7) return;
 
         let lastTouchY = 0;
 
@@ -91,24 +93,16 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
             window.removeEventListener('touchstart', handleTouchStart);
             window.removeEventListener('touchmove', handleTouchMove);
         };
-    }, [activeFrameIdx]);
+    }, [isStep7]);
 
-    if (activeFrameIdx !== 7) return null;
+    if (!isStep7) return null;
 
     const data = ATELIER_TIMELINE_STAGES[currentStage];
-    // Overall light bloom ratio (0.0: tightly packed at bottom matchstick -> 1.0: fully illuminated room)
     const lightRatio = Math.min(1.0, totalElapsed / 60.0);
 
-    // Dynamic radial mask: Starts as a tiny matchstick point light (radius ~8%) at bottom violin table (50% 70%) and expands to 135%
-    const matchRadius = 8 + lightRatio * 125; // 8% -> 133%
-    const ambientDarkness = Math.max(0.0, 0.98 - lightRatio * 0.92); // 98% dark -> 6% soft ambient
-
-    // Kinetic typography bloom physics:
-    // Starts centered at bottom light (offsetY: +220px, scale: 0.72, tracking: tight)
-    // Expands smoothly upwards and spreads across the screen as light expands!
-    const textBloomY = (1.0 - lightRatio) * 190; // +190px -> 0px
-    const textBloomScale = 0.75 + lightRatio * 0.25; // 0.75 -> 1.0
-    const letterSpread = (1.0 - lightRatio) * 45; // scatter radius from flame origin
+    const textBloomY = (1.0 - lightRatio) * 190;
+    const textBloomScale = 0.75 + lightRatio * 0.25;
+    const letterSpread = (1.0 - lightRatio) * 45;
 
     const renderKineticLine = (text, lineIdx, startThreshold, endThreshold, textClass) => {
         const chars = text.split('');
@@ -125,7 +119,6 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
                     const charTrigger = startThreshold + rand * lineSpan;
                     const isRevealed = stageProgress >= charTrigger || isCompleted;
 
-                    // Initial scatter coordinates originate tightly from the bottom flame
                     const scatterX = (rand - 0.5) * letterSpread;
                     const scatterY = (rand - 0.5) * (letterSpread * 0.8) + (1.0 - lightRatio) * 30;
 
@@ -158,20 +151,19 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
                 style={{
                     background: `radial-gradient(
                         ellipse ${38 + lightRatio * 82}% ${28 + lightRatio * 72}% at 50% 74%,
-                        rgba(255, 235, 170, ${0.15 * (1.0 - lightRatio)}) 0%,
+                        rgba(255, 235, 170, ${0.18 * (1.0 - lightRatio) + 0.08}) 0%,
                         transparent 22%,
-                        rgba(120, 80, 25, 0.05) ${35 + lightRatio * 25}%,
-                        rgba(0, 0, 0, 0.75) ${55 + lightRatio * 35}%,
-                        rgba(0, 0, 0, 0.96) ${75 + lightRatio * 25}%,
+                        rgba(120, 80, 25, 0.06) ${35 + lightRatio * 25}%,
+                        rgba(0, 0, 0, 0.65) ${55 + lightRatio * 35}%,
+                        rgba(0, 0, 0, 0.92) ${75 + lightRatio * 25}%,
                         #000000 100%
                     )`
                 }}
             />
             {/* Ambient Deep Vignette Rim */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.92)_85%,#000000_100%)] pointer-events-none" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.85)_85%,#000000_100%)] pointer-events-none" />
 
             {/* 2. Light-Origin Progressive Typography Cluster */}
-            {/* Squeezed into bottom matchstick light initially, then blooms & expands upwards and outwards with the expanding light! */}
             <div className="w-full flex-1 flex flex-col items-center justify-center px-4 z-30">
                 <motion.div 
                     className="w-full max-w-xs sm:max-w-sm flex flex-col items-center text-center"
@@ -181,7 +173,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
                         transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                 >
-                    {/* Element A: 01/05 Index & Date Tag (Condensed in flame -> Floating up) */}
+                    {/* Element A: 01/05 Index & Date Tag */}
                     <div 
                         className="flex items-center gap-3 mb-2 border-b border-white/20 pb-1 px-3 transition-all duration-500"
                         style={{
@@ -210,7 +202,7 @@ export function Step07Timeline({ activeFrameIdx, tiltX, tiltY, onWalkAgain, onOp
                         </span>
                     </div>
 
-                    {/* Element B: Massive Stacked Title (Spreads out from flame center) */}
+                    {/* Element B: Massive Stacked Title */}
                     <motion.div 
                         animate={isCompleted ? {
                             scale: [1, 1.025, 0.99, 1.02, 1],

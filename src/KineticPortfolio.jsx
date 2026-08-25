@@ -3,32 +3,31 @@ import { PrivateMemberVaultModal } from './components/museum/PrivateMemberVaultM
 import { WalkRadarMap } from './components/walk/WalkRadarMap';
 import { ModularSoundLabModal } from './components/museum/ModularSoundLabModal';
 import { AtelierMuseumHub } from './components/museum/AtelierMuseumHub';
+import { InteractiveSheetMusicModal } from './components/modals/InteractiveSheetMusicModal';
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FRAMES, MR_AUDIO_SRC } from './constants/frames';
 import { useAudioMaster } from './hooks/useAudioMaster';
 import { useDeviceGyro } from './hooks/useDeviceGyro';
 import { useTrailCursor } from './hooks/useTrailCursor';
 import { useWalkPhysics } from './hooks/useWalkPhysics';
+import { getWaveformHarmonicState, PHOTO_ATMOSPHERE_PALETTE } from './constants/guitarWaveformEngine';
+import { HarmonicFlowField } from './components/common/HarmonicFlowField';
 
 // Core Dynamic Components
 import { Header3D } from './components/common/Header3D';
 import { KineticCursor } from './components/common/KineticCursor';
 import { VolumePrompt } from './components/common/VolumePrompt';
-import { StainedGlassArch } from './components/walk/StainedGlassArch';
 import { Step07Timeline } from './components/walk/Step07Timeline';
+import { Step25QuestPopup } from './components/walk/Step25QuestPopup';
 import { SonicFootprints } from './components/walk/SonicFootprints';
 import { EvolutionGauge } from './components/walk/EvolutionGauge';
-// import { ArchCalibrationDevTool } from './components/dev/ArchCalibrationDevTool';
 
 // Modal Overlays
 import { InitialUnlockSplash } from './components/modals/InitialUnlockSplash';
 import { WelcomeBackModal } from './components/modals/WelcomeBackModal';
-// import { TeaserTrailerModal } from './components/modals/TeaserTrailerModal';
-import { FrankfurtAtelierModal } from './components/modals/FrankfurtAtelierModal';
 
 export default function KineticPortfolio() {
-    // 1. Audio Master & Lifecycle Manager
     const {
         mrAudioRef,
         isAudioUnlocked,
@@ -42,22 +41,25 @@ export default function KineticPortfolio() {
         handleResumeFromWelcomeBack
     } = useAudioMaster();
 
-    // 2. 60FPS Gyro & Mouse Tilt Engine
     const { tilt, tiltX, tiltY, ghostOffsetX, ghostOffsetY } = useDeviceGyro();
     const videoRef = useRef(null);
-
-    // 3. Fluid Mouse / Touch Trail Engine
     const { cursorPos, trails, isScrollingUp, updatePointerPos, triggerDopamineScrollUp } = useTrailCursor();
 
-    // 4. Kinetic Walk Physics & 7-Stage State Machine
     const {
         progress,
         activeFrameIdx,
+        isStep25Active,
+        stepSubCount,
+        walkBobTrigger,
         isAtelierModalOpen,
         setIsAtelierModalOpen,
-        playFootstepSound,
+        handleVideoTimeUpdate,
         handleVideoCompleted,
-        resetWalk
+        handleCompleteStep25,
+        resetWalk,
+        goToStep,
+        stepForward,
+        stepBackward
     } = useWalkPhysics({
         isAudioUnlocked,
         triggerDopamineScrollUp
@@ -65,44 +67,72 @@ export default function KineticPortfolio() {
 
     const [isMuseumOpen, setIsMuseumOpen] = useState(false);
     const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
+    const [isSheetMusicOpen, setIsSheetMusicOpen] = useState(false);
 
-    // Bulletproof Master Audio Lock: Completely silence background walk audio when any modal/lab is open
+    // Exact Physical Audio Waveform Strum & Harmonic State
+    const [activeChord, setActiveChord] = useState('Dm');
+    const [strumPulse, setStrumPulse] = useState(false);
+    const [currentPalette, setCurrentPalette] = useState(PHOTO_ATMOSPHERE_PALETTE['Dm']);
+
+    // Real-time Audio Waveform Transient & Full Harmonic Loop
     useEffect(() => {
-        const isAnyModalOpen = isSoundLabOpen || isMuseumOpen || isAtelierModalOpen;
+        let animId = null;
+
+        const waveformSyncLoop = () => {
+            const rawT = mrAudioRef.current ? mrAudioRef.current.currentTime : 0;
+            const t = rawT + 0.30;
+
+            const state = getWaveformHarmonicState(t);
+            setActiveChord(state.activeChord);
+            setStrumPulse(state.isStrumming);
+            setCurrentPalette(state.palette);
+
+            animId = requestAnimationFrame(waveformSyncLoop);
+        };
+
+        animId = requestAnimationFrame(waveformSyncLoop);
+        return () => {
+            if (animId) cancelAnimationFrame(animId);
+        };
+    }, []);
+
+    // Master Audio Lock
+    useEffect(() => {
+        const isAnyModalOpen = isSoundLabOpen || isMuseumOpen || isSheetMusicOpen;
         setIsModalActive(isAnyModalOpen);
         if (isAnyModalOpen && mrAudioRef.current) {
             mrAudioRef.current.pause();
             mrAudioRef.current.muted = true;
         }
-    }, [isSoundLabOpen, isMuseumOpen, isAtelierModalOpen]);
+    }, [isSoundLabOpen, isMuseumOpen, isSheetMusicOpen]);
 
     const handleInitialUnlock = () => {
         forceUnlockAudio();
-        if (playFootstepSound) playFootstepSound();
     };
 
-    // Reliable 1-shot video playback on Frame 1 transition
+    // Auto Play Video in Step 2
     useEffect(() => {
-        if (activeFrameIdx === 2 && videoRef.current) {
-            videoRef.current.currentTime = 0;
-            videoRef.current.play().catch((err) => console.log('Video play error:', err));
+        const currentFrame = FRAMES[activeFrameIdx];
+        if (currentFrame?.isVideo && videoRef.current) {
+            try {
+                videoRef.current.currentTime = 0;
+                const p = videoRef.current.play();
+                if (p !== undefined) {
+                    p.catch(() => {});
+                }
+            } catch (e) {}
         } else if (videoRef.current) {
-            videoRef.current.pause();
+            try {
+                videoRef.current.pause();
+            } catch (e) {}
         }
     }, [activeFrameIdx]);
 
-    // Stained Glass Visibility on Frames 3 & 4
-    const isAtelierOptionVisible = (activeFrameIdx === 4 || activeFrameIdx === 5);
-
-    useEffect(() => {
-        if (!isAtelierOptionVisible && isAtelierModalOpen) {
-            setIsAtelierModalOpen(false);
-        }
-    }, [activeFrameIdx, isAtelierOptionVisible, isAtelierModalOpen]);
+    const currentStepScale = 1.0 + (stepSubCount * 0.022);
 
     return (
         <div 
-            className="fixed inset-0 w-screen h-[100dvh] bg-black text-white select-none overflow-hidden flex flex-col items-center justify-center cursor-default touch-none pt-2 pb-2 px-3"
+            className="fixed inset-0 w-screen h-[100dvh] bg-[#050507] text-white select-none overflow-hidden flex flex-col items-center justify-center cursor-default touch-none pt-2 pb-2 px-3 transition-colors duration-1000 ease-out"
             onMouseMove={(e) => updatePointerPos(e.clientX, e.clientY)}
             onTouchMove={(e) => {
                 if (e.touches && e.touches[0]) {
@@ -112,78 +142,124 @@ export default function KineticPortfolio() {
             onClick={handleInitialUnlock}
             onTouchStart={handleInitialUnlock}
         >
-            {/* Background Master MR Audio Element */}
+            {/* Background Master MR Audio */}
             <audio ref={mrAudioRef} src={MR_AUDIO_SRC} loop playsInline preload="auto" />
 
-            {/* Interactive 60FPS Trailing Cursor */}
+            {/* 1. CINEMATIC AMBIENT LIGHT */}
+            <div 
+                className="absolute inset-0 pointer-events-none transition-all duration-1000 ease-out"
+                style={{
+                    background: currentPalette.ambientGradient,
+                    opacity: 0.95
+                }}
+            />
+
+            {/* 2. GPU FLOW FIELD PARTICLES */}
+            <HarmonicFlowField 
+                activeChord={activeChord}
+                accentColor={currentPalette.accent}
+                strumPulse={strumPulse}
+            />
+
+            {/* 3. SOFT DIFFUSED STREETLAMP AURA */}
+            <motion.div 
+                animate={{
+                    scale: strumPulse ? 1.08 : 1.0,
+                    opacity: strumPulse ? 0.42 : 0.22
+                }}
+                transition={{
+                    duration: strumPulse ? 0.22 : 1.6,
+                    ease: [0.16, 1, 0.3, 1]
+                }}
+                style={{
+                    background: `radial-gradient(circle, ${currentPalette.accent} 0%, transparent 68%)`,
+                    filter: 'blur(140px)'
+                }}
+                className="absolute w-[700px] h-[700px] rounded-full pointer-events-none z-0 mix-blend-screen"
+            />
+
             <KineticCursor 
                 cursorPos={cursorPos} 
                 trails={trails} 
                 isScrollingUp={isScrollingUp} 
             />
 
-            {/* Centered Phone Canvas Wrapper (395px max width for PC & Mobile consistency) */}
+            {/* Centered Phone Canvas Wrapper */}
             <div className="relative z-60 w-full max-w-[395px] aspect-[768/1376] max-h-[calc(100dvh-62px)] mx-auto my-auto flex items-center justify-center">
                 
-                {/* 7-Step 1st-Person Walkthrough Stage */}
-                <main 
-                    className="relative w-full h-full rounded-[32px] border-2 border-white/20 shadow-[0_0_60px_rgba(231,255,0,0.18)] overflow-hidden transition-all duration-700 bg-black flex flex-col justify-between"
+                <motion.main 
+                    animate={{
+                        borderColor: currentPalette.borderColor,
+                        boxShadow: strumPulse 
+                            ? `0 0 40px ${currentPalette.glow}, 0 20px 50px rgba(0,0,0,0.95), inset 0 0 16px ${currentPalette.subtleGlow}`
+                            : `0 0 22px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.9), inset 0 0 8px rgba(200, 169, 110, 0.12)`
+                    }}
+                    transition={{
+                        duration: 0.18,
+                        ease: "easeOut"
+                    }}
+                    className="relative w-full h-full rounded-[32px] border-[1.5px] overflow-hidden bg-[#070709] flex flex-col justify-between transition-colors duration-700"
                     style={{
                         filter: (!isAudioUnlocked || showWelcomeBack) ? 'blur(20px) brightness(40%)' : 'none'
                     }}
                 >
-                    {/* Visual Frames Sequence */}
-                    {FRAMES.map((f, idx) => (
-                        <motion.div
-                            key={f.id}
-                            initial={false}
-                            animate={{
-                                opacity: activeFrameIdx === idx ? 1 : 0,
-                                scale: activeFrameIdx === idx ? 1.0 : 1.04
-                            }}
-                            transition={{ duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
-                            className="absolute inset-0 w-full h-full pointer-events-none"
-                            style={{ zIndex: activeFrameIdx === idx ? 10 : 0 }}
-                        >
-                            {f.isVideo ? (
-                                <video
-                                    ref={videoRef}
-                                    src={f.videoSrc}
-                                    poster={f.src}
-                                    muted
-                                    autoPlay
-                                    playsInline
-                                    webkit-playsinline="true"
-                                    x5-playsinline="true"
-                                    controls={false}
-                                    disablePictureInPicture
-                                    disableRemotePlayback
-                                    preload="auto"
-                                    onEnded={handleVideoCompleted}
-                                    className="w-full h-full object-fill pointer-events-none transition-transform duration-700 scale-100"
-                                />
-                            ) : (
-                                <img
-                                    src={f.src}
-                                    alt={f.titleMain}
-                                    className="w-full h-full object-fill pointer-events-none transition-transform duration-700 scale-100"
-                                />
-                            )}
-                        </motion.div>
-                    ))}
+                    {/* Visual Frames Sequence with Forward Step Zoom Physics */}
+                    {FRAMES.map((f, idx) => {
+                        const isCurrent = activeFrameIdx === idx;
+                        return (
+                            <motion.div
+                                key={f.id}
+                                initial={false}
+                                animate={{
+                                    opacity: isCurrent ? 1 : 0,
+                                    scale: isCurrent ? currentStepScale : 1.05,
+                                    y: isCurrent ? 0 : 4
+                                }}
+                                transition={{ 
+                                    opacity: { duration: 0.7, ease: [0.25, 1, 0.5, 1] },
+                                    scale: { type: "spring", stiffness: 280, damping: 22 },
+                                    y: { type: "spring", stiffness: 320, damping: 20 }
+                                }}
+                                className="absolute inset-0 w-full h-full pointer-events-none"
+                                style={{ zIndex: isCurrent ? 10 : 0 }}
+                            >
+                                {f.isVideo ? (
+                                    <video
+                                        ref={videoRef}
+                                        src={f.videoSrc}
+                                        poster={f.src}
+                                        muted
+                                        autoPlay
+                                        playsInline
+                                        webkit-playsinline="true"
+                                        x5-playsinline="true"
+                                        controls={false}
+                                        disablePictureInPicture
+                                        disableRemotePlayback
+                                        preload="auto"
+                                        onTimeUpdate={(e) => handleVideoTimeUpdate(e.target.currentTime, e.target.duration)}
+                                        onEnded={handleVideoCompleted}
+                                        className="w-full h-full object-fill pointer-events-none transition-transform duration-700 scale-100"
+                                    />
+                                ) : (
+                                    <img
+                                        src={f.src}
+                                        alt={f.titleMain}
+                                        className="w-full h-full object-fill pointer-events-none transition-transform duration-700 scale-100"
+                                    />
+                                )}
+                            </motion.div>
+                        );
+                    })}
 
-                    {/* Step 4/5: 3D Iridescent Stained Glass Arch Hotspot */}
-                    <StainedGlassArch 
-                        isVisible={isAtelierOptionVisible}
-                        isAudioUnlocked={isAudioUnlocked}
+                    {/* Step 2.5 Quest Popup (Appears between Step 2 and Step 3) */}
+                    <Step25QuestPopup 
+                        isOpen={isStep25Active}
+                        onComplete={handleCompleteStep25}
                         tiltX={tiltX}
                         tiltY={tiltY}
-                        onOpenAtelier={() => setIsAtelierModalOpen(true)}
                     />
 
-
-
-                    {/* Step 7: 5-Stage Progressive Atelier Timeline with Bidirectional Scroll */}
                     <Step07Timeline 
                         activeFrameIdx={activeFrameIdx}
                         tiltX={tiltX}
@@ -192,31 +268,19 @@ export default function KineticPortfolio() {
                         onOpenMuseum={() => setIsMuseumOpen(true)}
                     />
 
-                    {/* Real-time 7-Stage Architectural Walk Radar Mini-Map */}
+                    {/* Integrated Expandable Walk Radar (1, 3, 5 Numbers / 2, 4, 6, 7 Emojis) */}
                     <WalkRadarMap 
                         activeFrameIdx={activeFrameIdx}
-                        isVisible={isAudioUnlocked && !isMuseumOpen && !isSoundLabOpen && !showWelcomeBack}
+                        isVisible={isAudioUnlocked && !isMuseumOpen && !isSoundLabOpen && !showWelcomeBack && !isStep25Active}
+                        goToStep={goToStep}
+                        stepForward={stepForward}
+                        stepBackward={stepBackward}
                     />
 
-                    {/* In-Situ 3D J.A.R.V.I.S. Hologram HUD Projected Directly Over Gothic Arch */}
-                    <FrankfurtAtelierModal 
-                        isOpen={isAtelierModalOpen}
-                        onClose={() => setIsAtelierModalOpen(false)}
-                        tiltX={tiltX}
-                        tiltY={tiltY}
-                        tilt={tilt}
-                    />
-
-                    {/* Dynamic Stepping Footprints Surge (Only on Scroll Up) */}
                     <SonicFootprints isScrollingUp={isScrollingUp} />
-
-                    {/* Restored Minimal Text-Free Progress Gauge Bar */}
                     <EvolutionGauge progress={progress} isAudioUnlocked={isAudioUnlocked} />
+                </motion.main>
 
-
-                </main>
-
-                {/* Frame-Anchored Volume Calibrator & Morphing Top-Right Mute Button (z-[9998]) */}
                 <VolumePrompt 
                     isAudioUnlocked={isAudioUnlocked} 
                     isMuted={isMuted}
@@ -230,9 +294,12 @@ export default function KineticPortfolio() {
                 isAudioUnlocked={isAudioUnlocked}
                 onUnlock={handleInitialUnlock}
                 onDirectMuseum={() => {
-                    forceUnlockAudio();
-                    if (mrAudioRef.current) mrAudioRef.current.pause();
                     setIsMuseumOpen(true);
+                    forceUnlockAudio();
+                    if (mrAudioRef.current) {
+                        mrAudioRef.current.pause();
+                        mrAudioRef.current.muted = true;
+                    }
                 }}
                 onDirectSoundLab={() => {
                     forceUnlockAudio();
@@ -265,19 +332,27 @@ export default function KineticPortfolio() {
                 }}
             />
 
-            {/* Welcome Back 5-Second Countdown Resume Modal */}
+            {/* Interactive Lead Sheet Music Modal (CADENZA-432) */}
+            <InteractiveSheetMusicModal
+                isOpen={isSheetMusicOpen}
+                onClose={() => setIsSheetMusicOpen(false)}
+            />
+
+            {/* Welcome Back Modal */}
             <WelcomeBackModal 
                 isOpen={showWelcomeBack}
                 onComplete={handleResumeFromWelcomeBack}
             />
 
-
-
-
-
-            {/* Top-Level Permanent 3D Header (z-[9999]) with .FLOWS collision response (Hidden when Museum or SoundLab is open) */}
+            {/* Top-Level Clean 3D Kinetic Header with Volume Morph Button */}
             {(!isMuseumOpen && !isSoundLabOpen) && (
-                <Header3D isFlowsHit={isFlowsHit} tiltX={tiltX} tiltY={tiltY} />
+                <Header3D 
+                    isFlowsHit={isFlowsHit} 
+                    tiltX={tiltX} 
+                    tiltY={tiltY} 
+                    isMuted={isMuted}
+                    onToggleMute={handleToggleMute}
+                />
             )}
         </div>
     );

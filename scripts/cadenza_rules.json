@@ -1,0 +1,147 @@
+{
+  "engine_name": "CADENZA-432",
+  "version": "1.2.0-PRO",
+  "tuning_standard_hz": 432.0,
+  "meter_rules": {
+    "4_4": {
+      "name": "Common Time (4/4)",
+      "beats_per_measure": 4,
+      "beat_unit": 4,
+      "ticks_per_quarter": 960,
+      "measure_ticks": 3840,
+      "half_measure_invisible_barline": true,
+      "invisible_barline_rule": "Notes or rests (except whole notes/canonical syncopations) MUST NOT cross the boundary between Beat 2 and Beat 3. Must be split and connected with a tie.",
+      "prohibited_durations_across_beat_2_3": [
+        "half_note_on_beat_2",
+        "dotted_half_on_beat_2",
+        "dotted_quarter_on_beat_2"
+      ],
+      "beam_grouping_eighths": "half_measure_4_4",
+      "beam_grouping_sixteenths": "strictly_beat_by_beat_4_per_quarter"
+    }
+  },
+  "anacrusis_pickup_rules": {
+    "measure_number": 0,
+    "first_full_measure": 1,
+    "balance_equation": "Duration(Pickup) + Duration(Final_Measure) == 4.0 Beats",
+    "display_mode": "allow_5_measures_on_pickup_system"
+  },
+  "sixteenth_note_rules": {
+    "base_unit": "1/16",
+    "subdivisions_per_beat": 4,
+    "subdivisions_per_measure": 16,
+    "abc_unit_length": "L: 1/16",
+    "envelope_attack_ms": 15,
+    "envelope_decay_ms": 200
+  },
+  "chord_grammar_standard": {
+    "major_7th": "Cmaj7",
+    "minor_7th": "Cm7",
+    "dominant_7th": "C7",
+    "minor_9th": "Dm9",
+    "altered_dominant": "A7#9",
+    "half_diminished": "Cm7b5",
+    "baseline_clearance_staff_spaces": 2.5
+  },
+  "lyric_rules": {
+    "syllable_alignment": "center_on_first_vowel",
+    "hyphen_threshold_staff_spaces": 4.5,
+    "melisma_extender_line": true,
+    "one_to_one_dom_index_sync": true
+  },
+  "harmonic_rhythm_physics": {
+    "name": "Sean Dual-Key Ground-Truth Harmonic Convergence Law",
+    "calibrated_master_bpm": 110.32,
+    "measure_duration_sec": 2.172,
+    "quarter_note_sec": 0.543,
+    "eighth_note_strum_sec": 0.272,
+    "sixteenth_subdivision_sec": 0.136,
+    "harmonic_downbeats": [
+      {
+        "chord": "Intro / Dm9",
+        "start_sec": 1.265,
+        "end_sec": 3.437,
+        "duration_sec": 2.172
+      },
+      {
+        "chord": "Bbmaj7",
+        "start_sec": 3.437,
+        "end_sec": 5.527,
+        "duration_sec": 2.09
+      },
+      {
+        "chord": "Am7",
+        "start_sec": 5.527,
+        "end_sec": 7.699,
+        "duration_sec": 2.172
+      },
+      {
+        "chord": "Gm7",
+        "start_sec": 7.699,
+        "end_sec": 9.813,
+        "duration_sec": 2.114
+      },
+      {
+        "chord": "A7#9",
+        "start_sec": 9.813,
+        "end_sec": 12.003,
+        "duration_sec": 2.19
+      },
+      {
+        "chord": "Dm9 (1)",
+        "start_sec": 12.003,
+        "end_sec": 14.186,
+        "duration_sec": 2.183
+      },
+      {
+        "chord": "Dm9 (2)",
+        "start_sec": 14.186,
+        "end_sec": 16.358,
+        "duration_sec": 2.172
+      }
+    ],
+    "physics_rationale": "In A=432Hz Dm blues, the harmonic field rotates at exactly 2.172s per measure. Aligning 8-strums to 272ms prevents phase cancellation with 16th-note vocal syncopations."
+  },
+  "interactive_walkthrough_rpg_concept": {
+    "concept_name": "4LEAF & Remnants of Dice Inspired 7-Stage Walkthrough RPG Lore",
+    "lore_overview": "2000s Korean classic game nostalgia (4LEAF/Dice) translated into a dignified Frankfurt midnight medieval exploration.",
+    "stage_architecture": {
+      "step_1": {
+        "name": "심야 골목 진입",
+        "type": "Normal Field",
+        "desc": "02:00 AM Silent corridor entry. Map is shrouded in midnight fog."
+      },
+      "step_2": {
+        "name": "코너 턴 & 시네마틱 퀘스트",
+        "type": "Cinematic Video Quest",
+        "loot": "🗺️ Altstadt Ancient Map (Mini-Map Unlocked)",
+        "achievement": "알트슈타트 고지도 수집가 (Cartographer of Altstadt)"
+      },
+      "step_3": {
+        "name": "클럽 게이트 접근",
+        "type": "Normal Field",
+        "desc": "Advancing to the gilded iron club gate with the equipped map."
+      },
+      "step_4": {
+        "name": "Unternehmergesellschaft (법인)",
+        "type": "Corporate Chamber",
+        "loot": "🏢 UG 2026 Archive"
+      },
+      "step_5": {
+        "name": "앰버 조명 시프트",
+        "type": "Acoustic Tuning",
+        "loot": "🍷 432Hz Bordeaux Resonance"
+      },
+      "step_6": {
+        "name": "살롱 문 앞 (임박)",
+        "type": "Final Threshold",
+        "loot": "🗝️ 18K Favicon Key"
+      },
+      "step_7": {
+        "name": "골든 스타인웨이 살롱 (보스방)",
+        "type": "Boss Sanctuary",
+        "loot": "👑 Steinway Virtuoso & Atelier Museum Hub"
+      }
+    }
+  }
+}

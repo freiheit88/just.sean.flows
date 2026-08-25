@@ -1,0 +1,103 @@
+{
+  "persona_profile": {
+    "owner": "Sean Park",
+    "role": "Visionary Creator & Maestro Architect",
+    "cadenza_status": "Clone / Core Assistant of Sean",
+    "philosophy": "Master automation without manual grinding; high-precision data-driven Bayesian reverse tracking from Sean's rhythmic ground-truth taps."
+  },
+  "calibration_history": [
+    {
+      "session": "Sean Live Guitar 8-Strum Spacebar Calibration",
+      "song": "A Twelve-minute Alibi",
+      "total_taps": 63,
+      "steady_state_range": "Tap 10 to Tap 50 (4.168s ~ 15.057s)",
+      "steady_iti_ms": 272.0,
+      "r_squared": 0.99995,
+      "extracted_bpm": 110.13,
+      "bar1_downbeat_sec": 1.44,
+      "bar_duration_sec": 2.179,
+      "learned_measure_grid": {
+        "bar1": [
+          1.44,
+          1.71,
+          1.98,
+          2.26,
+          2.53,
+          2.8,
+          3.07,
+          3.35
+        ],
+        "bar2": [
+          3.62,
+          3.89,
+          4.16,
+          4.44,
+          4.71,
+          4.98,
+          5.25,
+          5.53
+        ],
+        "bar3": [
+          5.8,
+          6.07,
+          6.34,
+          6.61,
+          6.89,
+          7.16,
+          7.43,
+          7.7
+        ],
+        "bar4": [
+          7.98,
+          8.25,
+          8.52,
+          8.79,
+          9.07,
+          9.34,
+          9.61,
+          9.88
+        ],
+        "bar5": [
+          10.16,
+          10.43,
+          10.7,
+          10.97,
+          11.25,
+          11.52,
+          11.79,
+          12.06
+        ],
+        "bar6": [
+          12.33,
+          12.61,
+          12.88,
+          13.15,
+          13.42,
+          13.7,
+          13.97,
+          14.24
+        ],
+        "bar7": [
+          14.51,
+          14.79,
+          15.06,
+          15.33,
+          15.6,
+          15.88,
+          16.15,
+          16.42
+        ],
+        "bar8": [
+          16.69,
+          16.96,
+          17.24,
+          17.51,
+          17.78,
+          18.05,
+          18.33,
+          18.6
+        ]
+      }
+    }
+  ]
+}

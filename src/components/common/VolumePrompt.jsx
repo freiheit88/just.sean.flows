@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2 } from 'lucide-react';
 
 export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
-    // phase: 'oscillating' (0-3.4s) -> 'shrinking' (3.4-4.2s) -> 'ricochet' (4.2-5.5s) -> 'docked' (5.5s+)
+    // phase: 'oscillating' (0-3.4s) -> 'shrinking' (3.4-4.2s) -> 'ricochet' (4.2-5.0s) -> 'docked' (5.0s+)
     const [phase, setPhase] = useState('oscillating');
     const [liveVolNum, setLiveVolNum] = useState(30);
-    const [breakGlow, setBreakGlow] = useState(false);
     const onFlowsHitRef = useRef(onFlowsHit);
     onFlowsHitRef.current = onFlowsHit;
 
@@ -29,24 +28,22 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             setPhase('shrinking');
         }, 3400);
 
-        // Stage 2: At 4.2s, launch billiard strike toward Header3D
+        // Stage 2: At 4.2s, launch billiard cue ball directly toward Header3D
         const ricochetTimer = setTimeout(() => {
             setPhase('ricochet');
         }, 4200);
 
-        // Break Shot Impact at 4.75s (Ball hits Header3D)
+        // Break Shot Impact at 4.75s (Ball strikes Header3D and merges into its right dock)
         const breakTimer = setTimeout(() => {
-            setBreakGlow(true);
             if (onFlowsHitRef.current) {
                 onFlowsHitRef.current();
             }
-            setTimeout(() => setBreakGlow(false), 500);
         }, 4750);
 
-        // Stage 3: At 5.5s, smoothly dock into top-right permanent button
+        // Stage 3: At 5.0s, hand off to Header3D unified speaker button
         const dockTimer = setTimeout(() => {
             setPhase('docked');
-        }, 5500);
+        }, 5000);
 
         return () => {
             clearInterval(numInterval);
@@ -56,6 +53,9 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
             clearTimeout(dockTimer);
         };
     }, []);
+
+    // Once docked, Header3D renders the unified integrated speaker button!
+    if (phase === 'docked') return null;
 
     return (
         <div className="absolute inset-0 pointer-events-none z-[9998] select-none overflow-hidden">
@@ -107,8 +107,8 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         borderColor: "rgba(255,255,255,0.3)"
                     }}
                     animate={{
-                        height: "40px",
-                        width: "40px",
+                        height: "36px",
+                        width: "36px",
                         borderRadius: "50%",
                         borderColor: "#FFF9A6",
                         boxShadow: "0 0 25px rgba(255,249,166,0.85)"
@@ -126,15 +126,15 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                 </motion.div>
             )}
 
-            {/* 3. CONTROLLED IN-BOUNDS BILLIARD SHOT (4.2s ~ 5.5s) */}
+            {/* 3. CONTROLLED BILLIARD SHOT MERGING DIRECTLY INTO HEADER3D (4.2s ~ 5.0s) */}
             {phase === 'ricochet' && (
                 <motion.div
                     initial={{
                         x: 0,
                         y: 0,
                         rotate: 0,
-                        width: "40px",
-                        height: "40px",
+                        width: "36px",
+                        height: "36px",
                         borderRadius: "50%",
                         top: "22%",
                         right: "16px",
@@ -142,21 +142,21 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                         boxShadow: "0 0 25px rgba(255,249,166,0.85)"
                     }}
                     animate={{
-                        // Strictly clamped trajectory: Hits Header3D at center-top (-110px x, -95px y), cushions lightly, docks neatly at top-right
-                        x: [0, -115, -20, 0],
-                        y: [0, -95, -55, -110],
-                        rotate: [0, -360, -540, -720],
-                        borderColor: ["#FFF9A6", "#E7FF00", "#FFE082", "#E7FF00"],
+                        // Trajectory: Shoots from right towards Header3D, strikes and snaps into its right edge
+                        x: [0, -105, -55],
+                        y: [0, -95, -115],
+                        scale: [1.0, 1.15, 0.85],
+                        rotate: [0, -360, -720],
+                        borderColor: ["#FFF9A6", "#E7FF00", "#E7FF00"],
                         boxShadow: [
                             "0 0 25px rgba(255,249,166,0.85)",
                             "0 0 35px rgba(231,255,0,0.9)",
-                            "0 0 20px rgba(255,224,130,0.6)",
-                            "0 0 15px rgba(231,255,0,0.4)"
+                            "0 0 15px rgba(231,255,0,0.5)"
                         ]
                     }}
                     transition={{
-                        duration: 1.3,
-                        times: [0, 0.42, 0.75, 1.0],
+                        duration: 0.8,
+                        times: [0, 0.65, 1.0],
                         ease: [0.2, 0.8, 0.25, 1.0]
                     }}
                     style={{
@@ -166,39 +166,7 @@ export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHi
                     }}
                     className="z-[9998] bg-black/90 backdrop-blur-2xl border-2 flex items-center justify-center pointer-events-none overflow-hidden"
                 >
-                    <Volume2 className="w-4 h-4 text-white" />
-                </motion.div>
-            )}
-
-            {/* 4. PERMANENT TOP-RIGHT DOCKED SPEAKER BUTTON (5.5s+) */}
-            {phase === 'docked' && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1.0 }}
-                    transition={{ duration: 0.4 }}
-                    style={{
-                        position: 'absolute',
-                        top: '16px',
-                        right: '16px'
-                    }}
-                    className="z-[9998] pointer-events-auto"
-                >
-                    <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.92 }}
-                        onClick={onToggleMute}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 shadow-xl cursor-pointer ${
-                            isMuted 
-                                ? 'bg-neutral-900/90 border-neutral-600 text-neutral-400' 
-                                : 'bg-black/80 border-[#E7FF00] text-[#E7FF00] shadow-[0_0_20px_rgba(231,255,0,0.5)]'
-                        }`}
-                    >
-                        {isMuted ? (
-                            <VolumeX className="w-4 h-4" />
-                        ) : (
-                            <Volume2 className="w-4 h-4" />
-                        )}
-                    </motion.button>
+                    <Volume2 className="w-3.5 h-3.5 text-[#E7FF00]" />
                 </motion.div>
             )}
         </div>
