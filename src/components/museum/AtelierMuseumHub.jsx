@@ -134,20 +134,39 @@ export function AtelierMuseumHub({
                 className="fixed inset-0 z-[9990] bg-[#0A0708] flex flex-col justify-between overflow-hidden select-none"
             >
                 {/* ========================================================================= */}
-                {/* 1. HAUTE COUTURE EDITORIAL TOP HEADER WITH SCROLLABLE TITLE RIBBON */}
+                {/* 1. HAUTE COUTURE EDITORIAL TOP HEADER WITH UNIFIED SCROLLABLE ACTION TRACK */}
                 {/* ========================================================================= */}
-                <header className="relative z-20 w-full px-4 sm:px-6 py-2.5 flex items-center justify-between border-b border-white/10 bg-black/60 backdrop-blur-xl shrink-0 gap-2">
+                <header className="relative z-20 w-full px-3 sm:px-6 py-2.5 flex items-center border-b border-white/10 bg-black/75 backdrop-blur-xl shrink-0 gap-2 sm:gap-3 overflow-hidden">
                     {/* Left Fixed Brand Name Anchor */}
-                    <div className="flex items-center gap-2.5 shrink-0 pr-3 border-r border-[#C8A96E]/40">
+                    <div className="flex items-center gap-2 shrink-0 pr-2.5 sm:pr-3 border-r border-[#C8A96E]/40">
                         <div className="w-2 h-2 rounded-full bg-[#E7FF00] shadow-[0_0_8px_#E7FF00] animate-pulse" />
-                        <span className="font-mono text-xs sm:text-sm font-black tracking-[0.22em] text-[#F7EBE1] uppercase whitespace-nowrap">
+                        <span className="font-mono text-xs sm:text-sm font-black tracking-[0.20em] text-[#F7EBE1] uppercase whitespace-nowrap">
                             JUST SEAN FLOWS
                         </span>
                     </div>
 
-                    {/* Middle Horizontal Scrollable Ribbon: Magazine Quote & Title Badges */}
-                    <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar flex items-center gap-3.5 py-1 px-1">
-                        {/* Magazine Editorial Teaser */}
+                    {/* Unified Horizontal Scrollable Action Track */}
+                    <div className="flex-1 min-w-0 overflow-x-auto no-scrollbar flex items-center gap-2 sm:gap-3 py-1 px-1">
+                        {/* 1. Sheet Music Studio Button */}
+                        <button
+                            onClick={() => setIsSheetMusicOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#C8A96E]/60 bg-[#C8A96E]/15 hover:bg-[#C8A96E]/30 text-[#F7EBE1] font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(200,169,110,0.35)] shrink-0"
+                        >
+                            <span>🎼 악보 스튜디오</span>
+                        </button>
+
+                        {/* 2. Title Museum Button */}
+                        <button
+                            onClick={() => setIsTitleModalOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#E7FF00]/60 bg-[#E7FF00]/15 hover:bg-[#E7FF00]/30 text-[#E7FF00] font-mono text-[10.5px] sm:text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(231,255,0,0.35)] shrink-0"
+                        >
+                            <span>🏆 칭호</span>
+                            <span className="px-1.5 py-0.2 rounded-full bg-[#E7FF00] text-black font-black text-[9px]">
+                                {acquiredTitles.length}/{ATELIER_TITLES.length}
+                            </span>
+                        </button>
+
+                        {/* 3. Magazine Editorial Teaser */}
                         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-[#C8A96E]/40 shrink-0">
                             <Sparkles className="w-3 h-3 text-[#E7FF00] animate-spin" />
                             <span className="font-serif italic text-xs sm:text-sm font-bold text-[#E7FF00] tracking-wide whitespace-nowrap">
@@ -158,8 +177,8 @@ export function AtelierMuseumHub({
                             </span>
                         </div>
 
-                        {/* Interactive Emoticon Title Badges: Glowing if unlocked / Unlit + 5% blur if locked */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        {/* 4. Interactive Emoticon Title Badges */}
+                        <div className="flex items-center gap-1.5 shrink-0">
                             {ATELIER_TITLES.map((title) => {
                                 const isEarned = acquiredIds.has(title.id);
                                 return (
@@ -169,9 +188,9 @@ export function AtelierMuseumHub({
                                         whileTap={{ scale: 0.92 }}
                                         onClick={() => setIsTitleModalOpen(true)}
                                         title={`${title.name} (${isEarned ? '✨ 획득 완료' : '🔒 미획득'})`}
-                                        className={`relative w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all duration-300 cursor-pointer ${
+                                        className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center text-xs sm:text-sm transition-all duration-300 cursor-pointer shrink-0 ${
                                             isEarned
-                                                ? 'bg-gradient-to-br from-[#2D1B22] to-[#120B0F] border-2 border-[#E7FF00] shadow-[0_0_15px_rgba(231,255,0,0.65)] text-white scale-105'
+                                                ? 'bg-gradient-to-br from-[#2D1B22] to-[#120B0F] border-2 border-[#E7FF00] shadow-[0_0_12px_rgba(231,255,0,0.65)] text-white scale-105'
                                                 : 'bg-black/50 border border-white/10 opacity-35 grayscale blur-[0.8px] hover:opacity-80 hover:blur-0'
                                         }`}
                                     >
@@ -185,31 +204,14 @@ export function AtelierMuseumHub({
                         </div>
                     </div>
 
-                    {/* Right Control Actions */}
-                    <div className="flex items-center gap-2 shrink-0 pl-3 border-l border-white/10">
-                        <button
-                            onClick={() => setIsSheetMusicOpen(true)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#C8A96E]/50 bg-[#C8A96E]/10 hover:bg-[#C8A96E]/25 text-[#F7EBE1] font-mono text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(200,169,110,0.3)]"
-                        >
-                            <span>🎼 악보 스튜디오</span>
-                        </button>
-                        <button
-                            onClick={() => setIsTitleModalOpen(true)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#E7FF00]/50 bg-[#E7FF00]/10 hover:bg-[#E7FF00]/25 text-[#E7FF00] font-mono text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(231,255,0,0.3)]"
-                        >
-                            <span>🏆 칭호</span>
-                            <span className="px-1.5 py-0.2 rounded-full bg-[#E7FF00] text-black font-black text-[9px]">
-                                {acquiredTitles.length}/{ATELIER_TITLES.length}
-                            </span>
-                        </button>
-                        <button
-                            onClick={onClose}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/15 text-neutral-300 hover:text-white font-mono text-[10px] uppercase tracking-wider transition-all cursor-pointer"
-                        >
-                            <X className="w-3.5 h-3.5" />
-                            <span>CLOSE</span>
-                        </button>
-                    </div>
+                    {/* Right Close Button */}
+                    <button
+                        onClick={onClose}
+                        className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                        title="Close Museum"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
                 </header>
 
                 {/* ========================================================================= */}

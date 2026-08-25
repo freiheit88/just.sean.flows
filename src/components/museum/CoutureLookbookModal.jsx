@@ -22,6 +22,8 @@ const LOOKBOOK_ITEMS = [
 export function CoutureLookbookModal({ isOpen, onClose }) {
     const [activeIdx, setActiveIdx] = useState(0);
     const [selectedCat, setSelectedCat] = useState('ALL');
+    const [touchStartX, setTouchStartX] = useState(0);
+    const [touchEndX, setTouchEndX] = useState(0);
 
     if (!isOpen) return null;
 
@@ -39,21 +41,43 @@ export function CoutureLookbookModal({ isOpen, onClose }) {
         setActiveIdx((prev) => (prev - 1 + filteredItems.length) % filteredItems.length);
     };
 
+    // Touch Swipe Left/Right Handlers for Mobile
+    const onTouchStart = (e) => {
+        setTouchStartX(e.targetTouches[0].clientX);
+        setTouchEndX(e.targetTouches[0].clientX);
+    };
+
+    const onTouchMove = (e) => {
+        setTouchEndX(e.targetTouches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStartX || !touchEndX) return;
+        const diff = touchStartX - touchEndX;
+        if (diff > 45) {
+            handleNext(); // Swiped Left -> Next
+        } else if (diff < -45) {
+            handlePrev(); // Swiped Right -> Prev
+        }
+        setTouchStartX(0);
+        setTouchEndX(0);
+    };
+
     return (
         <AnimatePresence>
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl p-3 sm:p-6 select-none overflow-hidden"
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl p-2 sm:p-6 select-none overflow-hidden"
                 onClick={onClose}
             >
                 <div 
                     onClick={(e) => e.stopPropagation()}
-                    className="relative w-full max-w-4xl h-[92vh] sm:h-[88vh] rounded-3xl bg-[#0B0907] border border-white/15 flex flex-col overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.9)]"
+                    className="relative w-full max-w-5xl h-[94vh] sm:h-[90vh] rounded-3xl bg-[#09080A] border border-white/15 flex flex-col overflow-hidden shadow-[0_0_90px_rgba(0,0,0,0.95)]"
                 >
                     {/* Top Header Bar */}
-                    <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
+                    <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 shrink-0">
                         <div className="flex items-center gap-2">
                             <span className="p-1.5 rounded-lg bg-[#E7FF00]/15 text-[#E7FF00]">
                                 <Sparkles className="w-4 h-4" />
@@ -62,22 +86,22 @@ export function CoutureLookbookModal({ isOpen, onClose }) {
                                 <span className="font-mono text-[9px] font-black text-[#E7FF00] tracking-widest uppercase block">
                                     EXHIBIT 01 // COUTURE & ARTIFACTS
                                 </span>
-                                <h2 className="font-sans text-sm sm:text-base font-black text-white tracking-wide">
+                                <h2 className="font-sans text-xs sm:text-base font-black text-white tracking-wide">
                                     JSF Luxury Signature Lookbook
                                 </h2>
                             </div>
                         </div>
 
-                        {/* Category Filter Pills */}
-                        <div className="hidden sm:flex items-center gap-1.5">
+                        {/* Category Filter Pills (Scrollable on Mobile) */}
+                        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar max-w-[200px] sm:max-w-none px-1">
                             {['ALL', 'PEOPLE', 'BAGS', 'ACCESSORIES', 'LIFESTYLE'].map((cat) => (
                                 <button
                                     key={cat}
                                     onClick={() => { setSelectedCat(cat); setActiveIdx(0); }}
-                                    className={`px-3 py-1 rounded-full font-mono text-[10px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                                    className={`px-2.5 sm:px-3 py-1 rounded-full font-mono text-[9px] sm:text-[10px] font-bold tracking-wider uppercase transition-all cursor-pointer whitespace-nowrap ${
                                         selectedCat === cat 
                                             ? 'bg-[#E7FF00] text-black shadow-[0_0_12px_rgba(231,255,0,0.6)]' 
-                                            : 'bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10'
+                                             : 'bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10'
                                     }`}
                                 >
                                     {cat}
@@ -88,16 +112,21 @@ export function CoutureLookbookModal({ isOpen, onClose }) {
                         {/* Close Button */}
                         <button
                             onClick={onClose}
-                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer"
+                            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-neutral-300 hover:text-white transition-all cursor-pointer shrink-0 ml-1"
                         >
                             <X className="w-4 h-4" />
                         </button>
                     </div>
 
-                    {/* Main Showcase Stage */}
-                    <div className="flex-1 flex flex-col sm:flex-row items-center justify-center p-3 sm:p-6 gap-4 sm:gap-8 overflow-hidden">
-                        {/* Image Viewer with Navigation */}
-                        <div className="relative h-full max-h-[62vh] sm:max-h-full aspect-[9/16] rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/60 shrink-0">
+                    {/* Main Showcase Stage with Swipe Gesture */}
+                    <div 
+                        onTouchStart={onTouchStart}
+                        onTouchMove={onTouchMove}
+                        onTouchEnd={onTouchEnd}
+                        className="flex-1 flex flex-col sm:flex-row items-center justify-center p-2 sm:p-6 gap-4 sm:gap-8 overflow-hidden relative"
+                    >
+                        {/* 1. Large Uncropped Image Frame */}
+                        <div className="relative w-full sm:w-auto h-full flex-1 max-h-[76vh] sm:max-h-full flex items-center justify-center rounded-2xl overflow-hidden bg-black/40">
                             <AnimatePresence mode="wait">
                                 <motion.img
                                     key={currentItem.src}
@@ -106,29 +135,47 @@ export function CoutureLookbookModal({ isOpen, onClose }) {
                                     initial={{ opacity: 0, scale: 0.96 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 1.02 }}
-                                    transition={{ duration: 0.25 }}
-                                    className="w-full h-full object-cover"
+                                    transition={{ duration: 0.22 }}
+                                    className="w-full h-full object-contain sm:object-cover sm:max-w-md rounded-2xl drop-shadow-2xl select-none pointer-events-none"
                                 />
                             </AnimatePresence>
 
                             {/* Left/Right Arrow Overlays */}
                             <button
                                 onClick={handlePrev}
-                                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-white/20 hover:border-white flex items-center justify-center text-white transition-all cursor-pointer hover:scale-110"
+                                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/65 border border-white/20 hover:border-white flex items-center justify-center text-white transition-all cursor-pointer hover:scale-110 shadow-lg z-20"
                             >
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
                             <button
                                 onClick={handleNext}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 border border-white/20 hover:border-white flex items-center justify-center text-white transition-all cursor-pointer hover:scale-110"
+                                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/65 border border-white/20 hover:border-white flex items-center justify-center text-white transition-all cursor-pointer hover:scale-110 shadow-lg z-20"
                             >
                                 <ChevronRight className="w-5 h-5" />
                             </button>
+
+                            {/* Mobile In-Photo Bottom Text Overlay (Clean, legible, no cropping) */}
+                            <div className="sm:hidden absolute bottom-0 inset-x-0 p-4 pt-10 bg-gradient-to-t from-black/95 via-black/75 to-transparent rounded-b-2xl flex flex-col justify-end text-center z-10">
+                                <div className="flex items-center justify-center gap-2 mb-1">
+                                    <span className="px-2 py-0.5 rounded-full bg-[#E7FF00]/20 text-[#E7FF00] font-mono text-[9px] font-black tracking-widest uppercase">
+                                        {currentItem.cat}
+                                    </span>
+                                    <span className="font-mono text-[10px] text-neutral-300 font-bold">
+                                        {activeIdx + 1} / {filteredItems.length}
+                                    </span>
+                                </div>
+                                <h3 className="font-sans text-sm font-black text-white tracking-tight leading-snug">
+                                    {currentItem.title}
+                                </h3>
+                                <p className="font-sans text-[11px] text-neutral-300 font-medium leading-tight mt-1 line-clamp-2">
+                                    {currentItem.desc}
+                                </p>
+                            </div>
                         </div>
 
-                        {/* Info & Story Details */}
-                        <div className="flex-1 flex flex-col justify-center max-w-sm px-2 text-center sm:text-left">
-                            <div className="flex items-center justify-center sm:justify-start gap-2 mb-1.5">
+                        {/* 2. Desktop Side Story Details (Hidden on mobile to let image be huge) */}
+                        <div className="hidden sm:flex flex-1 flex-col justify-center max-w-sm px-2 text-left">
+                            <div className="flex items-center justify-start gap-2 mb-1.5">
                                 <span className="px-2.5 py-0.5 rounded-full bg-[#E7FF00]/15 text-[#E7FF00] font-mono text-[9px] font-bold tracking-widest uppercase">
                                     {currentItem.cat}
                                 </span>
@@ -137,7 +184,7 @@ export function CoutureLookbookModal({ isOpen, onClose }) {
                                 </span>
                             </div>
 
-                            <h3 className="font-sans text-lg sm:text-2xl font-black text-white tracking-tight leading-snug">
+                            <h3 className="font-sans text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
                                 {currentItem.title}
                             </h3>
 
@@ -159,12 +206,12 @@ export function CoutureLookbookModal({ isOpen, onClose }) {
                     </div>
 
                     {/* Bottom Thumbnail Strip */}
-                    <div className="p-3 border-t border-white/10 flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-none">
+                    <div className="p-2 sm:p-3 border-t border-white/10 flex items-center gap-2 overflow-x-auto shrink-0 no-scrollbar">
                         {filteredItems.map((item, idx) => (
                             <button
                                 key={item.id}
                                 onClick={() => setActiveIdx(idx)}
-                                className={`relative h-12 aspect-[9/16] rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
+                                className={`relative h-11 sm:h-12 aspect-[9/16] rounded-lg overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
                                     idx === activeIdx ? 'border-[#E7FF00] scale-105 shadow-[0_0_10px_#E7FF00]' : 'border-white/15 opacity-50 hover:opacity-100'
                                 }`}
                             >
