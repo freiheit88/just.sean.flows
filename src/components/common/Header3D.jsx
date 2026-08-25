@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 
 const HEADER_LETTERS = [
@@ -30,22 +30,15 @@ export function Header3D({
     // phase: 'center' (0.0s - 2.6s) -> 'ascending' (2.6s - 3.5s) -> 'docked' (3.5s+)
     const [phase, setPhase] = useState('center');
     const [isVolumeSwallowed, setIsVolumeSwallowed] = useState(false);
+    
+    // Magnetic Snap & 1-Second Origin Lock State
+    // Cycle: 2.0s Free Float -> Snap to Origin & Lock for 1.0s -> Repeat
+    const [isMagnetLocked, setIsMagnetLocked] = useState(false);
 
     useEffect(() => {
-        // 2.6s: Start ascending to the top dock
-        const ascendTimer = setTimeout(() => {
-            setPhase('ascending');
-        }, 2600);
-
-        // 3.5s: Fully docked at top
-        const dockTimer = setTimeout(() => {
-            setPhase('docked');
-        }, 3500);
-
-        // 4.8s: Billiard ball merges into Header3D -> 432Hz morphs into Volume Toggle Button
-        const swallowTimer = setTimeout(() => {
-            setIsVolumeSwallowed(true);
-        }, 4800);
+        const ascendTimer = setTimeout(() => setPhase('ascending'), 2600);
+        const dockTimer = setTimeout(() => setPhase('docked'), 3500);
+        const swallowTimer = setTimeout(() => setIsVolumeSwallowed(true), 4800);
 
         return () => {
             clearTimeout(ascendTimer);
@@ -54,7 +47,32 @@ export function Header3D({
         };
     }, []);
 
-    // Also trigger volume swallowed immediately if flows hit is triggered
+    // 2.0s Free -> 1.0s Snap Lock Cycle
+    useEffect(() => {
+        let isCancelled = false;
+
+        const cycleLoop = () => {
+            // Free phase: 2000ms
+            setTimeout(() => {
+                if (isCancelled) return;
+                // Snap to Origin & Lock for 1000ms
+                setIsMagnetLocked(true);
+
+                setTimeout(() => {
+                    if (isCancelled) return;
+                    setIsMagnetLocked(false);
+                    cycleLoop();
+                }, 1000);
+            }, 2000);
+        };
+
+        cycleLoop();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, []);
+
     useEffect(() => {
         if (isFlowsHit) {
             setIsVolumeSwallowed(true);
@@ -62,6 +80,10 @@ export function Header3D({
     }, [isFlowsHit]);
 
     const isCenter = phase === 'center';
+
+    // When Magnet is Locked, target offset is precisely (0, 0)
+    const effectiveTiltX = isMagnetLocked ? 0 : tiltX;
+    const effectiveTiltY = isMagnetLocked ? 0 : tiltY;
 
     return (
         <motion.header
@@ -82,111 +104,78 @@ export function Header3D({
         >
             <motion.div 
                 animate={{
-                    x: tiltX * (isCenter ? 18 : 8),
-                    y: tiltY * (isCenter ? 12 : 4),
-                    rotateX: isCenter ? tiltY * 10 : 0,
-                    rotateY: isCenter ? -tiltX * 10 : 0,
-                    scale: isFlowsHit ? 1.08 : 1.0,
-                    borderColor: isFlowsHit ? '#E7FF00' : isCenter ? 'rgba(200, 169, 110, 0.75)' : 'rgba(200, 169, 110, 0.40)',
+                    x: effectiveTiltX * (isCenter ? 14 : 6),
+                    y: effectiveTiltY * (isCenter ? 10 : 3),
+                    rotateX: isCenter ? effectiveTiltY * 8 : 0,
+                    rotateY: isCenter ? -effectiveTiltX * 8 : 0,
+                    scale: isFlowsHit ? 1.08 : isMagnetLocked ? 1.02 : 1.0,
+                    borderColor: isFlowsHit 
+                        ? '#E7FF00' 
+                        : isMagnetLocked 
+                        ? 'rgba(255, 215, 0, 0.9)' 
+                        : isCenter 
+                        ? 'rgba(200, 169, 110, 0.75)' 
+                        : 'rgba(200, 169, 110, 0.40)',
                     boxShadow: isFlowsHit 
                         ? '0 0 35px rgba(231, 255, 0, 0.75)' 
+                        : isMagnetLocked 
+                        ? '0 0 25px rgba(255, 215, 0, 0.65), 0 10px 30px rgba(0,0,0,0.9)' 
                         : isCenter 
                         ? '0 20px 50px rgba(0,0,0,0.95), 0 0 30px rgba(200,169,110,0.45)'
                         : '0 4px 25px rgba(0,0,0,0.8), 0 0 15px rgba(200,169,110,0.2)'
                 }}
-                transition={{ type: "spring", stiffness: 180, damping: 18 }}
-                className="pointer-events-auto flex items-center justify-center gap-2 sm:gap-2.5 px-5 py-2 rounded-full bg-black/75 backdrop-blur-xl border shadow-2xl transition-all duration-300 group cursor-default"
+                transition={{
+                    type: "spring",
+                    stiffness: isMagnetLocked ? 420 : 180,
+                    damping: isMagnetLocked ? 24 : 18
+                }}
+                className="pointer-events-auto flex items-center justify-center gap-2 sm:gap-2.5 px-5 py-2 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl transition-all duration-300 group cursor-default"
             >
                 {/* 18K Champagne Gold Glowing Indicator Dot */}
-                <motion.span 
-                    animate={{
-                        scale: isFlowsHit ? [1, 2.0, 1] : isCenter ? [1, 1.5, 1] : [1, 1.35, 1],
-                        backgroundColor: isFlowsHit ? '#00FF88' : '#E7FF00',
-                        boxShadow: isFlowsHit ? '0 0 20px #00FF88' : '0 0 12px #E7FF00'
-                    }}
-                    transition={{ repeat: isFlowsHit ? 1 : Infinity, duration: isFlowsHit ? 0.4 : 2.0, ease: "easeInOut" }}
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                <div 
+                    className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                        isMagnetLocked ? 'bg-[#FFD700] shadow-[0_0_12px_#FFD700] scale-125' : 'bg-[#C8A96E] shadow-[0_0_8px_#C8A96E]'
+                    }`} 
                 />
 
-                {/* 2-Second Letter-by-Letter Kinetic 3D Reveal */}
-                <div className="flex items-center gap-[3px] sm:gap-1.5 font-mono text-xs sm:text-sm font-black tracking-widest text-[#F7EBE1]">
-                    {HEADER_LETTERS.map((item, idx) => {
-                        const hitScatterY = isFlowsHit ? (item.group === 2 ? -18 : item.group === 1 ? -8 : -3) : 0;
-                        const hitRotate = isFlowsHit ? (item.group === 2 ? 14 : item.group === 1 ? -6 : 0) : 0;
-
-                        return (
-                            <motion.span
-                                key={idx}
-                                initial={{
-                                    opacity: 0,
-                                    y: 25,
-                                    rotateX: 90,
-                                    scale: 0.4
-                                }}
-                                animate={{
-                                    opacity: 1,
-                                    y: isFlowsHit ? hitScatterY : [25, -6, 0],
-                                    rotateX: [90, -15, 0],
-                                    scale: [0.4, 1.25, 1.0],
-                                    x: isFlowsHit ? item.xSpread * 0.3 : 0,
-                                    rotate: isFlowsHit ? hitRotate : 0,
-                                    color: isFlowsHit && item.group === 2 ? '#E7FF00' : undefined
-                                }}
-                                transition={{
-                                    duration: 0.9,
-                                    delay: idx * 0.065,
-                                    ease: [0.22, 1, 0.36, 1]
-                                }}
-                                whileHover={{ y: -3, color: '#E7FF00', scale: 1.25 }}
-                                className={`transition-colors select-none inline-block ${
-                                    item.isDot 
-                                        ? 'text-[#C8A96E] text-[10px] mx-0.5' 
-                                        : 'text-[#F7EBE1] group-hover:text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]'
-                                }`}
-                            >
-                                {item.char}
-                            </motion.span>
-                        );
-                    })}
+                {/* Letters Container */}
+                <div className="flex items-center gap-1 sm:gap-1.5 font-mono text-xs sm:text-sm font-black tracking-widest text-[#F7EBE1]">
+                    {HEADER_LETTERS.map((item, idx) => (
+                        <motion.span
+                            key={idx}
+                            animate={{
+                                color: isFlowsHit ? '#E7FF00' : isMagnetLocked ? '#FFD700' : '#F7EBE1',
+                                y: isMagnetLocked ? 0 : [0, -1.5, 0],
+                                textShadow: isMagnetLocked ? '0 0 8px rgba(255, 215, 0, 0.6)' : 'none'
+                            }}
+                            transition={{
+                                color: { duration: 0.25 },
+                                y: { repeat: isMagnetLocked ? 0 : Infinity, duration: 2.2, delay: idx * 0.04 }
+                            }}
+                            className={item.isDot ? 'text-[#C8A96E] px-0.5' : ''}
+                        >
+                            {item.char}
+                        </motion.span>
+                    ))}
                 </div>
 
-                {/* Right Edge: Morphs from 432Hz to Interactive Volume Speaker Button when Ball Merges */}
-                <div className="ml-1 pl-2 border-l border-white/20 flex items-center">
-                    <AnimatePresence mode="wait">
-                        {!isVolumeSwallowed ? (
-                            <motion.span
-                                key="432hz"
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.5 }}
-                                transition={{ duration: 0.3 }}
-                                className="font-mono text-[9px] font-bold text-[#E7FF00]/80 tracking-widest uppercase"
-                            >
-                                432Hz
-                            </motion.span>
+                {/* 432Hz Sound Master Swallowed Button */}
+                {isVolumeSwallowed && (
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0, width: 0 }}
+                        animate={{ opacity: 1, scale: 1, width: 'auto' }}
+                        transition={{ type: "spring", stiffness: 350, damping: 20 }}
+                        onClick={onToggleMute}
+                        className="ml-2 pl-2 border-l border-white/20 flex items-center justify-center text-[#C8A96E] hover:text-[#E7FF00] hover:scale-110 transition-all cursor-pointer"
+                        title={isMuted ? "432Hz Harmonic Sound Unmute" : "432Hz Sound Mute"}
+                    >
+                        {isMuted ? (
+                            <VolumeX className="w-3.5 h-3.5 text-neutral-400" />
                         ) : (
-                            <motion.button
-                                key="volume-btn"
-                                initial={{ opacity: 0, scale: 0.4, rotate: -45 }}
-                                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                                exit={{ opacity: 0, scale: 0.4 }}
-                                transition={{ type: "spring", stiffness: 350, damping: 18 }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (onToggleMute) onToggleMute();
-                                }}
-                                title={isMuted ? "음소거 해제 (Unmute)" : "음소거 (Mute)"}
-                                className="p-1 rounded-full text-[#E7FF00] hover:text-white hover:bg-white/10 active:scale-90 transition-all cursor-pointer flex items-center justify-center"
-                            >
-                                {isMuted ? (
-                                    <VolumeX className="w-3.5 h-3.5 text-red-400 drop-shadow-[0_0_6px_rgba(255,0,0,0.8)]" />
-                                ) : (
-                                    <Volume2 className="w-3.5 h-3.5 text-[#E7FF00] drop-shadow-[0_0_6px_rgba(231,255,0,0.8)]" />
-                                )}
-                            </motion.button>
+                            <Volume2 className="w-3.5 h-3.5 text-[#E7FF00] animate-pulse" />
                         )}
-                    </AnimatePresence>
-                </div>
+                    </motion.button>
+                )}
             </motion.div>
         </motion.header>
     );
