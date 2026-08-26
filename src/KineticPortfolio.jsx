@@ -19,6 +19,7 @@ import { unlockTitle } from './constants/titles';
 import { Header3D } from './components/common/Header3D';
 import { KineticCursor } from './components/common/KineticCursor';
 import { VolumePrompt } from './components/common/VolumePrompt';
+import { ArchitecturalLedBoundaries } from './components/common/ArchitecturalLedBoundaries';
 import { Step07Timeline } from './components/walk/Step07Timeline';
 import { Step25QuestPopup } from './components/walk/Step25QuestPopup';
 import { SonicFootprints } from './components/walk/SonicFootprints';
@@ -383,6 +384,13 @@ export default function KineticPortfolio() {
                     onToggleMute={handleToggleMute}
                 />
             )}
+
+            {/* Global Architectural 3% LED Boundary Light Fixtures (Top & Bottom Ambient Guard Rails) */}
+            <ArchitecturalLedBoundaries 
+                tiltX={tiltX} 
+                tiltY={tiltY} 
+                isMuted={isMuted} 
+            />
         </div>
     );
 }
