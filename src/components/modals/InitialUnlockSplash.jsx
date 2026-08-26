@@ -4,6 +4,8 @@ import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
 import { getStoredVipProfile } from './InstagramVipAuthModal';
 import { unlockTitle } from '../../constants/titles';
 
+const RESONANCE_SCALES = [1.00, 1.03, 1.06, 1.09, 1.12, 1.15];
+
 export function InitialUnlockSplash({ 
     isAudioUnlocked, 
     onUnlock, 
@@ -18,9 +20,11 @@ export function InitialUnlockSplash({
     const [debrisStage, setDebrisStage] = useState(false);
     const [vipProfile, setVipProfile] = useState(null);
     const [isQuestUnlocked, setIsQuestUnlocked] = useState(false);
-    const [resonancePercent, setResonancePercent] = useState(30);
+    const [resonanceStage, setResonanceStage] = useState(0);
 
     const canShakeTriggerRef = useRef(false);
+    const lastStageTimeRef = useRef(0);
+    const accumulatedMotionRef = useRef(0);
 
     // Continuous Organic Idle Ambient Sway Physics
     const [idleOffset, setIdleOffset] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
@@ -28,7 +32,7 @@ export function InitialUnlockSplash({
 
     const triggerShortcutUnlock = () => {
         setIsQuestUnlocked(true);
-        setResonancePercent(100);
+        setResonanceStage(5);
         if (typeof unlockTitle === 'function') {
             unlockTitle('hidden_atelier_key');
         }
@@ -41,10 +45,10 @@ export function InitialUnlockSplash({
         const stored = getStoredVipProfile();
         if (stored) setVipProfile(stored);
 
-        // Immediate unlock eligibility after 300ms
+        // Strict 3.0s (3000ms) initial shake lock
         const tLock = setTimeout(() => {
             canShakeTriggerRef.current = true;
-        }, 300);
+        }, 3000);
 
         // 1.0s: Main Logo Card unblurs
         const tCard = setTimeout(() => {
@@ -56,7 +60,7 @@ export function InitialUnlockSplash({
             setDebrisStage(true);
         }, 1400);
 
-        // Precise Mobile Device Shake Sensor (4 spikes within 0.4s)
+        // Mobile Device Motion & Gyro Resonance Engine
         let mobileSpikeTimestamps = [];
         let lastAcc = { x: 0, y: 0, z: 0 };
         let lastMotionTime = Date.now();
@@ -66,7 +70,6 @@ export function InitialUnlockSplash({
             if (!acc) return;
 
             const now = Date.now();
-            const dt = Math.max(16, now - lastMotionTime);
             lastMotionTime = now;
 
             const curX = acc.x || 0;
@@ -78,13 +81,18 @@ export function InitialUnlockSplash({
             const deltaZ = Math.abs(curZ - lastAcc.z);
             const totalDelta = deltaX + deltaY + deltaZ;
 
-            // Subtle resonance increment on any active hand movement
-            if (totalDelta > 1.2) {
-                setResonancePercent(prev => Math.min(95, prev + 1));
+            // 5-Stage Progressive Card Resonance Scaling with 0.5s Pause
+            if (totalDelta > 1.4) {
+                accumulatedMotionRef.current += totalDelta;
+                if (accumulatedMotionRef.current > 18 && (now - lastStageTimeRef.current > 500)) {
+                    lastStageTimeRef.current = now;
+                    accumulatedMotionRef.current = 0;
+                    setResonanceStage((prev) => Math.min(5, prev + 1));
+                }
             }
 
-            // High-speed Shake Spike Detection (4 spikes in 0.4s)
-            if (canShakeTriggerRef.current && (totalDelta > 5.2 || deltaX > 3.6 || deltaY > 3.6)) {
+            // High-speed 4-Shake in 0.4s (Only active AFTER 3.0s initial lock)
+            if (canShakeTriggerRef.current && (totalDelta > 5.5 || deltaX > 3.8 || deltaY > 3.8)) {
                 mobileSpikeTimestamps.push(now);
                 // 0.4s (400ms) sliding window
                 mobileSpikeTimestamps = mobileSpikeTimestamps.filter(t => (now - t) <= 400);
@@ -98,18 +106,29 @@ export function InitialUnlockSplash({
             lastAcc = { x: curX, y: curY, z: curZ };
         };
 
-        // Desktop Mouse Rapid Shake Detection (5 reversals in 400ms)
+        // Desktop Mouse Movement Resonance
         let mouseReversalTimestamps = [];
         let lastMouseX = 0;
         let lastDir = 0;
-        let lastMouseMoveTime = Date.now();
 
         const handleMouseMove = (e) => {
             const now = Date.now();
             const dx = e.clientX - lastMouseX;
             const currentDir = dx > 0 ? 1 : dx < 0 ? -1 : 0;
+            const dist = Math.abs(dx);
 
-            if (currentDir !== 0 && currentDir !== lastDir && Math.abs(dx) > 12) {
+            // Progressive Desktop Resonance
+            if (dist > 8) {
+                accumulatedMotionRef.current += dist;
+                if (accumulatedMotionRef.current > 120 && (now - lastStageTimeRef.current > 500)) {
+                    lastStageTimeRef.current = now;
+                    accumulatedMotionRef.current = 0;
+                    setResonanceStage((prev) => Math.min(5, prev + 1));
+                }
+            }
+
+            // Rapid Mouse Shake Detection (Only active AFTER 3.0s initial lock)
+            if (currentDir !== 0 && currentDir !== lastDir && dist > 14) {
                 lastDir = currentDir;
                 if (canShakeTriggerRef.current) {
                     mouseReversalTimestamps.push(now);
@@ -158,6 +177,8 @@ export function InitialUnlockSplash({
     const targetRotY = (tiltX * 0.65) + idleOffset.rotY;
     const targetTransX = (tiltX * 0.85) + idleOffset.x;
     const targetTransY = (tiltY * 0.85) + idleOffset.y;
+
+    const currentScaleMultiplier = RESONANCE_SCALES[resonanceStage] || 1.0;
 
     return (
         <motion.div
@@ -251,37 +272,31 @@ export function InitialUnlockSplash({
                     </motion.div>
                 )}
 
-                {/* V04 MASTER CARD: Bordeaux Velvet + Alpha Cutout 18K Gold + 4-Shake [ENTER ATELIER] Reveal */}
+                {/* V04 MASTER CARD: Bordeaux Velvet + Alpha Cutout 18K Gold + 5-Stage Scale Resonance */}
                 <motion.div
                     initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
                     animate={{ 
                         opacity: cardUnblurStage ? 1 : 0, 
                         filter: cardUnblurStage ? 'blur(0px)' : 'blur(22px)',
-                        scale: cardUnblurStage ? 1.0 : 0.92,
+                        scale: cardUnblurStage ? currentScaleMultiplier : 0.92,
                         y: cardUnblurStage ? 0 : 20
                     }}
-                    transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
+                    transition={{
+                        scale: { type: "spring", stiffness: 220, damping: 20 },
+                        opacity: { duration: 1.0, ease: [0.16, 1, 0.3, 1] },
+                        filter: { duration: 1.0, ease: [0.16, 1, 0.3, 1] }
+                    }}
+                    whileHover={{ scale: currentScaleMultiplier * 1.03 }}
+                    whileTap={{ scale: currentScaleMultiplier * 0.97 }}
                     onClick={onUnlock}
                     className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 w-[290px] sm:w-[330px] aspect-[4/5] bg-gradient-to-b from-[#4A0D1D]/95 via-[#25060E]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
                 >
                     {/* Top Delicate Specular Light Glint */}
                     <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
 
-                    {/* Top Card Header */}
-                    <div className="relative z-10 w-full flex items-center justify-between">
-                        <span className="font-mono text-[9.5px] font-black tracking-[0.25em] text-[#C8A96E] uppercase">
-                            JUST • SEAN • FLOWS
-                        </span>
-                        <span className="font-mono text-[8px] font-bold text-[#E7FF00] px-2 py-0.5 rounded-full bg-black/60 border border-[#E7FF00]/40">
-                            EST. 2026
-                        </span>
-                    </div>
-
                     {/* Center 18K Gold Cutout Emblem with Radiant Pulsing Halo */}
-                    <div className="relative z-20 flex flex-col items-center justify-center my-auto py-2">
-                        <div className="absolute w-36 h-36 rounded-full bg-[#FFD700]/20 blur-2xl pointer-events-none animate-pulse" />
+                    <div className="relative z-20 flex flex-col items-center justify-center my-auto py-4">
+                        <div className="absolute w-40 h-40 rounded-full bg-[#FFD700]/20 blur-2xl pointer-events-none animate-pulse" />
                         <motion.img
                             src="/assets/logo/jsf_emblem_transparent.png"
                             alt="Just Sean Flows 18K Gold Emblem"
@@ -293,26 +308,12 @@ export function InitialUnlockSplash({
                                 ]
                             }}
                             transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                            className="w-28 sm:w-36 object-contain pointer-events-none select-none drop-shadow-2xl"
+                            className="w-32 sm:w-40 object-contain pointer-events-none select-none drop-shadow-2xl"
                         />
                     </div>
 
-                    {/* Resonance Indicator */}
-                    <div className="relative z-20 mb-2 px-3 py-1 rounded-full bg-black/80 border border-[#E7FF00]/40 flex items-center gap-2 shadow-[0_0_15px_rgba(231,255,0,0.2)]">
-                        <span className="font-mono text-[9px] font-black text-[#E7FF00] uppercase tracking-wider">
-                            RESONANCE +{resonancePercent}%
-                        </span>
-                        <div className="flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]" />
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]" />
-                            <span className={`w-1.5 h-1.5 rounded-full ${resonancePercent >= 60 ? 'bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]' : 'bg-white/20'}`} />
-                            <span className={`w-1.5 h-1.5 rounded-full ${resonancePercent >= 100 ? 'bg-[#E7FF00] shadow-[0_0_6px_#E7FF00]' : 'bg-white/20'}`} />
-                        </div>
-                    </div>
-
-                    {/* Bottom Action Area: Appears on 4-Shake in 0.4s OR Tap Prompt */}
-                    <div className="w-full relative z-20 min-h-[44px] flex items-center justify-center">
+                    {/* Bottom Action Area: Appears on 4-Shake in 0.4s (After 3.0s lock) OR Tap Prompt */}
+                    <div className="w-full relative z-20 min-h-[46px] flex items-center justify-center mt-auto">
                         <AnimatePresence mode="wait">
                             {isQuestUnlocked ? (
                                 <motion.div
@@ -341,9 +342,9 @@ export function InitialUnlockSplash({
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="text-center"
+                                    className="text-center py-1"
                                 >
-                                    <span className="font-mono text-[9px] text-[#C8A96E] font-black tracking-[0.2em] uppercase">
+                                    <span className="font-mono text-[9.5px] text-[#C8A96E] font-black tracking-[0.2em] uppercase drop-shadow-[0_0_8px_rgba(200,169,110,0.5)]">
                                         TAP CARD TO WALK // 02:00 AM
                                     </span>
                                 </motion.div>

@@ -88,7 +88,7 @@ export function Header3D({
     return (
         <motion.header
             animate={{
-                top: isCenter ? '45vh' : '28px',
+                top: isCenter ? '45vh' : '24px',
                 y: isCenter ? '-50%' : '0%',
                 scale: isCenter ? 1.35 : 1.0
             }}
@@ -104,8 +104,8 @@ export function Header3D({
         >
             <motion.div 
                 animate={{
-                    x: effectiveTiltX * (isCenter ? 14 : 6),
-                    y: effectiveTiltY * (isCenter ? 10 : 3),
+                    x: effectiveTiltX * (isCenter ? 14 : 5),
+                    y: isCenter ? (effectiveTiltY * 10) : Math.max(0, effectiveTiltY * 2.5),
                     rotateX: isCenter ? effectiveTiltY * 8 : 0,
                     rotateY: isCenter ? -effectiveTiltX * 8 : 0,
                     scale: isFlowsHit ? 1.08 : isMagnetLocked ? 1.02 : 1.0,
