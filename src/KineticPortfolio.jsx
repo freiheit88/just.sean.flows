@@ -141,8 +141,6 @@ export default function KineticPortfolio() {
                     updatePointerPos(e.touches[0].clientX, e.touches[0].clientY);
                 }
             }}
-            onClick={handleInitialUnlock}
-            onTouchStart={handleInitialUnlock}
         >
             {/* Background Master MR Audio */}
             <audio ref={mrAudioRef} src={MR_AUDIO_SRC} loop playsInline preload="auto" />
@@ -253,6 +251,35 @@ export default function KineticPortfolio() {
                             </motion.div>
                         );
                     })}
+
+                    {/* Step 2+ Reconstruction Overlay (Halts progression for complete overhaul) */}
+                    {activeFrameIdx >= 1 && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1.0 }}
+                            className="absolute inset-0 z-50 bg-[#070709]/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center select-none"
+                        >
+                            <div className="w-16 h-16 rounded-2xl bg-[#D4AF37]/15 border border-[#D4AF37]/60 flex items-center justify-center mb-4 shadow-[0_0_35px_rgba(212,175,55,0.4)]">
+                                <span className="text-2xl">🚧</span>
+                            </div>
+                            <span className="font-mono text-[9px] text-[#D4AF37] font-black tracking-[0.25em] uppercase mb-2">
+                                ATELIER SPATIAL RECONSTRUCTION
+                            </span>
+                            <h2 className="text-lg font-serif text-white tracking-wide mb-2">
+                                02:00 AM FRANKFURT WALK
+                            </h2>
+                            <p className="text-neutral-400 text-xs leading-relaxed max-w-[240px] mb-6">
+                                7단계 시네마틱 공간 워크 및 카메라 트랜지션 엔진을 새롭게 전면 개편 중입니다.
+                            </p>
+                            <button
+                                onClick={() => goToStep(0)}
+                                className="px-5 py-2.5 rounded-full border border-[#D4AF37]/50 bg-black/60 hover:bg-[#D4AF37]/20 text-[#D4AF37] font-mono text-[10px] font-bold tracking-widest uppercase transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+                            >
+                                <span>←</span>
+                                <span>BACK TO STEP 1</span>
+                            </button>
+                        </motion.div>
+                    )}
 
                     {/* Step 4 & Step 5 Floating Interactive Company Storefront Logo Badge */}
                     {(activeFrameIdx === 3 || activeFrameIdx === 4) && (

@@ -21,8 +21,7 @@ export function InitialUnlockSplash({
     const [vipProfile, setVipProfile] = useState(null);
     const [isQuestUnlocked, setIsQuestUnlocked] = useState(false);
     const [resonanceStage, setResonanceStage] = useState(0);
-    const [isSnappingToCenter, setIsSnappingToCenter] = useState(false);
-    const [isDockedGlow, setIsDockedGlow] = useState(false);
+    const [animPhase, setAnimPhase] = useState('idle'); // 'idle' | 'snapping' | 'emblem_pure' | 'fade_out'
 
     const canShakeTriggerRef = useRef(false);
     const lastStageTimeRef = useRef(0);
@@ -37,20 +36,21 @@ export function InitialUnlockSplash({
     }, []);
 
     const handleCardClick = (e) => {
-        if (isSnappingToCenter) return;
+        if (animPhase !== 'idle') return;
         if (e) {
             e.stopPropagation();
         }
 
-        // 1. Magnetic Pull & Snap to Center over 1.5s (Zeroing Gyro & Tilt)
-        setIsSnappingToCenter(true);
+        // Phase 1 (0.0s ~ 1.5s): Magnetic pull & snap to center (zeroing gyro & tilt)
+        setAnimPhase('snapping');
         if (navigator.vibrate) {
             try { navigator.vibrate([30, 40, 60]); } catch (err) {}
         }
 
-        // 2. Exactly at 1.5s (Docking Point): Play Signature Sound & Golden Flash
+        // Phase 2 (1.5s ~ 3.5s = 2.0s duration): 
+        // Card wine background & borders completely vanish, leaving ONLY pure 18K Gold Emblem floating with gold halo & signature audio
         setTimeout(() => {
-            setIsDockedGlow(true);
+            setAnimPhase('emblem_pure');
             if (signatureAudioRef.current) {
                 try {
                     signatureAudioRef.current.currentTime = 0;
@@ -58,10 +58,13 @@ export function InitialUnlockSplash({
                 } catch (err) {}
             }
 
-            // 3. Transition to Next Screen (Walking Page)
+            // Phase 3 (3.5s): Seamless dissolve into walk screen
             setTimeout(() => {
-                if (onUnlock) onUnlock();
-            }, 2600);
+                setAnimPhase('fade_out');
+                setTimeout(() => {
+                    if (onUnlock) onUnlock();
+                }, 600);
+            }, 2000);
         }, 1500);
     };
 
@@ -211,22 +214,29 @@ export function InitialUnlockSplash({
 
     if (isAudioUnlocked) return null;
 
-    // Organic Gyro + Idle Floating 3D Physics (Zeroed out during 1.5s magnetic snap)
-    const targetRotX = isSnappingToCenter ? 0 : ((-tiltY * 0.65) + idleOffset.rotX);
-    const targetRotY = isSnappingToCenter ? 0 : ((tiltX * 0.65) + idleOffset.rotY);
-    const targetTransX = isSnappingToCenter ? 0 : ((tiltX * 0.85) + idleOffset.x);
-    const targetTransY = isSnappingToCenter ? 0 : ((tiltY * 0.85) + idleOffset.y);
+    // Organic Gyro + Idle Floating 3D Physics (Zeroed out during snapping/emblem_pure)
+    const isLockedMotion = animPhase !== 'idle';
+    const targetRotX = isLockedMotion ? 0 : ((-tiltY * 0.65) + idleOffset.rotX);
+    const targetRotY = isLockedMotion ? 0 : ((tiltX * 0.65) + idleOffset.rotY);
+    const targetTransX = isLockedMotion ? 0 : ((tiltX * 0.85) + idleOffset.x);
+    const targetTransY = isLockedMotion ? 0 : ((tiltY * 0.85) + idleOffset.y);
 
-    const currentScaleMultiplier = isSnappingToCenter 
-        ? (isDockedGlow ? 1.05 : 1.0) 
+    const currentScaleMultiplier = (animPhase === 'emblem_pure') 
+        ? 1.12 
+        : (animPhase === 'fade_out') 
+        ? 1.28 
         : (RESONANCE_SCALES[resonanceStage] || 1.0);
+
+    const isCardHidden = animPhase === 'emblem_pure' || animPhase === 'fade_out';
 
     return (
         <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 1.08, filter: 'blur(10px)' }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            animate={{ 
+                opacity: animPhase === 'fade_out' ? 0 : 1 
+            }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             onClick={handleCardClick}
             className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-[#060405] cursor-pointer overflow-hidden select-none"
             style={{
@@ -234,19 +244,27 @@ export function InitialUnlockSplash({
                 transformStyle: 'preserve-3d'
             }}
         >
-            {/* Rich Bordeaux Velvet Vignette Background */}
-            <div 
-                className="absolute inset-0 pointer-events-none z-0 opacity-90"
+            {/* Rich Bordeaux Velvet Vignette Background - Fades to Pure Dark in emblem_pure */}
+            <motion.div 
+                animate={{
+                    opacity: isCardHidden ? 0.15 : 0.90
+                }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="absolute inset-0 pointer-events-none z-0"
                 style={{
                     background: 'radial-gradient(circle at center, #480B1B 0%, #25060E 55%, #060405 100%)'
                 }}
             />
 
-            {/* Background 22 Floating Particles */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
+            {/* Background Floating Particles - Fades out on click */}
+            <motion.div 
+                animate={{ opacity: isLockedMotion ? 0 : 0.4 }}
+                transition={{ duration: 0.8 }}
+                className="absolute inset-0 pointer-events-none overflow-hidden z-0"
+            >
                 {debrisStage && ATELIER_DEBRIS_100.map((item) => {
-                    const tiltXVal = isSnappingToCenter ? 0 : (-tilt.x * 12 * item.tiltMult + idleOffset.x * 0.3);
-                    const tiltYVal = isSnappingToCenter ? 0 : (-tilt.y * 12 * item.tiltMult + idleOffset.y * 0.3);
+                    const tiltXVal = isLockedMotion ? 0 : (-tilt.x * 12 * item.tiltMult + idleOffset.x * 0.3);
+                    const tiltYVal = isLockedMotion ? 0 : (-tilt.y * 12 * item.tiltMult + idleOffset.y * 0.3);
                     return (
                         <motion.div
                             key={item.id}
@@ -254,11 +272,11 @@ export function InitialUnlockSplash({
                             animate={{
                                 y: ['105vh', '-25vh'],
                                 x: [0, item.pullXPx, 0],
-                                opacity: isSnappingToCenter ? [item.opacityMax, 0] : [0, item.opacityMax, item.opacityMax * 0.8, 0],
+                                opacity: [0, item.opacityMax, item.opacityMax * 0.8, 0],
                                 scale: [item.scaleRange[0], item.scaleRange[1], item.scaleRange[2]],
                                 rotate: [item.rotation, item.rotation + 15, item.rotation]
                             }}
-                            transition={{ duration: isSnappingToCenter ? 1.5 : item.duration, repeat: isSnappingToCenter ? 0 : Infinity, delay: item.delay, ease: 'linear' }}
+                            transition={{ duration: item.duration, repeat: Infinity, delay: item.delay, ease: 'linear' }}
                             style={{
                                 left: item.left,
                                 top: 0,
@@ -271,11 +289,11 @@ export function InitialUnlockSplash({
                         </motion.div>
                     );
                 })}
-            </div>
+            </motion.div>
 
             {/* Top-Right Shortcut Notification Toast */}
             <AnimatePresence>
-                {isQuestUnlocked && (
+                {isQuestUnlocked && !isLockedMotion && (
                     <motion.div
                         initial={{ opacity: 0, y: 18 }}
                         animate={{ opacity: [0, 1, 1, 0], y: [18, 0, -4, -28] }}
@@ -288,7 +306,7 @@ export function InitialUnlockSplash({
                 )}
             </AnimatePresence>
 
-            {/* Central 3D Container with 1.5s Magnetic Snap */}
+            {/* Central 3D Container with Parallax & Snap Physics */}
             <motion.div
                 animate={{
                     rotateX: targetRotX,
@@ -297,8 +315,8 @@ export function InitialUnlockSplash({
                     y: targetTransY
                 }}
                 transition={{
-                    duration: isSnappingToCenter ? 1.5 : 0.25,
-                    ease: isSnappingToCenter ? [0.16, 1, 0.3, 1] : "easeOut"
+                    duration: isLockedMotion ? 1.5 : 0.25,
+                    ease: isLockedMotion ? [0.16, 1, 0.3, 1] : "easeOut"
                 }}
                 style={{
                     perspective: '1000px',
@@ -307,7 +325,7 @@ export function InitialUnlockSplash({
                 className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
             >
                 {/* VIP Recognition Badge */}
-                {vipProfile && (
+                {vipProfile && !isLockedMotion && (
                     <motion.div
                         initial={{ opacity: 0, y: -20, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -323,60 +341,73 @@ export function InitialUnlockSplash({
                     </motion.div>
                 )}
 
-                {/* V04 MASTER CARD: Bordeaux Velvet + Alpha Cutout 18K Gold + Magnetic Docking Flare */}
+                {/* V04 MASTER CARD: Bordeaux Velvet disappears completely on emblem_pure */}
                 <motion.div
                     initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
                     animate={{ 
-                        opacity: cardUnblurStage ? 1 : 0, 
+                        opacity: cardUnblurStage ? (animPhase === 'fade_out' ? 0 : 1) : 0, 
                         filter: cardUnblurStage ? 'blur(0px)' : 'blur(22px)',
                         scale: cardUnblurStage ? currentScaleMultiplier : 0.92,
                         y: cardUnblurStage ? 0 : 20,
-                        borderColor: isDockedGlow ? '#FFD700' : 'rgba(200, 169, 110, 0.8)',
-                        boxShadow: isDockedGlow 
-                            ? '0 0 80px rgba(255, 215, 0, 0.9), 0 0 140px rgba(231, 255, 0, 0.6), inset 0 0 30px rgba(255, 215, 0, 0.8)'
+                        borderColor: isCardHidden ? 'transparent' : 'rgba(200, 169, 110, 0.8)',
+                        backgroundColor: isCardHidden ? 'transparent' : 'rgba(37, 6, 14, 0.95)',
+                        boxShadow: isCardHidden 
+                            ? '0 0 0 transparent' 
                             : '0 25px 70px rgba(0,0,0,0.98), 0 0 40px rgba(200,169,110,0.35)'
                     }}
                     transition={{
-                        duration: isSnappingToCenter ? 1.5 : 0.3,
+                        duration: isLockedMotion ? 0.8 : 0.3,
                         ease: [0.16, 1, 0.3, 1]
                     }}
-                    whileHover={!isSnappingToCenter ? { scale: currentScaleMultiplier * 1.03 } : {}}
-                    whileTap={!isSnappingToCenter ? { scale: currentScaleMultiplier * 0.97 } : {}}
+                    whileHover={!isLockedMotion ? { scale: currentScaleMultiplier * 1.03 } : {}}
+                    whileTap={!isLockedMotion ? { scale: currentScaleMultiplier * 0.97 } : {}}
                     onClick={handleCardClick}
-                    className="relative rounded-[32px] border-2 shadow-[0_25px_70px_rgba(0,0,0,0.98)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-colors duration-500 w-[290px] sm:w-[330px] aspect-[4/5] bg-gradient-to-b from-[#4A0D1D]/95 via-[#25060E]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
+                    className="relative rounded-[32px] border-2 p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden w-[290px] sm:w-[330px] aspect-[4/5] backdrop-blur-2xl group cursor-pointer pointer-events-auto"
                 >
-                    {/* Top Delicate Specular Light Glint */}
-                    <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
+                    {/* Top Delicate Specular Light Glint (Fades out when pure emblem) */}
+                    <motion.div 
+                        animate={{ opacity: isCardHidden ? 0 : 1 }}
+                        transition={{ duration: 0.4 }}
+                        className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" 
+                    />
 
-                    {/* Center 18K Gold Cutout Emblem with Radiant Pulsing Halo */}
+                    {/* Center 18K Gold Cutout Emblem - REMAINS AND GLOWS BEAUTIFULLY */}
                     <div className="relative z-20 flex flex-col items-center justify-center my-auto py-4">
                         <motion.div 
                             animate={{
-                                scale: isDockedGlow ? [1, 1.8, 1.3] : [1, 1.2, 1],
-                                opacity: isDockedGlow ? [0.4, 0.9, 0.6] : [0.2, 0.35, 0.2]
+                                scale: isCardHidden ? [1.2, 1.7, 1.4] : [1, 1.2, 1],
+                                opacity: isCardHidden ? [0.6, 0.95, 0.75] : [0.2, 0.35, 0.2]
                             }}
-                            transition={{ repeat: isDockedGlow ? 0 : Infinity, duration: isDockedGlow ? 1.2 : 3.5, ease: "easeInOut" }}
-                            className="absolute w-40 h-40 rounded-full bg-[#FFD700] blur-2xl pointer-events-none" 
+                            transition={{ repeat: isCardHidden ? 0 : Infinity, duration: isCardHidden ? 1.8 : 3.5, ease: "easeInOut" }}
+                            className="absolute w-44 h-44 rounded-full bg-[#FFD700] blur-3xl pointer-events-none" 
                         />
                         <motion.img
                             src="/assets/logo/jsf_emblem_transparent.png"
                             alt="Just Sean Flows 18K Gold Emblem"
                             animate={{
-                                filter: isDockedGlow ? [
-                                    "drop-shadow(0 0 35px rgba(255,215,0,1)) drop-shadow(0 0 70px rgba(231,255,0,0.95)) brightness(1.25)"
+                                scale: isCardHidden ? 1.15 : 1.0,
+                                filter: isCardHidden ? [
+                                    "drop-shadow(0 0 35px rgba(255,215,0,1)) drop-shadow(0 0 80px rgba(231,255,0,0.95)) brightness(1.28)"
                                 ] : [
                                     "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))",
                                     "drop-shadow(0 0 32px rgba(231,255,0,0.9)) drop-shadow(0 6px 24px rgba(0,0,0,0.95))",
                                     "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))"
                                 ]
                             }}
-                            transition={{ repeat: isDockedGlow ? 0 : Infinity, duration: 3.5, ease: "easeInOut" }}
-                            className="w-32 sm:w-40 object-contain pointer-events-none select-none drop-shadow-2xl"
+                            transition={{ 
+                                scale: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+                                filter: { repeat: isCardHidden ? 0 : Infinity, duration: 3.5, ease: "easeInOut" }
+                            }}
+                            className="w-32 sm:w-44 object-contain pointer-events-none select-none drop-shadow-2xl"
                         />
                     </div>
 
-                    {/* Bottom Action Area: Appears on 4-Shake OR Tap Prompt */}
-                    <div className="w-full relative z-20 min-h-[46px] flex items-center justify-center mt-auto">
+                    {/* Bottom Action Area (Fades out when pure emblem) */}
+                    <motion.div 
+                        animate={{ opacity: isCardHidden ? 0 : 1 }}
+                        transition={{ duration: 0.4 }}
+                        className="w-full relative z-20 min-h-[46px] flex items-center justify-center mt-auto"
+                    >
                         <AnimatePresence mode="wait">
                             {isQuestUnlocked ? (
                                 <motion.div
@@ -408,12 +439,12 @@ export function InitialUnlockSplash({
                                     className="text-center py-1"
                                 >
                                     <span className="font-mono text-[9.5px] text-[#C8A96E] font-black tracking-[0.2em] uppercase drop-shadow-[0_0_8px_rgba(200,169,110,0.5)]">
-                                        {isDockedGlow ? "⚜️ ALIGNMENT COMPLETE // 02:00 AM" : "TAP CARD TO WALK // 02:00 AM"}
+                                        TAP CARD TO WALK // 02:00 AM
                                     </span>
                                 </motion.div>
                             )}
                         </AnimatePresence>
-                    </div>
+                    </motion.div>
                 </motion.div>
             </motion.div>
         </motion.div>
