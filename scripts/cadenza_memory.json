@@ -128,6 +128,32 @@
       "bundes_musikfonds": 50000,
       "eu_eit_culture": 30000,
       "total_non_dilutive": 130000
+    },
+    "two_engine_framework": {
+      "engine_a_ground_level_immediate_cashflow": {
+        "monthly_target_eur": "€3,000 - €6,000",
+        "time_allocation": "60%",
+        "tactics": [
+          "1:1 VIP 432Hz Violin & Audio Masterclasses (€100-€150/hr, €2,000-€3,500/mo)",
+          "Short-form 432Hz Violin Covers & Stock Licensing Sale (€800-€1,500/mo)",
+          "Frankfurt Local Cafe/Restaurant 432Hz BGM Subscription (€99-€199/shop, €1,000-€2,000/mo)",
+          "Fast 1-Week Turnaround IT/Web Freelance Contracts (€1,500-€2,500/project)"
+        ]
+      },
+      "engine_b_ideal_moonshot_assets": {
+        "monthly_target_eur": "€20,000+",
+        "time_allocation": "40%",
+        "tactics": [
+          "Frankfurt Enterprise B2B Sonic Branding (€12,000/deal)",
+          "Hessen WIBank Digitalbonus & Federal Music Grants (€130,000 non-dilutive)",
+          "October 2026 100-VIP Launch Party & Lookbook Direct Sales"
+        ]
+      },
+      "anti_perfectionism_guardrails": [
+        "Cash Flow is Oxygen: Never let R&D or perfectionism halt weekly revenue generation.",
+        "Ship Fast, Polish Later: Release at 80% completion and refine based on paying client feedback.",
+        "Never Stop Selling: Reach out to at least 3 potential students, local shop owners, or B2B leads every week."
+      ]
     }
   }
 }
