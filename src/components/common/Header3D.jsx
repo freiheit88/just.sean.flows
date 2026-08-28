@@ -27,7 +27,7 @@ export function Header3D({
     isMuted = false,
     onToggleMute
 }) {
-    // phase: 'center' (0.0s - 2.6s) -> 'ascending' (2.6s - 3.5s) -> 'docked' (3.5s+)
+    // phase: 'center' (0.0s - 1.2s) -> 'ascending' (1.2s - 2.5s) -> 'docked' (2.5s+)
     const [phase, setPhase] = useState('center');
     const [isVolumeSwallowed, setIsVolumeSwallowed] = useState(false);
     
@@ -36,9 +36,9 @@ export function Header3D({
     const [isMagnetLocked, setIsMagnetLocked] = useState(false);
 
     useEffect(() => {
-        const ascendTimer = setTimeout(() => setPhase('ascending'), 2600);
-        const dockTimer = setTimeout(() => setPhase('docked'), 3500);
-        const swallowTimer = setTimeout(() => setIsVolumeSwallowed(true), 4800);
+        const ascendTimer = setTimeout(() => setPhase('ascending'), 1200);
+        const dockTimer = setTimeout(() => setPhase('docked'), 2400);
+        const swallowTimer = setTimeout(() => setIsVolumeSwallowed(true), 3600);
 
         return () => {
             clearTimeout(ascendTimer);

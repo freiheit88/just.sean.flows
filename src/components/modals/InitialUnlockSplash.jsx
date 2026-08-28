@@ -97,15 +97,15 @@ export function InitialUnlockSplash({
             canShakeTriggerRef.current = true;
         }, 3000);
 
-        // 1.0s: Main Logo Card unblurs
+        // 1.2s: Main Card Bubble emerges from inside the parent header bubble
         const tCard = setTimeout(() => {
             setCardUnblurStage(true);
-        }, 1000);
+        }, 1200);
 
-        // 1.4s: Ambient Debris fades in
+        // 1.8s: Ambient Debris fades in
         const tDebris = setTimeout(() => {
             setDebrisStage(true);
-        }, 1400);
+        }, 1800);
 
         // Mobile Device Motion & Gyro Resonance Engine
         let mobileSpikeTimestamps = [];
@@ -346,18 +346,19 @@ export function InitialUnlockSplash({
                     </motion.div>
                 )}
 
-                {/* 1. V04 MASTER CARD LAYER (Visible only during idle & snapping) */}
+                {/* 1. V04 MASTER CARD LAYER (Sprouts out from inside the parent Header Bubble) */}
                 <motion.div
-                    initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
+                    initial={{ opacity: 0, filter: 'blur(24px)', scale: 0.15, y: 0 }}
                     animate={{ 
                         opacity: isCardHidden ? 0 : (cardUnblurStage ? 1 : 0), 
-                        filter: cardUnblurStage ? 'blur(0px)' : 'blur(22px)',
-                        scale: isCardHidden ? 1.05 : (cardUnblurStage ? currentScaleMultiplier : 0.92),
-                        y: cardUnblurStage ? 0 : 20
+                        filter: cardUnblurStage ? 'blur(0px)' : 'blur(24px)',
+                        scale: isCardHidden ? 1.05 : (cardUnblurStage ? currentScaleMultiplier : 0.15),
+                        y: 0
                     }}
                     transition={{
-                        opacity: { duration: isCardHidden ? 0.35 : 1.0, ease: "easeOut" },
-                        scale: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+                        opacity: { duration: isCardHidden ? 0.35 : 1.2, ease: "easeOut" },
+                        scale: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
+                        filter: { duration: 1.0, ease: "easeOut" }
                     }}
                     whileHover={!isLockedMotion ? { scale: currentScaleMultiplier * 1.03 } : {}}
                     whileTap={!isLockedMotion ? { scale: currentScaleMultiplier * 0.97 } : {}}
