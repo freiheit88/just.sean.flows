@@ -21,38 +21,7 @@ export function useAudioMaster() {
         }
     }, [isModalActive, isAudioUnlocked, isMuted]);
 
-    // Bulletproof Mobile Native Gesture Audio Unlocker
-    useEffect(() => {
-        const unlock = () => {
-            if (isModalActiveRef.current) return; // Never auto-play if in modal
-
-            if (mrAudioRef.current && !isAudioUnlocked) {
-                mrAudioRef.current.volume = 0.85;
-                const playPromise = mrAudioRef.current.play();
-                if (playPromise !== undefined) {
-                    playPromise
-                        .then(() => {
-                            setIsAudioUnlocked(true);
-                        })
-                        .catch((err) => {
-                            console.warn("Mobile audio autoplay awaiting gesture:", err);
-                        });
-                }
-            }
-        };
-
-        window.addEventListener('touchstart', unlock, { passive: true });
-        window.addEventListener('touchend', unlock, { passive: true });
-        window.addEventListener('pointerdown', unlock, { passive: true });
-        window.addEventListener('click', unlock, { passive: true });
-
-        return () => {
-            window.removeEventListener('touchstart', unlock);
-            window.removeEventListener('touchend', unlock);
-            window.removeEventListener('pointerdown', unlock);
-            window.removeEventListener('click', unlock);
-        };
-    }, [isAudioUnlocked]);
+    // Audio unlocked strictly via user interaction through forceUnlockAudio()
 
     // Focus / Home-Key / Tab Inactive Detection
     useEffect(() => {
