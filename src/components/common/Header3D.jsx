@@ -27,35 +27,21 @@ export function Header3D({
     isMuted = false,
     onToggleMute
 }) {
-    // phase: 'center' (0.0s - 1.2s) -> 'ascending' (1.2s - 2.5s) -> 'docked' (2.5s+)
-    const [phase, setPhase] = useState('center');
     const [isVolumeSwallowed, setIsVolumeSwallowed] = useState(false);
-    
-    // Magnetic Snap & 1-Second Origin Lock State
-    // Cycle: 2.0s Free Float -> Snap to Origin & Lock for 1.0s -> Repeat
     const [isMagnetLocked, setIsMagnetLocked] = useState(false);
 
     useEffect(() => {
-        const ascendTimer = setTimeout(() => setPhase('ascending'), 1200);
-        const dockTimer = setTimeout(() => setPhase('docked'), 2400);
         const swallowTimer = setTimeout(() => setIsVolumeSwallowed(true), 3600);
-
-        return () => {
-            clearTimeout(ascendTimer);
-            clearTimeout(dockTimer);
-            clearTimeout(swallowTimer);
-        };
+        return () => clearTimeout(swallowTimer);
     }, []);
 
-    // 2.0s Free -> 1.0s Snap Lock Cycle
+    // 2.0s Free Float -> 1.0s Snap Lock Cycle
     useEffect(() => {
         let isCancelled = false;
 
         const cycleLoop = () => {
-            // Free phase: 2000ms
             setTimeout(() => {
                 if (isCancelled) return;
-                // Snap to Origin & Lock for 1000ms
                 setIsMagnetLocked(true);
 
                 setTimeout(() => {
@@ -79,61 +65,52 @@ export function Header3D({
         }
     }, [isFlowsHit]);
 
-    const isCenter = phase === 'center';
-
-    // When Magnet is Locked, target offset is precisely (0, 0)
     const effectiveTiltX = isMagnetLocked ? 0 : tiltX;
     const effectiveTiltY = isMagnetLocked ? 0 : tiltY;
 
     return (
         <motion.header
-            animate={{
-                top: isCenter ? '45vh' : '24px',
-                y: isCenter ? '-50%' : '0%',
-                scale: isCenter ? 1.35 : 1.0
-            }}
-            transition={{
-                duration: 1.1,
-                ease: [0.16, 1, 0.3, 1]
-            }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             style={{
                 perspective: '1000px',
                 transformStyle: 'preserve-3d'
             }}
-            className="fixed left-0 right-0 z-[9999] px-6 py-2 flex items-center justify-center pointer-events-none select-none"
+            className="fixed top-5 sm:top-6 left-0 right-0 z-[9999] px-6 py-2 flex items-center justify-center pointer-events-none select-none"
         >
             <motion.div 
                 animate={{
-                    x: effectiveTiltX * (isCenter ? 14 : 5),
-                    y: isCenter ? (effectiveTiltY * 10) : Math.max(0, effectiveTiltY * 2.5),
-                    rotateX: isCenter ? effectiveTiltY * 8 : 0,
-                    rotateY: isCenter ? -effectiveTiltX * 8 : 0,
+                    x: effectiveTiltX * 5,
+                    y: isMagnetLocked ? 0 : [0, -3, 0],
+                    rotateX: 0,
+                    rotateY: -effectiveTiltX * 4,
                     scale: isFlowsHit ? 1.08 : isMagnetLocked ? 1.02 : 1.0,
                     borderColor: isFlowsHit 
                         ? '#E7FF00' 
                         : isMagnetLocked 
                         ? 'rgba(255, 215, 0, 0.9)' 
-                        : isCenter 
-                        ? 'rgba(200, 169, 110, 0.75)' 
-                        : 'rgba(200, 169, 110, 0.40)',
+                        : 'rgba(255, 255, 255, 0.25)',
                     boxShadow: isFlowsHit 
                         ? '0 0 35px rgba(231, 255, 0, 0.75)' 
                         : isMagnetLocked 
                         ? '0 0 25px rgba(255, 215, 0, 0.65), 0 10px 30px rgba(0,0,0,0.9)' 
-                        : isCenter 
-                        ? '0 20px 50px rgba(0,0,0,0.95), 0 0 30px rgba(200,169,110,0.45)'
-                        : '0 4px 25px rgba(0,0,0,0.8), 0 0 15px rgba(200,169,110,0.2)'
+                        : '0 8px 32px rgba(0,0,0,0.65), 0 0 20px rgba(255,215,0,0.2), inset 0 1px 1px rgba(255,255,255,0.45)'
                 }}
                 transition={{
+                    y: { repeat: isMagnetLocked ? 0 : Infinity, duration: 3.2, ease: "easeInOut" },
                     type: "spring",
                     stiffness: isMagnetLocked ? 420 : 180,
                     damping: isMagnetLocked ? 24 : 18
                 }}
-                className="pointer-events-auto flex items-center justify-center gap-2 sm:gap-2.5 px-5 py-2 rounded-full bg-black/80 backdrop-blur-xl border shadow-2xl transition-all duration-300 group cursor-default"
+                className="relative pointer-events-auto flex items-center justify-center gap-2 sm:gap-2.5 px-5 py-2 rounded-full bg-gradient-to-b from-white/15 via-black/70 to-black/90 backdrop-blur-2xl border transition-all duration-300 group cursor-default overflow-hidden"
             >
+                {/* Bubble Specular Curved Glass Glint */}
+                <div className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-white/30 via-white/5 to-transparent rounded-t-full pointer-events-none" />
+
                 {/* 18K Champagne Gold Glowing Indicator Dot */}
                 <div 
-                    className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                    className={`w-2 h-2 rounded-full transition-all duration-500 relative z-10 ${
                         isMagnetLocked ? 'bg-[#FFD700] shadow-[0_0_12px_#FFD700] scale-125' : 'bg-[#C8A96E] shadow-[0_0_8px_#C8A96E]'
                     }`} 
                 />

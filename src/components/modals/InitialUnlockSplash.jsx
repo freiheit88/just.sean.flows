@@ -346,19 +346,17 @@ export function InitialUnlockSplash({
                     </motion.div>
                 )}
 
-                {/* 1. V04 MASTER CARD LAYER (Sprouts out from inside the parent Header Bubble) */}
+                {/* 1. V04 MASTER CARD LAYER */}
                 <motion.div
-                    initial={{ opacity: 0, filter: 'blur(24px)', scale: 0.15, y: 0 }}
+                    initial={{ opacity: 0, filter: 'blur(20px)', scale: 0.95 }}
                     animate={{ 
-                        opacity: isCardHidden ? 0 : (cardUnblurStage ? 1 : 0), 
-                        filter: cardUnblurStage ? 'blur(0px)' : 'blur(24px)',
-                        scale: isCardHidden ? 1.05 : (cardUnblurStage ? currentScaleMultiplier : 0.15),
-                        y: 0
+                        opacity: isCardHidden ? 0 : 1, 
+                        filter: 'blur(0px)',
+                        scale: isCardHidden ? 1.05 : currentScaleMultiplier
                     }}
                     transition={{
-                        opacity: { duration: isCardHidden ? 0.35 : 1.2, ease: "easeOut" },
-                        scale: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
-                        filter: { duration: 1.0, ease: "easeOut" }
+                        opacity: { duration: isCardHidden ? 0.35 : 0.8, ease: "easeOut" },
+                        scale: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
                     }}
                     whileHover={!isLockedMotion ? { scale: currentScaleMultiplier * 1.03 } : {}}
                     whileTap={!isLockedMotion ? { scale: currentScaleMultiplier * 0.97 } : {}}
@@ -368,9 +366,12 @@ export function InitialUnlockSplash({
                     {/* Top Delicate Specular Light Glint */}
                     <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
 
-                    {/* Center 18K Gold Cutout Emblem inside card */}
-                    <div className="relative z-20 flex flex-col items-center justify-center my-auto py-4">
-                        <div className="absolute w-40 h-40 rounded-full bg-[#FFD700]/20 blur-2xl pointer-events-none animate-pulse" />
+                    {/* Top Spacer */}
+                    <div className="w-full h-6" />
+
+                    {/* Center 18K Gold Cutout Emblem - GEOMETRICALLY CENTERED */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
+                        <div className="absolute w-40 h-40 rounded-full bg-[#FFD700]/15 blur-2xl pointer-events-none" />
                         <motion.img
                             src="/assets/logo/jsf_emblem_transparent.png"
                             alt="Just Sean Flows 18K Gold Emblem"
@@ -382,12 +383,12 @@ export function InitialUnlockSplash({
                                 ]
                             }}
                             transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                            className="w-32 sm:w-40 object-contain pointer-events-none select-none drop-shadow-2xl"
+                            className="w-32 sm:w-36 object-contain pointer-events-none select-none drop-shadow-2xl"
                         />
                     </div>
 
                     {/* Bottom Action Area */}
-                    <div className="w-full relative z-20 min-h-[46px] flex items-center justify-center mt-auto">
+                    <div className="w-full relative z-30 min-h-[46px] flex items-center justify-center mt-auto">
                         <AnimatePresence mode="wait">
                             {isQuestUnlocked ? (
                                 <motion.div
@@ -448,7 +449,7 @@ export function InitialUnlockSplash({
                             }}
                             className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-40"
                         >
-                            {/* Unconstrained Boundless Circular Radial Gold Bloom - shrinks into TV screen */}
+                            {/* Unconstrained Boundless Circular Radial Gold Bloom */}
                             <motion.div 
                                 animate={{
                                     scale: animPhase === 'emblem_absorb' ? 0.3 : [1.0, 1.2, 1.05],
@@ -462,7 +463,7 @@ export function InitialUnlockSplash({
                                 className="absolute w-[450px] h-[450px] rounded-full pointer-events-none"
                             />
 
-                            {/* Pure 18K Gold Emblem Cutout - docks onto screen */}
+                            {/* Pure 18K Gold Emblem Cutout */}
                             <motion.img
                                 src="/assets/logo/jsf_emblem_transparent.png"
                                 alt="Just Sean Flows 18K Gold Emblem"
@@ -482,32 +483,34 @@ export function InitialUnlockSplash({
                     )}
                 </AnimatePresence>
 
-                {/* 3. LONE LIGHT SALON BACKGROUND FADE-IN DURING ABSORPTION (Seamlessly matches Frame 0) */}
-                <motion.div
-                    animate={{
-                        opacity: animPhase === 'emblem_absorb' || animPhase === 'fade_out' ? 1 : 0
-                    }}
-                    transition={{ duration: 0.8, ease: "easeInOut" }}
-                    className="absolute inset-0 pointer-events-none z-10 overflow-hidden flex items-center justify-center rounded-[32px]"
-                >
-                    <img 
-                        src="/assets/lone_light_salon_02am.jpg" 
-                        alt="02:00 AM Lone Light Salon" 
-                        className="w-full h-full object-fill brightness-95"
-                    />
-                    {/* Ambient Lone Light Guide Label */}
-                    {animPhase === 'emblem_absorb' && (
+                {/* 3. LONE LIGHT SALON BACKGROUND (Mounts ONLY during absorption) */}
+                <AnimatePresence>
+                    {(animPhase === 'emblem_absorb' || animPhase === 'fade_out') && (
                         <motion.div
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4, duration: 0.6 }}
-                            className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#D4AF37]/50 shadow-[0_0_15px_rgba(212,175,55,0.4)] flex items-center gap-1.5 font-mono text-[8.5px] font-black text-[#D4AF37] tracking-[0.2em] uppercase"
+                            key="lone_light_bg"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.8, ease: "easeInOut" }}
+                            className="absolute inset-0 pointer-events-none z-10 overflow-hidden flex items-center justify-center rounded-[32px]"
                         >
-                            <span>📺</span>
-                            <span>LONE FREQUENCY DETECTED</span>
+                            <img 
+                                src="/assets/lone_light_salon_02am.jpg" 
+                                alt="02:00 AM Lone Light Salon" 
+                                className="w-full h-full object-fill brightness-95"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.4, duration: 0.6 }}
+                                className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#D4AF37]/50 shadow-[0_0_15px_rgba(212,175,55,0.4)] flex items-center gap-1.5 font-mono text-[8.5px] font-black text-[#D4AF37] tracking-[0.2em] uppercase"
+                            >
+                                <span>📺</span>
+                                <span>LONE FREQUENCY DETECTED</span>
+                            </motion.div>
                         </motion.div>
                     )}
-                </motion.div>
+                </AnimatePresence>
             </motion.div>
         </motion.div>
     );
