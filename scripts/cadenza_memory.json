@@ -99,5 +99,35 @@
         ]
       }
     }
-  ]
+  ],
+  "hybrid_business_architecture": {
+    "entity": "JSF Collective UG (haftungsbeschränkt) - Frankfurt am Main",
+    "core_strengths": [
+      "Senior IT / WebGL Automation Infrastructure",
+      "Private Tracking Studio with 1780 Guarneri Violin & Steinway Concert D",
+      "CADENZA-432 Scientific Verdi Tuning DSP Algorithms",
+      "High-End GenAI Virtual Production & Editorial Fashion Pipelines"
+    ],
+    "monetization_pillars": {
+      "pillar_1_b2b_sonic_branding": {
+        "monthly_target_eur": "€8,000 - €20,000",
+        "services": "432Hz Bespoke Audio Identity, Tactile UI/UX Micro-haptics, Spatial Sound Systems for Frankfurt FinTech & Luxury Ateliers",
+        "standard_package_eur": 12000
+      },
+      "pillar_2_genai_virtual_production": {
+        "monthly_target_eur": "€6,000 - €15,000",
+        "services": "3D Virtual Lookbook Staging, Chiaroscuro Cinematic Visuals, Luxury Editorial Campaigns"
+      },
+      "pillar_3_algorithmic_audio_assets": {
+        "monthly_target_eur": "€2,000 - €8,000",
+        "services": "CADENZA-432 Developer Audio DSP Tools, 432Hz Streaming Catalog (300 active tracks @ €14,850/mo passive potential)"
+      }
+    },
+    "grant_funding_pipeline_eur": {
+      "hessen_digitalbonus": 50000,
+      "bundes_musikfonds": 50000,
+      "eu_eit_culture": 30000,
+      "total_non_dilutive": 130000
+    }
+  }
 }
