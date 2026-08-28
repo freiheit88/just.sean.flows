@@ -21,10 +21,49 @@ export function InitialUnlockSplash({
     const [vipProfile, setVipProfile] = useState(null);
     const [isQuestUnlocked, setIsQuestUnlocked] = useState(false);
     const [resonanceStage, setResonanceStage] = useState(0);
+    const [isSnappingToCenter, setIsSnappingToCenter] = useState(false);
+    const [isDockedGlow, setIsDockedGlow] = useState(false);
 
     const canShakeTriggerRef = useRef(false);
     const lastStageTimeRef = useRef(0);
     const accumulatedMotionRef = useRef(0);
+    const signatureAudioRef = useRef(null);
+
+    // Initialize signature audio
+    useEffect(() => {
+        const audio = new Audio('/assets/sounds/signature-intro.mp3');
+        audio.preload = 'auto';
+        signatureAudioRef.current = audio;
+    }, []);
+
+    const handleCardClick = (e) => {
+        if (isSnappingToCenter) return;
+        if (e) {
+            e.stopPropagation();
+        }
+
+        // 1. Magnetic Pull & Snap to Center over 1.5s (Zeroing Gyro & Tilt)
+        setIsSnappingToCenter(true);
+        if (navigator.vibrate) {
+            try { navigator.vibrate([30, 40, 60]); } catch (err) {}
+        }
+
+        // 2. Exactly at 1.5s (Docking Point): Play Signature Sound & Golden Flash
+        setTimeout(() => {
+            setIsDockedGlow(true);
+            if (signatureAudioRef.current) {
+                try {
+                    signatureAudioRef.current.currentTime = 0;
+                    signatureAudioRef.current.play().catch(() => {});
+                } catch (err) {}
+            }
+
+            // 3. Transition to Next Screen (Walking Page)
+            setTimeout(() => {
+                if (onUnlock) onUnlock();
+            }, 2600);
+        }, 1500);
+    };
 
     // Continuous Organic Idle Ambient Sway Physics
     const [idleOffset, setIdleOffset] = useState({ x: 0, y: 0, rotX: 0, rotY: 0 });
@@ -172,21 +211,23 @@ export function InitialUnlockSplash({
 
     if (isAudioUnlocked) return null;
 
-    // Organic Gyro + Idle Floating 3D Physics
-    const targetRotX = (-tiltY * 0.65) + idleOffset.rotX;
-    const targetRotY = (tiltX * 0.65) + idleOffset.rotY;
-    const targetTransX = (tiltX * 0.85) + idleOffset.x;
-    const targetTransY = (tiltY * 0.85) + idleOffset.y;
+    // Organic Gyro + Idle Floating 3D Physics (Zeroed out during 1.5s magnetic snap)
+    const targetRotX = isSnappingToCenter ? 0 : ((-tiltY * 0.65) + idleOffset.rotX);
+    const targetRotY = isSnappingToCenter ? 0 : ((tiltX * 0.65) + idleOffset.rotY);
+    const targetTransX = isSnappingToCenter ? 0 : ((tiltX * 0.85) + idleOffset.x);
+    const targetTransY = isSnappingToCenter ? 0 : ((tiltY * 0.85) + idleOffset.y);
 
-    const currentScaleMultiplier = RESONANCE_SCALES[resonanceStage] || 1.0;
+    const currentScaleMultiplier = isSnappingToCenter 
+        ? (isDockedGlow ? 1.05 : 1.0) 
+        : (RESONANCE_SCALES[resonanceStage] || 1.0);
 
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 1.05 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            onClick={onUnlock}
+            exit={{ opacity: 0, scale: 1.08, filter: 'blur(10px)' }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            onClick={handleCardClick}
             className="fixed inset-0 z-50 flex flex-col items-center justify-center pointer-events-auto bg-[#060405] cursor-pointer overflow-hidden select-none"
             style={{
                 perspective: '1000px',
@@ -204,8 +245,8 @@ export function InitialUnlockSplash({
             {/* Background 22 Floating Particles */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
                 {debrisStage && ATELIER_DEBRIS_100.map((item) => {
-                    const tiltXVal = -tilt.x * 12 * item.tiltMult + idleOffset.x * 0.3;
-                    const tiltYVal = -tilt.y * 12 * item.tiltMult + idleOffset.y * 0.3;
+                    const tiltXVal = isSnappingToCenter ? 0 : (-tilt.x * 12 * item.tiltMult + idleOffset.x * 0.3);
+                    const tiltYVal = isSnappingToCenter ? 0 : (-tilt.y * 12 * item.tiltMult + idleOffset.y * 0.3);
                     return (
                         <motion.div
                             key={item.id}
@@ -213,11 +254,11 @@ export function InitialUnlockSplash({
                             animate={{
                                 y: ['105vh', '-25vh'],
                                 x: [0, item.pullXPx, 0],
-                                opacity: [0, item.opacityMax, item.opacityMax * 0.8, 0],
+                                opacity: isSnappingToCenter ? [item.opacityMax, 0] : [0, item.opacityMax, item.opacityMax * 0.8, 0],
                                 scale: [item.scaleRange[0], item.scaleRange[1], item.scaleRange[2]],
                                 rotate: [item.rotation, item.rotation + 15, item.rotation]
                             }}
-                            transition={{ duration: item.duration, repeat: Infinity, delay: item.delay, ease: 'linear' }}
+                            transition={{ duration: isSnappingToCenter ? 1.5 : item.duration, repeat: isSnappingToCenter ? 0 : Infinity, delay: item.delay, ease: 'linear' }}
                             style={{
                                 left: item.left,
                                 top: 0,
@@ -247,10 +288,20 @@ export function InitialUnlockSplash({
                 )}
             </AnimatePresence>
 
-            {/* Central 3D Container with Parallax Tilt */}
-            <div
+            {/* Central 3D Container with 1.5s Magnetic Snap */}
+            <motion.div
+                animate={{
+                    rotateX: targetRotX,
+                    rotateY: targetRotY,
+                    x: targetTransX,
+                    y: targetTransY
+                }}
+                transition={{
+                    duration: isSnappingToCenter ? 1.5 : 0.25,
+                    ease: isSnappingToCenter ? [0.16, 1, 0.3, 1] : "easeOut"
+                }}
                 style={{
-                    transform: `perspective(1000px) rotateX(${targetRotX}deg) rotateY(${targetRotY}deg) translate3d(${targetTransX}px, ${targetTransY}px, 20px)`,
+                    perspective: '1000px',
                     transformStyle: 'preserve-3d'
                 }}
                 className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
@@ -272,47 +323,59 @@ export function InitialUnlockSplash({
                     </motion.div>
                 )}
 
-                {/* V04 MASTER CARD: Bordeaux Velvet + Alpha Cutout 18K Gold + 5-Stage Scale Resonance */}
+                {/* V04 MASTER CARD: Bordeaux Velvet + Alpha Cutout 18K Gold + Magnetic Docking Flare */}
                 <motion.div
                     initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
                     animate={{ 
                         opacity: cardUnblurStage ? 1 : 0, 
                         filter: cardUnblurStage ? 'blur(0px)' : 'blur(22px)',
                         scale: cardUnblurStage ? currentScaleMultiplier : 0.92,
-                        y: cardUnblurStage ? 0 : 20
+                        y: cardUnblurStage ? 0 : 20,
+                        borderColor: isDockedGlow ? '#FFD700' : 'rgba(200, 169, 110, 0.8)',
+                        boxShadow: isDockedGlow 
+                            ? '0 0 80px rgba(255, 215, 0, 0.9), 0 0 140px rgba(231, 255, 0, 0.6), inset 0 0 30px rgba(255, 215, 0, 0.8)'
+                            : '0 25px 70px rgba(0,0,0,0.98), 0 0 40px rgba(200,169,110,0.35)'
                     }}
                     transition={{
-                        scale: { type: "spring", stiffness: 220, damping: 20 },
-                        opacity: { duration: 1.0, ease: [0.16, 1, 0.3, 1] },
-                        filter: { duration: 1.0, ease: [0.16, 1, 0.3, 1] }
+                        duration: isSnappingToCenter ? 1.5 : 0.3,
+                        ease: [0.16, 1, 0.3, 1]
                     }}
-                    whileHover={{ scale: currentScaleMultiplier * 1.03 }}
-                    whileTap={{ scale: currentScaleMultiplier * 0.97 }}
-                    onClick={onUnlock}
-                    className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-all duration-300 w-[290px] sm:w-[330px] aspect-[4/5] bg-gradient-to-b from-[#4A0D1D]/95 via-[#25060E]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
+                    whileHover={!isSnappingToCenter ? { scale: currentScaleMultiplier * 1.03 } : {}}
+                    whileTap={!isSnappingToCenter ? { scale: currentScaleMultiplier * 0.97 } : {}}
+                    onClick={handleCardClick}
+                    className="relative rounded-[32px] border-2 shadow-[0_25px_70px_rgba(0,0,0,0.98)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden transition-colors duration-500 w-[290px] sm:w-[330px] aspect-[4/5] bg-gradient-to-b from-[#4A0D1D]/95 via-[#25060E]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
                 >
                     {/* Top Delicate Specular Light Glint */}
                     <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
 
                     {/* Center 18K Gold Cutout Emblem with Radiant Pulsing Halo */}
                     <div className="relative z-20 flex flex-col items-center justify-center my-auto py-4">
-                        <div className="absolute w-40 h-40 rounded-full bg-[#FFD700]/20 blur-2xl pointer-events-none animate-pulse" />
+                        <motion.div 
+                            animate={{
+                                scale: isDockedGlow ? [1, 1.8, 1.3] : [1, 1.2, 1],
+                                opacity: isDockedGlow ? [0.4, 0.9, 0.6] : [0.2, 0.35, 0.2]
+                            }}
+                            transition={{ repeat: isDockedGlow ? 0 : Infinity, duration: isDockedGlow ? 1.2 : 3.5, ease: "easeInOut" }}
+                            className="absolute w-40 h-40 rounded-full bg-[#FFD700] blur-2xl pointer-events-none" 
+                        />
                         <motion.img
                             src="/assets/logo/jsf_emblem_transparent.png"
                             alt="Just Sean Flows 18K Gold Emblem"
                             animate={{
-                                filter: [
+                                filter: isDockedGlow ? [
+                                    "drop-shadow(0 0 35px rgba(255,215,0,1)) drop-shadow(0 0 70px rgba(231,255,0,0.95)) brightness(1.25)"
+                                ] : [
                                     "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))",
                                     "drop-shadow(0 0 32px rgba(231,255,0,0.9)) drop-shadow(0 6px 24px rgba(0,0,0,0.95))",
                                     "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))"
                                 ]
                             }}
-                            transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+                            transition={{ repeat: isDockedGlow ? 0 : Infinity, duration: 3.5, ease: "easeInOut" }}
                             className="w-32 sm:w-40 object-contain pointer-events-none select-none drop-shadow-2xl"
                         />
                     </div>
 
-                    {/* Bottom Action Area: Appears on 4-Shake in 0.4s (After 3.0s lock) OR Tap Prompt */}
+                    {/* Bottom Action Area: Appears on 4-Shake OR Tap Prompt */}
                     <div className="w-full relative z-20 min-h-[46px] flex items-center justify-center mt-auto">
                         <AnimatePresence mode="wait">
                             {isQuestUnlocked ? (
@@ -345,14 +408,14 @@ export function InitialUnlockSplash({
                                     className="text-center py-1"
                                 >
                                     <span className="font-mono text-[9.5px] text-[#C8A96E] font-black tracking-[0.2em] uppercase drop-shadow-[0_0_8px_rgba(200,169,110,0.5)]">
-                                        TAP CARD TO WALK // 02:00 AM
+                                        {isDockedGlow ? "⚜️ ALIGNMENT COMPLETE // 02:00 AM" : "TAP CARD TO WALK // 02:00 AM"}
                                     </span>
                                 </motion.div>
                             )}
                         </AnimatePresence>
                     </div>
                 </motion.div>
-            </div>
+            </motion.div>
         </motion.div>
     );
 }
