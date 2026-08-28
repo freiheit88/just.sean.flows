@@ -351,6 +351,8 @@ export function InitialUnlockSplash({
                         y: cardUnblurStage ? 0 : 20,
                         borderColor: isCardHidden ? 'transparent' : 'rgba(200, 169, 110, 0.8)',
                         backgroundColor: isCardHidden ? 'transparent' : 'rgba(37, 6, 14, 0.95)',
+                        backdropFilter: isCardHidden ? 'none' : 'blur(24px)',
+                        WebkitBackdropFilter: isCardHidden ? 'none' : 'blur(24px)',
                         boxShadow: isCardHidden 
                             ? '0 0 0 transparent' 
                             : '0 25px 70px rgba(0,0,0,0.98), 0 0 40px rgba(200,169,110,0.35)'
@@ -362,7 +364,7 @@ export function InitialUnlockSplash({
                     whileHover={!isLockedMotion ? { scale: currentScaleMultiplier * 1.03 } : {}}
                     whileTap={!isLockedMotion ? { scale: currentScaleMultiplier * 0.97 } : {}}
                     onClick={handleCardClick}
-                    className="relative rounded-[32px] border-2 p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden w-[290px] sm:w-[330px] aspect-[4/5] backdrop-blur-2xl group cursor-pointer pointer-events-auto"
+                    className="relative rounded-[32px] border-2 p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden w-[290px] sm:w-[330px] aspect-[4/5] group cursor-pointer pointer-events-auto"
                 >
                     {/* Top Delicate Specular Light Glint (Fades out when pure emblem) */}
                     <motion.div 
