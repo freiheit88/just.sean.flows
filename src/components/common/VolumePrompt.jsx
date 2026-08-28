@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Volume2 } from 'lucide-react';
 
 export function VolumePrompt({ isAudioUnlocked, isMuted, onToggleMute, onFlowsHit }) {
+    if (!isAudioUnlocked) return null;
+
     // phase: 'oscillating' (0-3.4s) -> 'shrinking' (3.4-4.2s) -> 'ricochet' (4.2-5.0s) -> 'docked' (5.0s+)
     const [phase, setPhase] = useState('oscillating');
     const [liveVolNum, setLiveVolNum] = useState(30);

@@ -341,75 +341,47 @@ export function InitialUnlockSplash({
                     </motion.div>
                 )}
 
-                {/* V04 MASTER CARD: Bordeaux Velvet disappears completely on emblem_pure */}
+                {/* 1. V04 MASTER CARD LAYER (Visible only during idle & snapping) */}
                 <motion.div
                     initial={{ opacity: 0, filter: 'blur(22px)', scale: 0.92, y: 20 }}
                     animate={{ 
-                        opacity: cardUnblurStage ? (animPhase === 'fade_out' ? 0 : 1) : 0, 
+                        opacity: isCardHidden ? 0 : (cardUnblurStage ? 1 : 0), 
                         filter: cardUnblurStage ? 'blur(0px)' : 'blur(22px)',
-                        scale: cardUnblurStage ? currentScaleMultiplier : 0.92,
-                        y: cardUnblurStage ? 0 : 20,
-                        borderColor: isCardHidden ? 'transparent' : 'rgba(200, 169, 110, 0.8)',
-                        backgroundColor: isCardHidden ? 'transparent' : 'rgba(37, 6, 14, 0.95)',
-                        backdropFilter: isCardHidden ? 'none' : 'blur(24px)',
-                        WebkitBackdropFilter: isCardHidden ? 'none' : 'blur(24px)',
-                        boxShadow: isCardHidden 
-                            ? '0 0 0 transparent' 
-                            : '0 25px 70px rgba(0,0,0,0.98), 0 0 40px rgba(200,169,110,0.35)'
+                        scale: isCardHidden ? 1.05 : (cardUnblurStage ? currentScaleMultiplier : 0.92),
+                        y: cardUnblurStage ? 0 : 20
                     }}
                     transition={{
-                        duration: isLockedMotion ? 0.8 : 0.3,
-                        ease: [0.16, 1, 0.3, 1]
+                        opacity: { duration: isCardHidden ? 0.35 : 1.0, ease: "easeOut" },
+                        scale: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
                     }}
                     whileHover={!isLockedMotion ? { scale: currentScaleMultiplier * 1.03 } : {}}
                     whileTap={!isLockedMotion ? { scale: currentScaleMultiplier * 0.97 } : {}}
                     onClick={handleCardClick}
-                    className="relative rounded-[32px] border-2 p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden w-[290px] sm:w-[330px] aspect-[4/5] group cursor-pointer pointer-events-auto"
+                    className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden w-[290px] sm:w-[330px] aspect-[4/5] bg-gradient-to-b from-[#4A0D1D]/95 via-[#25060E]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
                 >
-                    {/* Top Delicate Specular Light Glint (Fades out when pure emblem) */}
-                    <motion.div 
-                        animate={{ opacity: isCardHidden ? 0 : 1 }}
-                        transition={{ duration: 0.4 }}
-                        className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" 
-                    />
+                    {/* Top Delicate Specular Light Glint */}
+                    <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
 
-                    {/* Center 18K Gold Cutout Emblem - REMAINS AND GLOWS BEAUTIFULLY */}
+                    {/* Center 18K Gold Cutout Emblem inside card */}
                     <div className="relative z-20 flex flex-col items-center justify-center my-auto py-4">
-                        <motion.div 
-                            animate={{
-                                scale: isCardHidden ? [1.2, 1.7, 1.4] : [1, 1.2, 1],
-                                opacity: isCardHidden ? [0.6, 0.95, 0.75] : [0.2, 0.35, 0.2]
-                            }}
-                            transition={{ repeat: isCardHidden ? 0 : Infinity, duration: isCardHidden ? 1.8 : 3.5, ease: "easeInOut" }}
-                            className="absolute w-44 h-44 rounded-full bg-[#FFD700] blur-3xl pointer-events-none" 
-                        />
+                        <div className="absolute w-40 h-40 rounded-full bg-[#FFD700]/20 blur-2xl pointer-events-none animate-pulse" />
                         <motion.img
                             src="/assets/logo/jsf_emblem_transparent.png"
                             alt="Just Sean Flows 18K Gold Emblem"
                             animate={{
-                                scale: isCardHidden ? 1.15 : 1.0,
-                                filter: isCardHidden ? [
-                                    "drop-shadow(0 0 35px rgba(255,215,0,1)) drop-shadow(0 0 80px rgba(231,255,0,0.95)) brightness(1.28)"
-                                ] : [
+                                filter: [
                                     "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))",
                                     "drop-shadow(0 0 32px rgba(231,255,0,0.9)) drop-shadow(0 6px 24px rgba(0,0,0,0.95))",
                                     "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))"
                                 ]
                             }}
-                            transition={{ 
-                                scale: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
-                                filter: { repeat: isCardHidden ? 0 : Infinity, duration: 3.5, ease: "easeInOut" }
-                            }}
-                            className="w-32 sm:w-44 object-contain pointer-events-none select-none drop-shadow-2xl"
+                            transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+                            className="w-32 sm:w-40 object-contain pointer-events-none select-none drop-shadow-2xl"
                         />
                     </div>
 
-                    {/* Bottom Action Area (Fades out when pure emblem) */}
-                    <motion.div 
-                        animate={{ opacity: isCardHidden ? 0 : 1 }}
-                        transition={{ duration: 0.4 }}
-                        className="w-full relative z-20 min-h-[46px] flex items-center justify-center mt-auto"
-                    >
+                    {/* Bottom Action Area */}
+                    <div className="w-full relative z-20 min-h-[46px] flex items-center justify-center mt-auto">
                         <AnimatePresence mode="wait">
                             {isQuestUnlocked ? (
                                 <motion.div
@@ -446,8 +418,57 @@ export function InitialUnlockSplash({
                                 </motion.div>
                             )}
                         </AnimatePresence>
-                    </motion.div>
+                    </div>
                 </motion.div>
+
+                {/* 2. PURE 18K GOLD EMBLEM LAYER (Boundless, Zero Card Box, Soft Organic Circular Halo) */}
+                <AnimatePresence>
+                    {isCardHidden && (
+                        <motion.div
+                            key="pure_emblem_solo"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ 
+                                opacity: animPhase === 'fade_out' ? 0 : 1,
+                                scale: animPhase === 'fade_out' ? 1.25 : [1.0, 1.06, 1.02]
+                            }}
+                            exit={{ opacity: 0, scale: 1.3 }}
+                            transition={{
+                                opacity: { duration: 0.5, ease: "easeOut" },
+                                scale: { duration: animPhase === 'fade_out' ? 0.6 : 2.0, ease: "easeInOut" }
+                            }}
+                            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-40"
+                        >
+                            {/* Unconstrained Boundless Circular Radial Gold Bloom */}
+                            <motion.div 
+                                animate={{
+                                    scale: [1.0, 1.2, 1.05],
+                                    opacity: [0.55, 0.85, 0.65]
+                                }}
+                                transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                                style={{
+                                    background: 'radial-gradient(circle, rgba(255,215,0,0.40) 0%, rgba(200,169,110,0.15) 45%, transparent 70%)',
+                                    filter: 'blur(35px)'
+                                }}
+                                className="absolute w-[450px] h-[450px] rounded-full pointer-events-none"
+                            />
+
+                            {/* Pure 18K Gold Emblem Cutout */}
+                            <motion.img
+                                src="/assets/logo/jsf_emblem_transparent.png"
+                                alt="Just Sean Flows 18K Gold Emblem"
+                                animate={{
+                                    filter: [
+                                        "drop-shadow(0 0 24px rgba(255,215,0,0.9)) drop-shadow(0 0 60px rgba(231,255,0,0.7)) brightness(1.2)",
+                                        "drop-shadow(0 0 40px rgba(255,215,0,1)) drop-shadow(0 0 90px rgba(231,255,0,0.9)) brightness(1.35)",
+                                        "drop-shadow(0 0 24px rgba(255,215,0,0.9)) drop-shadow(0 0 60px rgba(231,255,0,0.7)) brightness(1.2)"
+                                    ]
+                                }}
+                                transition={{ repeat: Infinity, duration: 2.0, ease: "easeInOut" }}
+                                className="w-36 sm:w-44 object-contain pointer-events-none select-none relative z-10"
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </motion.div>
         </motion.div>
     );
