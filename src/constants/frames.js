@@ -4,9 +4,9 @@ export const MR_AUDIO_SRC = "/assets/a_twelve_minute_alibi_mr.wav";
 export const FRAMES = [
     { 
         id: 0, 
-        src: "/assets/walk_story_01_far_alley.jpg", 
+        src: "/assets/lone_light_salon_02am.jpg", 
         titleTop: "FRANKFURT 02:00 AM", 
-        titleMain: "WALK WITH MUSIC", 
+        titleMain: "THE LONE FREQUENCY", 
     },
     { 
         id: 1, 

@@ -21,7 +21,7 @@ export function InitialUnlockSplash({
     const [vipProfile, setVipProfile] = useState(null);
     const [isQuestUnlocked, setIsQuestUnlocked] = useState(false);
     const [resonanceStage, setResonanceStage] = useState(0);
-    const [animPhase, setAnimPhase] = useState('idle'); // 'idle' | 'snapping' | 'emblem_pure' | 'fade_out'
+    const [animPhase, setAnimPhase] = useState('idle'); // 'idle' | 'snapping' | 'emblem_pure' | 'emblem_absorb' | 'fade_out'
 
     const canShakeTriggerRef = useRef(false);
     const lastStageTimeRef = useRef(0);
@@ -48,7 +48,7 @@ export function InitialUnlockSplash({
         }
 
         // Phase 2 (1.5s ~ 3.5s = 2.0s duration): 
-        // Card wine background & borders completely vanish, leaving ONLY pure 18K Gold Emblem floating with gold halo & signature audio
+        // Card wine background & borders vanish, leaving ONLY pure 18K Gold Emblem floating with gold halo & signature audio
         setTimeout(() => {
             setAnimPhase('emblem_pure');
             if (signatureAudioRef.current) {
@@ -58,12 +58,17 @@ export function InitialUnlockSplash({
                 } catch (err) {}
             }
 
-            // Phase 3 (3.5s): Seamless dissolve into walk screen
+            // Phase 3 (3.5s ~ 4.8s): Dark Salon emerges with TV as Lone Light Source, Emblem absorbs into TV Screen
             setTimeout(() => {
-                setAnimPhase('fade_out');
+                setAnimPhase('emblem_absorb');
+
+                // Phase 4 (4.8s): Seamless handoff to walking engine
                 setTimeout(() => {
-                    if (onUnlock) onUnlock();
-                }, 600);
+                    setAnimPhase('fade_out');
+                    setTimeout(() => {
+                        if (onUnlock) onUnlock();
+                    }, 400);
+                }, 1400);
             }, 2000);
         }, 1500);
     };
@@ -421,7 +426,7 @@ export function InitialUnlockSplash({
                     </div>
                 </motion.div>
 
-                {/* 2. PURE 18K GOLD EMBLEM LAYER (Boundless, Zero Card Box, Soft Organic Circular Halo) */}
+                {/* 2. PURE 18K GOLD EMBLEM LAYER -> ABSORBS INTO DISTANT TV SCREEN */}
                 <AnimatePresence>
                     {isCardHidden && (
                         <motion.div
@@ -429,46 +434,79 @@ export function InitialUnlockSplash({
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ 
                                 opacity: animPhase === 'fade_out' ? 0 : 1,
-                                scale: animPhase === 'fade_out' ? 1.25 : [1.0, 1.06, 1.02]
+                                scale: animPhase === 'emblem_absorb' 
+                                    ? 0.14 
+                                    : (animPhase === 'fade_out' ? 0.10 : [1.0, 1.05, 1.0]),
+                                y: animPhase === 'emblem_absorb' || animPhase === 'fade_out' ? -18 : 0
                             }}
-                            exit={{ opacity: 0, scale: 1.3 }}
+                            exit={{ opacity: 0 }}
                             transition={{
-                                opacity: { duration: 0.5, ease: "easeOut" },
-                                scale: { duration: animPhase === 'fade_out' ? 0.6 : 2.0, ease: "easeInOut" }
+                                opacity: { duration: 0.4, ease: "easeOut" },
+                                scale: { duration: animPhase === 'emblem_absorb' ? 1.4 : 2.0, ease: [0.16, 1, 0.3, 1] },
+                                y: { duration: animPhase === 'emblem_absorb' ? 1.4 : 0.4, ease: [0.16, 1, 0.3, 1] }
                             }}
                             className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-40"
                         >
-                            {/* Unconstrained Boundless Circular Radial Gold Bloom */}
+                            {/* Unconstrained Boundless Circular Radial Gold Bloom - shrinks into TV screen */}
                             <motion.div 
                                 animate={{
-                                    scale: [1.0, 1.2, 1.05],
-                                    opacity: [0.55, 0.85, 0.65]
+                                    scale: animPhase === 'emblem_absorb' ? 0.3 : [1.0, 1.2, 1.05],
+                                    opacity: animPhase === 'emblem_absorb' ? 0.4 : [0.55, 0.85, 0.65]
                                 }}
-                                transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                                transition={{ repeat: animPhase === 'emblem_absorb' ? 0 : Infinity, duration: animPhase === 'emblem_absorb' ? 1.4 : 2.2, ease: "easeInOut" }}
                                 style={{
-                                    background: 'radial-gradient(circle, rgba(255,215,0,0.40) 0%, rgba(200,169,110,0.15) 45%, transparent 70%)',
+                                    background: 'radial-gradient(circle, rgba(255,215,0,0.45) 0%, rgba(200,169,110,0.15) 45%, transparent 70%)',
                                     filter: 'blur(35px)'
                                 }}
                                 className="absolute w-[450px] h-[450px] rounded-full pointer-events-none"
                             />
 
-                            {/* Pure 18K Gold Emblem Cutout */}
+                            {/* Pure 18K Gold Emblem Cutout - docks onto screen */}
                             <motion.img
                                 src="/assets/logo/jsf_emblem_transparent.png"
                                 alt="Just Sean Flows 18K Gold Emblem"
                                 animate={{
-                                    filter: [
+                                    filter: animPhase === 'emblem_absorb' ? [
+                                        "drop-shadow(0 0 35px rgba(255,215,0,1)) brightness(1.5)"
+                                    ] : [
                                         "drop-shadow(0 0 24px rgba(255,215,0,0.9)) drop-shadow(0 0 60px rgba(231,255,0,0.7)) brightness(1.2)",
                                         "drop-shadow(0 0 40px rgba(255,215,0,1)) drop-shadow(0 0 90px rgba(231,255,0,0.9)) brightness(1.35)",
                                         "drop-shadow(0 0 24px rgba(255,215,0,0.9)) drop-shadow(0 0 60px rgba(231,255,0,0.7)) brightness(1.2)"
                                     ]
                                 }}
-                                transition={{ repeat: Infinity, duration: 2.0, ease: "easeInOut" }}
+                                transition={{ repeat: animPhase === 'emblem_absorb' ? 0 : Infinity, duration: 2.0, ease: "easeInOut" }}
                                 className="w-36 sm:w-44 object-contain pointer-events-none select-none relative z-10"
                             />
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* 3. LONE LIGHT SALON BACKGROUND FADE-IN DURING ABSORPTION (Seamlessly matches Frame 0) */}
+                <motion.div
+                    animate={{
+                        opacity: animPhase === 'emblem_absorb' || animPhase === 'fade_out' ? 1 : 0
+                    }}
+                    transition={{ duration: 0.8, ease: "easeInOut" }}
+                    className="absolute inset-0 pointer-events-none z-10 overflow-hidden flex items-center justify-center rounded-[32px]"
+                >
+                    <img 
+                        src="/assets/lone_light_salon_02am.jpg" 
+                        alt="02:00 AM Lone Light Salon" 
+                        className="w-full h-full object-fill brightness-95"
+                    />
+                    {/* Ambient Lone Light Guide Label */}
+                    {animPhase === 'emblem_absorb' && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4, duration: 0.6 }}
+                            className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#D4AF37]/50 shadow-[0_0_15px_rgba(212,175,55,0.4)] flex items-center gap-1.5 font-mono text-[8.5px] font-black text-[#D4AF37] tracking-[0.2em] uppercase"
+                        >
+                            <span>📺</span>
+                            <span>LONE FREQUENCY DETECTED</span>
+                        </motion.div>
+                    )}
+                </motion.div>
             </motion.div>
         </motion.div>
     );
