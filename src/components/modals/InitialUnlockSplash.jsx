@@ -21,7 +21,8 @@ export function InitialUnlockSplash({
     const [vipProfile, setVipProfile] = useState(null);
     const [isQuestUnlocked, setIsQuestUnlocked] = useState(false);
     const [resonanceStage, setResonanceStage] = useState(0);
-    const [animPhase, setAnimPhase] = useState('idle'); // 'idle' | 'snapping' | 'emblem_pure' | 'emblem_absorb' | 'fade_out'
+    // animPhase: 'idle' -> 'snapping' (0-0.8s) -> 'dissolving_card' (0.8-1.4s) -> 'emblem_pure' (1.4-2.8s) -> 'emblem_absorb' (2.8-4.2s) -> 'fade_out' (4.2s+)
+    const [animPhase, setAnimPhase] = useState('idle');
 
     const canShakeTriggerRef = useRef(false);
     const lastStageTimeRef = useRef(0);
@@ -41,36 +42,40 @@ export function InitialUnlockSplash({
             e.stopPropagation();
         }
 
-        // Phase 1 (0.0s ~ 1.5s): Magnetic pull & snap to center (zeroing gyro & tilt)
+        // 1. Snapping (0.0s ~ 0.8s): Zero out tilt and slide out prompt text
         setAnimPhase('snapping');
         if (navigator.vibrate) {
-            try { navigator.vibrate([30, 40, 60]); } catch (err) {}
+            try { navigator.vibrate([20, 30]); } catch (err) {}
         }
 
-        // Phase 2 (1.5s ~ 3.5s = 2.0s duration): 
-        // Card wine background & borders vanish, leaving ONLY pure 18K Gold Emblem floating with gold halo & signature audio
+        // 2. Dissolving Card (0.8s ~ 1.4s): Card borders & velvet texture smoothly dissolve
         setTimeout(() => {
-            setAnimPhase('emblem_pure');
-            if (signatureAudioRef.current) {
-                try {
-                    signatureAudioRef.current.currentTime = 0;
-                    signatureAudioRef.current.play().catch(() => {});
-                } catch (err) {}
-            }
+            setAnimPhase('dissolving_card');
 
-            // Phase 3 (3.5s ~ 4.8s): Dark Salon emerges with TV as Lone Light Source, Emblem absorbs into TV Screen
+            // 3. Pure Emblem (1.4s ~ 2.8s): Isolated emblem in dark space with signature sound
             setTimeout(() => {
-                setAnimPhase('emblem_absorb');
+                setAnimPhase('emblem_pure');
+                if (signatureAudioRef.current) {
+                    try {
+                        signatureAudioRef.current.currentTime = 0;
+                        signatureAudioRef.current.play().catch(() => {});
+                    } catch (err) {}
+                }
 
-                // Phase 4 (4.8s): Seamless handoff to walking engine
+                // 4. Emblem Absorb (2.8s ~ 4.2s): Dark salon emerges, emblem glides into TV screen
                 setTimeout(() => {
-                    setAnimPhase('fade_out');
+                    setAnimPhase('emblem_absorb');
+
+                    // 5. Seamless handoff to walk engine (4.2s)
                     setTimeout(() => {
-                        if (onUnlock) onUnlock();
-                    }, 400);
+                        setAnimPhase('fade_out');
+                        setTimeout(() => {
+                            if (onUnlock) onUnlock();
+                        }, 300);
+                    }, 1400);
                 }, 1400);
-            }, 2000);
-        }, 1500);
+            }, 600);
+        }, 800);
     };
 
     // Continuous Organic Idle Ambient Sway Physics
@@ -346,49 +351,78 @@ export function InitialUnlockSplash({
                     </motion.div>
                 )}
 
-                {/* 1. V04 MASTER CARD LAYER */}
+                {/* 1. V04 MASTER CARD LAYER (Staggered Dissolution on click) */}
                 <motion.div
                     initial={{ opacity: 0, filter: 'blur(20px)', scale: 0.95 }}
                     animate={{ 
-                        opacity: isCardHidden ? 0 : 1, 
+                        opacity: animPhase === 'idle' || animPhase === 'snapping' ? 1 : 0, 
                         filter: 'blur(0px)',
-                        scale: isCardHidden ? 1.05 : currentScaleMultiplier
+                        scale: animPhase === 'idle' 
+                            ? currentScaleMultiplier 
+                            : (animPhase === 'snapping' ? 1.0 : 1.04),
+                        borderColor: animPhase === 'dissolving_card' || animPhase === 'emblem_pure' || animPhase === 'emblem_absorb' || animPhase === 'fade_out'
+                            ? 'transparent'
+                            : 'rgba(200, 169, 110, 0.8)',
+                        backgroundColor: animPhase === 'dissolving_card' || animPhase === 'emblem_pure' || animPhase === 'emblem_absorb' || animPhase === 'fade_out'
+                            ? 'transparent'
+                            : 'rgba(37, 6, 14, 0.95)'
                     }}
                     transition={{
-                        opacity: { duration: isCardHidden ? 0.35 : 0.8, ease: "easeOut" },
-                        scale: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+                        opacity: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+                        scale: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+                        borderColor: { duration: 0.5, ease: "easeOut" },
+                        backgroundColor: { duration: 0.6, ease: "easeOut" }
                     }}
-                    whileHover={!isLockedMotion ? { scale: currentScaleMultiplier * 1.03 } : {}}
-                    whileTap={!isLockedMotion ? { scale: currentScaleMultiplier * 0.97 } : {}}
+                    whileHover={animPhase === 'idle' && !isLockedMotion ? { scale: currentScaleMultiplier * 1.03 } : {}}
+                    whileTap={animPhase === 'idle' && !isLockedMotion ? { scale: currentScaleMultiplier * 0.97 } : {}}
                     onClick={handleCardClick}
-                    className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.35)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden w-[290px] sm:w-[330px] aspect-[4/5] bg-gradient-to-b from-[#4A0D1D]/95 via-[#25060E]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
+                    className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.25)] p-6 sm:p-7 flex flex-col items-center justify-between overflow-hidden w-[290px] sm:w-[330px] aspect-[4/5] bg-gradient-to-b from-[#4A0D1D]/95 via-[#25060E]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
                 >
                     {/* Top Delicate Specular Light Glint */}
-                    <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
+                    <motion.div 
+                        animate={{ opacity: animPhase === 'idle' || animPhase === 'snapping' ? 1 : 0 }}
+                        transition={{ duration: 0.4 }}
+                        className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/20 via-transparent to-transparent pointer-events-none rounded-t-[30px]" 
+                    />
 
                     {/* Top Spacer */}
                     <div className="w-full h-6" />
 
-                    {/* Center 18K Gold Cutout Emblem - GEOMETRICALLY CENTERED */}
+                    {/* Center 18K Gold Cutout Emblem inside Card */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
-                        <div className="absolute w-40 h-40 rounded-full bg-[#FFD700]/15 blur-2xl pointer-events-none" />
+                        <motion.div 
+                            animate={{ opacity: animPhase === 'idle' || animPhase === 'snapping' ? 1 : 0 }}
+                            transition={{ duration: 0.4 }}
+                            className="absolute w-32 h-32 rounded-full bg-[#D4AF37]/15 blur-xl pointer-events-none" 
+                        />
                         <motion.img
                             src="/assets/logo/jsf_emblem_transparent.png"
                             alt="Just Sean Flows 18K Gold Emblem"
                             animate={{
+                                opacity: animPhase === 'idle' || animPhase === 'snapping' ? 1 : 0,
                                 filter: [
-                                    "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))",
-                                    "drop-shadow(0 0 32px rgba(231,255,0,0.9)) drop-shadow(0 6px 24px rgba(0,0,0,0.95))",
-                                    "drop-shadow(0 0 16px rgba(255,215,0,0.5)) drop-shadow(0 6px 18px rgba(0,0,0,0.85))"
+                                    "drop-shadow(0 4px 16px rgba(0,0,0,0.9)) drop-shadow(0 0 12px rgba(212,175,55,0.4))",
+                                    "drop-shadow(0 4px 20px rgba(0,0,0,0.95)) drop-shadow(0 0 22px rgba(231,255,0,0.6))",
+                                    "drop-shadow(0 4px 16px rgba(0,0,0,0.9)) drop-shadow(0 0 12px rgba(212,175,55,0.4))"
                                 ]
                             }}
-                            transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
+                            transition={{ 
+                                opacity: { duration: 0.4 },
+                                filter: { repeat: Infinity, duration: 3.5, ease: "easeInOut" } 
+                            }}
                             className="w-32 sm:w-36 object-contain pointer-events-none select-none drop-shadow-2xl"
                         />
                     </div>
 
-                    {/* Bottom Action Area */}
-                    <div className="w-full relative z-30 min-h-[46px] flex items-center justify-center mt-auto">
+                    {/* Bottom Action Area (Fades out first on click) */}
+                    <motion.div 
+                        animate={{ 
+                            opacity: animPhase === 'idle' ? 1 : 0,
+                            y: animPhase === 'idle' ? 0 : 8
+                        }}
+                        transition={{ duration: 0.35, ease: "easeOut" }}
+                        className="w-full relative z-30 min-h-[46px] flex items-center justify-center mt-auto"
+                    >
                         <AnimatePresence mode="wait">
                             {isQuestUnlocked ? (
                                 <motion.div
@@ -404,7 +438,7 @@ export function InitialUnlockSplash({
                                             e.stopPropagation();
                                             if (onDirectMuseum) onDirectMuseum();
                                         }}
-                                        className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#FFD700] to-[#E5A93C] hover:brightness-110 text-black font-mono text-xs font-black tracking-widest uppercase shadow-[0_0_30px_rgba(255,215,0,0.85)] border border-white/60 flex items-center justify-center gap-2 transition-all cursor-pointer group/btn"
+                                        className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#D4AF37] via-[#FFD700] to-[#E5A93C] hover:brightness-110 text-black font-mono text-xs font-black tracking-widest uppercase shadow-[0_0_20px_rgba(212,175,55,0.6)] border border-white/60 flex items-center justify-center gap-2 transition-all cursor-pointer group/btn"
                                     >
                                         <span className="text-base leading-none">🏛️</span>
                                         <span className="text-neutral-700 font-light">|</span>
@@ -425,65 +459,65 @@ export function InitialUnlockSplash({
                                 </motion.div>
                             )}
                         </AnimatePresence>
-                    </div>
+                    </motion.div>
                 </motion.div>
 
-                {/* 2. PURE 18K GOLD EMBLEM LAYER -> ABSORBS INTO DISTANT TV SCREEN */}
+                {/* 2. PURE 18K GOLD EMBLEM LAYER (Refined Editorial Lighting, Glides smoothly to TV Screen) */}
                 <AnimatePresence>
-                    {isCardHidden && (
+                    {(animPhase === 'emblem_pure' || animPhase === 'emblem_absorb' || animPhase === 'fade_out') && (
                         <motion.div
                             key="pure_emblem_solo"
-                            initial={{ opacity: 0, scale: 0.95 }}
+                            initial={{ opacity: 0, scale: 1.0, y: 0 }}
                             animate={{ 
                                 opacity: animPhase === 'fade_out' ? 0 : 1,
                                 scale: animPhase === 'emblem_absorb' 
-                                    ? 0.14 
-                                    : (animPhase === 'fade_out' ? 0.10 : [1.0, 1.05, 1.0]),
+                                    ? 0.13 
+                                    : (animPhase === 'fade_out' ? 0.10 : [1.0, 1.03, 1.0]),
                                 y: animPhase === 'emblem_absorb' || animPhase === 'fade_out' ? -18 : 0
                             }}
                             exit={{ opacity: 0 }}
                             transition={{
                                 opacity: { duration: 0.4, ease: "easeOut" },
-                                scale: { duration: animPhase === 'emblem_absorb' ? 1.4 : 2.0, ease: [0.16, 1, 0.3, 1] },
-                                y: { duration: animPhase === 'emblem_absorb' ? 1.4 : 0.4, ease: [0.16, 1, 0.3, 1] }
+                                scale: { duration: animPhase === 'emblem_absorb' ? 1.4 : 1.8, ease: [0.25, 1, 0.5, 1] },
+                                y: { duration: animPhase === 'emblem_absorb' ? 1.4 : 0.4, ease: [0.25, 1, 0.5, 1] }
                             }}
                             className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-40"
                         >
-                            {/* Unconstrained Boundless Circular Radial Gold Bloom */}
+                            {/* Subtle Editorial Champagne Micro-Halo (No oversized chunky yellow bulb!) */}
                             <motion.div 
                                 animate={{
-                                    scale: animPhase === 'emblem_absorb' ? 0.3 : [1.0, 1.2, 1.05],
-                                    opacity: animPhase === 'emblem_absorb' ? 0.4 : [0.55, 0.85, 0.65]
+                                    scale: animPhase === 'emblem_absorb' ? 0.4 : [1.0, 1.12, 1.0],
+                                    opacity: animPhase === 'emblem_absorb' ? 0.3 : [0.35, 0.55, 0.35]
                                 }}
-                                transition={{ repeat: animPhase === 'emblem_absorb' ? 0 : Infinity, duration: animPhase === 'emblem_absorb' ? 1.4 : 2.2, ease: "easeInOut" }}
+                                transition={{ repeat: animPhase === 'emblem_absorb' ? 0 : Infinity, duration: 2.2, ease: "easeInOut" }}
                                 style={{
-                                    background: 'radial-gradient(circle, rgba(255,215,0,0.45) 0%, rgba(200,169,110,0.15) 45%, transparent 70%)',
-                                    filter: 'blur(35px)'
+                                    background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(200,169,110,0.08) 45%, transparent 70%)',
+                                    filter: 'blur(20px)'
                                 }}
-                                className="absolute w-[450px] h-[450px] rounded-full pointer-events-none"
+                                className="absolute w-[220px] h-[220px] rounded-full pointer-events-none"
                             />
 
-                            {/* Pure 18K Gold Emblem Cutout */}
+                            {/* Pure 18K Gold Emblem with Sharp Crisp Editorial Lighting */}
                             <motion.img
                                 src="/assets/logo/jsf_emblem_transparent.png"
                                 alt="Just Sean Flows 18K Gold Emblem"
                                 animate={{
                                     filter: animPhase === 'emblem_absorb' ? [
-                                        "drop-shadow(0 0 35px rgba(255,215,0,1)) brightness(1.5)"
+                                        "drop-shadow(0 0 20px rgba(212,175,55,0.9)) brightness(1.3)"
                                     ] : [
-                                        "drop-shadow(0 0 24px rgba(255,215,0,0.9)) drop-shadow(0 0 60px rgba(231,255,0,0.7)) brightness(1.2)",
-                                        "drop-shadow(0 0 40px rgba(255,215,0,1)) drop-shadow(0 0 90px rgba(231,255,0,0.9)) brightness(1.35)",
-                                        "drop-shadow(0 0 24px rgba(255,215,0,0.9)) drop-shadow(0 0 60px rgba(231,255,0,0.7)) brightness(1.2)"
+                                        "drop-shadow(0 4px 20px rgba(0,0,0,0.95)) drop-shadow(0 0 15px rgba(212,175,55,0.6)) brightness(1.15)",
+                                        "drop-shadow(0 4px 24px rgba(0,0,0,0.98)) drop-shadow(0 0 25px rgba(231,255,0,0.75)) brightness(1.25)",
+                                        "drop-shadow(0 4px 20px rgba(0,0,0,0.95)) drop-shadow(0 0 15px rgba(212,175,55,0.6)) brightness(1.15)"
                                     ]
                                 }}
                                 transition={{ repeat: animPhase === 'emblem_absorb' ? 0 : Infinity, duration: 2.0, ease: "easeInOut" }}
-                                className="w-36 sm:w-44 object-contain pointer-events-none select-none relative z-10"
+                                className="w-32 sm:w-36 object-contain pointer-events-none select-none relative z-10"
                             />
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* 3. LONE LIGHT SALON BACKGROUND (Mounts ONLY during absorption) */}
+                {/* 3. LONE LIGHT SALON BACKGROUND (Smooth Cinematic Fade-In) */}
                 <AnimatePresence>
                     {(animPhase === 'emblem_absorb' || animPhase === 'fade_out') && (
                         <motion.div
@@ -491,7 +525,7 @@ export function InitialUnlockSplash({
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            transition={{ duration: 0.8, ease: "easeInOut" }}
+                            transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
                             className="absolute inset-0 pointer-events-none z-10 overflow-hidden flex items-center justify-center rounded-[32px]"
                         >
                             <img 
@@ -502,8 +536,8 @@ export function InitialUnlockSplash({
                             <motion.div
                                 initial={{ opacity: 0, y: 8 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4, duration: 0.6 }}
-                                className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#D4AF37]/50 shadow-[0_0_15px_rgba(212,175,55,0.4)] flex items-center gap-1.5 font-mono text-[8.5px] font-black text-[#D4AF37] tracking-[0.2em] uppercase"
+                                transition={{ delay: 0.5, duration: 0.6 }}
+                                className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#D4AF37]/50 shadow-[0_0_15px_rgba(212,175,55,0.3)] flex items-center gap-1.5 font-mono text-[8.5px] font-black text-[#D4AF37] tracking-[0.2em] uppercase"
                             >
                                 <span>📺</span>
                                 <span>LONE FREQUENCY DETECTED</span>
