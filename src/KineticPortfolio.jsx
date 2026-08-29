@@ -1,4 +1,5 @@
 import { InstagramVipAuthModal, getStoredVipProfile } from './components/modals/InstagramVipAuthModal';
+import { PayPalCheckoutModal } from './components/modals/PayPalCheckoutModal';
 import { PrivateMemberVaultModal } from './components/museum/PrivateMemberVaultModal';
 import { WalkRadarMap } from './components/walk/WalkRadarMap';
 import { ModularSoundLabModal } from './components/museum/ModularSoundLabModal';
@@ -70,6 +71,10 @@ export default function KineticPortfolio() {
     const [isMuseumOpen, setIsMuseumOpen] = useState(false);
     const [isSoundLabOpen, setIsSoundLabOpen] = useState(false);
     const [isSheetMusicOpen, setIsSheetMusicOpen] = useState(false);
+    const [isPayPalOpen, setIsPayPalOpen] = useState(false);
+    const [payPalTier, setPayPalTier] = useState('VIP_PARTY');
+    const [isVipAuthOpen, setIsVipAuthOpen] = useState(false);
+    const [vipProfile, setVipProfile] = useState(() => getStoredVipProfile());
 
     // Exact Physical Audio Waveform Strum & Harmonic State
     const [activeChord, setActiveChord] = useState('Dm');
@@ -100,13 +105,13 @@ export default function KineticPortfolio() {
 
     // Master Audio Lock
     useEffect(() => {
-        const isAnyModalOpen = isSoundLabOpen || isMuseumOpen || isSheetMusicOpen;
+        const isAnyModalOpen = isSoundLabOpen || isMuseumOpen || isSheetMusicOpen || isPayPalOpen || isVipAuthOpen;
         setIsModalActive(isAnyModalOpen);
         if (isAnyModalOpen && mrAudioRef.current) {
             mrAudioRef.current.pause();
             mrAudioRef.current.muted = true;
         }
-    }, [isSoundLabOpen, isMuseumOpen, isSheetMusicOpen]);
+    }, [isSoundLabOpen, isMuseumOpen, isSheetMusicOpen, isPayPalOpen, isVipAuthOpen]);
 
     const handleInitialUnlock = () => {
         forceUnlockAudio();
@@ -387,6 +392,31 @@ export default function KineticPortfolio() {
                     setIsMuseumOpen(false);
                     resetWalk();
                 }}
+                onOpenVipAuth={() => setIsVipAuthOpen(true)}
+                onOpenPayPal={(tier) => {
+                    if (tier) setPayPalTier(tier);
+                    setIsPayPalOpen(true);
+                }}
+                vipProfile={vipProfile}
+            />
+
+            {/* PayPal Smart Payment Checkout Modal */}
+            <PayPalCheckoutModal
+                isOpen={isPayPalOpen}
+                onClose={() => setIsPayPalOpen(false)}
+                defaultTier={payPalTier}
+                onPaymentSuccess={(receipt, updatedVip) => {
+                    setVipProfile(updatedVip);
+                }}
+            />
+
+            {/* Instagram VIP Passport Auth Modal */}
+            <InstagramVipAuthModal
+                isOpen={isVipAuthOpen}
+                onClose={() => setIsVipAuthOpen(false)}
+                onAuthenticated={(profile) => {
+                    setVipProfile(profile);
+                }}
             />
 
             {/* Interactive Lead Sheet Music Modal (CADENZA-432) */}
@@ -402,7 +432,7 @@ export default function KineticPortfolio() {
             />
 
             {/* Top-Level Clean 3D Kinetic Header with Volume Morph Button */}
-            {(!isMuseumOpen && !isSoundLabOpen) && (
+            {(!isMuseumOpen && !isSoundLabOpen && !isPayPalOpen && !isVipAuthOpen) && (
                 <Header3D 
                     isFlowsHit={isFlowsHit} 
                     tiltX={tiltX} 

@@ -166,6 +166,7 @@ export function AtelierMuseumHub({
     onReplayWalk,
     onOpenVipAuth,
     onOpenPrivateVault,
+    onOpenPayPal,
     vipProfile
 }) {
     const [isLookbookModalOpen, setIsLookbookModalOpen] = useState(false);
@@ -349,7 +350,27 @@ export function AtelierMuseumHub({
                             </span>
                         </button>
 
-                        {/* 3. CADENZA-432 Micro-Player Capsule with Prev/Next, Time, and Waveform */}
+                        {/* 3. Instagram VIP Passport Button */}
+                        <button
+                            onClick={() => onOpenVipAuth && onOpenVipAuth()}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-pink-500/60 bg-gradient-to-r from-purple-900/30 via-pink-900/30 to-amber-900/30 hover:brightness-125 text-pink-200 font-mono text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_15px_rgba(236,72,153,0.35)] shrink-0 hover:scale-105"
+                            title="Instagram VIP Passport"
+                        >
+                            <span>📸</span>
+                            <span>{vipProfile ? `@${vipProfile.instagramId}` : 'VIP AUTH'}</span>
+                        </button>
+
+                        {/* 4. PayPal Atelier Store & Ticket Checkout Button */}
+                        <button
+                            onClick={() => onOpenPayPal && onOpenPayPal('VIP_PARTY')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#D4AF37]/80 bg-gradient-to-r from-[#D4AF37]/20 to-[#FFD700]/30 hover:brightness-125 text-[#FFD700] font-mono text-[11px] sm:text-xs font-black uppercase tracking-wider transition-all cursor-pointer shadow-[0_0_18px_rgba(212,175,55,0.45)] shrink-0 hover:scale-105"
+                            title="PayPal Smart Store & Tickets"
+                        >
+                            <span>💳</span>
+                            <span>STORE</span>
+                        </button>
+
+                        {/* 5. CADENZA-432 Micro-Player Capsule with Prev/Next, Time, and Waveform */}
                         <div 
                             onClick={toggleStringsPlayback}
                             className={`relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full border transition-all cursor-pointer shadow-[0_0_15px_rgba(200,169,110,0.25)] shrink-0 overflow-hidden group ${
