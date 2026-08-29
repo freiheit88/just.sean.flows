@@ -240,7 +240,7 @@ export function InitialUnlockSplash({
 
                 {/* 1. MASTER CARD (Continuous Morphing between Velvet Card and Finom Keypad) */}
                 <motion.div
-                    initial={{ opacity: 0, filter: 'blur(20px)', scale: 0.95 }}
+                    initial={{ opacity: 1, filter: 'blur(0px)', scale: 1.0 }}
                     animate={{ 
                         opacity: isCardDissolved ? 0 : 1, 
                         filter: 'blur(0px)',
@@ -257,7 +257,7 @@ export function InitialUnlockSplash({
                         backgroundColor: { duration: 0.5, ease: "easeOut" }
                     }}
                     onClick={handleCardTap}
-                    className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_35px_rgba(200,169,110,0.25)] p-5 sm:p-6 flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-[#3E0916]/95 via-[#1D040A]/95 to-[#080506]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
+                    className="relative rounded-[32px] border-2 border-[#C8A96E]/80 shadow-[0_25px_70px_rgba(0,0,0,0.98),0_0_35px_rgba(200,169,110,0.25)] p-5 sm:p-6 flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-[#3E0916]/95 via-[#1D040A]/95 to-[#0A0708]/98 backdrop-blur-2xl group cursor-pointer pointer-events-auto"
                 >
                     {/* Top Delicate Specular Light Glint */}
                     <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
