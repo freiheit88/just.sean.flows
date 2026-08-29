@@ -187,37 +187,34 @@ export function InitialUnlockSplash({
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         className={`relative z-20 flex flex-col items-center justify-center ${flowPhase === 'card_idle' ? 'my-auto' : 'mt-1'}`}
                     >
-                        {/* Background Micro Halo */}
-                        <div className="absolute w-28 h-28 rounded-full bg-[#D4AF37]/15 blur-xl pointer-events-none" />
-
-                        {/* PART A: 18K Gold Wine Glass & Clef Symbol (Cycle A: 3.6s wave) */}
+                        {/* PART A: 18K Gold Wine Glass & Clef Symbol - Razor-Sharp Alpha Contour Line Glow */}
                         <motion.img
                             src="/assets/logo/jsf_symbol_pure.png"
                             alt="JSF 18K Gold Symbol"
                             animate={{
                                 filter: [
-                                    "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.40)) brightness(1.0)",
-                                    "drop-shadow(0 4px 20px rgba(0,0,0,0.95)) drop-shadow(0 0 24px rgba(231,255,0,0.85)) brightness(1.25)",
-                                    "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.40)) brightness(1.0)"
+                                    "drop-shadow(0 0 1px rgba(255,250,230,0.95)) drop-shadow(0 0 3.5px rgba(255,215,0,0.85)) drop-shadow(0 0 8px rgba(212,175,55,0.45)) brightness(1.05) contrast(1.08)",
+                                    "drop-shadow(0 0 1.8px rgba(255,255,255,1.0)) drop-shadow(0 0 5.5px rgba(255,225,60,0.98)) drop-shadow(0 0 14px rgba(231,255,0,0.75)) brightness(1.28) contrast(1.15)",
+                                    "drop-shadow(0 0 1px rgba(255,250,230,0.95)) drop-shadow(0 0 3.5px rgba(255,215,0,0.85)) drop-shadow(0 0 8px rgba(212,175,55,0.45)) brightness(1.05) contrast(1.08)"
                                 ]
                             }}
                             transition={{ repeat: Infinity, duration: 3.6, ease: "easeInOut" }}
-                            className="w-24 object-contain pointer-events-none select-none drop-shadow-2xl"
+                            className="w-24 object-contain pointer-events-none select-none"
                         />
 
-                        {/* PART B: 18K Gold J · S · F Monogram Text (Cycle B: 2.8s wave with 0.9s phase shift) */}
+                        {/* PART B: 18K Gold J · S · F Monogram Text - Razor-Sharp Alpha Contour Line Glow (Delayed Phase) */}
                         <motion.img
                             src="/assets/logo/jsf_text_pure.png"
                             alt="JSF Monogram"
                             animate={{
                                 filter: [
-                                    "drop-shadow(0 2px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(212,175,55,0.30)) brightness(0.95)",
-                                    "drop-shadow(0 2px 14px rgba(0,0,0,0.95)) drop-shadow(0 0 18px rgba(231,255,0,0.75)) brightness(1.22)",
-                                    "drop-shadow(0 2px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(212,175,55,0.30)) brightness(0.95)"
+                                    "drop-shadow(0 0 1px rgba(255,250,230,0.90)) drop-shadow(0 0 3px rgba(255,215,0,0.80)) drop-shadow(0 0 6px rgba(212,175,55,0.35)) brightness(1.0) contrast(1.05)",
+                                    "drop-shadow(0 0 1.4px rgba(255,255,255,0.98)) drop-shadow(0 0 4.5px rgba(255,225,60,0.92)) drop-shadow(0 0 11px rgba(231,255,0,0.65)) brightness(1.22) contrast(1.12)",
+                                    "drop-shadow(0 0 1px rgba(255,250,230,0.90)) drop-shadow(0 0 3px rgba(255,215,0,0.80)) drop-shadow(0 0 6px rgba(212,175,55,0.35)) brightness(1.0) contrast(1.05)"
                                 ]
                             }}
                             transition={{ repeat: Infinity, duration: 2.8, delay: 0.9, ease: "easeInOut" }}
-                            className="w-24 object-contain pointer-events-none select-none mt-2.5 drop-shadow-lg"
+                            className="w-24 object-contain pointer-events-none select-none mt-2.5"
                         />
                     </motion.div>
 
