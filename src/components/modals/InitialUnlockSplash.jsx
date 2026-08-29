@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
-import { getStoredVipProfile } from './InstagramVipAuthModal';
 
 const KEYPAD_BUTTONS = [
     { num: '1', sub: '' },
@@ -20,11 +19,8 @@ const KEYPAD_BUTTONS = [
 
 export function InitialUnlockSplash({ 
     isAudioUnlocked, 
-    onUnlock, 
-    onDirectMuseum 
+    onUnlock 
 }) {
-    const [vipProfile, setVipProfile] = useState(null);
-
     // flowPhase: 'card_idle' -> 'keypad' -> 'unlock_flash' -> 'dissolving' -> 'emblem_pure' -> 'emblem_absorb' -> 'fade_out'
     const [flowPhase, setFlowPhase] = useState('card_idle');
     const [enteredPin, setEnteredPin] = useState('');
@@ -35,11 +31,6 @@ export function InitialUnlockSplash({
         const audio = new Audio('/assets/sounds/signature-intro.mp3');
         audio.preload = 'auto';
         signatureAudioRef.current = audio;
-    }, []);
-
-    useEffect(() => {
-        const stored = getStoredVipProfile();
-        if (stored) setVipProfile(stored);
     }, []);
 
     // Handle Tap on Card: Morphs smoothly into Finom Keypad (Zero abrupt switch!)
@@ -138,20 +129,20 @@ export function InitialUnlockSplash({
             }}
         >
             {/* Ambient Debris Particles (Subtle 60FPS) */}
-            <div className="absolute inset-0 pointer-events-none z-10 opacity-30">
-                {ATELIER_DEBRIS_100.slice(0, 16).map((d, i) => (
+            <div className="absolute inset-0 pointer-events-none z-10 opacity-25">
+                {ATELIER_DEBRIS_100.slice(0, 14).map((d, i) => (
                     <motion.div
                         key={d.id || i}
                         animate={{
-                            y: [0, -12, 0],
-                            opacity: [0.2, 0.45, 0.2]
+                            y: [0, -10, 0],
+                            opacity: [0.15, 0.4, 0.15]
                         }}
                         transition={{ repeat: Infinity, duration: d.duration || 7, ease: "easeInOut" }}
                         style={{
-                            left: `${d.left || (i * 6)}%`,
-                            top: `${d.top || (i * 5)}%`,
-                            width: `${(d.size || 2) * 1.8}px`,
-                            height: `${(d.size || 2) * 1.8}px`,
+                            left: `${d.left || (i * 7)}%`,
+                            top: `${d.top || (i * 6)}%`,
+                            width: `${(d.size || 2) * 1.6}px`,
+                            height: `${(d.size || 2) * 1.6}px`,
                             backgroundColor: '#C8A96E',
                             borderRadius: '50%',
                             filter: 'blur(1px)',
@@ -161,36 +152,18 @@ export function InitialUnlockSplash({
                 ))}
             </div>
 
-            {/* Central Solid Container (ZERO Gyro Tilt - Completely Stable Enterprise Luxury) */}
+            {/* Central Solid Container (ZERO Gyro Tilt - Completely Stable Luxury) */}
             <div className="relative z-20 flex flex-col items-center justify-center pointer-events-auto select-none px-4 max-w-full">
                 
-                {/* VIP Recognition Badge */}
-                {vipProfile && flowPhase === 'card_idle' && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -15, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 0.5 }}
-                        onClick={() => triggerMasterUnlock()}
-                        className="mb-3.5 px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-xl border border-[#D4AF37]/60 shadow-[0_0_20px_rgba(212,175,55,0.35)] flex items-center gap-2 z-30 cursor-pointer pointer-events-auto hover:scale-105 transition-transform"
-                    >
-                        <div className="w-5 h-5 rounded-full overflow-hidden border border-[#D4AF37]">
-                            <img src={vipProfile.avatarUrl} alt="" className="w-full h-full object-cover" onError={(e) => { e.target.src = `https://api.dicebear.com/7.x/micah/svg?seed=${vipProfile.instagramId}`; }} />
-                        </div>
-                        <span className="font-mono text-[9px] font-bold text-[#E7FF00] tracking-wider uppercase">
-                            ⚜️ WELCOME BACK, @{vipProfile.instagramId} (VIP)
-                        </span>
-                    </motion.div>
-                )}
-
-                {/* 1. MASTER FINOM VAULT CARD (Chamfered Glass & High-End Typography) */}
+                {/* 1. MASTER FINOM VAULT CARD (Zero Clutter, Pure 18K Logo & Monogram Focus) */}
                 <motion.div
                     initial={{ opacity: 1, filter: 'blur(0px)', scale: 1.0 }}
                     animate={{ 
                         opacity: isCardDissolved ? 0 : 1, 
                         scale: isCardDissolved ? 1.03 : 1.0,
-                        height: flowPhase === 'keypad' ? '490px' : '390px',
-                        width: '320px',
-                        borderColor: isCardDissolved ? 'transparent' : 'rgba(200, 169, 110, 0.65)',
+                        height: flowPhase === 'keypad' ? '470px' : '380px',
+                        width: '300px',
+                        borderColor: isCardDissolved ? 'transparent' : 'rgba(200, 169, 110, 0.60)',
                         backgroundColor: isCardDissolved ? 'transparent' : 'rgba(20, 4, 8, 0.96)'
                     }}
                     transition={{
@@ -200,43 +173,56 @@ export function InitialUnlockSplash({
                         backgroundColor: { duration: 0.5, ease: "easeOut" }
                     }}
                     onClick={handleCardTap}
-                    className="relative rounded-[36px] border border-[#C8A96E]/60 shadow-[0_30px_90px_rgba(0,0,0,0.98),0_0_45px_rgba(200,169,110,0.2)] p-6 flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-[#2E0711]/95 via-[#140306]/98 to-[#060203]/99 backdrop-blur-3xl group cursor-pointer pointer-events-auto"
+                    className="relative rounded-[32px] border border-[#C8A96E]/60 shadow-[0_30px_90px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.18)] p-6 flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-[#2E0711]/95 via-[#140306]/98 to-[#060203]/99 backdrop-blur-3xl group cursor-pointer pointer-events-auto"
                 >
                     {/* Top Specular Hairline Glint */}
-                    <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none rounded-t-[34px]" />
+                    <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
 
-                    {/* Finom Micro Security Header */}
-                    <div className="w-full flex items-center justify-between text-[#C8A96E]/70 font-mono text-[7.5px] tracking-[0.25em] uppercase border-b border-white/5 pb-2.5 mb-1">
-                        <div className="flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#00FF66] shadow-[0_0_8px_#00FF66]" />
-                            <span>SECURE VAULT</span>
-                        </div>
-                        <span>FRANKFURT 02:00 AM</span>
-                    </div>
-
-                    {/* 18K GOLD EMBLEM - Smoothly glides to top in keypad mode */}
+                    {/* DUAL-TIMING 18K GOLD EMBLEM & MONOGRAM CONTAINER */}
                     <motion.div
                         animate={{
-                            y: flowPhase === 'card_idle' ? 0 : -6,
+                            y: flowPhase === 'card_idle' ? 0 : -8,
                             scale: flowPhase === 'card_idle' ? 1.0 : 0.48
                         }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         className={`relative z-20 flex flex-col items-center justify-center ${flowPhase === 'card_idle' ? 'my-auto' : 'mt-1'}`}
                     >
+                        {/* Background Micro Halo */}
                         <div className="absolute w-28 h-28 rounded-full bg-[#D4AF37]/15 blur-xl pointer-events-none" />
-                        <motion.img
-                            src="/assets/logo/jsf_emblem_transparent.png"
-                            alt="Just Sean Flows 18K Gold Emblem"
-                            animate={{
-                                filter: [
-                                    "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.4))",
-                                    "drop-shadow(0 4px 18px rgba(0,0,0,0.95)) drop-shadow(0 0 20px rgba(231,255,0,0.6))",
-                                    "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.4))"
-                                ]
-                            }}
-                            transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut" }}
-                            className="w-28 sm:w-30 object-contain pointer-events-none select-none drop-shadow-2xl"
-                        />
+
+                        {/* PART A: 18K Gold Wine Glass & Clef Symbol (Cycle A: 3.6s wave) */}
+                        <div className="relative w-28 h-20 overflow-hidden flex items-start justify-center">
+                            <motion.img
+                                src="/assets/logo/jsf_emblem_transparent.png"
+                                alt="JSF 18K Gold Symbol"
+                                animate={{
+                                    filter: [
+                                        "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.40)) brightness(1.0)",
+                                        "drop-shadow(0 4px 20px rgba(0,0,0,0.95)) drop-shadow(0 0 24px rgba(231,255,0,0.85)) brightness(1.25)",
+                                        "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.40)) brightness(1.0)"
+                                    ]
+                                }}
+                                transition={{ repeat: Infinity, duration: 3.6, ease: "easeInOut" }}
+                                className="w-28 object-contain pointer-events-none select-none -translate-y-0.5"
+                            />
+                        </div>
+
+                        {/* PART B: 18K Gold J · S · F Monogram Text (Cycle B: 2.8s wave with 0.9s phase shift) */}
+                        <div className="relative w-28 h-8 overflow-hidden flex items-end justify-center -mt-1">
+                            <motion.img
+                                src="/assets/logo/jsf_emblem_transparent.png"
+                                alt="JSF Monogram"
+                                animate={{
+                                    filter: [
+                                        "drop-shadow(0 2px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(212,175,55,0.30)) brightness(0.95)",
+                                        "drop-shadow(0 2px 14px rgba(0,0,0,0.95)) drop-shadow(0 0 18px rgba(231,255,0,0.75)) brightness(1.22)",
+                                        "drop-shadow(0 2px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(212,175,55,0.30)) brightness(0.95)"
+                                    ]
+                                }}
+                                transition={{ repeat: Infinity, duration: 2.8, delay: 0.9, ease: "easeInOut" }}
+                                className="w-28 object-contain pointer-events-none select-none -translate-y-[84px]"
+                            />
+                        </div>
                     </motion.div>
 
                     {/* MODE A: Initial Card State Prompt */}
@@ -291,7 +277,7 @@ export function InitialUnlockSplash({
                                 {/* Finom Minimal Numeric Keypad Matrix */}
                                 <div 
                                     onClick={(e) => e.stopPropagation()} 
-                                    className="grid grid-cols-3 gap-2.5 w-full max-w-[260px]"
+                                    className="grid grid-cols-3 gap-2 w-full max-w-[240px]"
                                 >
                                     {KEYPAD_BUTTONS.map((btn, bIdx) => (
                                         <motion.button
@@ -301,25 +287,18 @@ export function InitialUnlockSplash({
                                             transition={{ delay: 0.15 + (bIdx * 0.02), duration: 0.25 }}
                                             whileTap={{ scale: 0.92, backgroundColor: 'rgba(212, 175, 55, 0.25)' }}
                                             onClick={(e) => handleKeypadPress(btn.num, e)}
-                                            className="h-11 rounded-2xl bg-white/[0.04] hover:bg-white/[0.09] active:bg-[#D4AF37]/30 border border-white/10 hover:border-[#D4AF37]/50 flex flex-col items-center justify-center transition-all cursor-pointer group shadow-sm"
+                                            className="h-10 rounded-xl bg-white/[0.04] hover:bg-white/[0.09] active:bg-[#D4AF37]/30 border border-white/10 hover:border-[#D4AF37]/50 flex flex-col items-center justify-center transition-all cursor-pointer group shadow-sm"
                                         >
-                                            <span className="font-sans text-base font-semibold text-white group-hover:text-[#FFD700] transition-colors leading-none">
+                                            <span className="font-sans text-sm font-semibold text-white group-hover:text-[#FFD700] transition-colors leading-none">
                                                 {btn.num}
                                             </span>
                                             {btn.sub && (
-                                                <span className="font-mono text-[7px] text-neutral-400 group-hover:text-[#D4AF37] tracking-widest leading-none mt-0.5">
+                                                <span className="font-mono text-[6.5px] text-neutral-400 group-hover:text-[#D4AF37] tracking-widest leading-none mt-0.5">
                                                     {btn.sub}
                                                 </span>
                                             )}
                                         </motion.button>
                                     ))}
-                                </div>
-
-                                {/* Security Footer Notice */}
-                                <div className="mt-3.5 text-center">
-                                    <span className="font-mono text-[7px] text-neutral-400 tracking-[0.2em] uppercase">
-                                        🔒 256-BIT ATELIER ENCRYPTION
-                                    </span>
                                 </div>
                             </motion.div>
                         )}
@@ -390,22 +369,13 @@ export function InitialUnlockSplash({
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-                            className="absolute inset-0 pointer-events-none z-10 overflow-hidden flex items-center justify-center rounded-[36px]"
+                            className="absolute inset-0 pointer-events-none z-10 overflow-hidden flex items-center justify-center rounded-[32px]"
                         >
                             <img 
                                 src="/assets/lone_light_salon_02am.jpg" 
                                 alt="02:00 AM Lone Light Salon" 
                                 className="w-full h-full object-fill brightness-95"
                             />
-                            <motion.div
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5, duration: 0.6 }}
-                                className="absolute bottom-6 left-1/2 -translate-x-1/2 px-3.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#D4AF37]/50 shadow-[0_0_15px_rgba(212,175,55,0.3)] flex items-center gap-1.5 font-mono text-[8.5px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase"
-                            >
-                                <span>📺</span>
-                                <span>LONE FREQUENCY DETECTED</span>
-                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>
