@@ -49,23 +49,27 @@ export default function KineticPortfolio() {
     const { cursorPos, trails, isScrollingUp, updatePointerPos, triggerDopamineScrollUp } = useTrailCursor();
 
     const {
+        depthZ = 0,
         progress,
         activeFrameIdx,
+        isSnapping,
         isStep25Active,
         stepSubCount,
         walkBobTrigger,
         isAtelierModalOpen,
         setIsAtelierModalOpen,
-        handleVideoTimeUpdate,
-        handleVideoCompleted,
-        handleCompleteStep25,
+        snapToTV,
         resetWalk,
         goToStep,
         stepForward,
         stepBackward
     } = useWalkPhysics({
         isAudioUnlocked,
-        triggerDopamineScrollUp
+        isMuted,
+        triggerDopamineScrollUp,
+        onDirectMuseum: () => {
+            setIsMuseumOpen(true);
+        }
     });
 
     const [isMuseumOpen, setIsMuseumOpen] = useState(false);
@@ -208,83 +212,66 @@ export default function KineticPortfolio() {
                         filter: (!isAudioUnlocked || showWelcomeBack) ? 'blur(20px) brightness(40%)' : 'none'
                     }}
                 >
-                    {/* Visual Frames Sequence with Forward Step Zoom Physics */}
-                    {FRAMES.map((f, idx) => {
-                        const isCurrent = activeFrameIdx === idx;
-                        return (
-                            <motion.div
-                                key={f.id}
-                                initial={false}
-                                animate={{
-                                    opacity: isCurrent ? 1 : 0,
-                                    scale: isCurrent ? currentStepScale : 1.05,
-                                    y: isCurrent ? 0 : 4
-                                }}
-                                transition={{ 
-                                    opacity: { duration: 0.7, ease: [0.25, 1, 0.5, 1] },
-                                    scale: { type: "spring", stiffness: 280, damping: 22 },
-                                    y: { type: "spring", stiffness: 320, damping: 20 }
-                                }}
-                                className="absolute inset-0 w-full h-full pointer-events-none"
-                                style={{ zIndex: isCurrent ? 10 : 0 }}
-                            >
-                                {f.isVideo ? (
-                                    <video
-                                        ref={videoRef}
-                                        src={f.videoSrc}
-                                        poster={f.src}
-                                        muted
-                                        autoPlay
-                                        playsInline
-                                        webkit-playsinline="true"
-                                        x5-playsinline="true"
-                                        controls={false}
-                                        disablePictureInPicture
-                                        disableRemotePlayback
-                                        preload="auto"
-                                        onTimeUpdate={(e) => handleVideoTimeUpdate(e.target.currentTime, e.target.duration)}
-                                        onEnded={handleVideoCompleted}
-                                        className="w-full h-full object-fill pointer-events-none transition-transform duration-700 scale-100"
-                                    />
-                                ) : (
-                                    <img
-                                        src={f.src}
-                                        alt={f.titleMain}
-                                        className="w-full h-full object-fill pointer-events-none transition-transform duration-700 scale-100"
-                                    />
-                                )}
-                            </motion.div>
-                        );
-                    })}
-
-                    {/* Step 2+ Reconstruction Overlay (Halts progression for complete overhaul) */}
-                    {activeFrameIdx >= 1 && (
+                    {/* 1st-Person Eye-Level Spatial Walk into 02:00 AM TV Salon */}
+                    <div 
+                        className="relative w-full h-full overflow-hidden cursor-pointer select-none"
+                        onClick={() => snapToTV()}
+                    >
+                        {/* Eye-Level 3D Room Gliding (Strict Y-Lock) */}
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1.0 }}
-                            className="absolute inset-0 z-50 bg-[#070709]/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center select-none"
+                            style={{
+                                transform: `scale(${1.0 + (depthZ * 3.4)})`,
+                                transformOrigin: '50% 52%'
+                            }}
+                            className="absolute inset-0 w-full h-full pointer-events-none"
                         >
-                            <div className="w-16 h-16 rounded-2xl bg-[#D4AF37]/15 border border-[#D4AF37]/60 flex items-center justify-center mb-4 shadow-[0_0_35px_rgba(212,175,55,0.4)]">
-                                <span className="text-2xl">🚧</span>
-                            </div>
-                            <span className="font-mono text-[9px] text-[#D4AF37] font-black tracking-[0.25em] uppercase mb-2">
-                                ATELIER SPATIAL RECONSTRUCTION
-                            </span>
-                            <h2 className="text-lg font-serif text-white tracking-wide mb-2">
-                                02:00 AM FRANKFURT WALK
-                            </h2>
-                            <p className="text-neutral-400 text-xs leading-relaxed max-w-[240px] mb-6">
-                                7단계 시네마틱 공간 워크 및 카메라 트랜지션 엔진을 새롭게 전면 개편 중입니다.
-                            </p>
+                            <img
+                                src="/assets/lone_light_salon_02am.jpg"
+                                alt="02:00 AM Lone Light Salon"
+                                className="w-full h-full object-fill brightness-95"
+                            />
+                        </motion.div>
+
+                        {/* Interactive CRT TV Screen Video & Bloom Layer */}
+                        <motion.div
+                            style={{
+                                opacity: depthZ > 0.3 ? 1 : 0.85,
+                                transform: `scale(${1.0 + (depthZ * 3.4)})`,
+                                transformOrigin: '50% 52%'
+                            }}
+                            className="absolute inset-0 pointer-events-none flex items-center justify-center"
+                        >
+                            {/* TV Golden Scanline & Micro Light Bloom */}
+                            <div 
+                                style={{
+                                    opacity: 0.15 + (depthZ * 0.45),
+                                    boxShadow: '0 0 45px rgba(212,175,55,0.8)'
+                                }}
+                                className="w-20 h-16 rounded-md bg-[#D4AF37]/20 mix-blend-screen pointer-events-none" 
+                            />
+                        </motion.div>
+
+                        {/* Subtle Tactile Floating Prompt Badge */}
+                        <motion.div
+                            animate={{
+                                opacity: depthZ > 0.90 ? 0 : 1,
+                                y: [0, -3, 0]
+                            }}
+                            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                            className="absolute inset-x-0 bottom-6 z-30 flex flex-col items-center pointer-events-auto"
+                        >
                             <button
-                                onClick={() => goToStep(0)}
-                                className="px-5 py-2.5 rounded-full border border-[#D4AF37]/50 bg-black/60 hover:bg-[#D4AF37]/20 text-[#D4AF37] font-mono text-[10px] font-bold tracking-widest uppercase transition-all flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(212,175,55,0.2)]"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    snapToTV();
+                                }}
+                                className="px-4 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-[#D4AF37]/60 hover:bg-[#D4AF37]/20 text-[#D4AF37] font-mono text-[8.5px] font-bold tracking-[0.22em] uppercase shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all cursor-pointer flex items-center gap-1.5"
                             >
-                                <span>←</span>
-                                <span>BACK TO STEP 1</span>
+                                <span>📺</span>
+                                <span>{depthZ > 0.7 ? 'DOCKING INTO TV // ENTER ATELIER' : 'SCROLL / DRAG FORWARD TO TV'}</span>
                             </button>
                         </motion.div>
-                    )}
+                    </div>
 
                     {/* Step 4 & Step 5 Floating Interactive Company Storefront Logo Badge */}
                     {(activeFrameIdx === 3 || activeFrameIdx === 4) && (
