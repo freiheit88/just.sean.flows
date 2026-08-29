@@ -164,6 +164,7 @@ export function InitialUnlockSplash({
     const targetRotY = isLockedMotion ? 0 : (-tiltX * 0.6);
     const targetTransX = isLockedMotion ? 0 : (tiltX * 1.5);
     const targetTransY = isLockedMotion ? 0 : (tiltY * 1.5);
+    const isCardDissolved = flowPhase === 'dissolving' || flowPhase === 'emblem_pure' || flowPhase === 'emblem_absorb' || flowPhase === 'fade_out';
 
     if (isAudioUnlocked) return null;
 
