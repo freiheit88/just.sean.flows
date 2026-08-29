@@ -166,7 +166,7 @@ export function InitialUnlockSplash({
 
     return (
         <motion.div 
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: flowPhase === 'fade_out' ? 0 : 1 }}
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-50 flex items-center justify-center select-none overflow-hidden"
@@ -218,7 +218,7 @@ export function InitialUnlockSplash({
                     perspective: '1000px',
                     transformStyle: 'preserve-3d'
                 }}
-                className="relative z-20 flex flex-col items-center justify-center pointer-events-none select-none px-4"
+                className="relative z-20 flex flex-col items-center justify-center pointer-events-auto select-none px-4"
             >
                 {/* VIP Recognition Badge */}
                 {vipProfile && flowPhase === 'card_idle' && (
