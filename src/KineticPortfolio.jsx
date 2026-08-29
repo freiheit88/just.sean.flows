@@ -394,7 +394,7 @@ export default function KineticPortfolio() {
             />
 
             {/* Top-Level Clean 3D Kinetic Header with Volume Morph Button */}
-            {(!isMuseumOpen && !isSoundLabOpen && !isPayPalOpen && !isVipAuthOpen) && (
+            {(isAudioUnlocked && !isMuseumOpen && !isSoundLabOpen && !isPayPalOpen && !isVipAuthOpen) && (
                 <Header3D 
                     isFlowsHit={isFlowsHit} 
                     tiltX={tiltX} 

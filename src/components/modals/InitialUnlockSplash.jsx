@@ -161,8 +161,8 @@ export function InitialUnlockSplash({
                     animate={{ 
                         opacity: isCardDissolved ? 0 : 1, 
                         scale: isCardDissolved ? 1.03 : 1.0,
-                        height: flowPhase === 'keypad' ? '470px' : '380px',
-                        width: '300px',
+                        height: flowPhase === 'keypad' ? '460px' : '380px',
+                        width: '290px',
                         borderColor: isCardDissolved ? 'transparent' : 'rgba(200, 169, 110, 0.60)',
                         backgroundColor: isCardDissolved ? 'transparent' : 'rgba(20, 4, 8, 0.96)'
                     }}
@@ -181,8 +181,8 @@ export function InitialUnlockSplash({
                     {/* DUAL-TIMING 18K GOLD EMBLEM & MONOGRAM CONTAINER */}
                     <motion.div
                         animate={{
-                            y: flowPhase === 'card_idle' ? 0 : -8,
-                            scale: flowPhase === 'card_idle' ? 1.0 : 0.48
+                            y: flowPhase === 'card_idle' ? 0 : -6,
+                            scale: flowPhase === 'card_idle' ? 1.0 : 0.46
                         }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         className={`relative z-20 flex flex-col items-center justify-center ${flowPhase === 'card_idle' ? 'my-auto' : 'mt-1'}`}
@@ -191,38 +191,34 @@ export function InitialUnlockSplash({
                         <div className="absolute w-28 h-28 rounded-full bg-[#D4AF37]/15 blur-xl pointer-events-none" />
 
                         {/* PART A: 18K Gold Wine Glass & Clef Symbol (Cycle A: 3.6s wave) */}
-                        <div className="relative w-28 h-20 overflow-hidden flex items-start justify-center">
-                            <motion.img
-                                src="/assets/logo/jsf_emblem_transparent.png"
-                                alt="JSF 18K Gold Symbol"
-                                animate={{
-                                    filter: [
-                                        "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.40)) brightness(1.0)",
-                                        "drop-shadow(0 4px 20px rgba(0,0,0,0.95)) drop-shadow(0 0 24px rgba(231,255,0,0.85)) brightness(1.25)",
-                                        "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.40)) brightness(1.0)"
-                                    ]
-                                }}
-                                transition={{ repeat: Infinity, duration: 3.6, ease: "easeInOut" }}
-                                className="w-28 object-contain pointer-events-none select-none -translate-y-0.5"
-                            />
-                        </div>
+                        <motion.img
+                            src="/assets/logo/jsf_symbol_pure.png"
+                            alt="JSF 18K Gold Symbol"
+                            animate={{
+                                filter: [
+                                    "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.40)) brightness(1.0)",
+                                    "drop-shadow(0 4px 20px rgba(0,0,0,0.95)) drop-shadow(0 0 24px rgba(231,255,0,0.85)) brightness(1.25)",
+                                    "drop-shadow(0 4px 14px rgba(0,0,0,0.9)) drop-shadow(0 0 10px rgba(212,175,55,0.40)) brightness(1.0)"
+                                ]
+                            }}
+                            transition={{ repeat: Infinity, duration: 3.6, ease: "easeInOut" }}
+                            className="w-24 object-contain pointer-events-none select-none drop-shadow-2xl"
+                        />
 
                         {/* PART B: 18K Gold J · S · F Monogram Text (Cycle B: 2.8s wave with 0.9s phase shift) */}
-                        <div className="relative w-28 h-8 overflow-hidden flex items-end justify-center -mt-1">
-                            <motion.img
-                                src="/assets/logo/jsf_emblem_transparent.png"
-                                alt="JSF Monogram"
-                                animate={{
-                                    filter: [
-                                        "drop-shadow(0 2px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(212,175,55,0.30)) brightness(0.95)",
-                                        "drop-shadow(0 2px 14px rgba(0,0,0,0.95)) drop-shadow(0 0 18px rgba(231,255,0,0.75)) brightness(1.22)",
-                                        "drop-shadow(0 2px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(212,175,55,0.30)) brightness(0.95)"
-                                    ]
-                                }}
-                                transition={{ repeat: Infinity, duration: 2.8, delay: 0.9, ease: "easeInOut" }}
-                                className="w-28 object-contain pointer-events-none select-none -translate-y-[84px]"
-                            />
-                        </div>
+                        <motion.img
+                            src="/assets/logo/jsf_text_pure.png"
+                            alt="JSF Monogram"
+                            animate={{
+                                filter: [
+                                    "drop-shadow(0 2px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(212,175,55,0.30)) brightness(0.95)",
+                                    "drop-shadow(0 2px 14px rgba(0,0,0,0.95)) drop-shadow(0 0 18px rgba(231,255,0,0.75)) brightness(1.22)",
+                                    "drop-shadow(0 2px 8px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(212,175,55,0.30)) brightness(0.95)"
+                                ]
+                            }}
+                            transition={{ repeat: Infinity, duration: 2.8, delay: 0.9, ease: "easeInOut" }}
+                            className="w-24 object-contain pointer-events-none select-none mt-2.5 drop-shadow-lg"
+                        />
                     </motion.div>
 
                     {/* MODE A: Initial Card State Prompt */}
