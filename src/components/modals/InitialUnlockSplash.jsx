@@ -184,19 +184,19 @@ export function InitialUnlockSplash({
                 transition={{ duration: 1.2 }}
                 className="absolute inset-0 pointer-events-none z-10"
             >
-                {ATELIER_DEBRIS_100.slice(0, 20).map((d) => (
+                {ATELIER_DEBRIS_100.slice(0, 20).map((d, i) => (
                     <motion.div
-                        key={d.id}
+                        key={d.id || i}
                         animate={{
                             y: [0, -15, 0],
                             opacity: [0.2, 0.5, 0.2]
                         }}
-                        transition={{ repeat: Infinity, duration: 4 + d.size, ease: "easeInOut" }}
+                        transition={{ repeat: Infinity, duration: (d.duration || 6), ease: "easeInOut" }}
                         style={{
-                            left: `${d.left}%`,
-                            top: `${d.top}%`,
-                            width: `${d.size * 2}px`,
-                            height: `${d.size * 2}px`,
+                            left: `${d.left || (i * 5)}%`,
+                            top: `${d.top || (i * 4)}%`,
+                            width: `${(d.size || 2) * 2}px`,
+                            height: `${(d.size || 2) * 2}px`,
                             backgroundColor: '#C8A96E',
                             borderRadius: '50%',
                             filter: 'blur(1px)',
