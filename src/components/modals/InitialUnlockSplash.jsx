@@ -173,7 +173,7 @@ export function InitialUnlockSplash({
                         backgroundColor: { duration: 0.5, ease: "easeOut" }
                     }}
                     onClick={handleCardTap}
-                    className="relative rounded-[32px] border border-[#C8A96E]/60 shadow-[0_30px_90px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.18)] p-6 flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-[#2E0711]/95 via-[#140306]/98 to-[#060203]/99 backdrop-blur-3xl group cursor-pointer pointer-events-auto"
+                    className="relative rounded-[32px] border border-[#C8A96E]/60 shadow-[0_30px_90px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.18)] px-6 pt-20 pb-6 flex flex-col items-center justify-start overflow-hidden bg-gradient-to-b from-[#2E0711]/95 via-[#140306]/98 to-[#060203]/99 backdrop-blur-3xl group cursor-pointer pointer-events-auto"
                 >
                     {/* Top Specular Hairline Glint */}
                     <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
@@ -185,7 +185,7 @@ export function InitialUnlockSplash({
                             scale: flowPhase === 'card_idle' ? 1.0 : 0.46
                         }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className={`relative z-20 flex flex-col items-center justify-center ${flowPhase === 'card_idle' ? 'mt-12 mb-auto' : 'mt-1'}`}
+                        className={`relative z-20 flex flex-col items-center justify-center ${flowPhase === 'card_idle' ? 'mt-0' : 'mt-1'}`}
                     >
                         {/* PART A: 18K Gold Wine Glass & Clef Symbol - Razor-Sharp Alpha Contour Line Glow */}
                         <motion.img
@@ -199,7 +199,7 @@ export function InitialUnlockSplash({
                                 ]
                             }}
                             transition={{ repeat: Infinity, duration: 3.6, ease: "easeInOut" }}
-                            className="w-21 object-contain pointer-events-none select-none"
+                            className="w-18 sm:w-20 object-contain pointer-events-none select-none"
                         />
 
                         {/* PART B: 18K Gold J · S · F Monogram Text (Shows when morphed into Keypad) */}
