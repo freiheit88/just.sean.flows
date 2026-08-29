@@ -178,14 +178,14 @@ export function InitialUnlockSplash({
                     {/* Top Specular Hairline Glint */}
                     <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
 
-                    {/* DUAL-TIMING 18K GOLD EMBLEM CONTAINER (INITIAL: ONLY PURE SYMBOL CENTERED) */}
+                    {/* DUAL-TIMING 18K GOLD EMBLEM CONTAINER (CHIC ORIGINAL POSITION & SCALE) */}
                     <motion.div
                         animate={{
                             y: flowPhase === 'card_idle' ? 0 : -6,
-                            scale: flowPhase === 'card_idle' ? 1.05 : 0.46
+                            scale: flowPhase === 'card_idle' ? 1.0 : 0.46
                         }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className="relative z-20 flex flex-col items-center justify-center my-auto"
+                        className={`relative z-20 flex flex-col items-center justify-center ${flowPhase === 'card_idle' ? 'mt-12 mb-auto' : 'mt-1'}`}
                     >
                         {/* PART A: 18K Gold Wine Glass & Clef Symbol - Razor-Sharp Alpha Contour Line Glow */}
                         <motion.img
@@ -199,7 +199,7 @@ export function InitialUnlockSplash({
                                 ]
                             }}
                             transition={{ repeat: Infinity, duration: 3.6, ease: "easeInOut" }}
-                            className="w-26 object-contain pointer-events-none select-none"
+                            className="w-21 object-contain pointer-events-none select-none"
                         />
 
                         {/* PART B: 18K Gold J · S · F Monogram Text (Shows when morphed into Keypad) */}
