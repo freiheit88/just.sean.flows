@@ -398,7 +398,7 @@ export function InitialUnlockSplash({
                                     scale: flowPhase === 'emblem_absorb' ? 0.4 : [1.0, 1.12, 1.0],
                                     opacity: flowPhase === 'emblem_absorb' ? 0.3 : [0.35, 0.55, 0.35]
                                 }}
-                                transition={{ repeat: flowPhase === 'emblem_absorb' ? 0 : Infinity, duration: 2.2, ease: "easeInOut" }}
+                                transition={{ duration: 2.2, ease: "easeInOut" }}
                                 style={{
                                     background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(200,169,110,0.08) 45%, transparent 70%)',
                                     filter: 'blur(20px)'
@@ -419,7 +419,7 @@ export function InitialUnlockSplash({
                                         "drop-shadow(0 4px 20px rgba(0,0,0,0.95)) drop-shadow(0 0 15px rgba(212,175,55,0.6)) brightness(1.15)"
                                     ]
                                 }}
-                                transition={{ repeat: flowPhase === 'emblem_absorb' ? 0 : Infinity, duration: 2.0, ease: "easeInOut" }}
+                                transition={{ duration: 2.0, ease: "easeInOut" }}
                                 className="w-32 sm:w-36 object-contain pointer-events-none select-none relative z-10"
                             />
                         </motion.div>
