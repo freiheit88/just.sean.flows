@@ -178,14 +178,14 @@ export function InitialUnlockSplash({
                     {/* Top Specular Hairline Glint */}
                     <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
 
-                    {/* DUAL-TIMING 18K GOLD EMBLEM & MONOGRAM CONTAINER */}
+                    {/* DUAL-TIMING 18K GOLD EMBLEM CONTAINER (INITIAL: ONLY PURE SYMBOL CENTERED) */}
                     <motion.div
                         animate={{
                             y: flowPhase === 'card_idle' ? 0 : -6,
-                            scale: flowPhase === 'card_idle' ? 1.0 : 0.46
+                            scale: flowPhase === 'card_idle' ? 1.05 : 0.46
                         }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                        className={`relative z-20 flex flex-col items-center justify-center ${flowPhase === 'card_idle' ? 'my-auto' : 'mt-1'}`}
+                        className="relative z-20 flex flex-col items-center justify-center my-auto"
                     >
                         {/* PART A: 18K Gold Wine Glass & Clef Symbol - Razor-Sharp Alpha Contour Line Glow */}
                         <motion.img
@@ -199,42 +199,20 @@ export function InitialUnlockSplash({
                                 ]
                             }}
                             transition={{ repeat: Infinity, duration: 3.6, ease: "easeInOut" }}
-                            className="w-24 object-contain pointer-events-none select-none"
+                            className="w-26 object-contain pointer-events-none select-none"
                         />
 
-                        {/* PART B: 18K Gold J · S · F Monogram Text - Razor-Sharp Alpha Contour Line Glow (Delayed Phase) */}
-                        <motion.img
-                            src="/assets/logo/jsf_text_pure.png"
-                            alt="JSF Monogram"
-                            animate={{
-                                filter: [
-                                    "drop-shadow(0 0 1px rgba(255,250,230,0.90)) drop-shadow(0 0 3px rgba(255,215,0,0.80)) drop-shadow(0 0 6px rgba(212,175,55,0.35)) brightness(1.0) contrast(1.05)",
-                                    "drop-shadow(0 0 1.4px rgba(255,255,255,0.98)) drop-shadow(0 0 4.5px rgba(255,225,60,0.92)) drop-shadow(0 0 11px rgba(231,255,0,0.65)) brightness(1.22) contrast(1.12)",
-                                    "drop-shadow(0 0 1px rgba(255,250,230,0.90)) drop-shadow(0 0 3px rgba(255,215,0,0.80)) drop-shadow(0 0 6px rgba(212,175,55,0.35)) brightness(1.0) contrast(1.05)"
-                                ]
-                            }}
-                            transition={{ repeat: Infinity, duration: 2.8, delay: 0.9, ease: "easeInOut" }}
-                            className="w-24 object-contain pointer-events-none select-none mt-2.5"
-                        />
-                    </motion.div>
-
-                    {/* MODE A: Initial Card State Prompt */}
-                    <AnimatePresence>
-                        {flowPhase === 'card_idle' && (
-                            <motion.div
-                                key="initial_prompt"
-                                initial={{ opacity: 0, y: 5 }}
+                        {/* PART B: 18K Gold J · S · F Monogram Text (Shows when morphed into Keypad) */}
+                        {flowPhase !== 'card_idle' && (
+                            <motion.img
+                                initial={{ opacity: 0, y: 4 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 10 }}
-                                transition={{ duration: 0.3, ease: "easeOut" }}
-                                className="w-full relative z-30 text-center py-2 mt-auto"
-                            >
-                                <span className="font-mono text-[9px] text-[#C8A96E] font-bold tracking-[0.28em] uppercase drop-shadow-[0_0_8px_rgba(200,169,110,0.5)]">
-                                    TAP CARD TO ENTER // 02:00 AM
-                                </span>
-                            </motion.div>
+                                src="/assets/logo/jsf_text_pure.png"
+                                alt="JSF Monogram"
+                                className="w-24 object-contain pointer-events-none select-none mt-2"
+                            />
                         )}
-                    </AnimatePresence>
+                    </motion.div>
 
                     {/* MODE B: Finom-Style Interactive PIN Vault */}
                     <AnimatePresence>
