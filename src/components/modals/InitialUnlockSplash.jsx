@@ -90,7 +90,10 @@ export function InitialUnlockSplash({
 
     // Handle Finom Keypad Input
     const handleKeypadPress = (val, e) => {
-        if (e) e.stopPropagation();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
         if (flowPhase !== 'keypad') return;
 
         if (navigator.vibrate) {
@@ -162,7 +165,7 @@ export function InitialUnlockSplash({
     const targetTransX = isLockedMotion ? 0 : (tiltX * 1.5);
     const targetTransY = isLockedMotion ? 0 : (tiltY * 1.5);
 
-    const isCardDissolved = flowPhase === 'dissolving' || flowPhase === 'emblem_pure' || flowPhase === 'emblem_absorb' || flowPhase === 'fade_out';
+    if (isAudioUnlocked) return null;
 
     return (
         <motion.div 
@@ -337,7 +340,10 @@ export function InitialUnlockSplash({
                                 </div>
 
                                 {/* Finom Minimal Numeric Keypad */}
-                                <div className="grid grid-cols-3 gap-2 w-full max-w-[240px]">
+                                <div 
+                                    onClick={(e) => e.stopPropagation()} 
+                                    className="grid grid-cols-3 gap-2 w-full max-w-[240px]"
+                                >
                                     {KEYPAD_BUTTONS.map((btn, bIdx) => (
                                         <motion.button
                                             key={bIdx}
