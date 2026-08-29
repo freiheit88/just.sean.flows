@@ -301,31 +301,6 @@ export default function KineticPortfolio() {
                         </motion.div>
                     )}
 
-                    {/* Step 2.5 Quest Popup (Appears between Step 2 and Step 3) */}
-                    <Step25QuestPopup 
-                        isOpen={isStep25Active}
-                        onComplete={handleCompleteStep25}
-                        tiltX={tiltX}
-                        tiltY={tiltY}
-                    />
-
-                    <Step07Timeline 
-                        activeFrameIdx={activeFrameIdx}
-                        tiltX={tiltX}
-                        tiltY={tiltY}
-                        onWalkAgain={resetWalk}
-                        onOpenMuseum={() => setIsMuseumOpen(true)}
-                    />
-
-                    {/* Integrated Expandable Walk Radar (1, 3, 5 Numbers / 2, 4, 6, 7 Emojis) */}
-                    <WalkRadarMap 
-                        activeFrameIdx={activeFrameIdx}
-                        isVisible={isAudioUnlocked && !isMuseumOpen && !isSoundLabOpen && !showWelcomeBack && !isStep25Active}
-                        goToStep={goToStep}
-                        stepForward={stepForward}
-                        stepBackward={stepBackward}
-                    />
-
                     <SonicFootprints isScrollingUp={isScrollingUp} />
                     <EvolutionGauge progress={progress} isAudioUnlocked={isAudioUnlocked} />
                 </motion.main>
