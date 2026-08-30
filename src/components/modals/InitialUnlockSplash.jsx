@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ATELIER_DEBRIS_100 } from '../../constants/debrisParticles';
+import { PolyphonicFugueLogo } from '../common/PolyphonicFugueLogo';
 
 const KEYPAD_BUTTONS = [
     { num: '1', sub: '' },
@@ -8,7 +9,7 @@ const KEYPAD_BUTTONS = [
     { num: '3', sub: 'DEF' },
     { num: '4', sub: 'GHI' },
     { num: '5', sub: 'JKL' },
-    { num: '6', sub: 'MNO' },
+    { num: '6', min: 'MNO', sub: 'MNO' },
     { num: '7', sub: 'PQRS' },
     { num: '8', sub: 'TUV' },
     { num: '9', sub: 'WXYZ' },
@@ -23,8 +24,11 @@ export function InitialUnlockSplash({
 }) {
     // flowPhase: 'card_idle' -> 'keypad' -> 'unlock_flash' -> 'dissolving' -> 'emblem_pure' -> 'emblem_absorb' -> 'fade_out'
     const [flowPhase, setFlowPhase] = useState('card_idle');
+    const [isFugueDone, setIsFugueDone] = useState(false);
+    const [morphProgress, setMorphProgress] = useState(0.0); // 0.0 (JUST SEAN FLOWS) -> 1.0 (J · S · F)
     const [enteredPin, setEnteredPin] = useState('');
     const signatureAudioRef = useRef(null);
+    const touchStartYRef = useRef(0);
 
     // Initialize signature audio
     useEffect(() => {
@@ -33,7 +37,47 @@ export function InitialUnlockSplash({
         signatureAudioRef.current = audio;
     }, []);
 
-    // Handle Tap on Card: Morphs smoothly into Finom Keypad (Zero abrupt switch!)
+    // Handle User Scroll/Wheel to drive Morph Progress
+    const handleWheel = (e) => {
+        if (flowPhase !== 'card_idle' || !isFugueDone) return;
+        
+        const delta = e.deltaY * 0.0035;
+        setMorphProgress(prev => {
+            const next = Math.max(0.0, Math.min(1.0, prev + delta));
+            if (next >= 0.95 && prev < 0.95) {
+                // Auto cascade into keypad upon completing the morph
+                setTimeout(() => {
+                    setFlowPhase('keypad');
+                }, 150);
+            }
+            return next;
+        });
+    };
+
+    // Handle Touch Drag on Mobile
+    const handleTouchStart = (e) => {
+        if (e.touches && e.touches[0]) {
+            touchStartYRef.current = e.touches[0].clientY;
+        }
+    };
+
+    const handleTouchMove = (e) => {
+        if (flowPhase !== 'card_idle' || !isFugueDone) return;
+        if (e.touches && e.touches[0]) {
+            const deltaY = touchStartYRef.current - e.touches[0].clientY;
+            if (deltaY > 0) {
+                const prog = Math.min(1.0, deltaY / 120.0);
+                setMorphProgress(prog);
+                if (prog >= 0.95) {
+                    setTimeout(() => {
+                        setFlowPhase('keypad');
+                    }, 150);
+                }
+            }
+        }
+    };
+
+    // Handle Tap on Card: Morphs smoothly into Finom Keypad (Quick 0.3s morph)
     const handleCardTap = (e) => {
         if (flowPhase !== 'card_idle') return;
         if (e) e.stopPropagation();
@@ -41,6 +85,7 @@ export function InitialUnlockSplash({
         if (navigator.vibrate) {
             try { navigator.vibrate(20); } catch (err) {}
         }
+        setMorphProgress(1.0);
         setFlowPhase('keypad');
     };
 
@@ -62,7 +107,6 @@ export function InitialUnlockSplash({
         }
 
         if (val === '·') {
-            // Quick bypass trigger
             triggerMasterUnlock();
             return;
         }
@@ -72,7 +116,6 @@ export function InitialUnlockSplash({
             setEnteredPin(nextPin);
 
             if (nextPin.length === 4) {
-                // PIN Complete: Trigger Continuous Staggered Unlock
                 setTimeout(() => {
                     triggerMasterUnlock();
                 }, 180);
@@ -127,6 +170,9 @@ export function InitialUnlockSplash({
             style={{
                 background: 'radial-gradient(ellipse at center, #190409 0%, #080204 60%, #020102 100%)'
             }}
+            onWheel={handleWheel}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
         >
             {/* Ambient Debris Particles (Subtle 60FPS) */}
             <div className="absolute inset-0 pointer-events-none z-10 opacity-25">
@@ -155,7 +201,7 @@ export function InitialUnlockSplash({
             {/* Central Solid Container (ZERO Gyro Tilt - Completely Stable Luxury) */}
             <div className="relative z-20 flex flex-col items-center justify-center pointer-events-auto select-none px-4 max-w-full">
                 
-                {/* 1. MASTER FINOM VAULT CARD (Zero Clutter, Pure 18K Logo & Monogram Focus) */}
+                {/* 1. MASTER FINOM VAULT CARD */}
                 <motion.div
                     initial={{ opacity: 1, filter: 'blur(0px)', scale: 1.0 }}
                     animate={{ 
@@ -173,44 +219,108 @@ export function InitialUnlockSplash({
                         backgroundColor: { duration: 0.5, ease: "easeOut" }
                     }}
                     onClick={handleCardTap}
-                    className="relative rounded-[32px] border border-[#C8A96E]/60 shadow-[0_30px_90px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.18)] px-6 pt-20 pb-6 flex flex-col items-center justify-start overflow-hidden bg-gradient-to-b from-[#2E0711]/95 via-[#140306]/98 to-[#060203]/99 backdrop-blur-3xl group cursor-pointer pointer-events-auto"
+                    className="relative rounded-[32px] border border-[#C8A96E]/60 shadow-[0_30px_90px_rgba(0,0,0,0.98),0_0_40px_rgba(200,169,110,0.18)] px-6 pt-16 pb-6 flex flex-col items-center justify-start overflow-hidden bg-gradient-to-b from-[#2E0711]/95 via-[#140306]/98 to-[#060203]/99 backdrop-blur-3xl group cursor-pointer pointer-events-auto"
                 >
                     {/* Top Specular Hairline Glint */}
                     <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none rounded-t-[30px]" />
 
-                    {/* DUAL-TIMING 18K GOLD EMBLEM CONTAINER (CHIC ORIGINAL POSITION & SCALE) */}
+                    {/* DUAL-TIMING 18K GOLD EMBLEM CONTAINER (ORIGINAL CHIC UPPER POSITION) */}
                     <motion.div
                         animate={{
-                            y: flowPhase === 'card_idle' ? 0 : -6,
+                            y: flowPhase === 'card_idle' ? 0 : -8,
                             scale: flowPhase === 'card_idle' ? 1.0 : 0.46
                         }}
                         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         className={`relative z-20 flex flex-col items-center justify-center ${flowPhase === 'card_idle' ? 'mt-0' : 'mt-1'}`}
                     >
-                        {/* PART A: 18K Gold Wine Glass & Clef Symbol - Razor-Sharp Alpha Contour Line Glow */}
-                        <motion.img
-                            src="/assets/logo/jsf_symbol_pure.png"
-                            alt="JSF 18K Gold Symbol"
-                            animate={{
-                                filter: [
-                                    "drop-shadow(0 0 1px rgba(255,250,230,0.95)) drop-shadow(0 0 3.5px rgba(255,215,0,0.85)) drop-shadow(0 0 8px rgba(212,175,55,0.45)) brightness(1.05) contrast(1.08)",
-                                    "drop-shadow(0 0 1.8px rgba(255,255,255,1.0)) drop-shadow(0 0 5.5px rgba(255,225,60,0.98)) drop-shadow(0 0 14px rgba(231,255,0,0.75)) brightness(1.28) contrast(1.15)",
-                                    "drop-shadow(0 0 1px rgba(255,250,230,0.95)) drop-shadow(0 0 3.5px rgba(255,215,0,0.85)) drop-shadow(0 0 8px rgba(212,175,55,0.45)) brightness(1.05) contrast(1.08)"
-                                ]
-                            }}
-                            transition={{ repeat: Infinity, duration: 3.6, ease: "easeInOut" }}
-                            className="w-18 sm:w-20 object-contain pointer-events-none select-none"
+                        {/* PART A: 3-Voice Polyphonic Fugue 3.0s Web-Coding Logo Renderer */}
+                        <PolyphonicFugueLogo 
+                            onFugueComplete={() => setIsFugueDone(true)}
+                            isKeypadMode={flowPhase === 'keypad'}
+                            className="w-18 sm:w-20"
                         />
 
-                        {/* PART B: 18K Gold J · S · F Monogram Text (Shows when morphed into Keypad) */}
-                        {flowPhase !== 'card_idle' && (
-                            <motion.img
-                                initial={{ opacity: 0, y: 4 }}
+                        {/* PART B: SCROLL MORPHING TEXT (JUST SEAN FLOWS -> J · S · F) */}
+                        {isFugueDone && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: 6 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                src="/assets/logo/jsf_text_pure.png"
-                                alt="JSF Monogram"
-                                className="w-24 object-contain pointer-events-none select-none mt-2"
-                            />
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                                className="relative mt-3.5 flex items-center justify-center font-serif text-[11px] font-black tracking-widest text-[#FFF8DB] select-none"
+                                style={{
+                                    filter: 'drop-shadow(0 0 1px #FFF8DB) drop-shadow(0 0 3.5px #FFD700) drop-shadow(0 0 8px rgba(212,175,55,0.4))'
+                                }}
+                            >
+                                {/* Word 1: J + [UST] */}
+                                <div className="flex items-center">
+                                    <span className="text-[#FFD700] text-[12px] font-bold">J</span>
+                                    <motion.span 
+                                        style={{
+                                            maxWidth: `${Math.max(0, (1 - morphProgress) * 26)}px`,
+                                            opacity: Math.max(0, 1 - (morphProgress * 2.0)),
+                                            transform: `scaleX(${1 - morphProgress})`,
+                                            transformOrigin: 'left'
+                                        }}
+                                        className="overflow-hidden inline-block text-[10px] text-neutral-300 font-normal ml-0.5 tracking-wider"
+                                    >
+                                        UST
+                                    </motion.span>
+                                </div>
+
+                                {/* Dot Separator 1 */}
+                                <motion.span 
+                                    style={{
+                                        opacity: Math.max(0, (morphProgress - 0.3) * 1.5),
+                                        transform: `scale(${Math.min(1.0, morphProgress * 1.3)})`
+                                    }}
+                                    className="mx-1 text-[#FFD700] text-[9px] font-bold"
+                                >
+                                    •
+                                </motion.span>
+
+                                {/* Word 2: S + [EAN] */}
+                                <div className="flex items-center ml-1">
+                                    <span className="text-[#FFD700] text-[12px] font-bold">S</span>
+                                    <motion.span 
+                                        style={{
+                                            maxWidth: `${Math.max(0, (1 - morphProgress) * 26)}px`,
+                                            opacity: Math.max(0, 1 - (morphProgress * 2.0)),
+                                            transform: `scaleX(${1 - morphProgress})`,
+                                            transformOrigin: 'left'
+                                        }}
+                                        className="overflow-hidden inline-block text-[10px] text-neutral-300 font-normal ml-0.5 tracking-wider"
+                                    >
+                                        EAN
+                                    </motion.span>
+                                </div>
+
+                                {/* Dot Separator 2 */}
+                                <motion.span 
+                                    style={{
+                                        opacity: Math.max(0, (morphProgress - 0.3) * 1.5),
+                                        transform: `scale(${Math.min(1.0, morphProgress * 1.3)})`
+                                    }}
+                                    className="mx-1 text-[#FFD700] text-[9px] font-bold"
+                                >
+                                    •
+                                </motion.span>
+
+                                {/* Word 3: F + [LOWS] */}
+                                <div className="flex items-center ml-1">
+                                    <span className="text-[#FFD700] text-[12px] font-bold">F</span>
+                                    <motion.span 
+                                        style={{
+                                            maxWidth: `${Math.max(0, (1 - morphProgress) * 36)}px`,
+                                            opacity: Math.max(0, 1 - (morphProgress * 2.0)),
+                                            transform: `scaleX(${1 - morphProgress})`,
+                                            transformOrigin: 'left'
+                                        }}
+                                        className="overflow-hidden inline-block text-[10px] text-neutral-300 font-normal ml-0.5 tracking-wider"
+                                    >
+                                        LOWS
+                                    </motion.span>
+                                </div>
+                            </motion.div>
                         )}
                     </motion.div>
 
@@ -223,7 +333,7 @@ export function InitialUnlockSplash({
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 8 }}
                                 transition={{ duration: 0.45, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-                                className="w-full relative z-30 flex flex-col items-center mt-1"
+                                className="w-full relative z-30 flex flex-col items-center mt-2"
                             >
                                 {/* 4 High-End Golden Glass PIN Pips */}
                                 <div className="flex items-center gap-4 mb-4">
