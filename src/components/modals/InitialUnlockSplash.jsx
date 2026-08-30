@@ -37,11 +37,12 @@ export function InitialUnlockSplash({
         signatureAudioRef.current = audio;
     }, []);
 
-    // Handle User Scroll/Wheel to drive Morph Progress
+    // Handle User Scroll/Wheel to drive Morph Progress (SFI-4: Heavy Velvet 3x Friction)
     const handleWheel = (e) => {
         if (flowPhase !== 'card_idle' || !isFugueDone) return;
         
-        const delta = e.deltaY * 0.0035;
+        // SFI-4: 0.00115 (3x heavier resistance, requires ~900px of wheel rotation)
+        const delta = e.deltaY * 0.00115;
         setMorphProgress(prev => {
             const next = Math.max(0.0, Math.min(1.0, prev + delta));
             if (next >= 0.95 && prev < 0.95) {
@@ -54,7 +55,7 @@ export function InitialUnlockSplash({
         });
     };
 
-    // Handle Touch Drag on Mobile
+    // Handle Touch Drag on Mobile (SFI-4: 360px travel)
     const handleTouchStart = (e) => {
         if (e.touches && e.touches[0]) {
             touchStartYRef.current = e.touches[0].clientY;
@@ -66,7 +67,8 @@ export function InitialUnlockSplash({
         if (e.touches && e.touches[0]) {
             const deltaY = touchStartYRef.current - e.touches[0].clientY;
             if (deltaY > 0) {
-                const prog = Math.min(1.0, deltaY / 120.0);
+                // SFI-4: 360px swipe stroke
+                const prog = Math.min(1.0, deltaY / 360.0);
                 setMorphProgress(prog);
                 if (prog >= 0.95) {
                     setTimeout(() => {
