@@ -1,71 +1,81 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, Pause, Music, ZoomIn, ZoomOut, Sparkles, Copy, Radio, Volume2 } from 'lucide-react';
+import { X, Play, Pause, Music, ZoomIn, ZoomOut, Sparkles, Copy, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import abcjs from 'abcjs';
 
-// SEAN'S CALIBRATED 110.13 BPM LEAD SHEET (L: 1/16)
+// CALIBRATED 110.13 BPM LEAD SHEET (Clean 1/8 notation without overlaps)
 const TWELVE_MINUTE_ALIBI_LEAD_SHEET = `
 X: 1
-T: A Twelve-minute Alibi (CADENZA-432 Live Karaoke Sync)
+T: A Twelve-minute Alibi (CADENZA-432 Live Score)
 C: Just Sean Flows (A = 432Hz • 110.13 BPM)
 M: 4/4
-L: 1/16
+L: 1/8
 Q: 1/4=110
 K: Dm
-%%stretchlast 0
-%%scale 0.68
-%%staffwidth 770
-%%topspace 10
-%%titlespace 8
+%%scale 0.80
+%%staffwidth 750
+%%topspace 12
+%%titlespace 10
 %%wordsfont Helvetica-Bold 13
 %%gchordfont Helvetica-Bold 14
-E2 F2 | "Dm" F2 G2 E2 A4 G2 F1 E1 | "Dm" D16 | "Bb" D2 C2 C2 D4 D#2 D#2 | "Am" A,8 z8 |
-w: When the | Frank-furt freeze is how-ling, | ling, | And the surge pri-cing breaks your | heart.
-"Gm" F2 F2 G2 F1 E1 E4 | "A7" A4 A2 G2 A4 | "Dm" D2 E2 E2 F2 D2 D2 | "Dm" C2 D2 C2 A,8 |]
-w: You're hud-dled by the con-crete, | Swa-llowed in my | hea-vy lea-ther ja-cket, | ja-cket.
+%%subtitlespace 6
+%%measurenb 0
+z2 E F | "Dm" F G E A- | A G F E | "Dm" D4 | "Bb" D C C D- | D _E _E2 | "Am" A,4- | A,4 |
+w: When the | Frank-furt freeze is | how- * ling, | ling, | And the surge pri- | * cing breaks | heart. | _
+"Gm" F F G F | E E3 | "A7" A2 A G | A4 | "Dm" D E E F | D2 D2 | "Dm" C D C A,- | A,4 |]
+w: You're hud-dled by | the con-crete, | Swa-llowed in | my | hea-vy lea-ther | ja-cket, | ja- * * * | cket.
 `;
 
-// Exact Syllable & Note Millisecond Sync Map
+// Syllable & Note Millisecond Sync Map (Calibrated to Master Audio Waveform)
 const SONG_LYRICS_TIMELINE = [
-    { start: 0.00, end: 1.85, text: "[Intro Guitar Riff]", noteIdx: -1, chord: "Dm" },
-    { start: 1.85, end: 2.30, text: "When", noteIdx: 0, chord: "Dm" },
-    { start: 2.30, end: 2.85, text: "the", noteIdx: 1, chord: "Dm" },
-    { start: 2.85, end: 3.45, text: "Frank-", noteIdx: 2, chord: "Dm" },
-    { start: 3.45, end: 3.90, text: "furt", noteIdx: 3, chord: "Dm" },
-    { start: 3.90, end: 4.40, text: "freeze", noteIdx: 4, chord: "Dm" },
-    { start: 4.40, end: 4.80, text: "is", noteIdx: 5, chord: "Dm" },
-    { start: 4.80, end: 5.40, text: "how-", noteIdx: 6, chord: "Dm" },
-    { start: 5.40, end: 6.20, text: "ling,", noteIdx: 7, chord: "Dm" },
-    { start: 6.20, end: 7.20, text: "ling,", noteIdx: 8, chord: "Dm" },
-    { start: 7.20, end: 7.60, text: "And", noteIdx: 9, chord: "Bb" },
-    { start: 7.60, end: 8.00, text: "the", noteIdx: 10, chord: "Bb" },
-    { start: 8.00, end: 8.45, text: "surge", noteIdx: 11, chord: "Bb" },
-    { start: 8.45, end: 8.90, text: "pri-", noteIdx: 12, chord: "Bb" },
-    { start: 8.90, end: 9.35, text: "cing", noteIdx: 13, chord: "Bb" },
-    { start: 9.35, end: 9.90, text: "breaks", noteIdx: 14, chord: "Bb" },
-    { start: 9.90, end: 10.40, text: "your", noteIdx: 15, chord: "Bb" },
-    { start: 10.40, end: 11.50, text: "heart.", noteIdx: 16, chord: "Am" },
-    { start: 11.50, end: 12.00, text: "You're", noteIdx: 17, chord: "Gm" },
-    { start: 12.00, end: 12.50, text: "hud-", noteIdx: 18, chord: "Gm" },
-    { start: 12.50, end: 12.90, text: "dled", noteIdx: 19, chord: "Gm" },
-    { start: 12.90, end: 13.30, text: "by", noteIdx: 20, chord: "Gm" },
-    { start: 13.30, end: 13.75, text: "the", noteIdx: 21, chord: "Gm" },
-    { start: 13.75, end: 14.30, text: "con-", noteIdx: 22, chord: "Gm" },
-    { start: 14.30, end: 15.00, text: "crete,", noteIdx: 23, chord: "Gm" },
-    { start: 15.00, end: 15.55, text: "Swa-", noteIdx: 24, chord: "A7" },
-    { start: 15.55, end: 16.10, text: "llowed", noteIdx: 25, chord: "A7" },
-    { start: 16.10, end: 16.50, text: "in", noteIdx: 26, chord: "A7" },
-    { start: 16.50, end: 17.00, text: "my", noteIdx: 27, chord: "A7" },
-    { start: 17.00, end: 17.50, text: "hea-", noteIdx: 28, chord: "Dm" },
-    { start: 17.50, end: 18.00, text: "vy", noteIdx: 29, chord: "Dm" },
-    { start: 18.00, end: 18.50, text: "lea-", noteIdx: 30, chord: "Dm" },
-    { start: 18.50, end: 19.00, text: "ther", noteIdx: 31, chord: "Dm" },
-    { start: 19.00, end: 19.60, text: "ja-", noteIdx: 32, chord: "Dm" },
-    { start: 19.60, end: 20.30, text: "cket,", noteIdx: 33, chord: "Dm" },
-    { start: 20.30, end: 22.00, text: "ja-cket.", noteIdx: 34, chord: "Dm" }
+    { start: 0.00, end: 1.50, text: "[Intro Guitar Riff]", noteIdx: -1, chord: "Dm" },
+    { start: 1.50, end: 2.10, text: "When", noteIdx: 0, chord: "Dm" },
+    { start: 2.10, end: 2.50, text: "the", noteIdx: 1, chord: "Dm" },
+    { start: 2.50, end: 3.20, text: "Frank-", noteIdx: 2, chord: "Dm" },
+    { start: 3.20, end: 3.80, text: "furt", noteIdx: 3, chord: "Dm" },
+    { start: 3.80, end: 4.50, text: "freeze", noteIdx: 4, chord: "Dm" },
+    { start: 4.50, end: 4.90, text: "is", noteIdx: 5, chord: "Dm" },
+    { start: 4.90, end: 5.80, text: "how-", noteIdx: 6, chord: "Dm" },
+    { start: 5.80, end: 6.80, text: "ling,", noteIdx: 7, chord: "Dm" },
+    { start: 6.80, end: 8.80, text: "ling,", noteIdx: 8, chord: "Dm" },
+    { start: 8.80, end: 9.40, text: "And", noteIdx: 9, chord: "Bb" },
+    { start: 9.40, end: 9.90, text: "the", noteIdx: 10, chord: "Bb" },
+    { start: 9.90, end: 10.60, text: "surge", noteIdx: 11, chord: "Bb" },
+    { start: 10.60, end: 11.30, text: "pri-", noteIdx: 12, chord: "Bb" },
+    { start: 11.30, end: 11.90, text: "cing", noteIdx: 13, chord: "Bb" },
+    { start: 11.90, end: 12.80, text: "breaks", noteIdx: 14, chord: "Bb" },
+    { start: 12.80, end: 13.50, text: "your", noteIdx: 15, chord: "Am" },
+    { start: 13.50, end: 15.50, text: "heart.", noteIdx: 16, chord: "Am" },
+    { start: 15.50, end: 16.30, text: "[Interlude]", noteIdx: -1, chord: "Am" },
+    { start: 16.30, end: 17.10, text: "You're", noteIdx: 17, chord: "Gm" },
+    { start: 17.10, end: 17.80, text: "hud-", noteIdx: 18, chord: "Gm" },
+    { start: 17.80, end: 18.50, text: "dled", noteIdx: 19, chord: "Gm" },
+    { start: 18.50, end: 19.10, text: "by", noteIdx: 20, chord: "Gm" },
+    { start: 19.10, end: 19.60, text: "the", noteIdx: 21, chord: "Gm" },
+    { start: 19.60, end: 20.30, text: "con-", noteIdx: 22, chord: "Gm" },
+    { start: 20.30, end: 21.30, text: "crete,", noteIdx: 23, chord: "A7" },
+    { start: 21.30, end: 22.00, text: "Swa-", noteIdx: 24, chord: "A7" },
+    { start: 22.00, end: 22.60, text: "llowed", noteIdx: 25, chord: "A7" },
+    { start: 22.60, end: 23.00, text: "in", noteIdx: 26, chord: "A7" },
+    { start: 23.00, end: 23.50, text: "my", noteIdx: 27, chord: "Dm" },
+    { start: 23.50, end: 24.10, text: "hea-", noteIdx: 28, chord: "Dm" },
+    { start: 24.10, end: 24.60, text: "vy", noteIdx: 29, chord: "Dm" },
+    { start: 24.60, end: 25.10, text: "lea-", noteIdx: 30, chord: "Dm" },
+    { start: 25.10, end: 25.60, text: "ther", noteIdx: 31, chord: "Dm" },
+    { start: 25.60, end: 26.20, text: "ja-", noteIdx: 32, chord: "Dm" },
+    { start: 26.20, end: 27.00, text: "cket,", noteIdx: 33, chord: "Dm" },
+    { start: 27.00, end: 29.00, text: "cket.", noteIdx: 34, chord: "Dm" }
 ];
 
 const CHORD_SEQUENCE = ['Dm', 'Bb', 'Am', 'Gm', 'A7', 'Dm'];
+
+const CHORD_FREQUENCIES_432 = {
+    'Dm': [288.33, 342.88, 432.00], // D4, F4, A4
+    'Bb': [228.94, 288.33, 342.88], // Bb3, D4, F4
+    'Am': [216.00, 256.87, 323.63], // A3, C4, E4
+    'Gm': [192.43, 228.94, 288.33], // G3, Bb3, D4
+    'A7': [216.00, 272.93, 323.63, 384.87] // A3, C#4, E4, G4
+};
 
 const CHORD_COLOR_MAP = {
     'Pickup': { name: 'Intro Riff', color: '#E7FF00', glow: 'rgba(231, 255, 0, 0.85)' },
@@ -76,22 +86,21 @@ const CHORD_COLOR_MAP = {
     'A7': { name: 'A7#9 (Dominant Push)', color: '#E056FD', glow: 'rgba(224, 86, 253, 0.95)' }
 };
 
-const MASTER_AUDIO_SRC = '/assets/manual_upload/A Twelve-minute Alibi/A twelve alibi_master.wav';
+const MASTER_AUDIO_SRC = '/assets/manual_upload/A%20Twelve-minute%20Alibi/A%20twelve%20alibi_master.wav';
 
 export function InteractiveSheetMusicModal({ isOpen, onClose }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(124.8);
-    const [scale, setScale] = useState(0.68);
+    const [scale, setScale] = useState(0.80);
     const [activeLyric, setActiveLyric] = useState(SONG_LYRICS_TIMELINE[0]);
 
-    // Dual-Key Recording States
+    // Dual-Key Recording & Interactive States
     const [isRecording, setIsRecording] = useState(false);
     const [recordedEvents, setRecordedEvents] = useState([]);
     const [lastActionType, setLastActionType] = useState(null);
     const [currentChordIndex, setCurrentChordIndex] = useState(0);
     const [copiedJson, setCopiedJson] = useState(false);
-
     const [isCountInActive, setIsCountInActive] = useState(false);
     const [countInBeat, setCountInBeat] = useState(0);
 
@@ -99,16 +108,16 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
     const audioRef = useRef(null);
     const audioCtxRef = useRef(null);
     const countInTimerRef = useRef(null);
+
     const recordedEventsRef = useRef([]);
     const currentChordIndexRef = useRef(0);
-
     recordedEventsRef.current = recordedEvents;
     currentChordIndexRef.current = currentChordIndex;
 
-    const currentChord = CHORD_SEQUENCE[currentChordIndex] || 'Dm';
+    const currentChord = activeLyric?.chord || CHORD_SEQUENCE[currentChordIndex] || 'Dm';
     const currentChordStyle = CHORD_COLOR_MAP[currentChord] || CHORD_COLOR_MAP['Dm'];
 
-    const getAudioContext = () => {
+    const getAudioContext = useCallback(() => {
         if (!audioCtxRef.current) {
             audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -116,9 +125,46 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
             audioCtxRef.current.resume();
         }
         return audioCtxRef.current;
-    };
+    }, []);
 
-    const playWoodblockClick = (isAccent = false) => {
+    // 432Hz Acoustic Cadenza Chord Synthesizer
+    const playCadenza432Chord = useCallback((chordName) => {
+        try {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+            const freqs = CHORD_FREQUENCIES_432[chordName] || CHORD_FREQUENCIES_432['Dm'];
+
+            freqs.forEach((freq, idx) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+
+                // Warm Acoustic String/Guitar Strum (Sawtooth + Lowpass)
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(freq, now + idx * 0.025);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1800, now + idx * 0.025);
+                filter.frequency.exponentialRampToValueAtTime(600, now + idx * 0.025 + 1.2);
+
+                gain.gain.setValueAtTime(0, now + idx * 0.025);
+                gain.gain.linearRampToValueAtTime(0.18, now + idx * 0.025 + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.025 + 1.6);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now + idx * 0.025);
+                osc.stop(now + idx * 0.025 + 1.7);
+            });
+        } catch (e) {
+            console.error('Cadenza Synth error:', e);
+        }
+    }, [getAudioContext]);
+
+    // Woodblock Metronome Click
+    const playWoodblockClick = useCallback((isAccent = false) => {
         try {
             const ctx = getAudioContext();
             const osc = ctx.createOscillator();
@@ -136,26 +182,26 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
 
             osc.start();
             osc.stop(ctx.currentTime + 0.09);
-        } catch (e) {
-            console.log('Metronome click error:', e);
-        }
-    };
+        } catch (e) {}
+    }, [getAudioContext]);
 
-    // Render ABC Score
+    // Render ABC Score with High-Precision Typography
     useEffect(() => {
         if (isOpen && scoreContainerRef.current) {
             abcjs.renderAbc(scoreContainerRef.current, TWELVE_MINUTE_ALIBI_LEAD_SHEET, {
                 responsive: 'resize',
                 scale: scale,
-                staffwidth: 770,
+                staffwidth: 750,
                 wrap: null,
                 add_classes: true,
-                selectionColor: '#00FF88'
+                selectionColor: '#00FF88',
+                paddingtop: 15,
+                paddingbottom: 25
             });
         }
     }, [isOpen, scale]);
 
-    // REAL-TIME KARAOKE LYRIC & NOTE SYNC HIGHLIGHT LOOP
+    // Live Karaoke Sync Loop (Clean Highlighting with Reset)
     useEffect(() => {
         let animId = null;
 
@@ -168,7 +214,7 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                     setDuration(audioRef.current.duration);
                 }
 
-                // 1. Find Matching Lyric Syllable
+                // 1. Find Matching Lyric
                 const matched = SONG_LYRICS_TIMELINE.find(item => t >= item.start && t < item.end);
                 if (matched) {
                     setActiveLyric(matched);
@@ -176,22 +222,22 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                     // 2. Highlighting inside ABCjs SVG DOM
                     if (scoreContainerRef.current) {
                         const lyricElements = scoreContainerRef.current.querySelectorAll('text.abcjs-lyric, .abcjs-lyric text, text');
-                        const noteElements = scoreContainerRef.current.querySelectorAll('path.abcjs-note, .abcjs-note path, .abcjs-note');
+                        const noteElements = scoreContainerRef.current.querySelectorAll('path.abcjs-note, .abcjs-note path, path[d]');
 
-                        // Highlight active lyric text
+                        // Clean reset & highlight lyrics
                         lyricElements.forEach((el) => {
                             const raw = el.textContent ? el.textContent.trim() : "";
                             const cleanedText = matched.text.replace(/[-,\.]/g, '').toLowerCase();
                             const cleanedRaw = raw.replace(/[-,\.]/g, '').toLowerCase();
 
-                            if (cleanedRaw && (cleanedText.includes(cleanedRaw) || cleanedRaw.includes(cleanedText))) {
-                                el.setAttribute('fill', '#00B855');
+                            if (cleanedRaw && cleanedText && (cleanedText === cleanedRaw || cleanedText.startsWith(cleanedRaw) || cleanedRaw.startsWith(cleanedText))) {
+                                el.setAttribute('fill', '#00FF88');
                                 el.setAttribute('font-weight', '900');
-                                el.style.filter = 'drop-shadow(0 0 6px rgba(0, 184, 85, 0.9))';
-                                el.style.transform = 'scale(1.12)';
+                                el.style.filter = 'drop-shadow(0 0 8px rgba(0, 255, 136, 0.95))';
+                                el.style.transform = 'scale(1.18)';
                                 el.style.transformOrigin = 'center';
-                                el.style.transition = 'all 0.15s ease-out';
-                            } else if (el.classList.contains('abcjs-lyric')) {
+                                el.style.transition = 'all 0.1s ease-out';
+                            } else {
                                 el.setAttribute('fill', '#1a1a1a');
                                 el.setAttribute('font-weight', 'bold');
                                 el.style.filter = 'none';
@@ -199,13 +245,18 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                             }
                         });
 
-                        // Highlight active note
-                        if (matched.noteIdx >= 0 && noteElements[matched.noteIdx]) {
-                            const activeNoteEl = noteElements[matched.noteIdx];
-                            activeNoteEl.setAttribute('fill', '#E7FF00');
-                            activeNoteEl.setAttribute('stroke', '#E7FF00');
-                            activeNoteEl.style.filter = 'drop-shadow(0 0 10px #E7FF00)';
-                        }
+                        // Clean reset & highlight notes
+                        noteElements.forEach((noteEl, idx) => {
+                            if (matched.noteIdx >= 0 && idx === matched.noteIdx) {
+                                noteEl.setAttribute('fill', '#FFD700');
+                                noteEl.setAttribute('stroke', '#FFD700');
+                                noteEl.style.filter = 'drop-shadow(0 0 10px #FFD700)';
+                            } else {
+                                noteEl.setAttribute('fill', '#000000');
+                                noteEl.setAttribute('stroke', '#000000');
+                                noteEl.style.filter = 'none';
+                            }
+                        });
                     }
                 }
 
@@ -229,7 +280,7 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
         };
     }, [isPlaying]);
 
-    // Global Keydown Handler: 'p'/'P' for Guitar Strum, 'i'/'I' for Chord Change
+    // Keyboard Shortcuts: [Space] Play/Pause, [P] Strum, [1]/[I] Chord Change, [+/-] Zoom
     useEffect(() => {
         if (!isOpen) return;
 
@@ -239,9 +290,14 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
             const key = e.key.toLowerCase();
             const nowTime = audioRef.current ? audioRef.current.currentTime : 0;
 
-            if (key === 'p') {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                togglePlayback();
+            } else if (key === 'p') {
                 e.preventDefault();
                 setLastActionType('strum');
+                const curChord = CHORD_SEQUENCE[currentChordIndexRef.current] || 'Dm';
+                playCadenza432Chord(curChord);
 
                 const prevStrum = recordedEventsRef.current.filter(ev => ev.type === 'guitar_strum').slice(-1)[0];
                 const delta = prevStrum ? parseFloat((nowTime - prevStrum.time_sec).toFixed(4)) : 0;
@@ -252,36 +308,44 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                     key: 'P',
                     time_sec: parseFloat(nowTime.toFixed(4)),
                     delta_from_prev_strum: delta,
-                    active_chord: CHORD_SEQUENCE[currentChordIndexRef.current] || 'Dm'
+                    active_chord: curChord
                 };
 
                 setRecordedEvents(prev => [...prev, newEvent]);
-            } else if (key === 'i') {
+            } else if (key === '1' || key === 'i') {
                 e.preventDefault();
                 setLastActionType('chord');
 
                 const nextIdx = (currentChordIndexRef.current + 1) % CHORD_SEQUENCE.length;
                 setCurrentChordIndex(nextIdx);
+                const nextChord = CHORD_SEQUENCE[nextIdx];
+                playCadenza432Chord(nextChord);
 
                 const newEvent = {
                     event_index: recordedEventsRef.current.length + 1,
                     type: 'chord_change',
-                    key: 'I',
+                    key: key.toUpperCase(),
                     time_sec: parseFloat(nowTime.toFixed(4)),
-                    switched_to_chord: CHORD_SEQUENCE[nextIdx]
+                    switched_to_chord: nextChord
                 };
 
                 setRecordedEvents(prev => [...prev, newEvent]);
+            } else if (key === '=' || key === '+') {
+                e.preventDefault();
+                setScale(s => Math.min(1.1, s + 0.06));
+            } else if (key === '-') {
+                e.preventDefault();
+                setScale(s => Math.max(0.5, s - 0.06));
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isOpen]);
+    }, [isOpen, playCadenza432Chord]);
 
     if (!isOpen) return null;
 
-    const startRecordingWithCountIn = () => {
+    const togglePlayback = () => {
         if (!audioRef.current) return;
         getAudioContext();
 
@@ -291,6 +355,24 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
             audioRef.current.pause();
             setIsPlaying(false);
             setIsRecording(false);
+        } else {
+            audioRef.current.play().then(() => {
+                setIsPlaying(true);
+                setIsRecording(true);
+            }).catch(() => {
+                // Fallback synth playback
+                setIsPlaying(true);
+                setIsRecording(true);
+            });
+        }
+    };
+
+    const startRecordingWithCountIn = () => {
+        if (!audioRef.current) return;
+        getAudioContext();
+
+        if (isPlaying || isCountInActive) {
+            togglePlayback();
             return;
         }
 
@@ -317,7 +399,7 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                 setCountInBeat(0);
                 if (audioRef.current) {
                     audioRef.current.currentTime = 0;
-                    audioRef.current.play();
+                    audioRef.current.play().catch(() => {});
                     setIsPlaying(true);
                     setIsRecording(true);
                 }
@@ -344,7 +426,7 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[10000] flex items-center justify-center p-2 sm:p-5 bg-black/60 backdrop-blur-md select-none overflow-hidden"
+                className="fixed inset-0 z-[10000] flex items-center justify-center p-2 sm:p-5 bg-black/75 backdrop-blur-md select-none overflow-hidden"
                 onClick={onClose}
             >
                 <audio ref={audioRef} src={MASTER_AUDIO_SRC} preload="auto" />
@@ -355,40 +437,40 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                     exit={{ opacity: 0, scale: 0.93, y: 15 }}
                     transition={{ type: "spring", stiffness: 280, damping: 24 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="relative w-full max-w-4xl h-[92vh] sm:h-[88vh] rounded-[32px] bg-black/85 backdrop-blur-2xl border border-[#C8A96E]/60 shadow-[0_25px_80px_rgba(0,0,0,0.95),0_0_40px_rgba(200,169,110,0.25)] flex flex-col overflow-hidden"
+                    className="relative w-full max-w-4xl h-[92vh] sm:h-[88vh] rounded-[32px] bg-[#0A090D]/95 backdrop-blur-2xl border border-[#C8A96E]/60 shadow-[0_25px_80px_rgba(0,0,0,0.95),0_0_40px_rgba(200,169,110,0.25)] flex flex-col overflow-hidden"
                 >
-                    {/* 1. Haute Couture Top Ribbon */}
+                    {/* 1. Top Ribbon */}
                     <div className="px-5 py-3.5 bg-black/90 border-b border-[#C8A96E]/30 shrink-0 flex items-center justify-between z-30">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-[#E7FF00]/10 border border-[#E7FF00]/60 flex items-center justify-center text-sm shadow-[0_0_12px_rgba(231,255,0,0.4)]">
-                                🎸
+                            <div className="w-8 h-8 rounded-full bg-[#FFD700]/10 border border-[#FFD700]/60 flex items-center justify-center text-sm shadow-[0_0_12px_rgba(255,215,0,0.4)]">
+                                🎻
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-mono text-[9px] text-[#C8A96E] uppercase tracking-widest flex items-center gap-2">
-                                    <span>[P] GUITAR STRUM</span>
+                                    <span>[P] ACOUSTIC STRUM</span>
                                     <span>•</span>
-                                    <span>[I] CHORD CHANGE</span>
+                                    <span>[1] CHORD SWITCH</span>
                                     <span>•</span>
-                                    <span className="text-[#00FF88] font-bold">LIVE KARAOKE SYNC</span>
+                                    <span className="text-[#00FF88] font-bold">432Hz KARAOKE SYNC</span>
                                 </span>
                                 <h2 className="font-serif text-sm sm:text-base font-bold text-[#F7EBE1] tracking-wide">
-                                    A Twelve-minute Alibi (CADENZA-432 Dual-Key Live Score)
+                                    A Twelve-minute Alibi (CADENZA-432 Master Score)
                                 </h2>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-2">
                             <button
-                                onClick={() => setScale(s => Math.max(0.48, s - 0.06))}
+                                onClick={() => setScale(s => Math.max(0.5, s - 0.06))}
                                 className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white transition-all cursor-pointer"
-                                title="Zoom Out"
+                                title="Zoom Out (-)"
                             >
                                 <ZoomOut className="w-3.5 h-3.5" />
                             </button>
                             <button
-                                onClick={() => setScale(s => Math.min(1.0, s + 0.06))}
+                                onClick={() => setScale(s => Math.min(1.1, s + 0.06))}
                                 className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white transition-all cursor-pointer"
-                                title="Zoom In"
+                                title="Zoom In (+)"
                             >
                                 <ZoomIn className="w-3.5 h-3.5" />
                             </button>
@@ -402,11 +484,14 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                     </div>
 
                     {/* 2. REAL-TIME LIVE KARAOKE STREAMER BAR */}
-                    <div className="px-5 py-2.5 bg-[#0C0B0E] border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
+                    <div className="px-5 py-2.5 bg-[#121118] border-b border-white/10 flex items-center justify-between gap-3 shrink-0">
                         <div className="flex items-center gap-2 overflow-hidden">
-                            <span className="font-mono text-[10px] font-black text-[#E7FF00] bg-[#E7FF00]/10 px-2 py-0.5 rounded border border-[#E7FF00]/40 shrink-0">
+                            <button 
+                                onClick={() => playCadenza432Chord(activeLyric.chord)}
+                                className="font-mono text-[10px] font-black text-[#FFD700] bg-[#FFD700]/15 px-2.5 py-1 rounded border border-[#FFD700]/50 shrink-0 cursor-pointer hover:bg-[#FFD700]/30 transition-all"
+                            >
                                 🎵 {activeLyric.chord}
-                            </span>
+                            </button>
                             <div className="flex items-center gap-1.5 font-serif text-sm sm:text-base font-bold text-white tracking-wide truncate">
                                 <span>LYRIC:</span>
                                 <span className="text-[#00FF88] drop-shadow-[0_0_8px_#00FF88] font-black underline decoration-[#00FF88]/50">
@@ -436,25 +521,25 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                     </div>
 
                     {/* 3. Interactive Sheet Music Vector Display */}
-                    <div className="flex-1 overflow-y-auto p-4 sm:p-5 bg-[#FDFCF7] text-[#121212] custom-scrollbar relative shadow-inner flex flex-col items-center justify-center">
-                        <div className="w-full flex justify-center py-1 select-text">
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#FAF8F2] text-[#121212] custom-scrollbar relative shadow-inner flex flex-col items-center justify-start">
+                        <div className="w-full max-w-3xl flex justify-center py-2 select-text">
                             <div 
                                 ref={scoreContainerRef} 
                                 className="w-full flex justify-center"
-                                style={{ filter: 'contrast(1.08)' }}
+                                style={{ filter: 'contrast(1.05)' }}
                             />
                         </div>
                     </div>
 
-                    {/* 4. Audio Transport Dock with Dual-Key Recording Button */}
-                    <div className="px-5 sm:px-7 py-3.5 bg-black/90 border-t border-[#C8A96E]/30 shrink-0 flex items-center gap-4 z-30">
+                    {/* 4. Audio Transport Dock with 432Hz Interactive Controls */}
+                    <div className="px-5 sm:px-7 py-3.5 bg-black/95 border-t border-[#C8A96E]/30 shrink-0 flex items-center gap-4 z-30">
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={startRecordingWithCountIn}
                             style={{
-                                backgroundColor: isRecording ? '#00FF88' : currentChordStyle.color,
-                                boxShadow: `0 0 20px ${isRecording ? '#00FF88' : currentChordStyle.glow}`
+                                backgroundColor: isPlaying ? '#00FF88' : currentChordStyle.color,
+                                boxShadow: `0 0 20px ${isPlaying ? '#00FF88' : currentChordStyle.glow}`
                             }}
                             className="px-5 h-10 rounded-full text-black flex items-center justify-center font-black cursor-pointer shrink-0 transition-colors duration-300 gap-2 font-mono text-xs"
                         >
@@ -466,7 +551,7 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                             ) : (
                                 <>
                                     <Play className="w-3.5 h-3.5 fill-black ml-0.5" />
-                                    <span>PLAY & KARAOKE SYNC</span>
+                                    <span>PLAY & SCORE SYNC</span>
                                 </>
                             )}
                         </motion.button>
@@ -489,8 +574,7 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
                             }}
                             style={{ accentColor: currentChordStyle.color }}
                             className="flex-1 h-2 bg-white/20 rounded-full appearance-none cursor-pointer"
-                        >
-                        </input>
+                        />
 
                         <span className="font-mono text-xs text-neutral-400 font-bold shrink-0 min-w-[50px]">
                             {formatTime(duration)}
@@ -501,3 +585,4 @@ export function InteractiveSheetMusicModal({ isOpen, onClose }) {
         </AnimatePresence>
     );
 }
+

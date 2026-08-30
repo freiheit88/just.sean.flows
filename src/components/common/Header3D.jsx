@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Volume2, VolumeX } from 'lucide-react';
+import { Volume2, VolumeX, Calendar } from 'lucide-react';
 
 const HEADER_LETTERS = [
     { char: 'J', group: 0, xSpread: -24 },
@@ -157,3 +157,4 @@ export function Header3D({
         </motion.header>
     );
 }
+

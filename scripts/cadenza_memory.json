@@ -86,5 +86,32 @@
         "Never Stop Selling: Reach out to at least 3 potential students, local shop owners, or B2B leads every week."
       ]
     }
+  },
+  "executive_ui_ux_philosophy": {
+    "grand_library_meta": "Information must not be cluttered. Like a Grand Digital Library, only the currently needed card is spotlighted, and once completed, it docks back into its shelf slot seamlessly.",
+    "zero_friction_onboarding": "Zero 'what now?' feelings. Finom/Amie style guiding flow. Immediate 'Today Quest Beam' upon entry with single-key [Space] clearing loop.",
+    "spatial_depth_rules": {
+      "no_clunky_2d_splits": "Never split screen into clunky top slider and bottom table. Maintain a single unified 3D spatial room canvas.",
+      "subtle_isometric_tilt": "Keep default perspective at stable 8-10° luxury isometric tilt. Avoid extreme warping (26°+) that distorts horizontal symmetry.",
+      "no_scroll_fit": "100% viewport fit. Never allow page scrollbar to cut off dates 29-31.",
+      "layer_shifting": "Layer 1 must be 100% pure calendar with zero top menu clutter. Scroll wheel down shifts Layer 1 to back (translateZ -220px) and brings Layer 2 Control Deck to front."
+    },
+    "priority_hierarchy_3tier": {
+      "tier_1_critical": {
+        "label": "🔥 중요 제출/마일스톤",
+        "items": ["법인 자본금 납입 (€1,000)", "DECHEMA 스튜디오 계약 (€483.14)", "상업등기소 HRB (€200)", "영업신고 (€45)"],
+        "visual": "Burning Neon Red Pulse (#FF3366) + 18px z-elevation. Auto-focused first on [Space]."
+      },
+      "tier_2_recurring": {
+        "label": "⚡ AI 구독 & 테크",
+        "items": ["Suno AI ($30)", "Cursor Pro ($20)", "Gemini Pro ($20)", "ElevenLabs ($5.95)", "Vercel ($20)", "AWS ($15)"],
+        "visual": "Cybernetic Neon Cyan (#00E5FF) + 10px z-elevation. Clear recognition of due dates & billing."
+      },
+      "tier_3_auto_sepa": {
+        "label": "💤 자동이체 (저우선/기록용)",
+        "items": ["집 월세 (€1,250)", "Mainova 전기세 (€85)", "GEZ 방송수신료 (€55.08)", "TK 건강보험 (€220)", "Telekom 광랜 (€45)", "DB 티켓 (€63)"],
+        "visual": "Muted Slate Stealth tone (opacity 0.6) + 2px floor depth. Zero visual noise."
+      }
+    }
   }
 }

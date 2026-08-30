@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,6 +11,14 @@ export default defineConfig({
         strictPort: true,
         allowedHosts: true,
         cors: true
+    },
+    build: {
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, 'index.html'),
+                calendar: resolve(__dirname, 'calendar.html')
+            }
+        }
     }
 })
 
