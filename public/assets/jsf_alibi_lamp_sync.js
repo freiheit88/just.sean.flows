@@ -9,10 +9,10 @@
   'use strict';
 
   const STEMS = {
-    map: { key: 'map', code: 'GTR', label: 'Guitar', url: '/assets/stems_alibi/stem_location_guitar.mp3?v=zero_v3', weight: 1.00 },
-    0:   { key: '0',   code: 'DRM', label: 'Drums',  url: '/assets/stems_alibi/stem_party_drums.mp3?v=zero_v3',     weight: 0.96 },
-    1:   { key: '1',   code: 'BAS', label: 'Bass',   url: '/assets/stems_alibi/stem_social_bass.mp3?v=zero_v3',     weight: 0.95 },
-    2:   { key: '2',   code: 'VOC', label: 'Vocal',  url: '/assets/stems_alibi/stem_biz_vocals.mp3?v=zero_v3',      weight: 0.92 }
+    map: { key: 'map', code: '🎸', label: 'Guitar', url: '/assets/stems_alibi/stem_location_guitar.mp3?v=zero_v3', weight: 1.00 },
+    0:   { key: '0',   code: '🥁', label: 'Drums',  url: '/assets/stems_alibi/stem_party_drums.mp3?v=zero_v3',     weight: 0.96 },
+    1:   { key: '1',   code: '🎻', label: 'Bass',   url: '/assets/stems_alibi/stem_social_bass.mp3?v=zero_v3',     weight: 0.95 },
+    2:   { key: '2',   code: '🎤', label: 'Vocal',  url: '/assets/stems_alibi/stem_biz_vocals.mp3?v=zero_v3',      weight: 0.92 }
   };
   const STEM_KEYS = ['map', '0', '1', '2'];
 
@@ -121,41 +121,52 @@
         .jsf-stem-pill-cluster {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
           margin-left: 8px;
           margin-right: 4px;
           vertical-align: middle;
         }
         .jsf-stem-micro-pill {
           appearance: none;
-          border: 1px solid rgba(223, 177, 91, 0.24);
+          width: 26px;
+          height: 26px;
+          padding: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(223, 177, 91, 0.22);
           background: rgba(12, 10, 16, 0.78);
-          color: rgba(223, 177, 91, 0.42);
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 9px;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          padding: 2px 6px;
+          font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+          font-size: 13.5px;
+          line-height: 1;
           border-radius: 999px;
-          line-height: 1.25;
           cursor: pointer;
           user-select: none;
-          font-feature-settings: "tnum" 1;
-          transition: color 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease, opacity 0.08s linear;
+          opacity: 0.36;
+          filter: grayscale(0.92) brightness(0.75);
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease, opacity 0.08s linear;
+        }
+        .jsf-stem-micro-pill:hover {
+          opacity: 0.78;
+          filter: grayscale(0.25) brightness(0.98);
+          transform: translateY(-1px) scale(1.06);
+          border-color: rgba(243, 212, 137, 0.55);
         }
         .jsf-stem-micro-pill.lit {
-          color: #fffbeb;
+          opacity: 1;
+          filter: grayscale(0) brightness(1.06) drop-shadow(0 0 5px rgba(253, 224, 71, 0.45));
           border-color: rgba(253, 224, 71, 0.92);
-          background: linear-gradient(135deg, rgba(66, 47, 15, 0.92), rgba(28, 20, 9, 0.95));
-          box-shadow: 0 0 10px rgba(251, 191, 36, 0.42);
+          background: linear-gradient(135deg, rgba(66, 47, 15, 0.94), rgba(28, 20, 9, 0.96));
+          box-shadow: 0 0 11px rgba(251, 191, 36, 0.44);
         }
         .jsf-stem-micro-pill.standby {
-          color: rgba(243, 212, 137, 0.72);
-          border-color: rgba(223, 177, 91, 0.45);
+          opacity: 0.66;
+          filter: grayscale(0.35) brightness(0.92);
+          border-color: rgba(223, 177, 91, 0.48);
         }
         @media (max-width: 520px) {
-          .jsf-stem-pill-cluster { gap: 3px; margin-left: 5px; }
-          .jsf-stem-micro-pill { font-size: 8px; padding: 2px 4.5px; }
+          .jsf-stem-pill-cluster { gap: 3.5px; margin-left: 5px; }
+          .jsf-stem-micro-pill { width: 23px; height: 23px; font-size: 12px; }
         }
       `;
       document.head.appendChild(st);
