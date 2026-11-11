@@ -918,21 +918,24 @@
 }
 
 /* ==========================================================================
-   4. SYMBOL STAGE RESTORATION, NON-FLIPPING INSPECTION & CUMULATIVE HOLD
-      5-TIER MUSEUM FRAME UPGRADE ENGINE (3.0s -> +1.0s/level: LV.1..LV.5)
+   4. RETURNED SYMBOL INSPECT MODE (.symbol-inspect-mode ONLY!)
+      - Initial Opening (before first flip to Salon) stays 100% original!
+      - ONLY after flipping to Salon & returning via ↺ (.symbol-inspect-mode):
+        show top-right ↺ button, keep symbol non-flipping on logo press, and
+        upgrade outer 2.5D frame cleanly on cumulative hold (>= 3s, +1s/stage).
    ========================================================================== */
 
-/* Hide stale text clutter on the restored pure Wine-Clef Symbol stage */
-#gobo-canvas-frame #gobo-start-trigger,
-#gobo-canvas-frame #scroll-explore-guide,
-#gobo-canvas-frame #front-flip-hint-pill {
+/* Strictly hide ↺ button on the Initial Opening (before ever flipping to Salon)! */
+#gobo-canvas-frame:not(.symbol-inspect-mode) .gobo-flip-to-salon-pill,
+#gobo-canvas-frame.card-flipped-out .gobo-flip-to-salon-pill {
   display: none !important;
   opacity: 0 !important;
+  visibility: hidden !important;
   pointer-events: none !important;
 }
 
-/* Top-Right Corner ↺ Flip-to-Salon Button (Exact 1:1 twin of #btn-under-dev-replay) */
-#gobo-canvas-frame .gobo-flip-to-salon-pill {
+/* Top-Right Corner ↺ Flip-to-Salon Button (Visible ONLY in .symbol-inspect-mode) */
+#gobo-canvas-frame.symbol-inspect-mode:not(.card-flipped-out) .gobo-flip-to-salon-pill {
   position: absolute !important;
   top: 16px !important;
   right: 18px !important;
@@ -951,188 +954,17 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85), 0 0 12px rgba(223, 177, 91, 0.16) !important;
   z-index: 68 !important;
   cursor: pointer !important;
+  opacity: 1 !important;
+  visibility: visible !important;
   pointer-events: auto !important;
   transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease, opacity 0.35s ease !important;
 }
 
-#gobo-canvas-frame .gobo-flip-to-salon-pill:hover {
+#gobo-canvas-frame.symbol-inspect-mode:not(.card-flipped-out) .gobo-flip-to-salon-pill:hover {
   background: #dfb15b !important;
   color: #09080c !important;
   transform: scale(1.06) !important;
   box-shadow: 0 0 22px rgba(243, 212, 137, 0.72) !important;
-}
-
-#gobo-canvas-frame.card-flipped-out .gobo-flip-to-salon-pill,
-#gobo-canvas-frame.card-flipped-out .gobo-frame-tier-pill,
-#gobo-canvas-frame.card-flipped-out .gobo-museum-frame-upgrades,
-#gobo-canvas-frame.card-flipped-out .gobo-hold-upgrade-whisper {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-
-/* Subtle Top-Left Unlocked Frame Tier Badge (Hidden at Lv.0; softly visible at Lv.1..Lv.5) */
-#gobo-canvas-frame .gobo-frame-tier-pill {
-  position: absolute !important;
-  top: 16px !important;
-  left: 18px !important;
-  height: 30px !important;
-  padding: 0 12px !important;
-  border-radius: 999px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  background: rgba(10, 8, 6, 0.84) !important;
-  border: 1px solid rgba(243, 212, 137, 0.45) !important;
-  color: #f6dca0 !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 10px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.12em !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85) !important;
-  z-index: 68 !important;
-  cursor: pointer !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transform: translateY(-4px) !important;
-  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
-}
-
-#gobo-canvas-frame[data-symbol-frame-unlocked="true"]:not(.card-flipped-out) .gobo-frame-tier-pill {
-  opacity: 0.92 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  transform: translateY(0) !important;
-}
-
-#gobo-canvas-frame .gobo-frame-tier-pill:hover {
-  border-color: #fde047 !important;
-  box-shadow: 0 0 18px rgba(253, 224, 71, 0.42) !important;
-}
-
-#gobo-canvas-frame .gobo-frame-tier-pill .tier-spark {
-  color: #fde047 !important;
-  font-size: 11px !important;
-}
-
-/* Tactile cursor & smooth transitions for Symbol Stage inspection */
-#gobo-canvas-frame:not(.card-flipped-out) {
-  cursor: grab !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-}
-
-#gobo-canvas-frame.symbol-holding-press:not(.card-flipped-out) {
-  cursor: grabbing !important;
-}
-
-/* Zero-Box Bottom Hold Charge Whisper HUD (Only visible while pressing or briefly on level-up) */
-.gobo-hold-upgrade-whisper {
-  position: absolute !important;
-  left: 50% !important;
-  bottom: 24px !important;
-  transform: translateX(-50%) translateY(6px) !important;
-  width: min(240px, 64%) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 6px !important;
-  pointer-events: none !important;
-  z-index: 66 !important;
-  opacity: 0 !important;
-  transition: opacity 0.28s ease, transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-.gobo-hold-upgrade-whisper.whisper-visible {
-  opacity: 1 !important;
-  transform: translateX(-50%) translateY(0) !important;
-}
-
-.gobo-hold-whisper-text {
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 9.5px !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.16em !important;
-  color: rgba(252, 229, 168, 0.92) !important;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 12px rgba(243, 212, 137, 0.45) !important;
-  white-space: nowrap !important;
-  font-variant-numeric: tabular-nums !important;
-}
-
-.gobo-hold-hairline-track {
-  width: 100% !important;
-  height: 2px !important;
-  border-radius: 999px !important;
-  background: rgba(243, 212, 137, 0.16) !important;
-  overflow: hidden !important;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.9) !important;
-}
-
-.gobo-hold-hairline-fill {
-  height: 100% !important;
-  width: 0%;
-  border-radius: 999px !important;
-  background: linear-gradient(90deg, #b88635 0%, #f5d687 60%, #fffbeb 100%) !important;
-  box-shadow: 0 0 10px rgba(253, 224, 71, 0.9) !important;
-  transition: width 0.06s linear !important;
-}
-
-/* Museum Frame Upgrades Overlay Container (Lv.3 Overhead Lamp, Lv.4 Vienna Baroque, Lv.5 Weimar Gothic) */
-.gobo-museum-frame-upgrades {
-  position: absolute !important;
-  inset: 0 !important;
-  border-radius: inherit !important;
-  pointer-events: none !important;
-  z-index: 48 !important;
-  overflow: visible !important;
-}
-
-.gobo-lv3-gallery-lamp {
-  position: absolute !important;
-  top: -42px !important;
-  left: 50% !important;
-  transform: translateX(-50%) scale(0.92) !important;
-  width: 176px !important;
-  height: auto !important;
-  opacity: 0 !important;
-  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.94)) drop-shadow(0 0 22px rgba(253, 224, 71, 0.55)) !important;
-  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  z-index: 52 !important;
-}
-
-.gobo-lv3-lamp-cone {
-  position: absolute !important;
-  top: -6px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 78% !important;
-  height: 62% !important;
-  background: radial-gradient(ellipse 58% 72% at 50% 0%, rgba(255, 232, 165, 0.30) 0%, rgba(223, 177, 91, 0.11) 46%, transparent 78%) !important;
-  mix-blend-mode: screen !important;
-  opacity: 0 !important;
-  transition: opacity 0.6s ease !important;
-  z-index: 5 !important;
-}
-
-.gobo-museum-alpha-frame {
-  position: absolute !important;
-  inset: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: fill !important;
-  border-radius: 14px !important;
-  opacity: 0 !important;
-  transform: scale(1.015) !important;
-  box-shadow: none !important;
-  filter: drop-shadow(0 32px 72px rgba(0, 0, 0, 0.96)) !important;
-  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease !important;
-  z-index: 50 !important;
-}
-
-#gobo-canvas-frame #card-border-paint-canvas,
-#gobo-canvas-frame .u22-window-sash-molding {
-  transition: opacity 0.5s ease, visibility 0.5s ease !important;
 }
 
 /* Prevent hidden back-face Salon card & its -26px bevel from bleeding around the Symbol Stage */
@@ -1142,72 +974,65 @@
   visibility: hidden !important;
 }
 
-/* --- TIER 0 (Default < 3.0s): Pure Noir Obsidian Slate (No premature gold frame!) --- */
-#symbol-trigger:has(#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out)) #u22-3d-window-frame-box,
-#symbol-trigger:has(#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out)) #u22-3d-window-frame-box,
-#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out)::before,
-#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out)::after,
-#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out)::before,
-#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out)::after,
-#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out) .u22-window-sash-molding,
-#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) .u22-window-sash-molding,
-#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out) .u22-25d-bevel-front,
-#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) .u22-25d-bevel-front,
-#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out) .bevel-inner-rabbet-shadow,
-#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out),
-#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) {
-  border: 1px solid rgba(223, 177, 91, 0.22) !important;
-  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.95) !important;
-}
-#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out) #card-border-paint-canvas,
-#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) #card-border-paint-canvas {
-  opacity: 0 !important;
-  visibility: hidden !important;
+/* Keep #gobo-symbol-rig strictly in front of #gobo-light-rig (Z > 0, zero rotateX/Y plane slicing!) */
+#gobo-canvas-frame.symbol-inspect-mode #gobo-symbol-rig {
+  transform: translate3d(0px, 0px, 2px) !important;
 }
 
-/* Hide legacy inner canvas border once any physical frame (Lv.1..Lv.5) materializes */
-#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) #card-border-paint-canvas,
-#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) #card-border-paint-canvas,
-#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) #card-border-paint-canvas,
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) #card-border-paint-canvas,
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) #card-border-paint-canvas {
+/* Returned Mode Progressive 2.5D Outer Frame Upgrade (Uncut -26px outer molding, 1:1 with Salon frame):
+   Lv.0 (< 3.0s): Original thin illuminated gold border
+   Lv.1 (3.0s):   Dark Matte Bronze 2.5D Outer Molding
+   Lv.2 (4.0s):   Warm 2200K Brushed Brass 2.5D Molding
+   Lv.3 (5.0s):   18K Satin Champagne Gold Molding + Outer Hinges & Latch
+   Lv.4 (6.0s):   24K Radiant Sanctuary Gold Molding + Golden Rim Sweep */
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="1"]:not(.card-flipped-out) #card-border-paint-canvas,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="2"]:not(.card-flipped-out) #card-border-paint-canvas,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="3"]:not(.card-flipped-out) #card-border-paint-canvas,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="4"]:not(.card-flipped-out) #card-border-paint-canvas {
   opacity: 0 !important;
-  visibility: hidden !important;
 }
 
-/* --- TIER 1 (3.0s Cumulative): Brushed Antique Bronze 2.5D Stepped Frame --- */
-#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-window-sash-molding {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front,
-#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="1"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="2"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="3"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="4"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="4"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
   opacity: 1 !important;
   visibility: visible !important;
 }
-#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front {
-  filter: brightness(0.58) saturate(0.74) contrast(1.08) !important;
+
+/* Lv.1 (3.0s): Warm Antique Bronze 2.5D Outer Molding */
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front {
+  filter: brightness(0.50) saturate(0.62) contrast(1.05) !important;
   box-shadow:
     0 36px 90px rgba(0, 0, 0, 0.98),
     0 12px 32px rgba(0, 0, 0, 0.94),
-    0 0 0 1.3px rgba(223, 177, 91, 0.44),
-    0 0 18px rgba(223, 177, 91, 0.18) !important;
+    0 0 0 1.2px rgba(223, 177, 91, 0.34),
+    0 0 16px rgba(223, 177, 91, 0.14) !important;
 }
-#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front .bevel-miter-svg {
-  opacity: 0.54 !important;
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front .bevel-miter-svg {
+  opacity: 0.42 !important;
 }
 
-/* --- TIER 2 (4.0s Cumulative): 18K Satin Champagne Gold Mitered Frame + Brass Hardware --- */
-#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front,
-#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
-  opacity: 1 !important;
-  visibility: visible !important;
+/* Lv.2 (4.0s): 2200K Brushed Brass 2.5D Outer Molding */
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front {
+  filter: brightness(0.74) saturate(0.86) contrast(1.03) !important;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.98),
+    0 12px 32px rgba(0, 0, 0, 0.94),
+    0 0 0 1.5px rgba(243, 212, 137, 0.52),
+    0 0 24px rgba(223, 177, 91, 0.26) !important;
 }
-#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-window-sash-molding {
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front .bevel-miter-svg {
+  opacity: 0.70 !important;
+}
+
+/* Lv.3 (5.0s): 18K Satin Champagne Gold + Outer Brass Hinges & Latch */
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-window-sash-molding,
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="4"]:not(.card-flipped-out) .u22-window-sash-molding {
   opacity: 1 !important;
   visibility: visible !important;
   inset: -26px -26px -30px -26px !important;
@@ -1217,100 +1042,30 @@
   background: transparent !important;
   z-index: 45 !important;
 }
-#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front {
-  filter: brightness(0.95) saturate(1.04) !important;
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-25d-bevel-front {
+  filter: brightness(0.95) saturate(1.02) !important;
   box-shadow:
     0 36px 90px rgba(0, 0, 0, 0.98),
     0 12px 32px rgba(0, 0, 0, 0.94),
-    0 0 0 1.6px rgba(243, 212, 137, 0.76),
-    0 0 28px rgba(243, 212, 137, 0.34) !important;
+    0 0 0 1.6px rgba(243, 212, 137, 0.74),
+    0 0 32px rgba(243, 212, 137, 0.38) !important;
 }
-#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front .bevel-miter-svg {
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-25d-bevel-front .bevel-miter-svg {
   opacity: 0.92 !important;
 }
 
-/* --- TIER 3 (5.0s Cumulative): 24K Radiant Sanctuary Gold Frame + Overhead Museum Picture Lamp --- */
-#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-25d-bevel-front,
-#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-window-sash-molding {
-  opacity: 1 !important;
-  visibility: visible !important;
-  inset: -26px -26px -30px -26px !important;
-  border-radius: 22px !important;
-  border: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  z-index: 45 !important;
-}
-#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-25d-bevel-front {
-  filter: brightness(1.14) saturate(1.16) !important;
+/* Lv.4 (6.0s): 24K Radiant Sanctuary Gold Awakening */
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="4"]:not(.card-flipped-out) .u22-25d-bevel-front {
+  filter: brightness(1.12) saturate(1.15) !important;
   box-shadow:
     0 0 0 2px #fde047,
-    0 0 46px rgba(251, 191, 36, 0.54),
+    0 0 44px rgba(251, 191, 36, 0.56),
     0 36px 90px rgba(0, 0, 0, 0.98) !important;
 }
-#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .gobo-lv3-gallery-lamp {
-  opacity: 1 !important;
-  transform: translateX(-50%) scale(1) !important;
-}
-#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .gobo-lv3-lamp-cone {
+#gobo-canvas-frame.symbol-inspect-mode[data-symbol-frame-level="4"]:not(.card-flipped-out) .u22-25d-bevel-front .bevel-miter-svg {
   opacity: 1 !important;
 }
 
-/* --- TIER 4 & 5 SHARED: Strictly hide rectangular sash/bevel/3D-box lines so carved Baroque/Gothic frames have 0px overlap (Rule 09) --- */
-#symbol-trigger:has(#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out)) #u22-3d-window-frame-box,
-#symbol-trigger:has(#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out)) #u22-3d-window-frame-box,
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out)::before,
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out)::after,
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out)::before,
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out)::after,
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) .u22-window-sash-molding,
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) .u22-25d-bevel-front,
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow,
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) .u22-window-sash-molding,
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) .u22-25d-bevel-front,
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out),
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) {
-  border: none !important;
-  box-shadow: none !important;
-  background: #070608 !important;
-}
-
-/* --- TIER 4 (6.0s Cumulative): Vienna Golden Hall Imperial Carved Baroque Frame (Built-in brass picture lamp; Rule 09 0px Aperture Fit) --- */
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) .gobo-frame-lv4-baroque {
-  opacity: 1 !important;
-  transform: scale(1) !important;
-  filter: drop-shadow(0 36px 84px rgba(0, 0, 0, 0.98)) drop-shadow(0 0 26px rgba(223, 177, 91, 0.30)) !important;
-}
-#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) #emblem-switch-container {
-  transform: translateY(3.1%) scale(0.54) !important;
-  filter: brightness(1.38) contrast(1.08) drop-shadow(0 0 18px rgba(255, 232, 175, 0.45)) !important;
-  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease !important;
-}
-
-/* --- TIER 5 (7.0s Cumulative): Weimar Cathedral Gothic Carved Tracery Arch Frame + Sanctuary Halo --- */
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) .gobo-frame-lv5-gothic {
-  opacity: 1 !important;
-  transform: scale(1) !important;
-  filter: drop-shadow(0 36px 88px rgba(0, 0, 0, 0.98)) drop-shadow(0 0 38px rgba(251, 191, 36, 0.42)) !important;
-}
-#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) #emblem-switch-container {
-  transform: translateY(-0.4%) scale(0.61) !important;
-  filter: brightness(1.42) contrast(1.10) drop-shadow(0 0 22px rgba(255, 230, 165, 0.50)) !important;
-  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease !important;
-}
-
-#gobo-canvas-frame #emblem-switch-container {
-  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-#gobo-canvas-frame.frame-level-up-pulse {
+#gobo-canvas-frame.symbol-inspect-mode.frame-level-up-pulse .u22-25d-bevel-front {
   animation: u22FrameLevelUpPulse 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }

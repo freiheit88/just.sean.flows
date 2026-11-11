@@ -3621,9 +3621,12 @@
 
         // Helper: Block all sounds, effects, and tilts, and show the flat Under Development card
         let underDevAutoTimer = null;
-        function activateUnderDevCard() {
+        function isReturnedSymbolInspectMode() {
+          return !!(goboFrame && goboFrame.classList.contains('symbol-inspect-mode'));
+        }
+        function activateUnderDevCard(forceFlip = false) {
           // Do NOT instant-skip intro curtain, gobo warmup, or border painting on click, nor flip on release of a 2x hold!
-          if (suppressNextClickAfterHold || isHoldingFastForward || !window.__noirCurtainUnveiled || !borderPaintCompleted || (goboFrame && !goboFrame.classList.contains('frame-illuminated'))) {
+          if (!forceFlip && (suppressNextClickAfterHold || isHoldingFastForward || !window.__noirCurtainUnveiled || !borderPaintCompleted || (goboFrame && !goboFrame.classList.contains('frame-illuminated')))) {
             return;
           }
 
@@ -6600,20 +6603,20 @@
         }
 
         function trigger3StageEvolution() {
-          // Non-flipping inspection mode: keep user on the JSF Symbol Stage
-          return;
+          if (isReturnedSymbolInspectMode()) return;
+          activateUnderDevCard();
         }
 
         let is3DObsidianUnlocked = false;
 
         function trigger3DObsidianItemUnlock() {
-          // Non-flipping inspection mode: keep user on the JSF Symbol Stage
-          return;
+          if (isReturnedSymbolInspectMode()) return;
+          activateUnderDevCard();
         }
 
         function pulseGyroInteraction() {
-          // Non-flipping inspection mode: keep user on the JSF Symbol Stage
-          return;
+          if (isReturnedSymbolInspectMode()) return;
+          activateUnderDevCard();
         }
         window.__pulseGyroInteraction = pulseGyroInteraction;
         window.__trigger3DObsidianItemUnlock = trigger3DObsidianItemUnlock;
@@ -7025,14 +7028,16 @@
           }, 5000);
         }
 
-        // Step 4 (On-Click / Touch on Symbol): Stay on Symbol Stage for free optical inspection & long-press frame upgrades!
+        // Step 4 (On-Click / Touch): Flips to Salon Card on Initial Opening; stays on Symbol Stage ONLY after returning from Salon (.symbol-inspect-mode)!
         function startGoboExperience() {
-          return;
+          if (isReturnedSymbolInspectMode()) return;
+          activateUnderDevCard();
         }
 
-        // STAGE 2: Keep on Symbol Stage (flip strictly via corner ↺ button)
+        // STAGE 2: Flips to Salon Card on Initial Opening; stays on Symbol Stage in returned inspect mode
         function transitionToGoboStage2() {
-          return;
+          if (isReturnedSymbolInspectMode()) return;
+          activateUnderDevCard();
         }
 
         // 3. TRANSITION TO NEXT CHAPTER (3D FLOATER FRAME / ATELIER)
@@ -7732,7 +7737,7 @@
         // Hold-to-2x Fast-Forward & Release-to-1x Listeners during Gobo Warmup, Border Paint & 9.2s Symphonic Tail
         let postBorderHoldTimer = null;
         function handleFastForwardHoldStart(e) {
-          if (!window.__noirCurtainUnveiled || window.__underDevCardActive) return;
+          if (!window.__noirCurtainUnveiled || window.__underDevCardActive || isReturnedSymbolInspectMode()) return;
           if (e.target && e.target.closest && e.target.closest('.noir-preload-curtain, .under-dev-card-overlay, a, button')) return;
           if (!borderPaintCompleted) {
             isHoldingFastForward = true;
@@ -7786,17 +7791,26 @@
           if (suppressNextClickAfterHold || !borderPaintCompleted) {
             return;
           }
-          // Clicking/touching the Symbol Stage no longer auto-flips the card; users freely inspect the logo & long-press to upgrade the frame!
-          return;
+          // In returned inspect mode (.symbol-inspect-mode, after flipping to Salon & coming back via ↺), keep user on Symbol Stage!
+          if (isReturnedSymbolInspectMode()) {
+            return;
+          }
+          if (e.target && e.target.closest && e.target.closest('.noir-preload-curtain, .under-dev-card-overlay, .emblem-switcher-capsule, nav, button, a, #btn-auto-morph, .emblem-switch-btn, .sound-suite-dock, .hud-track-pill, .floater-frame-container')) {
+            return;
+          }
+          activateUnderDevCard();
         }
         window.addEventListener('click', handleGlobalScreenTouch);
 
-        // Keyboard navigation (Space, Enter, Down Arrow unveils initial curtain only; does not force-flip Symbol Stage)
+        // Keyboard navigation (Space, Enter, Down Arrow advances on Initial Opening; stays on Symbol Stage in returned inspect mode)
         window.addEventListener('keydown', (e) => {
           if (['Space', 'Enter', 'ArrowDown', 'PageDown'].includes(e.code) || [' ', 'Enter', 'ArrowDown', 'PageDown'].includes(e.key)) {
             if (!window.__noirCurtainUnveiled) {
               unveilNoirCurtainAndStartStage(e);
               return;
+            }
+            if (!isReturnedSymbolInspectMode()) {
+              activateUnderDevCard();
             }
           }
         });

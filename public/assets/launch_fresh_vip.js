@@ -1221,20 +1221,14 @@
       })();
 
       // =========================================================================
-      // SYMBOL STAGE NON-FLIPPING 3D INSPECTION & CUMULATIVE LONG-PRESS FRAME UPGRADE
-      // (Cumulative hold >= 3.0s -> Lv.1, +1.0s each -> Lv.2..Lv.5)
+      // RETURNED SYMBOL INSPECT MODE (.symbol-inspect-mode ONLY!)
+      // - Zero 3D tilt (prevents WebGL Z-buffer plane slicing across the Wine-Clef symbol!)
+      // - Active ONLY after flipping to Salon & returning via ↺ (.symbol-inspect-mode)
+      // - Cumulative hold >= 3.0s -> Lv.1, +1.0s each -> Lv.2..Lv.4 outer 2.5D frame upgrade
       // =========================================================================
       (function initSymbolInspectAndCumulativeFrameUpgrade() {
-        const FRAME_TIERS = [
-          { level: 0, minMs: 0,    name: 'PURE NOIR SLATE',           pill: 'LV.0 · NOIR' },
-          { level: 1, minMs: 3000, name: 'ANTIQUE BRONZE BEVEL',      pill: 'FRAME LV.1 · BRONZE' },
-          { level: 2, minMs: 4000, name: '18K CHAMPAGNE MITER',       pill: 'FRAME LV.2 · 18K GOLD' },
-          { level: 3, minMs: 5000, name: '24K GALLERY LAMP',          pill: 'FRAME LV.3 · 24K LAMP' },
-          { level: 4, minMs: 6000, name: 'VIENNA IMPERIAL BAROQUE',   pill: 'FRAME LV.4 · BAROQUE' },
-          { level: 5, minMs: 7000, name: 'WEIMAR GOTHIC CATHEDRAL',   pill: '👑 FRAME LV.5 · GOTHIC' }
-        ];
-        const MAX_LEVEL = FRAME_TIERS.length - 1; // 5 (at 7.0s cumulative hold)
-        const MAX_HOLD_MS = 7000;
+        const MAX_LEVEL = 4; // Lv.1 at 3.0s, Lv.2 at 4.0s, Lv.3 at 5.0s, Lv.4 at 6.0s
+        const MAX_HOLD_MS = 6000;
 
         let savedHoldMs = 0;
         let holdStartTs = 0;
@@ -1243,14 +1237,6 @@
         let activeDisplayLevel = 0;
         let isHoldingSymbol = false;
         let holdRafId = null;
-        let whisperHideTimer = null;
-
-        // Smooth damped 3D inspection parallax while browsing the Symbol Stage
-        let inspectTargetX = 0;
-        let inspectTargetY = 0;
-        let inspectCurX = 0;
-        let inspectCurY = 0;
-        let inspectRafId = null;
 
         function computeTierFromMs(ms) {
           if (ms < 3000) return 0;
@@ -1270,8 +1256,8 @@
             if (ctx.state !== 'running') return;
 
             const now = ctx.currentTime + 0.015;
-            // Ascending Verdi 432Hz harmonic ladder (A3=216 -> C#4=272.14 -> E4=323.63 -> A4=432 -> C#5=544.29)
-            const roots = [216.0, 272.14, 323.63, 432.0, 544.29];
+            // Ascending Verdi 432Hz harmonic ladder (A3=216 -> C#4=272.14 -> E4=323.63 -> A4=432)
+            const roots = [216.0, 272.14, 323.63, 432.0];
             const root = roots[Math.min(roots.length - 1, level - 1)] || 432.0;
             const intervals = level >= 4 ? [1.0, 1.25, 1.5, 2.0] : [1.0, 1.5];
 
@@ -1295,7 +1281,6 @@
         function applySymbolFrameLevel(level, isNewUnlock) {
           activeDisplayLevel = Math.max(0, Math.min(MAX_LEVEL, level));
           const goboFrame = document.getElementById('gobo-canvas-frame');
-          const tierLbl = document.getElementById('gobo-frame-tier-label');
           const fxFront = document.getElementById('u22-quest-clear-fx-front');
           const toastFront = document.getElementById('quest-clear-toast-front');
 
@@ -1304,10 +1289,6 @@
           if (unlockedMaxLevel > 0) {
             goboFrame.setAttribute('data-symbol-frame-unlocked', 'true');
           }
-          if (tierLbl) {
-            const info = FRAME_TIERS[activeDisplayLevel] || FRAME_TIERS[0];
-            tierLbl.textContent = info.pill;
-          }
 
           if (isNewUnlock && activeDisplayLevel > 0) {
             goboFrame.classList.remove('frame-level-up-pulse');
@@ -1315,47 +1296,12 @@
             goboFrame.classList.add('frame-level-up-pulse');
             playSymbolFrameUpgradeChime(activeDisplayLevel);
 
-            // Golden rim conic sweep (keep toast hidden so frame molding stays 100% clean)
             if (toastFront) toastFront.style.display = 'none';
             if (fxFront) {
               fxFront.classList.remove('quest-fx-active');
               void fxFront.offsetWidth;
               fxFront.classList.add('quest-fx-active');
             }
-          }
-        }
-
-        function updateHoldWhisperUI(forceShowMs) {
-          const whisper = document.getElementById('gobo-hold-upgrade-whisper');
-          const txt = document.getElementById('gobo-hold-whisper-text');
-          const fill = document.getElementById('gobo-hold-hairline-fill');
-          if (!whisper || !txt || !fill) return;
-
-          const secStr = (Math.min(MAX_HOLD_MS, cumulativeHoldMs) / 1000).toFixed(1);
-          let pct = 0;
-          if (cumulativeHoldMs < 3000) {
-            pct = (cumulativeHoldMs / 3000) * 100;
-            txt.textContent = `HOLD LOGO · ${secStr}s / 3.0s`;
-          } else if (unlockedMaxLevel < MAX_LEVEL) {
-            const stepProgress = (cumulativeHoldMs - (2000 + unlockedMaxLevel * 1000)) / 1000;
-            pct = Math.max(0, Math.min(100, stepProgress * 100));
-            const curInfo = FRAME_TIERS[unlockedMaxLevel];
-            txt.textContent = `✦ LV.${unlockedMaxLevel} ${curInfo.name} · +1s UPGRADE`;
-          } else {
-            pct = 100;
-            txt.textContent = `👑 LV.5 ${FRAME_TIERS[MAX_LEVEL].name} · MAX`;
-          }
-          fill.style.width = `${pct.toFixed(1)}%`;
-
-          whisper.classList.add('whisper-visible');
-          if (whisperHideTimer) {
-            clearTimeout(whisperHideTimer);
-            whisperHideTimer = null;
-          }
-          if (!isHoldingSymbol) {
-            whisperHideTimer = setTimeout(() => {
-              whisper.classList.remove('whisper-visible');
-            }, forceShowMs || 1150);
           }
         }
 
@@ -1377,12 +1323,12 @@
             holdRafId = null;
             return;
           }
-          if (window.__underDevCardActive || !window.__noirCurtainUnveiled) {
+          const goboFrame = document.getElementById('gobo-canvas-frame');
+          if (!goboFrame || !goboFrame.classList.contains('symbol-inspect-mode') || window.__underDevCardActive || !window.__noirCurtainUnveiled) {
             stopCumulativeHold();
             return;
           }
           syncCumulativeHoldClock(now);
-          updateHoldWhisperUI();
           holdRafId = requestAnimationFrame(tickCumulativeHold);
         }
 
@@ -1393,10 +1339,7 @@
             return;
           }
           const goboFrame = document.getElementById('gobo-canvas-frame');
-          const symRig = document.getElementById('gobo-symbol-rig');
-          if (!goboFrame || goboFrame.classList.contains('card-flipped-out')) return;
-          // Wait until the symbol has materialized (so initial 3s warmup fast-forward is unaffected)
-          if (symRig && !symRig.classList.contains('materialized') && !window.__borderPaintCompleted) {
+          if (!goboFrame || !goboFrame.classList.contains('symbol-inspect-mode') || goboFrame.classList.contains('card-flipped-out')) {
             return;
           }
 
@@ -1405,7 +1348,6 @@
             holdStartTs = performance.now();
           }
           goboFrame.classList.add('symbol-holding-press');
-          updateHoldWhisperUI();
           if (!holdRafId) {
             holdRafId = requestAnimationFrame(tickCumulativeHold);
           }
@@ -1422,16 +1364,7 @@
           }
           const goboFrame = document.getElementById('gobo-canvas-frame');
           if (goboFrame) goboFrame.classList.remove('symbol-holding-press');
-          updateHoldWhisperUI(1250);
         }
-
-        window.__cycleSymbolFrameLevel = function() {
-          if (unlockedMaxLevel <= 0) return 0;
-          const next = (activeDisplayLevel + 1) % (unlockedMaxLevel + 1);
-          applySymbolFrameLevel(next, false);
-          playBrassSwitchClickSound(next > 0);
-          return next;
-        };
 
         window.__getSymbolFrameUpgradeState = function() {
           return {
@@ -1442,34 +1375,6 @@
           };
         };
 
-        // Subtle 3D Sculptural Inspection Tilt on the Symbol Stage (without ever flipping!)
-        function tickSymbolInspectTilt() {
-          const goboFrame = document.getElementById('gobo-canvas-frame');
-          const symRig = document.getElementById('gobo-symbol-rig');
-          const lightRig = document.getElementById('gobo-light-rig');
-          if (!goboFrame || window.__underDevCardActive || goboFrame.classList.contains('card-flipped-out')) {
-            inspectRafId = null;
-            return;
-          }
-          inspectCurX += (inspectTargetX - inspectCurX) * 0.085;
-          inspectCurY += (inspectTargetY - inspectCurY) * 0.085;
-
-          const rotY = inspectCurX * 4.4;
-          const rotX = -inspectCurY * 3.8;
-          if (symRig && symRig.classList.contains('materialized')) {
-            symRig.style.transform = `perspective(1200px) translate3d(${(inspectCurX * 5.5).toFixed(2)}px, ${(inspectCurY * 4.5).toFixed(2)}px, 0px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg)`;
-          }
-          if (lightRig && lightRig.classList.contains('stabilized')) {
-            lightRig.style.transform = `translate3d(${(-inspectCurX * 6.0).toFixed(2)}px, ${(-inspectCurY * 5.0).toFixed(2)}px, 0px) scale(1.015)`;
-          }
-
-          if (Math.abs(inspectTargetX - inspectCurX) > 0.002 || Math.abs(inspectTargetY - inspectCurY) > 0.002 || isHoldingSymbol) {
-            inspectRafId = requestAnimationFrame(tickSymbolInspectTilt);
-          } else {
-            inspectRafId = null;
-          }
-        }
-
         function bindSymbolInspectAndHold() {
           const goboFrame = document.getElementById('gobo-canvas-frame');
           if (!goboFrame) return;
@@ -1478,21 +1383,6 @@
           window.addEventListener('pointerup', stopCumulativeHold, { passive: true });
           window.addEventListener('pointercancel', stopCumulativeHold, { passive: true });
           window.addEventListener('blur', stopCumulativeHold, { passive: true });
-
-          goboFrame.addEventListener('pointermove', (e) => {
-            if (!window.__noirCurtainUnveiled || window.__underDevCardActive) return;
-            const r = goboFrame.getBoundingClientRect();
-            if (!r.width || !r.height) return;
-            inspectTargetX = Math.max(-1, Math.min(1, ((e.clientX - (r.left + r.width * 0.5)) / (r.width * 0.5))));
-            inspectTargetY = Math.max(-1, Math.min(1, ((e.clientY - (r.top + r.height * 0.5)) / (r.height * 0.5))));
-            if (!inspectRafId) inspectRafId = requestAnimationFrame(tickSymbolInspectTilt);
-          }, { passive: true });
-
-          goboFrame.addEventListener('pointerleave', () => {
-            inspectTargetX = 0;
-            inspectTargetY = 0;
-            if (!inspectRafId) inspectRafId = requestAnimationFrame(tickSymbolInspectTilt);
-          }, { passive: true });
         }
 
         if (document.readyState === 'loading') {
