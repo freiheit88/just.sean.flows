@@ -14,6 +14,19 @@
 
   const params = new URLSearchParams(window.location.search);
   if (params.get('from') === 'qr' || params.get('skip_qr') === '1') {
+    document.documentElement.classList.remove('jsf-qr-gate-first');
+    document.documentElement.classList.add('jsf-skip-qr-gate');
+    const cleanSkip = () => {
+      const preTile = document.getElementById('jsf-pure-qr-float');
+      if (preTile) preTile.remove();
+      const rev = document.getElementById('noir-signature-reveal');
+      if (rev) rev.classList.remove('noir-has-illusion-qr');
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', cleanSkip);
+    } else {
+      cleanSkip();
+    }
     return;
   }
 
@@ -728,8 +741,14 @@
   function renderPassCardCanvas() {
     const canvas = document.getElementById('jsf-illusion-qr-canvas');
     if (!canvas) return;
+    // Do NOT draw a fallback gradient over the crisp 0ms instant WebP poster before walnutCardImg finishes decoding!
+    if (!bgLoaded || !walnutCardImg.naturalWidth) {
+      updateModeSwitcherUi();
+      return;
+    }
     currentUrl = computeQrUrl();
     renderWalnutPassCardToCanvas(canvas, currentUrl, qrPassMode);
+    canvas.classList.add('canvas-ready');
     updateModeSwitcherUi();
   }
 
@@ -771,36 +790,50 @@
   }
 
   function mountWalnutPassQr() {
-    if (document.getElementById('jsf-pure-qr-float')) return;
     const host =
       document.getElementById('noir-signature-reveal') ||
       document.getElementById('noir-preload-curtain') ||
       document.body;
 
-    const tile = document.createElement('div');
-    tile.id = 'jsf-pure-qr-float';
-    if (host === document.body) {
-      tile.style.position = 'fixed';
-      tile.style.zIndex = '250000';
-      tile.style.width = 'min(86vw, 420px)';
-      tile.style.aspectRatio = '976 / 1095';
-      tile.style.height = 'auto';
-    } else if (host.id === 'noir-signature-reveal') {
+    let tile = document.getElementById('jsf-pure-qr-float');
+    if (tile && tile.dataset.jsfHydrated === '1') return;
+
+    const isPreRendered = !!tile;
+    if (!tile) {
+      tile = document.createElement('div');
+      tile.id = 'jsf-pure-qr-float';
+      if (host === document.body) {
+        tile.style.position = 'fixed';
+        tile.style.zIndex = '250000';
+        tile.style.width = 'min(86vw, 420px)';
+        tile.style.aspectRatio = '976 / 1095';
+        tile.style.height = 'auto';
+      }
+    }
+    if (host && host.id === 'noir-signature-reveal') {
       host.classList.add('noir-has-illusion-qr');
     }
+    tile.dataset.jsfHydrated = '1';
 
-    const canvas = document.createElement('canvas');
-    canvas.id = 'jsf-illusion-qr-canvas';
-    tile.appendChild(canvas);
+    let canvas = document.getElementById('jsf-illusion-qr-canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.id = 'jsf-illusion-qr-canvas';
+      tile.appendChild(canvas);
+    }
 
     // Subtle Museum Brass Pill Switcher (WEB SALON <-> INSTAGRAM + PNG Save)
-    const switcher = document.createElement('div');
-    switcher.id = 'jsf-qr-mode-switcher';
-    switcher.className = 'jsf-qr-mode-switcher';
-    switcher.innerHTML =
-      '<button type="button" class="jsf-qr-mode-btn active" data-qr-mode="salon">✦ WEB SALON</button>' +
-      '<button type="button" class="jsf-qr-mode-btn" data-qr-mode="instagram">◎ INSTAGRAM</button>' +
-      '<button type="button" class="jsf-qr-dl-btn" title="Save 24K Gold Pass PNG" aria-label="Download QR Card PNG">↓</button>';
+    let switcher = document.getElementById('jsf-qr-mode-switcher');
+    if (!switcher) {
+      switcher = document.createElement('div');
+      switcher.id = 'jsf-qr-mode-switcher';
+      switcher.className = 'jsf-qr-mode-switcher';
+      switcher.innerHTML =
+        '<button type="button" class="jsf-qr-mode-btn active" data-qr-mode="salon">✦ WEB SALON</button>' +
+        '<button type="button" class="jsf-qr-mode-btn" data-qr-mode="instagram">◎ INSTAGRAM</button>' +
+        '<button type="button" class="jsf-qr-dl-btn" title="Save 24K Gold Pass PNG" aria-label="Download QR Card PNG">↓</button>';
+      tile.appendChild(switcher);
+    }
 
     switcher.addEventListener('click', (ev) => {
       ev.stopPropagation();
@@ -822,7 +855,6 @@
     switcher.addEventListener('pointerdown', (ev) => ev.stopPropagation());
     switcher.addEventListener('mousedown', (ev) => ev.stopPropagation());
     switcher.addEventListener('touchstart', (ev) => ev.stopPropagation(), { passive: true });
-    tile.appendChild(switcher);
 
     // Clicking the Walnut QR Card smoothly fades out the QR Pass to reveal the original Noir Intro!
     function dismissQrPassSmoothly(ev) {
@@ -831,6 +863,7 @@
         ev.stopPropagation();
       }
       if (tile.classList.contains('qr-hidden')) return;
+      document.documentElement.classList.remove('jsf-qr-gate-first');
       tile.classList.add('qr-hidden');
       if (host && host.classList) {
         host.classList.remove('noir-has-illusion-qr');
@@ -857,7 +890,9 @@
       dismissQrPassSmoothly(ev);
     });
 
-    host.appendChild(tile);
+    if (!isPreRendered) {
+      host.appendChild(tile);
+    }
     renderPassCardCanvas();
 
     if (document.fonts && document.fonts.ready) {

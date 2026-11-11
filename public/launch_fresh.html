@@ -11,6 +11,36 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3d">
   <link rel="shortcut icon" href="/favicon.ico?v=3d">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3d">
+  <!-- 0ms First-Paint QR Gate Preload & Zero-Flash Head Lock (Must precede all other assets!) -->
+  <link rel="preload" as="image" href="/assets/qr_passes/jsf_qr_walnut_web_salon_fast.webp" type="image/webp" fetchpriority="high">
+  <script>
+    (function () {
+      try {
+        var p = new URLSearchParams(window.location.search);
+        if (p.get('from') === 'qr' || p.get('skip_qr') === '1') {
+          document.documentElement.classList.add('jsf-skip-qr-gate');
+        } else {
+          document.documentElement.classList.add('jsf-qr-gate-first');
+        }
+      } catch (_) {
+        document.documentElement.classList.add('jsf-qr-gate-first');
+      }
+    })();
+  </script>
+  <style>
+    html.jsf-skip-qr-gate #jsf-pure-qr-float { display: none !important; }
+    html.jsf-qr-gate-first #noir-signature-reveal { background: #0b0806 !important; }
+    html.jsf-qr-gate-first #noir-signature-reveal .noir-living-card-media,
+    html.jsf-qr-gate-first #noir-signature-reveal .noir-wax-crest-medallion,
+    html.jsf-qr-gate-first #noir-signature-reveal .cinema-act1-house,
+    html.jsf-qr-gate-first #noir-signature-reveal .noir-preload-track,
+    html.jsf-qr-gate-first #noir-signature-reveal .cinema-act1-presents,
+    html.jsf-qr-gate-first #noir-signature-reveal .noir-sub-group {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+  </style>
   <!-- Preload Proprietary Gehirn Isomorphic Font & 3D Evolution Assets -->
   <link rel="preload" as="font" type="font/ttf" href="/GehirnIsomorphic-Regular.ttf" crossorigin>
   <link rel="preload" as="image" href="/assets/3d_evolution/stage1_porcelain_relief.jpg">
@@ -35,11 +65,11 @@
   </script>
   <script src="/games/three.min.js" defer></script>
   <link rel="stylesheet" href="/assets/launch_fresh_core.css?v=u22_opt_v6">
-  <link rel="stylesheet" href="/assets/u22_quest_bevel.css?v=qr_fade_v9">
+  <link rel="stylesheet" href="/assets/u22_quest_bevel.css?v=qr_zero_flash_v10">
   <link rel="stylesheet" href="/assets/u22_gallery_archive.css?v=u22_opt_v6">
   <link rel="stylesheet" href="/assets/jsf_maison_typography.css">
-  <link rel="stylesheet" href="./assets/jsf_qr_gate.css?v=qr_fade_v9">
-  <script src="./assets/jsf_qr_gate.js?v=qr_fade_v9" defer></script>
+  <link rel="stylesheet" href="./assets/jsf_qr_gate.css?v=qr_zero_flash_v10">
+  <script src="./assets/jsf_qr_gate.js?v=qr_zero_flash_v10" defer></script>
 </head>
 <body>
 
@@ -73,12 +103,26 @@
       <div class="cinema-scope-bar top" aria-hidden="true"></div>
       <div class="cinema-projector-halo" aria-hidden="true"></div>
 
-      <div class="noir-signature-reveal" id="noir-signature-reveal">
+      <div class="noir-signature-reveal noir-has-illusion-qr" id="noir-signature-reveal">
+        <!-- Instant 0ms First-Paint Walnut & 24K Gold Foil QR Pass (Hydrated seamlessly by jsf_qr_gate.js) -->
+        <div id="jsf-pure-qr-float">
+          <img
+            id="jsf-qr-instant-poster"
+            src="/assets/qr_passes/jsf_qr_walnut_web_salon_fast.webp"
+            fetchpriority="high"
+            decoding="sync"
+            alt="JSF Private Salon 24K Gold QR Pass"
+            draggable="false"
+          />
+          <canvas id="jsf-illusion-qr-canvas"></canvas>
+        </div>
+
         <!-- Photorealistic Living Candlelit Salon Video Backdrop inside the 976:1095 Card -->
         <div class="noir-living-card-media" aria-hidden="true">
           <img
             src="/assets/salon_concepts/intro_salon_sanctuary_photo.jpg"
             class="noir-living-card-poster"
+            fetchpriority="low"
             alt=""
             draggable="false"
           />
@@ -1583,7 +1627,7 @@
     </div>
   </header>
 
-  <script src="/assets/launch_fresh_core.js?v=qr_fade_v9"></script>
+  <script src="/assets/launch_fresh_core.js?v=qr_zero_flash_v10"></script>
   <script src="/assets/jsf_alibi_lamp_sync.js?v=stem_sync_v3"></script>
         <!-- FULLSCREEN ENCHANTED FOREST TICKET SANCTUARY MODAL -->
         <div class="forest-ticket-modal" id="forest-ticket-modal" data-walk-stage="distant" role="dialog" aria-label="Secret Forest Ticket Sanctuary">
@@ -1943,7 +1987,7 @@
   <!-- === U22 DIGITAL PHOTOGRAPHIE & SALON ARCHIVE GALLERY MODAL END === -->
 
   <script src="/assets/u22_gallery_catalog.js?v=u22_opt_v6"></script>
-  <script src="/assets/launch_fresh_vip.js?v=qr_fade_v9"></script>
+  <script src="/assets/launch_fresh_vip.js?v=qr_zero_flash_v10"></script>
   <script src="/assets/u22_gallery_engine.js?v=u22_opt_v6"></script>
   <!-- === INSTAGRAM VIP & INTRO SKIP ENGINE END === -->
 </body>

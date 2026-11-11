@@ -38,12 +38,32 @@
   filter: brightness(1.045) contrast(1.02);
 }
 
-#jsf-pure-qr-float canvas {
+#jsf-pure-qr-float #jsf-qr-instant-poster {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
   border-radius: 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#jsf-pure-qr-float canvas {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 24px;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+
+#jsf-pure-qr-float canvas.canvas-ready {
+  opacity: 1;
 }
 
 /* Keep the animated 3D gold light-tube frame border gleaming ON TOP of the walnut photo */
@@ -52,8 +72,8 @@
   z-index: 26 !important;
 }
 
-/* Hide overlapping HTML text layers while the physical Black Cotton Pass Card is on the table
-   (since @just.sean.flows · music salon · frankfurt am main are hot-stamped in 24K gold foil on the card itself!) */
+/* Hide underlying original opening video/poster & HTML text layers while the Black Cotton QR Pass is active */
+#noir-signature-reveal.noir-has-illusion-qr .noir-living-card-media,
 #noir-signature-reveal.noir-has-illusion-qr .noir-wax-crest-medallion,
 #noir-signature-reveal.noir-has-illusion-qr .cinema-act1-house,
 #noir-signature-reveal.noir-has-illusion-qr .noir-preload-track,
@@ -64,6 +84,7 @@
   pointer-events: none !important;
 }
 
+#noir-signature-reveal .noir-living-card-media,
 #noir-signature-reveal .noir-wax-crest-medallion,
 #noir-signature-reveal .cinema-act1-house,
 #noir-signature-reveal .noir-preload-track,
