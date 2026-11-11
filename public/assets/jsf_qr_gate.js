@@ -414,7 +414,8 @@
   };
   walnutCardImg.src = '/assets/salon_concepts/intro_walnut_wine_pass_card.jpg';
 
-  function buildGoldFoilPrintPlate(url) {
+  function buildGoldFoilPrintPlate(url, mode) {
+    const isIg = mode === 'instagram';
     const { mat, roleMap, size } = encodeQrMatrixM(url);
 
     const plate = document.createElement('canvas');
@@ -474,11 +475,36 @@
     pctx.textAlign = 'center';
     pctx.textBaseline = 'middle';
 
-    // Line 1: @JUST.SEAN.FLOWS
-    pctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
-    pctx.font = "700 24px 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif";
-    if ('letterSpacing' in pctx) pctx.letterSpacing = '4.5px';
-    pctx.fillText('@JUST.SEAN.FLOWS', PLATE_W * 0.5, 704);
+    if (isIg) {
+      // Minimal 24K Gold-Foil Instagram Camera Crest + @JUST.SEAN.FLOWS
+      pctx.save();
+      pctx.strokeStyle = 'rgba(255, 255, 255, 0.96)';
+      pctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+      pctx.lineWidth = 2.4;
+      const igX = PLATE_W * 0.5 - 176;
+      const igY = 691;
+      pctx.beginPath();
+      pctx.roundRect(igX, igY, 24, 24, 6.5);
+      pctx.stroke();
+      pctx.beginPath();
+      pctx.arc(igX + 12, igY + 12, 5.5, 0, Math.PI * 2);
+      pctx.stroke();
+      pctx.beginPath();
+      pctx.arc(igX + 18.6, igY + 5.6, 1.5, 0, Math.PI * 2);
+      pctx.fill();
+      pctx.restore();
+
+      pctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
+      pctx.font = "700 23.5px 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif";
+      if ('letterSpacing' in pctx) pctx.letterSpacing = '4.2px';
+      pctx.fillText('@JUST.SEAN.FLOWS', PLATE_W * 0.5 + 20, 704);
+    } else {
+      // Line 1: @JUST.SEAN.FLOWS
+      pctx.fillStyle = 'rgba(255, 255, 255, 0.98)';
+      pctx.font = "700 24px 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif";
+      if ('letterSpacing' in pctx) pctx.letterSpacing = '4.5px';
+      pctx.fillText('@JUST.SEAN.FLOWS', PLATE_W * 0.5, 704);
+    }
 
     // Delicate 24K gold foil ornament rule
     pctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
@@ -490,17 +516,24 @@
     pctx.fillRect(-3.2, -3.2, 6.4, 6.4);
     pctx.restore();
 
-    // Line 2: MUSIC SALON · FRANKFURT AM MAIN
+    // Line 2 & Line 3 adapt cleanly between Live Web Salon Pass & Official Instagram Pass
     pctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
     pctx.font = "600 15.5px 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif";
     if ('letterSpacing' in pctx) pctx.letterSpacing = '3.6px';
-    pctx.fillText('MUSIC SALON · FRANKFURT AM MAIN', PLATE_W * 0.5, 778);
+    pctx.fillText(
+      isIg ? 'INSTAGRAM OFFICIAL · FOLLOW & DM' : 'MUSIC SALON · FRANKFURT AM MAIN',
+      PLATE_W * 0.5,
+      778
+    );
 
-    // Line 3: PRIVATE SALON PASS · SCAN TO ENTER
     pctx.fillStyle = 'rgba(255, 255, 255, 0.76)';
     pctx.font = "600 12.5px 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif";
     if ('letterSpacing' in pctx) pctx.letterSpacing = '3.2px';
-    pctx.fillText('PRIVATE SALON PASS  ·  SCAN TO ENTER', PLATE_W * 0.5, 814);
+    pctx.fillText(
+      isIg ? 'SCAN FOR PRIVATE REELS & INVITATION' : 'LIVE WEB SALON PASS  ·  SCAN TO ENTER',
+      PLATE_W * 0.5,
+      814
+    );
 
     const pData = pctx.getImageData(0, 0, PLATE_W, PLATE_H).data;
     const alpha = new Float32Array(PLATE_W * PLATE_H);
@@ -523,7 +556,7 @@
     return top + (bot - top) * fy;
   }
 
-  function renderWalnutPassCardToCanvas(canvas, url) {
+  function renderWalnutPassCardToCanvas(canvas, url, mode) {
     const CW = 976;
     const CH = 1095;
     if (canvas.width !== CW || canvas.height !== CH) {
@@ -543,7 +576,7 @@
       ctx.drawImage(walnutCardImg, 0, 0, CW, CH);
     }
 
-    const foilAlpha = buildGoldFoilPrintPlate(url);
+    const foilAlpha = buildGoldFoilPrintPlate(url, mode);
     const imgQuad = CARD_NORM_QUAD.map(([nx, ny]) => [nx * CW, ny * CH]);
     const Hinv = computeInverseHomography(imgQuad, PLATE_W, PLATE_H);
 
@@ -653,36 +686,64 @@
   }
 
   /* ========================================================================
-     4. LIVE REACHABLE URL SYNC & SEAMLESS INTRO FRAME MOUNTING
+     4. LIVE PRODUCTION SERVER & INSTAGRAM DUAL QR PASS ENGINE
      ======================================================================== */
+  const LIVE_PRODUCTION_ORIGIN = 'https://just-sean-flows.vercel.app';
+  const INSTAGRAM_OFFICIAL_URL = 'https://instagram.com/just.sean.flows';
+
   const isLocalEnv =
     window.location.protocol === 'file:' ||
     /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname);
 
+  const forceLocalLanQr = params.get('qr_local') === '1';
+  let qrPassMode = params.get('qr') === 'ig' ? 'instagram' : 'salon';
   let tunnelBase = '';
   let lanBase = '';
   let currentUrl = '';
 
   function computeQrUrl() {
-    const pagePath = /launch_fresh\.html/i.test(window.location.pathname)
-      ? '/launch_fresh.html'
-      : (window.location.pathname && window.location.pathname !== '/' ? window.location.pathname : '/launch_fresh.html');
+    if (qrPassMode === 'instagram') {
+      return INSTAGRAM_OFFICIAL_URL;
+    }
+    if (!isLocalEnv) {
+      return `${window.location.origin}/?from=qr`;
+    }
+    if (forceLocalLanQr) {
+      const pagePath = /launch_fresh\.html/i.test(window.location.pathname) ? '/launch_fresh.html' : '/';
+      if (tunnelBase) return `${tunnelBase.replace(/\/+$/, '')}${pagePath}?from=qr`;
+      if (lanBase) return `${lanBase.replace(/\/+$/, '')}${pagePath}?from=qr`;
+    }
+    return `${LIVE_PRODUCTION_ORIGIN}/?from=qr`;
+  }
 
-    if (!isLocalEnv) return `${window.location.origin}${pagePath}?from=qr`;
-    if (tunnelBase) return `${tunnelBase.replace(/\/+$/, '')}${pagePath}?from=qr`;
-    if (lanBase) return `${lanBase.replace(/\/+$/, '')}${pagePath}?from=qr`;
-    return 'https://justseanflows.com/?from=qr';
+  function updateModeSwitcherUi() {
+    const bar = document.getElementById('jsf-qr-mode-switcher');
+    if (!bar) return;
+    const btns = bar.querySelectorAll('[data-qr-mode]');
+    btns.forEach((b) => {
+      b.classList.toggle('active', b.getAttribute('data-qr-mode') === qrPassMode);
+    });
   }
 
   function renderPassCardCanvas() {
     const canvas = document.getElementById('jsf-illusion-qr-canvas');
     if (!canvas) return;
     currentUrl = computeQrUrl();
-    renderWalnutPassCardToCanvas(canvas, currentUrl);
+    renderWalnutPassCardToCanvas(canvas, currentUrl, qrPassMode);
+    updateModeSwitcherUi();
   }
 
+  window.__setJsfQrPassMode = function (nextMode) {
+    qrPassMode = nextMode === 'instagram' ? 'instagram' : 'salon';
+    renderPassCardCanvas();
+  };
+
+  window.__getJsfQrPassInfo = function () {
+    return { mode: qrPassMode, url: currentUrl };
+  };
+
   async function syncLocalReachableUrl() {
-    if (!isLocalEnv || window.location.protocol === 'file:') return;
+    if (!isLocalEnv || !forceLocalLanQr || window.location.protocol === 'file:') return;
     const endpoints = [`/__live_qr_info.json?t=${Date.now()}`, `/assets/live_tunnel_url.json?t=${Date.now()}`];
     for (const ep of endpoints) {
       try {
@@ -732,6 +793,37 @@
     canvas.id = 'jsf-illusion-qr-canvas';
     tile.appendChild(canvas);
 
+    // Subtle Museum Brass Pill Switcher (WEB SALON <-> INSTAGRAM + PNG Save)
+    const switcher = document.createElement('div');
+    switcher.id = 'jsf-qr-mode-switcher';
+    switcher.className = 'jsf-qr-mode-switcher';
+    switcher.innerHTML =
+      '<button type="button" class="jsf-qr-mode-btn active" data-qr-mode="salon">✦ WEB SALON</button>' +
+      '<button type="button" class="jsf-qr-mode-btn" data-qr-mode="instagram">◎ INSTAGRAM</button>' +
+      '<button type="button" class="jsf-qr-dl-btn" title="Save 24K Gold Pass PNG" aria-label="Download QR Card PNG">↓</button>';
+
+    switcher.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      const modeBtn = ev.target.closest('[data-qr-mode]');
+      if (modeBtn) {
+        qrPassMode = modeBtn.getAttribute('data-qr-mode') === 'instagram' ? 'instagram' : 'salon';
+        renderPassCardCanvas();
+        return;
+      }
+      if (ev.target.closest('.jsf-qr-dl-btn')) {
+        try {
+          const a = document.createElement('a');
+          a.download = qrPassMode === 'instagram' ? 'jsf_qr_pass_instagram.png' : 'jsf_qr_pass_web_salon.png';
+          a.href = canvas.toDataURL('image/png');
+          a.click();
+        } catch (_) {}
+      }
+    });
+    switcher.addEventListener('pointerdown', (ev) => ev.stopPropagation());
+    switcher.addEventListener('mousedown', (ev) => ev.stopPropagation());
+    switcher.addEventListener('touchstart', (ev) => ev.stopPropagation(), { passive: true });
+    tile.appendChild(switcher);
+
     // Clicking the card on PC smoothly enters the Salon (bubbles to #noir-preload-curtain)!
     host.appendChild(tile);
     renderPassCardCanvas();
@@ -742,11 +834,8 @@
       }).catch(() => {});
     }
 
-    if (isLocalEnv) {
+    if (isLocalEnv && forceLocalLanQr) {
       syncLocalReachableUrl();
-      setInterval(() => {
-        if (!tile.classList.contains('qr-hidden')) syncLocalReachableUrl();
-      }, 3000);
     }
   }
 

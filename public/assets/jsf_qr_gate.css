@@ -73,3 +73,57 @@ body.vip-pass-flipped #jsf-pure-qr-float {
   pointer-events: none !important;
   transform: scale(1.025) !important;
 }
+
+/* Museum Obsidian & 24K Gold Pill Switcher (Top-Left Walnut Empty Zone: WEB SALON <-> INSTAGRAM + PNG Save) */
+.jsf-qr-mode-switcher {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 32;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(11, 8, 6, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(243, 212, 137, 0.34);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.82);
+  pointer-events: auto;
+}
+
+.jsf-qr-mode-btn,
+.jsf-qr-dl-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: rgba(246, 220, 160, 0.72);
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+  white-space: nowrap;
+}
+
+.jsf-qr-dl-btn {
+  padding: 5px 8px;
+  border-left: 1px solid rgba(243, 212, 137, 0.18);
+  border-radius: 0 999px 999px 0;
+  font-size: 11px;
+}
+
+.jsf-qr-mode-btn:hover,
+.jsf-qr-dl-btn:hover {
+  color: #fff6db;
+}
+
+.jsf-qr-mode-btn.active {
+  background: linear-gradient(135deg, rgba(235, 193, 108, 0.94) 0%, rgba(196, 146, 62, 0.94) 100%);
+  color: #0b0806;
+  box-shadow: 0 2px 10px rgba(243, 212, 137, 0.36);
+}
