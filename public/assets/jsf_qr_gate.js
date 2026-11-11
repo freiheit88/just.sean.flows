@@ -824,7 +824,39 @@
     switcher.addEventListener('touchstart', (ev) => ev.stopPropagation(), { passive: true });
     tile.appendChild(switcher);
 
-    // Clicking the card on PC smoothly enters the Salon (bubbles to #noir-preload-curtain)!
+    // Clicking the Walnut QR Card smoothly fades out the QR Pass to reveal the original Noir Intro!
+    function dismissQrPassSmoothly(ev) {
+      if (ev) {
+        if (ev.target && ev.target.closest && ev.target.closest('#jsf-qr-mode-switcher')) return;
+        ev.stopPropagation();
+      }
+      if (tile.classList.contains('qr-hidden')) return;
+      tile.classList.add('qr-hidden');
+      if (host && host.classList) {
+        host.classList.remove('noir-has-illusion-qr');
+      }
+      // Ensure original Noir Intro video is playing smoothly underneath
+      const introVid = document.getElementById('noir-living-card-video');
+      if (introVid && introVid.paused) {
+        introVid.play().catch(() => {});
+      }
+    }
+
+    tile.addEventListener('click', dismissQrPassSmoothly);
+    tile.addEventListener('mousedown', (ev) => {
+      if (ev.target && ev.target.closest && ev.target.closest('#jsf-qr-mode-switcher')) return;
+      ev.stopPropagation();
+    });
+    tile.addEventListener('touchstart', (ev) => {
+      if (ev.target && ev.target.closest && ev.target.closest('#jsf-qr-mode-switcher')) return;
+      ev.stopPropagation();
+    }, { passive: true });
+    tile.addEventListener('touchend', (ev) => {
+      if (ev.target && ev.target.closest && ev.target.closest('#jsf-qr-mode-switcher')) return;
+      ev.preventDefault();
+      dismissQrPassSmoothly(ev);
+    });
+
     host.appendChild(tile);
     renderPassCardCanvas();
 

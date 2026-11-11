@@ -5935,6 +5935,15 @@
           function tickNoirIntroClock(now) {
             noirIntroRafId = null;
             if (window.__noirCurtainUnveiled) return;
+            // Hold original Noir Intro at 0.00s while the Front Walnut QR Pass is on screen;
+            // the instant the user clicks the QR card and it smoothly fades out (.qr-hidden),
+            // the original Noir Intro starts cleanly from 0.00s with unlocked Web Audio!
+            const qrFloat = document.getElementById('jsf-pure-qr-float');
+            if (qrFloat && !qrFloat.classList.contains('qr-hidden')) {
+              noirLastTickTime = now;
+              noirIntroRafId = requestAnimationFrame(tickNoirIntroClock);
+              return;
+            }
             if (!noirLastTickTime) noirLastTickTime = now;
             const dt = Math.min(64, Math.max(0, now - noirLastTickTime));
             noirLastTickTime = now;
