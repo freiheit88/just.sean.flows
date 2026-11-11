@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #e8e2d5;
+    user-select: none;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  /* Instant 0ms high-DPI retina fallback image underneath interactive vector map */
+  #static-retina-map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    z-index: 1;
+    pointer-events: none;
+  }
+  #map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    filter: sepia(0.08) saturate(1.06) contrast(1.05) brightness(0.97);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  #map.ready {
+    opacity: 1;
+  }
+  .maplibregl-ctrl { display: none !important; }
+
+  /* ==========================================================================
+     1:1 GOOGLE MAPS NATIVE GERMAN TRANSIT STATION PINS ([S] & [U])
+     ========================================================================== */
+  .gmaps-station-anchor {
+    position: relative;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    user-select: none;
+    z-index: 10;
+  }
+
+  .gmaps-badge-wrap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5px;
+    background: #ffffff;
+    padding: 1.5px;
+    border-radius: 3.5px;
+    box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.10);
+  }
+
+  .gmaps-badge-wrap.is-circle {
+    border-radius: 999px;
+  }
+
+  .transit-icon-s {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #008D4F;
+    color: #ffffff;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .transit-icon-u {
+    width: 12px;
+    height: 12px;
+    border-radius: 2.5px;
+    background: #0067B1;
+    color: #ffffff;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gmaps-station-anchor.primary .transit-icon-s,
+  .gmaps-station-anchor.primary .transit-icon-u {
+    width: 14px;
+    height: 14px;
+    font-size: 9.2px;
+  }
+
+  .gmaps-station-anchor.primary .gmaps-badge-wrap {
+    padding: 1.8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(0, 0, 0, 0.14);
+  }
+
+  .gmaps-station-label {
+    position: absolute;
+    white-space: nowrap;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 8.2px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    text-shadow:
+      -1.2px -1.2px 0 #ffffff,
+       1.2px -1.2px 0 #ffffff,
+      -1.2px  1.2px 0 #ffffff,
+       1.2px  1.2px 0 #ffffff,
+       0px   -1.6px 0 #ffffff,
+       0px    1.6px 0 #ffffff,
+      -1.6px  0px   0 #ffffff,
+       1.6px  0px   0 #ffffff,
+       0 1.5px 4px rgba(255, 255, 255, 0.95);
+  }
+
+  .gmaps-station-label.s-text { color: #006837; }
+  .gmaps-station-label.u-text { color: #005091; }
+  .gmaps-station-label.hub-text { color: #1e293b; }
+
+  .gmaps-station-anchor.primary .gmaps-station-label {
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  .gmaps-station-anchor.pos-left .gmaps-station-label {
+    right: 10px;
+    top: 0;
+    transform: translateY(-50%);
+    flex-direction: row-reverse;
+  }
+  .gmaps-station-anchor.pos-right .gmaps-station-label {
+    left: 10px;
+    top: 0;
+    transform: translateY(-50%);
+  }
+  .gmaps-station-anchor.pos-top .gmaps-station-label {
+    left: 0;
+    bottom: 9px;
+    transform: translateX(-50%);
+  }
+  .gmaps-station-anchor.pos-bottom .gmaps-station-label {
+    left: 0;
+    top: 9px;
+    transform: translateX(-50%);
+  }
+
+  .gmaps-station-anchor.primary.pos-left .gmaps-station-label { right: 11px; }
+  .gmaps-station-anchor.primary.pos-right .gmaps-station-label { left: 11px; }
+
+  .gmaps-line-pill {
+    font-size: 6.8px;
+    font-weight: 800;
+    padding: 0.5px 3px;
+    border-radius: 2px;
+    color: #ffffff;
+    text-shadow: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+  .gmaps-line-pill.s-line { background: #008D4F; }
+  .gmaps-line-pill.u-line { background: #0067B1; }
+
+  /* Google Maps Style Zoom Controls (+ / -) */
+  .gmaps-zoom-controls {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .gmaps-zoom-btn {
+    width: 24px;
+    height: 24px;
+    background: #ffffff;
+    border: none;
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .gmaps-zoom-btn:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  .gmaps-zoom-btn + .gmaps-zoom-btn {
+    border-top: 1px solid #e5e7eb;
+  }
+</style>
+</head>
+<body>
+<img id="static-retina-map" src="/assets/salon_concepts/frankfurt_realestate_expose_map.png?v=transit_v3" alt="Frankfurt Westend-Süd · Messe Transit & Real Estate Map" draggable="false" />
+<div id="map"></div>
+<div class="gmaps-zoom-controls">
+  <button type="button" class="gmaps-zoom-btn" id="btn-zoom-in" title="Zoom in">+</button>
+  <button type="button" class="gmaps-zoom-btn" id="btn-zoom-out" title="Zoom out">−</button>
+</div>
+<script>
+  try {
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: [8.6540, 50.1128],
+      zoom: 11.88,
+      pitch: 0,
+      bearing: 0,
+      attributionControl: false,
+      interactive: true
+    });
+
+    function syncResponsiveZoom() {
+      const w = window.innerWidth || 468;
+      const targetZ = 12.88 + Math.log2(w / 936.0);
+      map.jumpTo({ center: [8.6540, 50.1128], zoom: targetZ });
+    }
+    syncResponsiveZoom();
+    window.addEventListener('resize', syncResponsiveZoom);
+
+    document.getElementById('btn-zoom-in').addEventListener('click', (e) => {
+      e.stopPropagation();
+      map.zoomIn({ duration: 260 });
+    });
+    document.getElementById('btn-zoom-out').addEventListener('click', (e) => {
+      e.stopPropagation();
+      map.zoomOut({ duration: 260 });
+    });
+
+    const targetPolygonCoords = [
+      [8.6388, 50.1144],
+      [8.6442, 50.1140],
+      [8.6457, 50.1173],
+      [8.6486, 50.1156],
+      [8.6515, 50.1140],
+      [8.6530, 50.1142],
+      [8.6536, 50.1131],
+      [8.6562, 50.1112],
+      [8.6532, 50.1095],
+      [8.6502, 50.1093],
+      [8.6485, 50.1097],
+      [8.6410, 50.1088],
+      [8.6392, 50.1091],
+      [8.6390, 50.1115],
+      [8.6388, 50.1144]
+    ];
+
+    const transitStations = [
+      { name: 'Messe', lines: 'S3–S6', types: ['S'], coords: [8.6382, 50.1112], pos: 'left', primary: true },
+      { name: 'Festhalle / Messe', lines: 'U4', types: ['U'], coords: [8.6562, 50.1116], pos: 'right', primary: true },
+      { name: 'Westbahnhof', lines: '', types: ['S'], coords: [8.6391, 50.1189], pos: 'left', primary: false },
+      { name: 'Bockenheimer Warte', lines: '', types: ['U'], coords: [8.6479, 50.1202], pos: 'top', primary: false },
+      { name: 'Westend', lines: '', types: ['U'], coords: [8.6626, 50.1187], pos: 'right', primary: false },
+      { name: 'Alte Oper', lines: '', types: ['U'], coords: [8.6718, 50.1158], pos: 'right', primary: false },
+      { name: 'Taunusanlage', lines: '', types: ['S'], coords: [8.6685, 50.1132], pos: 'right', primary: false },
+      { name: 'Hauptbahnhof', lines: '', types: ['S', 'U'], coords: [8.6632, 50.1068], pos: 'bottom', primary: false },
+      { name: 'Galluswarte', lines: '', types: ['S'], coords: [8.6453, 50.1038], pos: 'bottom', primary: false }
+    ];
+
+    map.on('load', () => {
+      syncResponsiveZoom();
+      const layers = map.getStyle().layers;
+      let labelInsertId = null;
+
+      for (const layer of layers) {
+        const id = layer.id.toLowerCase();
+        if (id.includes('poi') && !id.includes('park')) {
+          map.setLayoutProperty(layer.id, 'visibility', 'none');
+          continue;
+        }
+        if (id.includes('place_city') || id.includes('place-city') || id.includes('place_town')) {
+          map.setLayoutProperty(layer.id, 'visibility', 'none');
+          continue;
+        }
+        if (layer.type === 'symbol' && (id.includes('label') || id.includes('place') || id.includes('highway-name') || id.includes('road_label'))) {
+          if (!labelInsertId) labelInsertId = layer.id;
+        }
+      }
+
+      map.addSource('outside-dim', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [
+              [[8.50, 50.00], [8.80, 50.00], [8.80, 50.25], [8.50, 50.25], [8.50, 50.00]],
+              targetPolygonCoords
+            ]
+          }
+        }
+      });
+
+      map.addSource('salon-zone', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          geometry: {
+            type: 'Polygon',
+            coordinates: [targetPolygonCoords]
+          }
+        }
+      });
+
+      map.addLayer({
+        id: 'outside-dim-fill',
+        type: 'fill',
+        source: 'outside-dim',
+        paint: {
+          'fill-color': '#181b22',
+          'fill-opacity': 0.11
+        }
+      }, labelInsertId);
+
+      map.addLayer({
+        id: 'salon-zone-fill',
+        type: 'fill',
+        source: 'salon-zone',
+        paint: {
+          'fill-color': '#e04634',
+          'fill-opacity': 0.24
+        }
+      }, labelInsertId);
+
+      map.addLayer({
+        id: 'salon-zone-halo',
+        type: 'line',
+        source: 'salon-zone',
+        paint: {
+          'line-color': '#e04634',
+          'line-width': 5,
+          'line-opacity': 0.28,
+          'line-blur': 2
+        }
+      }, labelInsertId);
+
+      map.addLayer({
+        id: 'salon-zone-backing',
+        type: 'line',
+        source: 'salon-zone',
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 3.2,
+          'line-opacity': 0.92
+        }
+      }, labelInsertId);
+
+      map.addLayer({
+        id: 'salon-zone-outline',
+        type: 'line',
+        source: 'salon-zone',
+        paint: {
+          'line-color': '#d93025',
+          'line-width': 2.2,
+          'line-dasharray': [1.8, 1.4]
+        }
+      }, labelInsertId);
+
+      map.addSource('zone-center-label', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              properties: { title: 'Theodor-Heuss-Allee' },
+              geometry: { type: 'Point', coordinates: [8.6470, 50.1126] }
+            }
+          ]
+        }
+      });
+
+      map.addLayer({
+        id: 'zone-center-label-layer',
+        type: 'symbol',
+        source: 'zone-center-label',
+        layout: {
+          'text-field': ['get', 'title'],
+          'text-font': ['Noto Sans Bold'],
+          'text-size': 9.8,
+          'text-allow-overlap': true
+        },
+        paint: {
+          'text-color': '#991b1b',
+          'text-halo-color': 'rgba(255, 255, 255, 0.96)',
+          'text-halo-width': 2.0
+        }
+      });
+
+      for (const st of transitStations) {
+        const el = document.createElement('div');
+        el.className = `gmaps-station-anchor pos-${st.pos}${st.primary ? ' primary' : ''}`;
+
+        const badgesHtml = st.types.map(t =>
+          t === 'S'
+            ? `<span class="transit-icon-s">S</span>`
+            : `<span class="transit-icon-u">U</span>`
+        ).join('');
+
+        const isSingleS = st.types.length === 1 && st.types[0] === 'S';
+        const textClass = st.types.length > 1 ? 'hub-text' : (st.types[0] === 'S' ? 's-text' : 'u-text');
+        const lineClass = st.types[0] === 'S' ? 's-line' : 'u-line';
+        const linePillHtml = st.lines
+          ? `<span class="gmaps-line-pill ${lineClass}">${st.lines}</span>`
+          : '';
+
+        el.innerHTML = `
+          <span class="gmaps-badge-wrap${isSingleS ? ' is-circle' : ''}">${badgesHtml}</span>
+          <span class="gmaps-station-label ${textClass}">
+            <span>${st.name}</span>
+            ${linePillHtml}
+          </span>
+        `;
+
+        new maplibregl.Marker({ element: el, anchor: 'center' })
+          .setLngLat(st.coords)
+          .addTo(map);
+      }
+
+      document.getElementById('map').classList.add('ready');
+    });
+  } catch (e) {}
+</script>
+</body>
+</html>

@@ -1,0 +1,1316 @@
+/* === 2.5D ARCHITECTURAL WINDOW BEVEL, PROGRESSIVE QUEST REVEAL & 5-STAGE LEVEL-UP ENGINE === */
+/* Hot-Zone Micro-Module (< 400 lines) for sub-second Fast-Path edits & GPU compositor isolation */
+
+.u22-25d-bevel-frame {
+  position: absolute !important;
+  inset: -26px -26px -30px -26px !important;
+  border-radius: 22px !important;
+  pointer-events: none !important;
+  z-index: 44 !important;
+  overflow: hidden !important;
+  contain: layout style paint;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.98),
+    0 12px 32px rgba(0, 0, 0, 0.94),
+    0 0 0 1.5px rgba(243, 212, 137, 0.65) !important;
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.65s ease !important;
+}
+
+/* Keep Front Face 2.5D bevel HIDDEN on initial Gobo Wine-Clef entry!
+   Only materialize the 2.5D stepped frame when flipped/turning (.card-flipped-out or .corp-profile-active)! */
+.gobo-canvas-frame:not(.card-flipped-out):not(.corp-profile-active) .u22-25d-bevel-front,
+.gobo-canvas-frame:not(.card-flipped-out):not(.corp-profile-active) .bevel-inner-rabbet-shadow {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.gobo-canvas-frame.card-flipped-out .u22-25d-bevel-front,
+.gobo-canvas-frame.card-flipped-out .bevel-inner-rabbet-shadow,
+.gobo-canvas-frame.corp-profile-active .u22-25d-bevel-front,
+.gobo-canvas-frame.corp-profile-active .bevel-inner-rabbet-shadow {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.bevel-wall {
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+/* Top Lintel Soffit: Angled downward into the recessed window pane (deep shadow under overhead light) */
+.bevel-wall-top {
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 27px !important;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 27px) 100%, 27px 100%) !important;
+  -webkit-clip-path: polygon(0 0, 100% 0, calc(100% - 27px) 100%, 27px 100%) !important;
+  background: linear-gradient(
+    180deg,
+    #2b2114 0%,
+    #523e22 14%,
+    #14100b 24%,
+    #0b0907 52%,
+    #362816 58%,
+    #18120b 86%,
+    #dfb15b 100%
+  ) !important;
+}
+
+/* Bottom Window Sill / Parapet Ledge (La Belle Ferronnière reference: catches warm gallery light on its horizontal sill!) */
+.bevel-wall-bottom {
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 31px !important;
+  clip-path: polygon(27px 0, calc(100% - 27px) 0, 100% 100%, 0 100%) !important;
+  -webkit-clip-path: polygon(27px 0, calc(100% - 27px) 0, 100% 100%, 0 100%) !important;
+  background: linear-gradient(
+    180deg,
+    #fff3c4 0%,
+    #e2b659 9%,
+    #785a2a 24%,
+    #2b2012 44%,
+    #947036 52%,
+    #3b2c18 76%,
+    #120e09 100%
+  ) !important;
+}
+
+/* Left Stepped Jamb Wall (2.5D stepped bronze & brass depth) */
+.bevel-wall-left {
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 27px !important;
+  clip-path: polygon(0 0, 100% 27px, 100% calc(100% - 31px), 0 100%) !important;
+  -webkit-clip-path: polygon(0 0, 100% 27px, 100% calc(100% - 31px), 0 100%) !important;
+  background: linear-gradient(
+    90deg,
+    #1c160e 0%,
+    #544023 18%,
+    #14100b 42%,
+    #876631 54%,
+    #2e2314 82%,
+    #f3d489 100%
+  ) !important;
+}
+
+/* Right Stepped Jamb Wall */
+.bevel-wall-right {
+  top: 0 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 27px !important;
+  clip-path: polygon(0 27px, 100% 0, 100% 100%, 0 calc(100% - 31px)) !important;
+  -webkit-clip-path: polygon(0 27px, 100% 0, 100% 100%, 0 calc(100% - 31px)) !important;
+  background: linear-gradient(
+    -90deg,
+    #18120c 0%,
+    #47361d 18%,
+    #120e09 42%,
+    #735629 54%,
+    #241b0f 82%,
+    #dfb15b 100%
+  ) !important;
+}
+
+/* When flipped to Back Face, mirror the left/right jamb lighting to match the flipped window! */
+.u22-25d-bevel-back .bevel-wall-left {
+  background: linear-gradient(
+    90deg,
+    #18120c 0%,
+    #47361d 18%,
+    #120e09 42%,
+    #735629 54%,
+    #241b0f 82%,
+    #dfb15b 100%
+  ) !important;
+}
+
+.u22-25d-bevel-back .bevel-wall-right {
+  background: linear-gradient(
+    -90deg,
+    #1c160e 0%,
+    #544023 18%,
+    #14100b 42%,
+    #876631 54%,
+    #2e2314 82%,
+    #f3d489 100%
+  ) !important;
+}
+
+/* Deep Museum Rabbet Shadow cast by the 2.5D frame onto the recessed glass/canvas */
+.bevel-inner-rabbet-shadow {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 14px !important;
+  pointer-events: none !important;
+  z-index: 46 !important;
+  box-shadow:
+    inset 0 16px 28px rgba(0, 0, 0, 0.92),
+    inset 12px 0 22px rgba(0, 0, 0, 0.76),
+    inset -12px 0 22px rgba(0, 0, 0, 0.76),
+    inset 0 -8px 18px rgba(0, 0, 0, 0.68),
+    inset 0 0 0 1.5px rgba(243, 212, 137, 0.58) !important;
+}
+
+/* 45-Degree Miter Corner Lines & Stepped Brass Bead SVG */
+.bevel-miter-svg {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+}
+
+.miter-corner-line {
+  stroke: rgba(255, 235, 175, 0.85) !important;
+  stroke-width: 2.2 !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.98)) !important;
+}
+
+.miter-step-outer-casing {
+  fill: none !important;
+  stroke: rgba(243, 212, 137, 0.55) !important;
+  stroke-width: 1.5 !important;
+}
+
+.miter-step-bead-outer {
+  fill: none !important;
+  stroke: rgba(243, 212, 137, 0.62) !important;
+  stroke-width: 1.8 !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.95)) !important;
+}
+
+.miter-step-bead-inner {
+  fill: none !important;
+  stroke: rgba(255, 242, 195, 0.88) !important;
+  stroke-width: 2.0 !important;
+}
+
+/* Push outer window hardware (2 hinges & 1 latch) onto the outer edge of the 26px 2.5D frame ONLY when flipped/turned! */
+.gobo-canvas-frame.card-flipped-out .u22-window-sash-molding,
+.gobo-canvas-frame.corp-profile-active .u22-window-sash-molding,
+.under-dev-card-overlay .u22-window-sash-molding {
+  inset: -26px -26px -30px -26px !important;
+  border-radius: 22px !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  z-index: 45 !important;
+}
+
+/* ==========================================================================
+   1B. PROGRESSIVE SECTION REVEAL (LOCATION FIRST -> PARTY -> SOCIAL -> BIZ -> TICKET)
+   & 5-STAGE 2.5D FRAME LEVEL-UP AWAKENING (data-quest-level="0".."4")
+   ========================================================================== */
+#torch-zone-2 > .torch-sconce-socket,
+#torch-zone-3 > .torch-sconce-socket,
+#torch-zone-2 > .torch-light-cone,
+#torch-zone-3 > .torch-light-cone {
+  display: none !important;
+}
+
+/* When Zone 2 is unlit (Level 0: 0/4), keep the entire bottom row hidden in dark stealth */
+#torch-zone-2[data-zone-state="unlit"],
+#torch-zone-2[data-zone-state="unlit"] > .zone-illuminated-content {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  filter: brightness(0) blur(4px) !important;
+  transform: translateY(10px) scale(0.96) !important;
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.55s ease,
+    visibility 0.55s !important;
+}
+
+#torch-zone-2[data-zone-state="lit"],
+#torch-zone-2[data-zone-state="lit"] > .zone-illuminated-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  filter: brightness(1.0) saturate(1.05) blur(0px) !important;
+  transform: translateY(0) scale(1) !important;
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.55s ease !important;
+}
+
+/* Individual Living Portrait Cells (Party -> Social -> Biz) unlock sequentially one by one */
+.hp-living-frame-cell:not([data-cell-unlocked="true"]) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  filter: brightness(0) blur(4px) !important;
+  transform: translateY(10px) scale(0.94) !important;
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.55s ease,
+    visibility 0.55s !important;
+}
+
+.hp-living-frame-cell[data-cell-unlocked="true"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  filter: none !important;
+  transform: translateY(0) scale(1) !important;
+  transition:
+    opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.52s ease !important;
+}
+
+/* Smooth Apple/Finom staggered entrance when all 3 bottom stem cards unlock on Location click */
+#hp-cell-0[data-cell-unlocked="true"] { transition-delay: 0.00s !important; }
+#hp-cell-1[data-cell-unlocked="true"] { transition-delay: 0.10s !important; }
+#hp-cell-2[data-cell-unlocked="true"] { transition-delay: 0.20s !important; }
+
+/* Dock Ticket pill cleanly below the bottom frame sill so it never covers Biz's photo badge */
+#under-dev-card-overlay #torch-zone-3.pure-visual-zone-pay {
+  bottom: -52px !important;
+  right: 0px !important;
+}
+
+/* Ticket Button (#torch-zone-3) stays hidden until Level 4 (4/4) is unlocked */
+#torch-zone-3[data-zone-state="unlit"],
+#torch-zone-3[data-zone-state="unlit"] > .zone-illuminated-content {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  filter: brightness(0) blur(4px) !important;
+  transform: translateY(8px) scale(0.92) !important;
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.55s ease,
+    visibility 0.55s !important;
+}
+
+#torch-zone-3[data-zone-state="lit"],
+#torch-zone-3[data-zone-state="lit"] > .zone-illuminated-content {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  filter: brightness(1.0) saturate(1.05) blur(0px) !important;
+  transform: translateY(0) scale(1) !important;
+  transition:
+    opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.55s ease !important;
+}
+
+/* 5-Stage Progressive 2.5D Frame Bevel & Glow Level-Up on Back Face:
+   Starts dark/dormant on initial flip (Level 0), and levels up with each acquired lamp (1 -> 2 -> 3 -> 4)! */
+.under-dev-card-overlay .u22-25d-bevel-back,
+.under-dev-card-overlay .bevel-inner-rabbet-shadow,
+.under-dev-card-overlay .u22-25d-bevel-back .bevel-miter-svg {
+  transition:
+    filter 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Level 0 (0/4 - Initial Flip): Dark matte obsidian window frame, zero bright gold glow */
+.under-dev-card-overlay:not([data-quest-level]) .u22-25d-bevel-back,
+.under-dev-card-overlay[data-quest-level="0"] .u22-25d-bevel-back {
+  filter: brightness(0.26) saturate(0.28) contrast(1.08) !important;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.98),
+    0 12px 32px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(243, 212, 137, 0.14) !important;
+}
+.under-dev-card-overlay:not([data-quest-level]) .u22-25d-bevel-back .bevel-miter-svg,
+.under-dev-card-overlay[data-quest-level="0"] .u22-25d-bevel-back .bevel-miter-svg {
+  opacity: 0.18 !important;
+}
+.under-dev-card-overlay:not([data-quest-level]) .bevel-inner-rabbet-shadow,
+.under-dev-card-overlay[data-quest-level="0"] .bevel-inner-rabbet-shadow {
+  box-shadow:
+    inset 0 16px 28px rgba(0, 0, 0, 0.95),
+    inset 12px 0 22px rgba(0, 0, 0, 0.85),
+    inset -12px 0 22px rgba(0, 0, 0, 0.85),
+    inset 0 -8px 18px rgba(0, 0, 0, 0.80),
+    inset 0 0 0 1px rgba(243, 212, 137, 0.14) !important;
+}
+
+/* Level 1 (1/4 - Location Acquired): Frame awakens to 45% warm antique bronze */
+.under-dev-card-overlay[data-quest-level="1"] .u22-25d-bevel-back {
+  filter: brightness(0.50) saturate(0.62) contrast(1.05) !important;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.98),
+    0 12px 32px rgba(0, 0, 0, 0.94),
+    0 0 0 1.2px rgba(223, 177, 91, 0.34),
+    0 0 16px rgba(223, 177, 91, 0.14) !important;
+}
+.under-dev-card-overlay[data-quest-level="1"] .u22-25d-bevel-back .bevel-miter-svg {
+  opacity: 0.42 !important;
+}
+.under-dev-card-overlay[data-quest-level="1"] .bevel-inner-rabbet-shadow {
+  box-shadow:
+    inset 0 16px 28px rgba(0, 0, 0, 0.93),
+    inset 12px 0 22px rgba(0, 0, 0, 0.80),
+    inset -12px 0 22px rgba(0, 0, 0, 0.80),
+    inset 0 -8px 18px rgba(0, 0, 0, 0.72),
+    inset 0 0 0 1.2px rgba(243, 212, 137, 0.30) !important;
+}
+
+/* Level 2 (2/4 - Party Acquired): Frame levels up to 72% warm 2200K brass */
+.under-dev-card-overlay[data-quest-level="2"] .u22-25d-bevel-back {
+  filter: brightness(0.74) saturate(0.86) contrast(1.03) !important;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.98),
+    0 12px 32px rgba(0, 0, 0, 0.94),
+    0 0 0 1.5px rgba(243, 212, 137, 0.52),
+    0 0 24px rgba(223, 177, 91, 0.26) !important;
+}
+.under-dev-card-overlay[data-quest-level="2"] .u22-25d-bevel-back .bevel-miter-svg {
+  opacity: 0.70 !important;
+}
+.under-dev-card-overlay[data-quest-level="2"] .bevel-inner-rabbet-shadow {
+  box-shadow:
+    inset 0 16px 28px rgba(0, 0, 0, 0.92),
+    inset 12px 0 22px rgba(0, 0, 0, 0.76),
+    inset -12px 0 22px rgba(0, 0, 0, 0.76),
+    inset 0 -8px 18px rgba(0, 0, 0, 0.68),
+    inset 0 0 0 1.4px rgba(243, 212, 137, 0.45) !important;
+}
+
+/* Level 3 (3/4 - Social Acquired): Frame levels up to 94% 18K champagne gold */
+.under-dev-card-overlay[data-quest-level="3"] .u22-25d-bevel-back {
+  filter: brightness(0.95) saturate(1.02) !important;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.98),
+    0 12px 32px rgba(0, 0, 0, 0.94),
+    0 0 0 1.6px rgba(243, 212, 137, 0.74),
+    0 0 32px rgba(243, 212, 137, 0.38) !important;
+}
+.under-dev-card-overlay[data-quest-level="3"] .u22-25d-bevel-back .bevel-miter-svg {
+  opacity: 0.92 !important;
+}
+.under-dev-card-overlay[data-quest-level="3"] .bevel-inner-rabbet-shadow {
+  box-shadow:
+    inset 0 16px 28px rgba(0, 0, 0, 0.92),
+    inset 12px 0 22px rgba(0, 0, 0, 0.74),
+    inset -12px 0 22px rgba(0, 0, 0, 0.74),
+    inset 0 -8px 18px rgba(0, 0, 0, 0.66),
+    inset 0 0 0 1.5px rgba(243, 212, 137, 0.62) !important;
+}
+
+/* Level 4 (4/4 - Biz Acquired / Full Quest Cleared): 100% 24K Gold Sanctuary Awakening */
+.under-dev-card-overlay[data-quest-level="4"] .u22-25d-bevel-back {
+  filter: brightness(1.12) saturate(1.15) !important;
+  box-shadow:
+    0 0 0 2px #fde047,
+    0 0 44px rgba(251, 191, 36, 0.56),
+    0 36px 90px rgba(0, 0, 0, 0.98) !important;
+}
+.under-dev-card-overlay[data-quest-level="4"] .u22-25d-bevel-back .bevel-miter-svg {
+  opacity: 1 !important;
+}
+
+@keyframes u22FrameLevelUpPulse {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.008); }
+  100% { transform: scale(1); }
+}
+
+.under-dev-card-overlay.frame-level-up-pulse .u22-25d-bevel-back {
+  animation: u22FrameLevelUpPulse 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   2. QUEST CLEARED / ARCHIVE UNLOCKED EFFECT (.u22-quest-clear-fx-layer)
+   ========================================================================== */
+.u22-quest-clear-fx-layer {
+  position: absolute !important;
+  inset: -30px -30px -34px -30px !important;
+  border-radius: 26px !important;
+  pointer-events: none !important;
+  z-index: 125 !important;
+  overflow: visible !important;
+}
+
+.quest-rim-conic-beam {
+  position: absolute;
+  inset: 0;
+  border-radius: 25px;
+  padding: 7px;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    rgba(243, 212, 137, 0.25) 40deg,
+    #fffbeb 85deg,
+    #fde047 105deg,
+    transparent 150deg,
+    transparent 210deg,
+    rgba(243, 212, 137, 0.25) 255deg,
+    #fffbeb 300deg,
+    #fde047 320deg,
+    transparent 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  filter: drop-shadow(0 0 22px rgba(253, 224, 71, 0.98));
+}
+
+.u22-quest-clear-fx-layer.quest-fx-active .quest-rim-conic-beam {
+  animation: questRimSweepAnim 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes questRimSweepAnim {
+  0% { opacity: 0; transform: scale(0.985); }
+  15% { opacity: 1; transform: scale(1.0); }
+  75% { opacity: 0.92; transform: scale(1.004); }
+  100% { opacity: 0; transform: scale(1.01); }
+}
+
+.quest-shockwave-ring {
+  position: absolute;
+  inset: 4px;
+  border-radius: 22px;
+  border: 3px solid #fde047;
+  box-shadow: 0 0 38px rgba(251, 191, 36, 0.95), inset 0 0 32px rgba(251, 191, 36, 0.75);
+  opacity: 0;
+}
+
+.u22-quest-clear-fx-layer.quest-fx-active .quest-shockwave-ring {
+  animation: questShockwaveAnim 1.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes questShockwaveAnim {
+  0% { opacity: 1; transform: scale(0.94); }
+  60% { opacity: 0.75; }
+  100% { opacity: 0; transform: scale(1.06); }
+}
+
+.quest-clear-crest-toast {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  transform: translate(-50%, -14px) scale(0.92);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(28, 21, 11, 0.98) 0%, rgba(58, 43, 19, 0.98) 50%, rgba(22, 17, 9, 0.98) 100%);
+  border: 2px solid #fde047;
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.96),
+    0 0 32px rgba(251, 191, 36, 0.88),
+    inset 0 1px 0 rgba(255, 250, 220, 0.65);
+  color: #fffbeb;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 99;
+}
+
+.u22-quest-clear-fx-layer.quest-fx-active .quest-clear-crest-toast {
+  animation: questToastBannerAnim 3.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes questToastBannerAnim {
+  0% { opacity: 0; visibility: visible; transform: translate(-50%, -14px) scale(0.90); }
+  12% { opacity: 1; visibility: visible; transform: translate(-50%, 0px) scale(1.04); }
+  22% { opacity: 1; visibility: visible; transform: translate(-50%, 0px) scale(1.0); }
+  84% { opacity: 1; visibility: visible; transform: translate(-50%, 0px) scale(1.0); }
+  100% { opacity: 0; visibility: hidden; transform: translate(-50%, -8px) scale(0.96); }
+}
+
+.under-dev-card-overlay.salon-quest-cleared .u22-25d-bevel-back,
+.gobo-canvas-frame.doc-quest-cleared .u22-25d-bevel-front {
+  box-shadow:
+    0 0 0 2px #fde047,
+    0 0 42px rgba(251, 191, 36, 0.52),
+    0 36px 90px rgba(0, 0, 0, 0.98) !important;
+}
+
+.under-dev-card-overlay.salon-quest-cleared #btn-open-ig-vip-modal {
+  background: linear-gradient(135deg, rgba(48, 36, 14, 0.96) 0%, rgba(26, 19, 9, 0.96) 100%) !important;
+  border-color: #fde047 !important;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.65) !important;
+  color: #fef08a !important;
+}
+
+/* ==========================================================================
+   3. 4TH-WALL-BREAKING 3D "LOCATION" FRAME-BREAKOUT ENGINE
+   - Breaks #torch-zone-1 physically OUT OF the 2.5D picture frame (.u22-25d-bevel-back)
+   - Leaves a recessed empty mounting cavity (.loc-frame-escape-cavity) inside the frame
+   - Renders solid 3D machined brass/obsidian slab thickness walls + dynamic cast shadow
+   ========================================================================== */
+.under-dev-card-overlay,
+.under-dev-card-overlay.active,
+.under-dev-card-overlay.active.webpage-zoomed {
+  overflow: visible !important;
+}
+
+/* Keep full-card drawers & VIP modal strictly ABOVE the 3D-popped Location monolith */
+.under-dev-card-overlay .salon-concept-drawer,
+.under-dev-card-overlay .jsf-ig-vip-modal {
+  z-index: 170 !important;
+}
+
+/* Keep corner VIP pill & flip-back button cleanly elevated above the 3D slab */
+.under-dev-card-overlay .jsf-backface-vip-pill {
+  top: 10px !important;
+  left: 10px !important;
+  z-index: 84 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.92), 0 0 12px rgba(243, 212, 137, 0.22) !important;
+}
+
+.under-dev-card-overlay .jesse-flip-back-pill {
+  top: 10px !important;
+  right: 10px !important;
+  z-index: 84 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.92) !important;
+}
+
+/* 3A. Recessed Empty Mounting Slot Left Behind Inside the Picture Frame (Revealed ONLY on Pop-Out) */
+.under-dev-card-overlay .loc-frame-escape-cavity {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 / 2 !important;
+  position: relative !important;
+  width: 100% !important;
+  height: calc(100% - 6px) !important;
+  margin-top: 6px !important;
+  border-radius: 14px !important;
+  z-index: 41 !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transition: opacity 0.42s ease !important;
+  background:
+    radial-gradient(ellipse 75% 70% at 50% 50%, rgba(16, 13, 20, 0.96) 0%, rgba(5, 4, 8, 0.99) 100%),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(223, 177, 91, 0.025) 0px,
+      rgba(223, 177, 91, 0.025) 6px,
+      transparent 6px,
+      transparent 14px
+    ) !important;
+  border: 1px dashed rgba(223, 177, 91, 0.30) !important;
+  box-shadow:
+    inset 0 18px 36px rgba(0, 0, 0, 0.98),
+    inset 0 -10px 24px rgba(0, 0, 0, 0.92),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.85) !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding-bottom: 10px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+#under-dev-card-overlay:has(#torch-zone-1[data-lamp-lit="true"]) .loc-frame-escape-cavity {
+  opacity: 1 !important;
+}
+
+.loc-cavity-clip {
+  position: absolute !important;
+  width: 14px !important;
+  height: 14px !important;
+  border-color: rgba(223, 177, 91, 0.42) !important;
+  border-style: solid !important;
+  pointer-events: none !important;
+}
+.loc-cavity-clip.clip-tl { top: 8px !important; left: 8px !important; border-width: 2px 0 0 2px !important; }
+.loc-cavity-clip.clip-tr { top: 8px !important; right: 8px !important; border-width: 2px 2px 0 0 !important; }
+.loc-cavity-clip.clip-bl { bottom: 8px !important; left: 8px !important; border-width: 0 0 2px 2px !important; }
+.loc-cavity-clip.clip-br { bottom: 8px !important; right: 8px !important; border-width: 0 2px 2px 0 !important; }
+
+.loc-cavity-ghost-stamp {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 8.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.22em !important;
+  color: rgba(223, 177, 91, 0.32) !important;
+  text-transform: uppercase !important;
+  user-select: none !important;
+}
+
+/* 3B. Location Card (#torch-zone-1):
+   - Default (unlit): Flush & neatly seated inside the picture frame grid (100% width, 0 tilt).
+   - Clicked / Lit (data-lamp-lit="true"): Expands +92px & bursts out of the frame in 3D! */
+#under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig {
+  --loc-tx: 0px;
+  --loc-ty: 0px;
+  --loc-rx: 0deg;
+  --loc-ry: 0deg;
+  --loc-rz: 0deg;
+  --loc-shx: 8px;
+  --loc-shy: 28px;
+  grid-column: 1 / -1 !important;
+  grid-row: 1 / 2 !important;
+  position: relative !important;
+  z-index: 58 !important;
+  width: 100% !important;
+  margin-left: 0px !important;
+  height: calc(100% - 6px) !important;
+  margin-top: 6px !important;
+  overflow: visible !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform-origin: 50% 48% !important;
+  will-change: width, margin-left, transform !important;
+  transform:
+    perspective(980px)
+    translate3d(0px, 0px, 0px)
+    rotateX(0deg)
+    rotateY(0deg)
+    rotateZ(0deg)
+    scale(1) !important;
+  transition:
+    width 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+    margin-left 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+    margin-top 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.45s ease !important;
+}
+
+/* Subtle tactile hover cue while unlit — stays strictly flush inside the frame */
+@media (hover: hover) {
+  #under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="false"]:hover {
+    transform:
+      perspective(980px)
+      translate3d(0px, -2px, 0px)
+      rotateX(0deg)
+      rotateY(0deg)
+      rotateZ(0deg)
+      scale(1.008) !important;
+  }
+}
+
+/* ONLY when Location is clicked / lit: Expands wide & pops out of the 2.5D bronze frame! */
+#under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] {
+  width: calc(100% + 92px) !important;
+  margin-left: -46px !important;
+  height: calc(100% - 8px) !important;
+  margin-top: 4px !important;
+  transform:
+    perspective(1050px)
+    translate3d(calc(var(--loc-tx) * 0.42), calc(-14px + var(--loc-ty) * 0.42), 0px)
+    rotateX(calc(2.2deg + var(--loc-rx) * 0.35))
+    rotateY(calc(-0.8deg + var(--loc-ry) * 0.35))
+    rotateZ(0deg)
+    scale(1.035) !important;
+}
+
+@media (max-width: 768px) {
+  #under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] {
+    width: calc(100% + 52px) !important;
+    margin-left: -26px !important;
+    transform:
+      perspective(980px)
+      translate3d(0px, -10px, 0px)
+      rotateX(1.4deg)
+      rotateY(0deg)
+      rotateZ(0deg)
+      scale(1.022) !important;
+  }
+}
+
+/* Flatten 0deg when typing inside the slide-up Salon Location Message Panel (stays popped-out wide) */
+#under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"].loc-msg-open,
+#under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"]:has(.salon-location-msg-panel.open) {
+  transform:
+    perspective(1050px)
+    translate3d(0px, -12px, 0px)
+    rotateX(0deg)
+    rotateY(0deg)
+    rotateZ(0deg)
+    scale(1.03) !important;
+}
+
+/* 3C. Physical 3D Extruded Chassis Walls & Frame-Crossing Cast Shadow (Hidden when flush, active on Pop-Out) */
+.loc-3d-slab-extrusion {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 16px !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+  opacity: 0 !important;
+  transform: scale(0.985) !important;
+  transition:
+    opacity 0.38s ease,
+    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+#torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] .loc-3d-slab-extrusion {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+/* Deep Physical Drop Shadow cast directly across the 2.5D Bronze Picture Frame & Cavity */
+.loc-slab-cast-shadow {
+  position: absolute !important;
+  inset: 10px 8px -18px 8px !important;
+  border-radius: 18px !important;
+  background: radial-gradient(ellipse 88% 85% at 50% 52%, rgba(0, 0, 0, 0.96) 25%, rgba(0, 0, 0, 0.72) 72%, transparent 100%) !important;
+  filter: blur(15px) !important;
+  transform: translate3d(var(--loc-shx, 8px), var(--loc-shy, 26px), 0px) scale(0.97) !important;
+  transition: transform 0.2s ease, box-shadow 0.45s ease, background 0.45s ease !important;
+  z-index: 0 !important;
+}
+
+#torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] .loc-slab-cast-shadow {
+  background: radial-gradient(ellipse 90% 85% at 50% 52%, rgba(0, 0, 0, 0.96) 20%, rgba(42, 28, 8, 0.76) 68%, transparent 100%) !important;
+  box-shadow: 0 10px 38px rgba(251, 191, 36, 0.24) !important;
+}
+
+.loc-slab-edge {
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+/* Top Specular Chamfer Rim */
+.loc-slab-edge-top {
+  top: -2px !important;
+  left: 6px !important;
+  right: 6px !important;
+  height: 4px !important;
+  border-radius: 14px 14px 0 0 !important;
+  background: linear-gradient(90deg, rgba(223, 177, 91, 0.25) 0%, rgba(255, 246, 214, 0.92) 50%, rgba(223, 177, 91, 0.25) 100%) !important;
+  z-index: 5 !important;
+}
+
+/* Solid 10px Thick Machined Brass & Obsidian Bottom Underside Wall (Visible under upward 3D tilt!) */
+.loc-slab-edge-bottom {
+  left: 2px !important;
+  right: 2px !important;
+  bottom: -10px !important;
+  height: 13px !important;
+  border-radius: 0 0 16px 16px !important;
+  background: linear-gradient(
+    180deg,
+    #fff3c4 0%,
+    #e5b95c 16%,
+    #7d5b28 38%,
+    #261b0e 70%,
+    #0c0906 100%
+  ) !important;
+  border: 1px solid rgba(243, 212, 137, 0.62) !important;
+  border-top: none !important;
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.95),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.88) !important;
+  z-index: 2 !important;
+}
+
+/* Left & Right 3D Metallic Side Thickness Walls */
+.loc-slab-edge-left {
+  top: 6px !important;
+  bottom: -7px !important;
+  left: -5px !important;
+  width: 8px !important;
+  border-radius: 14px 0 0 14px !important;
+  background: linear-gradient(90deg, #1b140b 0%, #7d5c29 48%, #f3d489 100%) !important;
+  box-shadow: -4px 6px 14px rgba(0, 0, 0, 0.88) !important;
+  z-index: 2 !important;
+}
+
+.loc-slab-edge-right {
+  top: 6px !important;
+  bottom: -7px !important;
+  right: -5px !important;
+  width: 8px !important;
+  border-radius: 0 14px 14px 0 !important;
+  background: linear-gradient(-90deg, #140f08 0%, #6b4e22 48%, #dfb15b 100%) !important;
+  box-shadow: 6px 8px 16px rgba(0, 0, 0, 0.92) !important;
+  z-index: 2 !important;
+}
+
+/* Upgrade Inner Map Widget Rim: Flush in-frame when unlit, 3D Extruded Chassis when clicked/lit */
+#under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig .pass-map-widget {
+  position: relative !important;
+  z-index: 4 !important;
+  border-radius: 14px !important;
+  border: 1.2px solid rgba(223, 177, 91, 0.38) !important;
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.78),
+    inset 0 1px 0 rgba(255, 250, 228, 0.16),
+    inset 0 0 22px rgba(0, 0, 0, 0.82) !important;
+  transition:
+    border-color 0.42s ease,
+    border-radius 0.42s ease,
+    box-shadow 0.45s ease !important;
+}
+
+#under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] .pass-map-widget {
+  border-radius: 15px !important;
+  border-color: #fde047 !important;
+  box-shadow:
+    0 22px 48px rgba(0, 0, 0, 0.95),
+    0 0 32px rgba(251, 191, 36, 0.34),
+    inset 0 0 0 1px rgba(255, 252, 232, 0.42) !important;
+}
+
+/* Seat Brass Museum Picture Lamp flush when unlit; elevate on Pop-Out */
+#under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig .hp-map-lamp-switch {
+  top: -15px !important;
+  z-index: 66 !important;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.92)) !important;
+  transition: top 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.35s ease !important;
+}
+
+#under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] .hp-map-lamp-switch {
+  top: -20px !important;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.96)) !important;
+}
+
+/* Multi-Plane 3D Relief Shift on "Location" Knockout Rim Text */
+#hp-cover-veil-map .hp-knockout-rim-text {
+  filter:
+    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.98))
+    drop-shadow(0 0 18px rgba(243, 212, 137, 0.58)) !important;
+}
+
+#hp-cover-veil-map .loc-3d-corner-reticles {
+  transition: opacity 0.35s ease, stroke 0.35s ease;
+}
+
+#torch-zone-1.loc-3d-breakout-rig:hover #hp-cover-veil-map .loc-3d-corner-reticles {
+  stroke: rgba(253, 224, 71, 0.82);
+}
+
+/* 3D Dying Filament Secret Whisper Sequence ("ASK" -> "ME" -> "For the details . . ." -> "Location") */
+#torch-zone-1[data-lamp-dying="true"] #hp-cover-veil-map {
+  z-index: 36 !important;
+  pointer-events: none !important;
+}
+
+#torch-zone-1[data-lamp-dying="true"] #salon-location-concierge-bar {
+  opacity: 0.18 !important;
+  filter: blur(1px) brightness(0.6) !important;
+  transition: opacity 0.28s ease, filter 0.28s ease !important;
+}
+
+@keyframes locConciergeRescuePulse {
+  0% {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.92), 0 0 0 1px rgba(253, 224, 71, 0.35);
+    transform: translateX(-50%) scale(1);
+  }
+  35% {
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.95), 0 0 26px rgba(253, 224, 71, 0.88), 0 0 0 1.8px #fde047;
+    transform: translateX(-50%) scale(1.028);
+  }
+  100% {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.92), 0 0 0 1px rgba(243, 212, 137, 0.32);
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+#salon-location-concierge-bar.loc-concierge-rescued-glow {
+  animation: locConciergeRescuePulse 1.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   4. SYMBOL STAGE RESTORATION, NON-FLIPPING INSPECTION & CUMULATIVE HOLD
+      5-TIER MUSEUM FRAME UPGRADE ENGINE (3.0s -> +1.0s/level: LV.1..LV.5)
+   ========================================================================== */
+
+/* Hide stale text clutter on the restored pure Wine-Clef Symbol stage */
+#gobo-canvas-frame #gobo-start-trigger,
+#gobo-canvas-frame #scroll-explore-guide,
+#gobo-canvas-frame #front-flip-hint-pill {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Top-Right Corner ↺ Flip-to-Salon Button (Exact 1:1 twin of #btn-under-dev-replay) */
+#gobo-canvas-frame .gobo-flip-to-salon-pill {
+  position: absolute !important;
+  top: 16px !important;
+  right: 18px !important;
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border-radius: 999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  background: rgba(12, 10, 8, 0.86) !important;
+  border: 1px solid rgba(243, 212, 137, 0.58) !important;
+  color: #fce5a8 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85), 0 0 12px rgba(223, 177, 91, 0.16) !important;
+  z-index: 68 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease, opacity 0.35s ease !important;
+}
+
+#gobo-canvas-frame .gobo-flip-to-salon-pill:hover {
+  background: #dfb15b !important;
+  color: #09080c !important;
+  transform: scale(1.06) !important;
+  box-shadow: 0 0 22px rgba(243, 212, 137, 0.72) !important;
+}
+
+#gobo-canvas-frame.card-flipped-out .gobo-flip-to-salon-pill,
+#gobo-canvas-frame.card-flipped-out .gobo-frame-tier-pill,
+#gobo-canvas-frame.card-flipped-out .gobo-museum-frame-upgrades,
+#gobo-canvas-frame.card-flipped-out .gobo-hold-upgrade-whisper {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Subtle Top-Left Unlocked Frame Tier Badge (Hidden at Lv.0; softly visible at Lv.1..Lv.5) */
+#gobo-canvas-frame .gobo-frame-tier-pill {
+  position: absolute !important;
+  top: 16px !important;
+  left: 18px !important;
+  height: 30px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  background: rgba(10, 8, 6, 0.84) !important;
+  border: 1px solid rgba(243, 212, 137, 0.45) !important;
+  color: #f6dca0 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85) !important;
+  z-index: 68 !important;
+  cursor: pointer !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(-4px) !important;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+#gobo-canvas-frame[data-symbol-frame-unlocked="true"]:not(.card-flipped-out) .gobo-frame-tier-pill {
+  opacity: 0.92 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+}
+
+#gobo-canvas-frame .gobo-frame-tier-pill:hover {
+  border-color: #fde047 !important;
+  box-shadow: 0 0 18px rgba(253, 224, 71, 0.42) !important;
+}
+
+#gobo-canvas-frame .gobo-frame-tier-pill .tier-spark {
+  color: #fde047 !important;
+  font-size: 11px !important;
+}
+
+/* Tactile cursor & smooth transitions for Symbol Stage inspection */
+#gobo-canvas-frame:not(.card-flipped-out) {
+  cursor: grab !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+#gobo-canvas-frame.symbol-holding-press:not(.card-flipped-out) {
+  cursor: grabbing !important;
+}
+
+/* Zero-Box Bottom Hold Charge Whisper HUD (Only visible while pressing or briefly on level-up) */
+.gobo-hold-upgrade-whisper {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 24px !important;
+  transform: translateX(-50%) translateY(6px) !important;
+  width: min(240px, 64%) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  pointer-events: none !important;
+  z-index: 66 !important;
+  opacity: 0 !important;
+  transition: opacity 0.28s ease, transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.gobo-hold-upgrade-whisper.whisper-visible {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+.gobo-hold-whisper-text {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.16em !important;
+  color: rgba(252, 229, 168, 0.92) !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 12px rgba(243, 212, 137, 0.45) !important;
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.gobo-hold-hairline-track {
+  width: 100% !important;
+  height: 2px !important;
+  border-radius: 999px !important;
+  background: rgba(243, 212, 137, 0.16) !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.9) !important;
+}
+
+.gobo-hold-hairline-fill {
+  height: 100% !important;
+  width: 0%;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, #b88635 0%, #f5d687 60%, #fffbeb 100%) !important;
+  box-shadow: 0 0 10px rgba(253, 224, 71, 0.9) !important;
+  transition: width 0.06s linear !important;
+}
+
+/* Museum Frame Upgrades Overlay Container (Lv.3 Overhead Lamp, Lv.4 Vienna Baroque, Lv.5 Weimar Gothic) */
+.gobo-museum-frame-upgrades {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  z-index: 48 !important;
+  overflow: visible !important;
+}
+
+.gobo-lv3-gallery-lamp {
+  position: absolute !important;
+  top: -42px !important;
+  left: 50% !important;
+  transform: translateX(-50%) scale(0.92) !important;
+  width: 176px !important;
+  height: auto !important;
+  opacity: 0 !important;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.94)) drop-shadow(0 0 22px rgba(253, 224, 71, 0.55)) !important;
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  z-index: 52 !important;
+}
+
+.gobo-lv3-lamp-cone {
+  position: absolute !important;
+  top: -6px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 78% !important;
+  height: 62% !important;
+  background: radial-gradient(ellipse 58% 72% at 50% 0%, rgba(255, 232, 165, 0.30) 0%, rgba(223, 177, 91, 0.11) 46%, transparent 78%) !important;
+  mix-blend-mode: screen !important;
+  opacity: 0 !important;
+  transition: opacity 0.6s ease !important;
+  z-index: 5 !important;
+}
+
+.gobo-museum-alpha-frame {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: fill !important;
+  border-radius: 14px !important;
+  opacity: 0 !important;
+  transform: scale(1.015) !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 32px 72px rgba(0, 0, 0, 0.96)) !important;
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease !important;
+  z-index: 50 !important;
+}
+
+#gobo-canvas-frame #card-border-paint-canvas,
+#gobo-canvas-frame .u22-window-sash-molding {
+  transition: opacity 0.5s ease, visibility 0.5s ease !important;
+}
+
+/* Prevent hidden back-face Salon card & its -26px bevel from bleeding around the Symbol Stage */
+#under-dev-card-overlay:not(.active),
+#under-dev-card-overlay:not(.active) .u22-25d-bevel-back {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* --- TIER 0 (Default < 3.0s): Pure Noir Obsidian Slate (No premature gold frame!) --- */
+#symbol-trigger:has(#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out)) #u22-3d-window-frame-box,
+#symbol-trigger:has(#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out)) #u22-3d-window-frame-box,
+#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out)::before,
+#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out)::after,
+#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out)::before,
+#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out)::after,
+#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out) .u22-window-sash-molding,
+#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) .u22-window-sash-molding,
+#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out) .bevel-inner-rabbet-shadow,
+#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out),
+#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) {
+  border: 1px solid rgba(223, 177, 91, 0.22) !important;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.95) !important;
+}
+#gobo-canvas-frame:not([data-symbol-frame-level]):not(.card-flipped-out) #card-border-paint-canvas,
+#gobo-canvas-frame[data-symbol-frame-level="0"]:not(.card-flipped-out) #card-border-paint-canvas {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Hide legacy inner canvas border once any physical frame (Lv.1..Lv.5) materializes */
+#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) #card-border-paint-canvas,
+#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) #card-border-paint-canvas,
+#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) #card-border-paint-canvas,
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) #card-border-paint-canvas,
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) #card-border-paint-canvas {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* --- TIER 1 (3.0s Cumulative): Brushed Antique Bronze 2.5D Stepped Frame --- */
+#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-window-sash-molding {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front {
+  filter: brightness(0.58) saturate(0.74) contrast(1.08) !important;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.98),
+    0 12px 32px rgba(0, 0, 0, 0.94),
+    0 0 0 1.3px rgba(223, 177, 91, 0.44),
+    0 0 18px rgba(223, 177, 91, 0.18) !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="1"]:not(.card-flipped-out) .u22-25d-bevel-front .bevel-miter-svg {
+  opacity: 0.54 !important;
+}
+
+/* --- TIER 2 (4.0s Cumulative): 18K Satin Champagne Gold Mitered Frame + Brass Hardware --- */
+#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-window-sash-molding {
+  opacity: 1 !important;
+  visibility: visible !important;
+  inset: -26px -26px -30px -26px !important;
+  border-radius: 22px !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  z-index: 45 !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front {
+  filter: brightness(0.95) saturate(1.04) !important;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.98),
+    0 12px 32px rgba(0, 0, 0, 0.94),
+    0 0 0 1.6px rgba(243, 212, 137, 0.76),
+    0 0 28px rgba(243, 212, 137, 0.34) !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="2"]:not(.card-flipped-out) .u22-25d-bevel-front .bevel-miter-svg {
+  opacity: 0.92 !important;
+}
+
+/* --- TIER 3 (5.0s Cumulative): 24K Radiant Sanctuary Gold Frame + Overhead Museum Picture Lamp --- */
+#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-window-sash-molding {
+  opacity: 1 !important;
+  visibility: visible !important;
+  inset: -26px -26px -30px -26px !important;
+  border-radius: 22px !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  z-index: 45 !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .u22-25d-bevel-front {
+  filter: brightness(1.14) saturate(1.16) !important;
+  box-shadow:
+    0 0 0 2px #fde047,
+    0 0 46px rgba(251, 191, 36, 0.54),
+    0 36px 90px rgba(0, 0, 0, 0.98) !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .gobo-lv3-gallery-lamp {
+  opacity: 1 !important;
+  transform: translateX(-50%) scale(1) !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="3"]:not(.card-flipped-out) .gobo-lv3-lamp-cone {
+  opacity: 1 !important;
+}
+
+/* --- TIER 4 & 5 SHARED: Strictly hide rectangular sash/bevel/3D-box lines so carved Baroque/Gothic frames have 0px overlap (Rule 09) --- */
+#symbol-trigger:has(#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out)) #u22-3d-window-frame-box,
+#symbol-trigger:has(#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out)) #u22-3d-window-frame-box,
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out)::before,
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out)::after,
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out)::before,
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out)::after,
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) .u22-window-sash-molding,
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow,
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) .u22-window-sash-molding,
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) .u22-25d-bevel-front,
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) .bevel-inner-rabbet-shadow {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out),
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) {
+  border: none !important;
+  box-shadow: none !important;
+  background: #070608 !important;
+}
+
+/* --- TIER 4 (6.0s Cumulative): Vienna Golden Hall Imperial Carved Baroque Frame (Built-in brass picture lamp; Rule 09 0px Aperture Fit) --- */
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) .gobo-frame-lv4-baroque {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  filter: drop-shadow(0 36px 84px rgba(0, 0, 0, 0.98)) drop-shadow(0 0 26px rgba(223, 177, 91, 0.30)) !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="4"]:not(.card-flipped-out) #emblem-switch-container {
+  transform: translateY(3.1%) scale(0.54) !important;
+  filter: brightness(1.38) contrast(1.08) drop-shadow(0 0 18px rgba(255, 232, 175, 0.45)) !important;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease !important;
+}
+
+/* --- TIER 5 (7.0s Cumulative): Weimar Cathedral Gothic Carved Tracery Arch Frame + Sanctuary Halo --- */
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) .gobo-frame-lv5-gothic {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  filter: drop-shadow(0 36px 88px rgba(0, 0, 0, 0.98)) drop-shadow(0 0 38px rgba(251, 191, 36, 0.42)) !important;
+}
+#gobo-canvas-frame[data-symbol-frame-level="5"]:not(.card-flipped-out) #emblem-switch-container {
+  transform: translateY(-0.4%) scale(0.61) !important;
+  filter: brightness(1.42) contrast(1.10) drop-shadow(0 0 22px rgba(255, 230, 165, 0.50)) !important;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease !important;
+}
+
+#gobo-canvas-frame #emblem-switch-container {
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#gobo-canvas-frame.frame-level-up-pulse {
+  animation: u22FrameLevelUpPulse 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}

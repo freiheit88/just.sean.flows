@@ -1,0 +1,75 @@
+/* ==========================================================================
+   [JSF HAUTE SALON] WALNUT TABLE & 700GSM BLACK COTTON 24K GOLD FOIL QR PASS
+   - Full-bleed 976:1095 candid Leica salon photograph (walnut table + Bordeaux
+     red wine glass + thick black cotton card with hot-stamped 24K gold foil QR)
+   - Pixel-exact projective homography + real cotton paper fiber multiplication
+   - Hidden automatically when opened via QR (?from=qr) or once unveiled
+   ========================================================================== */
+
+#jsf-pure-qr-float {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  border-radius: 24px;
+  background: #0b0806;
+  border: none;
+  box-shadow:
+    inset 0 0 42px rgba(0, 0, 0, 0.72),
+    inset 0 0 0 1px rgba(243, 212, 137, 0.24);
+  z-index: 14;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.38s ease,
+    visibility 0.52s ease;
+}
+
+#jsf-pure-qr-float:hover {
+  filter: brightness(1.045) contrast(1.02);
+}
+
+#jsf-pure-qr-float canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 24px;
+}
+
+/* Keep the animated 3D gold light-tube frame border gleaming ON TOP of the walnut photo */
+#noir-signature-reveal.noir-has-illusion-qr::before,
+#noir-signature-reveal.noir-has-illusion-qr .noir-virtual-3d-border-svg {
+  z-index: 26 !important;
+}
+
+/* Hide overlapping HTML text layers while the physical Black Cotton Pass Card is on the table
+   (since @just.sean.flows · music salon · frankfurt am main are hot-stamped in 24K gold foil on the card itself!) */
+#noir-signature-reveal.noir-has-illusion-qr .noir-wax-crest-medallion,
+#noir-signature-reveal.noir-has-illusion-qr .cinema-act1-house,
+#noir-signature-reveal.noir-has-illusion-qr .noir-preload-track,
+#noir-signature-reveal.noir-has-illusion-qr .cinema-act1-presents,
+#noir-signature-reveal.noir-has-illusion-qr .noir-sub-group {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+#jsf-pure-qr-float.qr-hidden,
+.noir-preload-curtain.unveiled #jsf-pure-qr-float,
+.noir-preload-curtain.curtain-unveiled #jsf-pure-qr-float,
+body.vip-pass-flipped #jsf-pure-qr-float {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: scale(1.025) !important;
+}

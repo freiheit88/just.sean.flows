@@ -1,0 +1,90 @@
+/* ==========================================================================
+   JSF MAISON & GEHIRN ISOMORPHIC v4.0 MASTER TYPOGRAPHY CONSTITUTION
+   Proprietary Local TrueType Fonts for @just.sean.flows across ALL Pages
+   Engineered with Symmetric CapHeight Vertical Metrics:
+     - UPM = 1000, sCapHeight = 626, sxHeight = 392
+     - sTypoAscender = hhea.ascent = usWinAscent = +826 (+200 above CapHeight)
+     - sTypoDescender = hhea.descent = -200 (-200 below Alphabetic Baseline)
+     - sTypoLineGap = hhea.lineGap = 0, USE_TYPO_METRICS (0x0080) = True
+     - Bounding-Box Midpoint = (+826 - 200)/2 = +313.0 == sCapHeight/2 (626/2 = +313.0)
+   ========================================================================== */
+
+@font-face {
+  font-family: 'JSF Maison';
+  src: url('/assets/fonts/JSFMaison-Regular.ttf?v=4.0') format('truetype'),
+       url('/GehirnIsomorphic-Regular.ttf?v=4.0') format('truetype');
+  font-weight: 300 800;
+  font-style: normal;
+  font-display: swap;
+  ascent-override: 82.6%;
+  descent-override: 20.0%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'JSF Maison';
+  src: url('/assets/fonts/JSFMaison-Italic.ttf?v=4.0') format('truetype');
+  font-weight: 300 800;
+  font-style: italic;
+  font-display: swap;
+  ascent-override: 82.6%;
+  descent-override: 20.0%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Gehirn Isomorphic';
+  src: url('/GehirnIsomorphic-Regular.ttf?v=4.0') format('truetype'),
+       url('/assets/fonts/JSFMaison-Regular.ttf?v=4.0') format('truetype');
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+  ascent-override: 82.6%;
+  descent-override: 20.0%;
+  line-gap-override: 0%;
+}
+
+:root {
+  --font-jsf-maison: 'JSF Maison', 'Gehirn Isomorphic', 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-jsf-italic: 'JSF Maison', 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  /* Exact CapSize / OpenType ratios for JSF Maison v4.0 (1000 UPM) */
+  --jsf-upm: 1000;
+  --jsf-cap-height: 0.626;
+  --jsf-x-height: 0.392;
+  --jsf-ascender: 0.826;
+  --jsf-descender: 0.200;
+}
+
+/* Global Bespoke Font Inheritance & Optical Vertical Trim Utility */
+body,
+h1, h2, h3, h4, h5, h6,
+.jesse-pass-title,
+.jesse-pass-tagline,
+.salon-section-title,
+.salon-concept-title,
+.pass-forest-main-title,
+.pass-forest-price-distant,
+.forest-sign-old-price,
+.forest-sign-new-price,
+.noir-handle,
+.noir-salon-title,
+.noir-city-sub,
+.jsf-couture-text {
+  font-family: var(--font-jsf-maison);
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* W3C CSS Inline Layout Module Level 3 Optical Leading-Trim + CapSize Fallback */
+.jsf-optical-trim,
+.jsf-minimal-mp3-bar,
+.jsf-mp3-track-info,
+.jsf-mp3-mute-btn,
+.pure-pay-center-pill,
+.pure-map-pin-btn {
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+  line-height: 1 !important;
+}
