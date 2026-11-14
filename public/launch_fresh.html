@@ -73,9 +73,10 @@
   <script src="/games/three.min.js" defer></script>
   <link rel="stylesheet" href="/assets/launch_fresh_core.css?v=loc_unlock_v13">
   <link rel="stylesheet" href="/assets/u22_quest_bevel.css?v=exact_loc_v18">
-  <link rel="stylesheet" href="/assets/u22_gallery_archive.css?v=u22_opt_v6">
+  <link rel="stylesheet" href="/assets/u22_gallery_archive.css?v=u22_opt_v6" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="/assets/jsf_maison_typography.css">
   <link rel="stylesheet" href="./assets/jsf_qr_gate.css?v=symbol_return_v11">
+  <link rel="stylesheet" href="/assets/jsf_bespoke_variants.css?v=bv_1">
   <script src="./assets/jsf_qr_gate.js?v=symbol_return_v11" defer></script>
 </head>
 <body>
@@ -98,7 +99,7 @@
         autoplay
         loop
         muted
-        preload="auto"
+        preload="metadata"
       >
         <source src="/assets/u22_ambient_canopy_bg_loop.mp4" type="video/mp4">
       </video>
@@ -115,7 +116,7 @@
         <div id="jsf-pure-qr-float">
           <img
             id="jsf-qr-instant-poster"
-            src="/assets/qr_passes/jsf_qr_walnut_web_salon_fast.webp"
+            src="/assets/salon_concepts/qr_walnut_video_poster.jpg"
             fetchpriority="high"
             decoding="sync"
             alt="JSF Private Salon 24K Gold QR Pass"
@@ -142,7 +143,7 @@
             loop
             playsinline
             autoplay
-            preload="auto"
+            preload="metadata"
           ></video>
           <div class="noir-living-card-scrim"></div>
         </div>
@@ -1973,9 +1974,10 @@
   </div>
   <!-- === U22 DIGITAL PHOTOGRAPHIE & SALON ARCHIVE GALLERY MODAL END === -->
 
-  <script src="/assets/u22_gallery_catalog.js?v=u22_opt_v6"></script>
+  <script src="/assets/u22_gallery_catalog.js?v=u22_opt_v6" defer></script>
   <script src="/assets/launch_fresh_vip.js?v=exact_loc_v18"></script>
-  <script src="/assets/u22_gallery_engine.js?v=music_qmark_v15"></script>
+  <script src="/assets/u22_gallery_engine.js?v=music_qmark_v15" defer></script>
+  <script src="/assets/jsf_bespoke_variants.js?v=bv_1" defer></script>
   <!-- === INSTAGRAM VIP & INTRO SKIP ENGINE END === -->
 </body>
 </html>

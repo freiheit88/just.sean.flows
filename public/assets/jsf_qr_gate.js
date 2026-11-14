@@ -357,10 +357,10 @@
   // Normalized 4 corners (TL, TR, BR, BL) of the 24K gold hairline border
   // inside /assets/salon_concepts/intro_walnut_wine_pass_card.jpg (976 x 1095)
   const CARD_NORM_QUAD = [
-    [0.13883, 0.40183], // Top-Left
-    [0.51844, 0.30685], // Top-Right
-    [0.87193, 0.64932], // Bottom-Right
-    [0.38217, 0.86484], // Bottom-Left
+    [-0.06760, 0.43491], // Top-Left
+    [0.52133, 0.28403],  // Top-Right
+    [1.07971, 0.82387],  // Bottom-Right
+    [0.30751, 1.15551],  // Bottom-Left
   ];
 
   function solveLinear8(A, b) {
@@ -425,7 +425,7 @@
     bgLoaded = true;
     renderPassCardCanvas();
   };
-  walnutCardImg.src = '/assets/salon_concepts/intro_walnut_wine_pass_card.jpg';
+  walnutCardImg.src = '/assets/salon_concepts/qr_walnut_video_poster.jpg';
 
   function buildGoldFoilPrintPlate(url, mode) {
     const isIg = mode === 'instagram';
@@ -831,12 +831,20 @@
     }
     tile.dataset.jsfHydrated = '1';
 
+    let candleAura = document.getElementById('jsf-qr-candle-aura');
+    if (!candleAura) {
+      candleAura = document.createElement('div');
+      candleAura.id = 'jsf-qr-candle-aura';
+      candleAura.setAttribute('aria-hidden', 'true');
+      tile.appendChild(candleAura);
+    }
+
     let bgVideo = document.getElementById('jsf-qr-bg-video');
     if (!bgVideo) {
       bgVideo = document.createElement('video');
       bgVideo.id = 'jsf-qr-bg-video';
       bgVideo.src = '/assets/videos/qr_walnut_cinemagraph.mp4';
-      bgVideo.poster = '/assets/salon_concepts/intro_walnut_wine_pass_card.jpg';
+      bgVideo.poster = '/assets/salon_concepts/qr_walnut_video_poster.jpg';
       bgVideo.autoplay = true;
       bgVideo.muted = true;
       bgVideo.loop = true;

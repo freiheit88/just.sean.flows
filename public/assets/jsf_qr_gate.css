@@ -51,6 +51,27 @@
   z-index: 1;
 }
 
+@keyframes jsfQrCandleFlicker {
+  0%, 100% { opacity: 0.42; transform: scale(1) translate3d(0, 0, 0); }
+  22%      { opacity: 0.64; transform: scale(1.03) translate3d(-1px, 1px, 0); }
+  48%      { opacity: 0.38; transform: scale(0.98) translate3d(1px, -1px, 0); }
+  74%      { opacity: 0.68; transform: scale(1.04) translate3d(-1px, 0, 0); }
+}
+
+#jsf-pure-qr-float #jsf-qr-candle-aura {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  pointer-events: none;
+  z-index: 3;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(circle at 84% 16%, rgba(255, 206, 128, 0.34) 0%, rgba(223, 145, 72, 0.14) 24%, transparent 52%),
+    radial-gradient(circle at 68% 22%, rgba(190, 38, 64, 0.16) 0%, transparent 36%);
+  animation: jsfQrCandleFlicker 3.8s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
 #jsf-pure-qr-float canvas {
   position: relative;
   z-index: 2;

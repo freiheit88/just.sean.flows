@@ -1,0 +1,139 @@
+/* ==========================================================================
+   [JSF BESPOKE VARIANTS] 3 Luxury Atelier Alternatives (Zero Box, Zero Dot-Art)
+   1: Hairline Gold Engraving (Haute Horlogerie)
+   2: Score Clef & Fermata (Classical Music Engraving)
+   3: Brass Signet Socket (Equipped Item Silhouette, matching bottom stem bar)
+   ========================================================================== */
+
+/* Subtle top-right preview switcher pill (local/review comparison) */
+#jsf-bespoke-preview-dock {
+  position: fixed;
+  top: 12px;
+  right: 14px;
+  z-index: 260000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(8, 7, 10, 0.72);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(243, 212, 137, 0.24);
+  font-family: 'JSF Maison', 'Cormorant Garamond', Georgia, serif;
+}
+
+.jsf-bv-btn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: rgba(243, 212, 137, 0.45);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 4px 7px;
+  cursor: pointer;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.jsf-bv-btn.active {
+  color: #f3d489;
+  text-shadow: 0 0 10px rgba(243, 212, 137, 0.65);
+}
+
+/* --- SHARED: REMOVE HEAVY DARK BOX FROM QR TOP SWITCHER --- */
+html[data-jsf-bespoke] #jsf-qr-mode-switcher {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  padding: 4px 2px !important;
+  gap: 14px !important;
+}
+
+html[data-jsf-bespoke] #jsf-qr-mode-switcher .jsf-qr-mode-btn,
+html[data-jsf-bespoke] #jsf-qr-mode-switcher .jsf-qr-dl-btn {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 4px 2px !important;
+  font-family: 'JSF Maison', 'Cormorant Garamond', Georgia, serif !important;
+  letter-spacing: 0.14em !important;
+  position: relative;
+  transition: color 0.25s ease, opacity 0.25s ease, filter 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   VARIANT 1: HAIRLINE GOLD ENGRAVING (Cartier / Breguet 1px Hairline)
+   ========================================================================== */
+html[data-jsf-bespoke="1"] #jsf-qr-mode-switcher .jsf-qr-mode-btn,
+html[data-jsf-bespoke="1"] #jsf-qr-mode-switcher .jsf-qr-dl-btn {
+  color: rgba(243, 212, 137, 0.48) !important;
+  font-size: 11.5px !important;
+}
+
+html[data-jsf-bespoke="1"] #jsf-qr-mode-switcher .jsf-qr-mode-btn.active {
+  color: #fdf2d2 !important;
+  text-shadow: 0 0 12px rgba(243, 212, 137, 0.55);
+}
+
+html[data-jsf-bespoke="1"] #jsf-qr-mode-switcher .jsf-qr-mode-btn.active::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #f3d489, transparent);
+}
+
+/* ==========================================================================
+   VARIANT 2: CLASSICAL SCORE CLEF & FERMATA (Musical Engraving)
+   ========================================================================== */
+html[data-jsf-bespoke="2"] #jsf-qr-mode-switcher {
+  border-bottom: 1px solid rgba(243, 212, 137, 0.22) !important;
+  padding-bottom: 6px !important;
+}
+
+html[data-jsf-bespoke="2"] #jsf-qr-mode-switcher .jsf-qr-mode-btn,
+html[data-jsf-bespoke="2"] #jsf-qr-mode-switcher .jsf-qr-dl-btn {
+  color: rgba(243, 212, 137, 0.42) !important;
+  font-style: italic !important;
+  font-size: 12px !important;
+}
+
+html[data-jsf-bespoke="2"] #jsf-qr-mode-switcher .jsf-qr-mode-btn.active {
+  color: #f3d489 !important;
+  text-shadow: 0 0 14px rgba(253, 224, 71, 0.72);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   VARIANT 3: 24K BRASS SIGNET SOCKET (Equipped Item Silhouette, Zero Box)
+   ========================================================================== */
+html[data-jsf-bespoke="3"] #jsf-qr-mode-switcher .jsf-qr-mode-btn,
+html[data-jsf-bespoke="3"] #jsf-qr-mode-switcher .jsf-qr-dl-btn {
+  color: rgba(243, 212, 137, 0.28) !important;
+  filter: grayscale(1) brightness(0.65);
+  font-size: 11.5px !important;
+}
+
+html[data-jsf-bespoke="3"] #jsf-qr-mode-switcher .jsf-qr-mode-btn.active {
+  color: #fde68a !important;
+  filter: grayscale(0) brightness(1.15) drop-shadow(0 0 10px rgba(253, 224, 71, 0.78));
+  transform: scale(1.06);
+}
+
+/* Location bespoke SVG sizing (boxless, pure gold engraving glow) */
+html[data-jsf-bespoke] #salon-location-concierge-bar .loc-bespoke-icon-svg {
+  width: 24px !important;
+  height: 24px !important;
+  color: #f3d489;
+  filter: drop-shadow(0 0 8px rgba(243, 212, 137, 0.48));
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), filter 0.24s ease;
+}
+
+html[data-jsf-bespoke] #salon-location-concierge-bar .loc-pure-icon-mark:hover .loc-bespoke-icon-svg {
+  transform: scale(1.14);
+  filter: drop-shadow(0 0 14px rgba(253, 224, 71, 0.85));
+}
