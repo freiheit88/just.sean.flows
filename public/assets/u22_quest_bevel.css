@@ -1467,3 +1467,37 @@
 #under-dev-card-overlay .hp-living-frame-cell .hp-gallery-launch-badge {
   display: none !important;
 }
+
+/* === MOBILE FULL-WIDTH 96VW FRAME + 1-LINE EQUIPPED STEM BAR === */
+@media (max-width: 768px) {
+  :root {
+    --jsf-unified-frame-w: min(96vw, calc(74dvh * 976 / 1095));
+  }
+  #jsf-minimal-mp3-bar {
+    max-width: 96vw !important;
+    padding: 6px 10px !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+  }
+  #jsf-minimal-mp3-bar .jsf-mp3-track-info {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+  }
+}
+
+@media (max-width: 520px) {
+  #jsf-minimal-mp3-bar .jsf-mp3-artist,
+  #jsf-minimal-mp3-bar .jsf-mp3-sep {
+    display: none !important;
+  }
+  #jsf-minimal-mp3-bar .jsf-mp3-song {
+    display: inline-block !important;
+    max-width: 34vw !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+  }
+}

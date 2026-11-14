@@ -1,7 +1,7 @@
 // ============================================================================
 // JSF ALIBI 4-STEM SAMPLE-LOCKED ENSEMBLE & PER-LAMP VOLTAGE-SAG MICRO-MODULE
 // - Web Audio API AudioBufferSourceNode lock: 0.000ms phase drift across stems!
-// - Location -> Guitar | Party -> Drums | Social -> Bass & Keys | Biz -> Vocal
+// - Location -> Guitar | Music -> Vocal | Social -> Bass & Keys | ? -> Drums
 // - DelayNode micro-modulation gives true analog pitch sag during lamp flicker
 //   with ZERO cumulative timing drift against the other playing stems!
 // ============================================================================
@@ -10,9 +10,9 @@
 
   const STEMS = {
     map: { key: 'map', code: '🎸', label: 'Guitar', url: '/assets/stems_alibi/stem_location_guitar.mp3?v=zero_v3', weight: 1.00 },
-    0:   { key: '0',   code: '🥁', label: 'Drums',  url: '/assets/stems_alibi/stem_party_drums.mp3?v=zero_v3',     weight: 0.96 },
+    0:   { key: '0',   code: '🎤', label: 'Vocal',  url: '/assets/stems_alibi/stem_biz_vocals.mp3?v=zero_v3',      weight: 0.92 },
     1:   { key: '1',   code: '🎻', label: 'Bass',   url: '/assets/stems_alibi/stem_social_bass.mp3?v=zero_v3',     weight: 0.95 },
-    2:   { key: '2',   code: '🎤', label: 'Vocal',  url: '/assets/stems_alibi/stem_biz_vocals.mp3?v=zero_v3',      weight: 0.92 }
+    2:   { key: '2',   code: '🥁', label: 'Drums',  url: '/assets/stems_alibi/stem_party_drums.mp3?v=zero_v3',     weight: 0.96 }
   };
   const STEM_KEYS = ['map', '0', '1', '2'];
 
@@ -121,52 +121,54 @@
         .jsf-stem-pill-cluster {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
-          margin-left: 8px;
-          margin-right: 4px;
+          gap: 7px;
+          margin-left: 12px;
+          margin-right: 6px;
           vertical-align: middle;
         }
         .jsf-stem-micro-pill {
           appearance: none;
-          width: 26px;
-          height: 26px;
+          width: 28px;
+          height: 32px;
           padding: 0;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border: 1px solid rgba(223, 177, 91, 0.22);
-          background: rgba(12, 10, 16, 0.78);
+          border: none;
+          background: transparent;
+          box-shadow: none;
           font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-          font-size: 13.5px;
+          font-size: 20px;
           line-height: 1;
-          border-radius: 999px;
           cursor: pointer;
           user-select: none;
-          opacity: 0.36;
-          filter: grayscale(0.92) brightness(0.75);
-          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease, opacity 0.08s linear;
+          opacity: 0.28;
+          filter: grayscale(1) brightness(0.42) contrast(1.25);
+          transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), filter 0.22s ease, opacity 0.08s linear;
         }
         .jsf-stem-micro-pill:hover {
-          opacity: 0.78;
-          filter: grayscale(0.25) brightness(0.98);
-          transform: translateY(-1px) scale(1.06);
-          border-color: rgba(243, 212, 137, 0.55);
+          opacity: 0.82;
+          filter: grayscale(0.2) brightness(1.02) drop-shadow(0 0 6px rgba(243, 212, 137, 0.42));
+          transform: translateY(-1.5px) scale(1.14);
+        }
+        @keyframes jsfStemEquipPop {
+          0%   { transform: scale(0.84); }
+          45%  { transform: scale(1.28); }
+          100% { transform: scale(1.06); }
         }
         .jsf-stem-micro-pill.lit {
           opacity: 1;
-          filter: grayscale(0) brightness(1.06) drop-shadow(0 0 5px rgba(253, 224, 71, 0.45));
-          border-color: rgba(253, 224, 71, 0.92);
-          background: linear-gradient(135deg, rgba(66, 47, 15, 0.94), rgba(28, 20, 9, 0.96));
-          box-shadow: 0 0 11px rgba(251, 191, 36, 0.44);
+          filter: grayscale(0) brightness(1.12) drop-shadow(0 0 10px rgba(253, 224, 71, 0.85)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.92));
+          transform: scale(1.06);
+          animation: jsfStemEquipPop 0.42s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .jsf-stem-micro-pill.standby {
-          opacity: 0.66;
-          filter: grayscale(0.35) brightness(0.92);
-          border-color: rgba(223, 177, 91, 0.48);
+          opacity: 0.44;
+          filter: grayscale(0.65) brightness(0.68) drop-shadow(0 0 4px rgba(223, 177, 91, 0.28));
         }
         @media (max-width: 520px) {
-          .jsf-stem-pill-cluster { gap: 3.5px; margin-left: 5px; }
-          .jsf-stem-micro-pill { width: 23px; height: 23px; font-size: 12px; }
+          .jsf-stem-pill-cluster { gap: 5px; margin-left: 8px; }
+          .jsf-stem-micro-pill { width: 24px; height: 28px; font-size: 17.5px; }
         }
       `;
       document.head.appendChild(st);
