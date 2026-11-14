@@ -38,7 +38,8 @@
   filter: brightness(1.045) contrast(1.02);
 }
 
-#jsf-pure-qr-float #jsf-qr-instant-poster {
+#jsf-pure-qr-float #jsf-qr-instant-poster,
+#jsf-pure-qr-float #jsf-qr-bg-video {
   position: absolute;
   inset: 0;
   width: 100%;

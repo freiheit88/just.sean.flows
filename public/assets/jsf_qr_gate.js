@@ -569,6 +569,8 @@
     return top + (bot - top) * fy;
   }
 
+  let qrBgVideoActive = false;
+
   function renderWalnutPassCardToCanvas(canvas, url, mode) {
     const CW = 976;
     const CH = 1095;
@@ -696,6 +698,20 @@
     }
 
     ctx.putImageData(frame, 0, 0);
+
+    if (qrBgVideoActive) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.moveTo(imgQuad[0][0], imgQuad[0][1]);
+      ctx.lineTo(imgQuad[1][0], imgQuad[1][1]);
+      ctx.lineTo(imgQuad[2][0], imgQuad[2][1]);
+      ctx.lineTo(imgQuad[3][0], imgQuad[3][1]);
+      ctx.closePath();
+      ctx.fillStyle = '#000';
+      ctx.fill();
+      ctx.restore();
+    }
   }
 
   /* ========================================================================
@@ -814,6 +830,33 @@
       host.classList.add('noir-has-illusion-qr');
     }
     tile.dataset.jsfHydrated = '1';
+
+    let bgVideo = document.getElementById('jsf-qr-bg-video');
+    if (!bgVideo) {
+      bgVideo = document.createElement('video');
+      bgVideo.id = 'jsf-qr-bg-video';
+      bgVideo.src = '/assets/videos/qr_walnut_cinemagraph.mp4';
+      bgVideo.poster = '/assets/salon_concepts/intro_walnut_wine_pass_card.jpg';
+      bgVideo.autoplay = true;
+      bgVideo.muted = true;
+      bgVideo.loop = true;
+      bgVideo.playsInline = true;
+      bgVideo.setAttribute('muted', '');
+      bgVideo.setAttribute('playsinline', '');
+      bgVideo.setAttribute('autoplay', '');
+      const activateBgVideo = () => {
+        if (!qrBgVideoActive) {
+          qrBgVideoActive = true;
+          renderPassCardCanvas();
+        }
+      };
+      bgVideo.addEventListener('playing', activateBgVideo);
+      bgVideo.addEventListener('canplay', () => {
+        bgVideo.play().catch(() => {});
+      });
+      tile.appendChild(bgVideo);
+      bgVideo.play().catch(() => {});
+    }
 
     let canvas = document.getElementById('jsf-illusion-qr-canvas');
     if (!canvas) {
