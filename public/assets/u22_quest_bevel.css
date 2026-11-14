@@ -1468,13 +1468,21 @@
   display: none !important;
 }
 
-/* === MOBILE FULL-WIDTH 96VW FRAME + 1-LINE EQUIPPED STEM BAR === */
+/* === MOBILE FULL-WIDTH 92VW SYMMETRIC FRAME + 1-LINE EQUIPPED STEM BAR === */
 @media (max-width: 768px) {
   :root {
-    --jsf-unified-frame-w: min(96vw, calc(74dvh * 976 / 1095));
+    --jsf-unified-frame-w: min(92vw, calc(74dvh * 976 / 1095));
+  }
+  .noir-signature-reveal,
+  .gobo-canvas-frame,
+  .u22-3d-window-frame-box,
+  .under-dev-card-overlay,
+  .under-dev-card-overlay.active {
+    max-width: 92vw !important;
+    box-sizing: border-box !important;
   }
   #jsf-minimal-mp3-bar {
-    max-width: 96vw !important;
+    max-width: 92vw !important;
     padding: 6px 10px !important;
     gap: 6px !important;
     flex-wrap: nowrap !important;
