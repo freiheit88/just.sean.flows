@@ -243,36 +243,140 @@
       let salon4of4QuestCleared = false;
       window.__salon4of4QuestCleared = false;
 
-      function playQuestClearHarmonicChime() {
+      // === ELEVENLABS LUXURY CLOSE-MIC FOLEY SOUND BANK (ZERO SYNTH OSCILLATORS!) ===
+      const JSF_FOLEY_MANIFEST = {
+        switch_on:           { url: '/assets/sounds/brass_lamp_switch_on.mp3?v=loc_unlock_v13',              gain: 0.16, jitter: 0.03 },
+        switch_off:          { url: '/assets/sounds/brass_lamp_switch_off.mp3?v=loc_unlock_v13',             gain: 0.16, jitter: 0.03 },
+        ensemble_unseal:     { url: '/assets/sounds/salon_ensemble_unseal.mp3?v=loc_unlock_v13',             gain: 0.14, jitter: 0.00 },
+        shutter:             { url: '/assets/sounds/leica_shutter_click.mp3?v=loc_unlock_v13',               gain: 0.16, jitter: 0.03 },
+        kalina_loc_ask:      { url: '/assets/sounds/location_voice/kalina_loc_01_ask.mp3?v=exact_loc_v18',      gain: 0.24, jitter: 0.00 },
+        kalina_loc_for:      { url: '/assets/sounds/location_voice/kalina_loc_02_for.mp3?v=exact_loc_v18',      gain: 0.24, jitter: 0.00 },
+        kalina_loc_exact:    { url: '/assets/sounds/location_voice/kalina_loc_03_exact.mp3?v=exact_loc_v18',    gain: 0.24, jitter: 0.00 },
+        kalina_loc_location: { url: '/assets/sounds/location_voice/kalina_loc_04_location.mp3?v=exact_loc_v18', gain: 0.24, jitter: 0.00 },
+        kalina_loc_sentence: { url: '/assets/sounds/location_voice/kalina_loc_sentence_v2.mp3?v=sentence_v2',   gain: 0.24, jitter: 0.00 }
+      };
+
+      const foleyRawBytes = {};
+      const foleyDecodedBuffers = {};
+      const foleyHtmlAudioPool = {};
+      window.__jsfFoleyStats = { preloaded: {}, played: {} };
+
+      (function preloadAllJsfFoleySfx() {
+        Object.keys(JSF_FOLEY_MANIFEST).forEach((key) => {
+          const spec = JSF_FOLEY_MANIFEST[key];
+          window.__jsfFoleyStats.preloaded[key] = 0;
+          window.__jsfFoleyStats.played[key] = 0;
+          try {
+            fetch(spec.url, { cache: 'force-cache' })
+              .then((r) => (r.ok ? r.arrayBuffer() : null))
+              .then((ab) => {
+                if (ab && ab.byteLength > 0) {
+                  foleyRawBytes[key] = ab;
+                  window.__jsfFoleyStats.preloaded[key] = ab.byteLength;
+                  if (window.__hpLampAudioCtx) {
+                    window.__hpLampAudioCtx.decodeAudioData(ab.slice(0))
+                      .then((buf) => { foleyDecodedBuffers[key] = buf; })
+                      .catch(() => {});
+                  }
+                }
+              })
+              .catch(() => {});
+            const a = new Audio(spec.url);
+            a.preload = 'auto';
+            a.volume = Math.min(1.0, spec.gain);
+            foleyHtmlAudioPool[key] = a;
+          } catch (_) {}
+        });
+      })();
+
+      window.__playJsfFoleySfx = function(key, opts = {}) {
         try {
           if (window.__jsfAudioMuted) return;
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (!AudioCtx) return;
-          if (!window.__hpLampAudioCtx) {
-            window.__hpLampAudioCtx = new AudioCtx();
-          }
-          const ctx = window.__hpLampAudioCtx;
-          if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-          if (ctx.state !== 'running') return;
+          const spec = JSF_FOLEY_MANIFEST[key];
+          if (!spec) return;
+          const gainMul = typeof opts.gain === 'number' ? opts.gain : spec.gain;
+          const rateBase = typeof opts.rate === 'number' ? opts.rate : 1.0;
+          const jitter = typeof opts.jitter === 'number' ? opts.jitter : spec.jitter;
+          const rate = Math.max(0.75, Math.min(1.35, rateBase + (jitter ? (Math.random() * 2 - 1) * jitter : 0)));
 
-          const now = ctx.currentTime + 0.01;
-          // 432Hz Verdi A-Major Golden Triad Arpeggio (A4 432Hz -> C#5 544.29Hz -> E5 647.27Hz -> A5 864Hz)
-          const freqs = [432.0, 544.29, 647.27, 864.0];
-          freqs.forEach((f, idx) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = idx === 3 ? 'triangle' : 'sine';
-            const t0 = now + idx * 0.075;
-            osc.frequency.setValueAtTime(f, t0);
-            gain.gain.setValueAtTime(0.0001, t0);
-            gain.gain.exponentialRampToValueAtTime(0.032, t0 + 0.04);
-            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.95);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(t0);
-            osc.stop(t0 + 0.98);
-          });
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            if (!window.__hpLampAudioCtx) {
+              window.__hpLampAudioCtx = new AudioCtx();
+            }
+            const ctx = window.__hpLampAudioCtx;
+            if (ctx.state === 'suspended') {
+              ctx.resume().catch(() => {});
+            }
+
+            const fireDecoded = (buf) => {
+              if (!buf || window.__jsfAudioMuted) return;
+              const now = ctx.currentTime + (opts.delaySec || 0.002);
+              const src = ctx.createBufferSource();
+              const gain = ctx.createGain();
+              src.buffer = buf;
+              src.playbackRate.setValueAtTime(rate, now);
+              if (key === 'loc_unlock_3s') {
+                const dur = Math.min(buf.duration || 3.2, 3.24);
+                gain.gain.setValueAtTime(0.035, now);
+                gain.gain.linearRampToValueAtTime(gainMul, now + 0.18);
+                gain.gain.setValueAtTime(gainMul, now + Math.max(0.25, dur - 0.52));
+                gain.gain.exponentialRampToValueAtTime(0.0008, now + dur);
+                src.connect(gain);
+                gain.connect(ctx.destination);
+                src.start(now);
+                src.stop(now + dur + 0.02);
+              } else {
+                gain.gain.setValueAtTime(gainMul, now);
+                src.connect(gain);
+                gain.connect(ctx.destination);
+                src.start(now);
+              }
+              window.__jsfFoleyStats.played[key] = (window.__jsfFoleyStats.played[key] || 0) + 1;
+              if (key === 'loc_unlock_3s' && window.__locUnlockAudioStats) {
+                window.__locUnlockAudioStats.playedCount += 1;
+                window.__locUnlockAudioStats.lastMethod = 'webaudio';
+                window.__locUnlockAudioStats.preloadedBytes = window.__jsfFoleyStats.preloaded.loc_unlock_3s || 0;
+              }
+            };
+
+            if (foleyDecodedBuffers[key]) {
+              fireDecoded(foleyDecodedBuffers[key]);
+              return;
+            }
+            if (foleyRawBytes[key]) {
+              ctx.decodeAudioData(foleyRawBytes[key].slice(0))
+                .then((decoded) => {
+                  foleyDecodedBuffers[key] = decoded;
+                  fireDecoded(decoded);
+                })
+                .catch(() => {
+                  const base = foleyHtmlAudioPool[key];
+                  if (base) {
+                    const node = base.cloneNode();
+                    node.volume = Math.min(1.0, gainMul);
+                    node.playbackRate = rate;
+                    node.play().catch(() => {});
+                    window.__jsfFoleyStats.played[key] = (window.__jsfFoleyStats.played[key] || 0) + 1;
+                  }
+                });
+              return;
+            }
+          }
+
+          const base = foleyHtmlAudioPool[key];
+          if (base) {
+            const node = base.cloneNode();
+            node.volume = Math.min(1.0, gainMul);
+            node.playbackRate = rate;
+            node.play().catch(() => {});
+            window.__jsfFoleyStats.played[key] = (window.__jsfFoleyStats.played[key] || 0) + 1;
+          }
         } catch (_) {}
+      };
+
+      function playQuestClearHarmonicChime() {
+        window.__playJsfFoleySfx('ensemble_unseal');
       }
 
       window.__triggerQuestClearEffect = function(side = 'back') {
@@ -317,30 +421,221 @@
         2:   { dying: false, power: 0, dip: 0, lastBounceIdx: -1 }
       };
 
-      // 5-Bounce Elastic Analog Tungsten Voltage-Sag Profile (p: 0.0 -> 1.0)
-      // Blink troughs (0.08, 0.36, 0.63, 0.77, 0.86) act as physical cinema shutters for Location's
-      // word-by-word dying filament whisper ("ASK" -> "ME" -> "For the details . . ." -> "Location")!
+      // 5-Bounce Elastic Analog Tungsten Voltage-Sag Profile for Portrait Lamps 0..2 (p: 0.0 -> 1.0)
       const TUNGSTEN_FLICKER_BOUNCES = [
-        { s: 0.03, e: 0.15, depth: 0.68 }, // Blink 1 (trough ~0.08): crisp sag -> "ASK"
-        { s: 0.31, e: 0.43, depth: 0.74 }, // Blink 2 (trough ~0.36): deeper tug -> "ME"
-        { s: 0.58, e: 0.69, depth: 0.78 }, // Blink 3 (trough ~0.63): shutter -> "For the details ."
-        { s: 0.73, e: 0.81, depth: 0.70 }, // Blink 4A (trough ~0.77): double-stutter 1st hit -> ". ."
-        { s: 0.82, e: 0.91, depth: 0.86 }  // Blink 4B (trough ~0.86): double-stutter 2nd hit -> ". . ."
+        { s: 0.03, e: 0.15, depth: 0.68 },
+        { s: 0.31, e: 0.43, depth: 0.74 },
+        { s: 0.58, e: 0.69, depth: 0.78 },
+        { s: 0.73, e: 0.81, depth: 0.70 },
+        { s: 0.82, e: 0.91, depth: 0.86 }
       ];
 
-      let lastLocWhisperSig = 'location:0';
+      // Organic Elastic Analog Tungsten Voltage-Sag Profile for Location ('map', 4.8s dying window: p 0.0 -> 1.0)
+      // Matches Music's living bulb-bounce feel (zero frozen dead gap!), unveiling:
+      // - 0.00..0.22 (~1.06s): "ASK"  (Bounce 1 unveils "ASK", then warm lamp rebound breathes over map)
+      // - 0.22..0.44 (~1.06s): "FOR"  (swaps inside Bounce 2 dark trough at p=0.22, then warm rebound)
+      // - 0.44..0.885 (~2.14s): "The exact" (swaps inside Bounce 3 trough at p=0.44 + living Bounce 4 filament breath)
+      // - 0.885..1.00 (~0.55s): swaps naturally mid-rapid-sputter (trough p=0.885) into "Location" & settles cleanly!
+      const MAP_TUNGSTEN_FLICKER_BOUNCES = [
+        { s: 0.025, e: 0.145, depth: 0.80 }, // Bounce 1 (trough ~0.085): deep sag -> "ASK", then warm bulb rebound
+        { s: 0.175, e: 0.285, depth: 0.84 }, // Bounce 2 (trough ~0.230): shutter -> "FOR", then warm bulb rebound
+        { s: 0.385, e: 0.505, depth: 0.86 }, // Bounce 3 (trough ~0.445): shutter -> "The exact"
+        { s: 0.615, e: 0.725, depth: 0.76 }, // Bounce 4 (trough ~0.670): living tungsten filament pulse on "The exact"
+        { s: 0.805, e: 0.860, depth: 0.88 }, // Terminal Sputter 1 ("The exact" flickers into rapid tail)
+        { s: 0.860, e: 0.915, depth: 0.94 }, // Terminal Sputter 2 (trough 0.885 -> swaps naturally to "Location"!)
+        { s: 0.915, e: 0.975, depth: 0.92 }  // Terminal Sputter 3 ("Location" flickers with final filament spark)
+      ];
+
+      let locIconsEverUnlocked = false;
+      let locIconsUnlockTimer = null;
+      window.__locUnlockAudioStats = { preloadedBytes: 52287, playedCount: 0, lastMethod: 'none' };
+
+      function playLocationFilamentUnlockSound() {
+        // Removed per Sean's feedback: Location lamp uses only the subtle brass switch click.
+      }
+
+      window.__kalinaLocVoiceStats = { ask: 0, for: 0, exact: 0, location: 0, sentence: 0 };
+      let locSpokenStages = { ask: false, for: false, exact: false, location: false, sentence: false };
+      let lastMapDyingP = 0;
+      let activeKalinaWordNodes = [];
+      let kalinaSentenceTiming = { ctxStartTime: null, htmlNode: null, wallStartMs: null };
+      // Exact ElevenLabs /with-timestamps alignment for "If you're coming tonight... just ask, for, the exact location." (3.855s)
+      const KALINA_SENTENCE_CUES = { ask: 1.521, for: 1.950, exact: 2.357, location: 2.972 };
+
+      function getKalinaSentenceElapsedSec(fallbackSec) {
+        try {
+          if (kalinaSentenceTiming.htmlNode && !kalinaSentenceTiming.htmlNode.paused) {
+            return kalinaSentenceTiming.htmlNode.currentTime || fallbackSec;
+          }
+          if (kalinaSentenceTiming.ctxStartTime !== null && window.__hpLampAudioCtx) {
+            return Math.max(0, window.__hpLampAudioCtx.currentTime - kalinaSentenceTiming.ctxStartTime);
+          }
+          if (kalinaSentenceTiming.wallStartMs !== null) {
+            return Math.max(0, (performance.now() - kalinaSentenceTiming.wallStartMs) / 1000);
+          }
+        } catch (_) {}
+        return fallbackSec;
+      }
+
+      function playKalinaLocationSentence() {
+        kalinaSentenceTiming = { ctxStartTime: null, htmlNode: null, wallStartMs: performance.now() };
+        try {
+          if (window.__jsfAudioMuted) return;
+          const spec = JSF_FOLEY_MANIFEST.kalina_loc_sentence;
+          if (!spec) return;
+          stopActiveKalinaLocationWords(false);
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            if (!window.__hpLampAudioCtx) window.__hpLampAudioCtx = new AudioCtx();
+            const ctx = window.__hpLampAudioCtx;
+            if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+            const startBuf = (buf) => {
+              if (!buf || window.__jsfAudioMuted) return;
+              const t0 = ctx.currentTime + 0.002;
+              const src = ctx.createBufferSource();
+              const gain = ctx.createGain();
+              src.buffer = buf;
+              gain.gain.setValueAtTime(spec.gain, t0);
+              src.connect(gain);
+              gain.connect(ctx.destination);
+              kalinaSentenceTiming.ctxStartTime = t0;
+              const rec = { src, gain, stageName: 'location' };
+              activeKalinaWordNodes.push(rec);
+              src.onended = () => {
+                activeKalinaWordNodes = activeKalinaWordNodes.filter((x) => x !== rec);
+              };
+              src.start(t0);
+              window.__kalinaLocVoiceStats.sentence = (window.__kalinaLocVoiceStats.sentence || 0) + 1;
+            };
+            if (foleyDecodedBuffers.kalina_loc_sentence) {
+              startBuf(foleyDecodedBuffers.kalina_loc_sentence);
+              return;
+            }
+            if (foleyRawBytes.kalina_loc_sentence) {
+              ctx.decodeAudioData(foleyRawBytes.kalina_loc_sentence.slice(0))
+                .then((decoded) => {
+                  foleyDecodedBuffers.kalina_loc_sentence = decoded;
+                  startBuf(decoded);
+                })
+                .catch(() => {});
+              return;
+            }
+          }
+          const base = foleyHtmlAudioPool.kalina_loc_sentence;
+          if (base) {
+            const htmlNode = base.cloneNode();
+            htmlNode.volume = Math.min(1.0, spec.gain);
+            kalinaSentenceTiming.htmlNode = htmlNode;
+            const rec = { htmlNode, stageName: 'location' };
+            activeKalinaWordNodes.push(rec);
+            htmlNode.onended = () => {
+              activeKalinaWordNodes = activeKalinaWordNodes.filter((x) => x !== rec);
+            };
+            htmlNode.play().catch(() => {});
+            window.__kalinaLocVoiceStats.sentence = (window.__kalinaLocVoiceStats.sentence || 0) + 1;
+          }
+        } catch (_) {}
+      }
+
+      function stopActiveKalinaLocationWords(preserveFinalLocation = false) {
+        const keep = [];
+        const now = window.__hpLampAudioCtx ? window.__hpLampAudioCtx.currentTime : 0;
+        for (let i = 0; i < activeKalinaWordNodes.length; i++) {
+          const item = activeKalinaWordNodes[i];
+          if (preserveFinalLocation && item.stageName === 'location') {
+            keep.push(item);
+            continue;
+          }
+          try {
+            if (item.gain && window.__hpLampAudioCtx) {
+              item.gain.gain.cancelScheduledValues(now);
+              item.gain.gain.setValueAtTime(Math.max(0.001, item.gain.gain.value || 0.35), now);
+              item.gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.06);
+              if (item.src) item.src.stop(now + 0.065);
+            } else if (item.htmlNode) {
+              item.htmlNode.pause();
+            }
+          } catch (_) {}
+        }
+        activeKalinaWordNodes = keep;
+      }
+
+      function playKalinaLocationWord(manifestKey, stageName) {
+        try {
+          if (window.__jsfAudioMuted) return;
+          const spec = JSF_FOLEY_MANIFEST[manifestKey];
+          if (!spec) return;
+          stopActiveKalinaLocationWords(false);
+
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            if (!window.__hpLampAudioCtx) {
+              window.__hpLampAudioCtx = new AudioCtx();
+            }
+            const ctx = window.__hpLampAudioCtx;
+            if (ctx.state === 'suspended') {
+              ctx.resume().catch(() => {});
+            }
+            const startBuf = (buf) => {
+              if (!buf || window.__jsfAudioMuted) return;
+              const t0 = ctx.currentTime + 0.002;
+              const src = ctx.createBufferSource();
+              const gain = ctx.createGain();
+              src.buffer = buf;
+              gain.gain.setValueAtTime(spec.gain, t0);
+              src.connect(gain);
+              gain.connect(ctx.destination);
+              const rec = { src, gain, stageName };
+              activeKalinaWordNodes.push(rec);
+              src.onended = () => {
+                activeKalinaWordNodes = activeKalinaWordNodes.filter((x) => x !== rec);
+              };
+              src.start(t0);
+              window.__kalinaLocVoiceStats[stageName] = (window.__kalinaLocVoiceStats[stageName] || 0) + 1;
+            };
+
+            if (foleyDecodedBuffers[manifestKey]) {
+              startBuf(foleyDecodedBuffers[manifestKey]);
+              return;
+            }
+            if (foleyRawBytes[manifestKey]) {
+              ctx.decodeAudioData(foleyRawBytes[manifestKey].slice(0))
+                .then((decoded) => {
+                  foleyDecodedBuffers[manifestKey] = decoded;
+                  startBuf(decoded);
+                })
+                .catch(() => {});
+              return;
+            }
+          }
+
+          const base = foleyHtmlAudioPool[manifestKey];
+          if (base) {
+            const htmlNode = base.cloneNode();
+            htmlNode.volume = Math.min(1.0, spec.gain);
+            const rec = { htmlNode, stageName };
+            activeKalinaWordNodes.push(rec);
+            htmlNode.onended = () => {
+              activeKalinaWordNodes = activeKalinaWordNodes.filter((x) => x !== rec);
+            };
+            htmlNode.play().catch(() => {});
+            window.__kalinaLocVoiceStats[stageName] = (window.__kalinaLocVoiceStats[stageName] || 0) + 1;
+          }
+        } catch (_) {}
+      }
+
+      let lastLocWhisperSig = 'location';
       const LOCATION_WHISPER_PRESETS = {
-        location: { text: 'Location',        size: '76', spacing: '2',   yMain: '176', yExt: '180.5', strokeW: '2.6', maskStrokeW: '3.5' },
-        ask:      { text: 'ASK',             size: '88', spacing: '6',   yMain: '176', yExt: '180.5', strokeW: '2.8', maskStrokeW: '3.8' },
-        me:       { text: 'ME',              size: '92', spacing: '6',   yMain: '176', yExt: '180.5', strokeW: '2.8', maskStrokeW: '3.8' },
-        details:  { text: 'For the details', size: '45', spacing: '1.2', yMain: '160', yExt: '164',   strokeW: '2.2', maskStrokeW: '2.8' }
+        location: { text: 'Location',  size: '76', spacing: '2',   yMain: '176', yExt: '180.5', strokeW: '2.6', maskStrokeW: '3.5' },
+        ask:      { text: 'ASK',       size: '88', spacing: '6',   yMain: '176', yExt: '180.5', strokeW: '2.8', maskStrokeW: '3.8' },
+        for:      { text: 'FOR',       size: '88', spacing: '6',   yMain: '176', yExt: '180.5', strokeW: '2.8', maskStrokeW: '3.8' },
+        exact:    { text: 'The exact', size: '58', spacing: '2.4', yMain: '176', yExt: '180.5', strokeW: '2.5', maskStrokeW: '3.4' }
       };
 
-      function setLocationKnockoutPhrase(stageKey, dotsCount = 0) {
+      function setLocationKnockoutPhrase(stageKey) {
         const preset = LOCATION_WHISPER_PRESETS[stageKey] || LOCATION_WHISPER_PRESETS.location;
-        const sig = `${stageKey}:${dotsCount}`;
-        if (sig === lastLocWhisperSig) return;
-        lastLocWhisperSig = sig;
+        if (stageKey === lastLocWhisperSig) return;
+        lastLocWhisperSig = stageKey;
 
         const maskMain = document.getElementById('hp-loc-mask-main');
         const extMain = document.getElementById('hp-loc-extrude-main');
@@ -356,32 +651,72 @@
           maskMain.setAttribute('stroke-width', preset.maskStrokeW);
         }
         if (extMain) {
+          extMain.setAttribute('data-base-y', preset.yExt);
           extMain.setAttribute('y', preset.yExt);
           extMain.setAttribute('stroke-width', preset.maskStrokeW);
         }
         if (rimMain) {
           rimMain.setAttribute('y', preset.yMain);
           rimMain.setAttribute('stroke-width', preset.strokeW);
-        }
-
-        const maskDotsGroup = document.getElementById('hp-loc-mask-dots');
-        const rimDotsGroup = document.getElementById('hp-loc-rim-dots');
-        const showDots = dotsCount > 0 ? '1' : '0';
-        if (maskDotsGroup) maskDotsGroup.setAttribute('opacity', showDots);
-        if (rimDotsGroup) rimDotsGroup.setAttribute('opacity', showDots);
-
-        for (let i = 1; i <= 3; i++) {
-          const on = i <= dotsCount ? '1' : '0';
-          const md = document.getElementById(`hp-loc-mask-dot-${i}`);
-          const rd = document.getElementById(`hp-loc-rim-dot-${i}`);
-          if (md) md.setAttribute('opacity', on);
-          if (rd) rd.setAttribute('opacity', on);
+          rimMain.setAttribute('stroke', stageKey === 'exact' ? 'url(#hp-details-shimmer-grad)' : 'url(#hp-gold-rim-map)');
+          if (stageKey !== 'exact') {
+            rimMain.style.removeProperty('filter');
+          }
         }
       }
 
-      function computeDyingFilamentState(p) {
-        // Carrier stays warm & bright (1.0 -> 0.78) through p=0.91 so every blink visibly & audibly bounces,
-        // then collapses rapidly over the final 0.91..1.00 tail right into auto-off!
+      function applyExactTypoShimmer(p, power) {
+        const rimMain = document.getElementById('hp-loc-rim-main');
+        const grad = document.getElementById('hp-details-shimmer-grad');
+        const u = Math.max(0, Math.min(1, (p - 0.44) / 0.445));
+
+        // 1. Zero letter-spacing mutation (0.0px subpixel jitter!); pure 24K platinum-gold specular sweep across "The exact"
+        if (grad) {
+          const wavePos = 35 + u * 390;
+          grad.setAttribute('x1', (wavePos - 135).toFixed(1));
+          grad.setAttribute('x2', (wavePos + 135).toFixed(1));
+        }
+
+        // 2. Physical filament-coupled gold rim bloom (brightens crisply as tungsten filament surges & dips)
+        if (rimMain) {
+          const contrastBoost = 0.55 + 0.45 * (1.0 - power * 0.4);
+          const glowPx = (14 + 14 * contrastBoost).toFixed(1);
+          const glowAlpha = (0.50 + 0.40 * contrastBoost).toFixed(2);
+          rimMain.style.setProperty(
+            'filter',
+            `drop-shadow(0 4px 12px rgba(0, 0, 0, 0.98)) drop-shadow(0 0 ${glowPx}px rgba(253, 224, 71, ${glowAlpha}))`,
+            'important'
+          );
+        }
+      }
+
+      function computeDyingFilamentState(p, isMap = false) {
+        if (isMap) {
+          // Elastic tungsten carrier matching Music's organic bulb-bounce curve (1.0 -> 0.78 -> crisp rapid-sputter tail -> 0.04)
+          const carrier = p < 0.92
+            ? (1.0 - (p / 0.92) * 0.22)
+            : Math.max(0.04, 0.78 * Math.pow(1.0 - (p - 0.92) / 0.08, 1.55));
+
+          let dip = 0.0;
+          let bounceIdx = -1;
+          for (let i = 0; i < MAP_TUNGSTEN_FLICKER_BOUNCES.length; i++) {
+            const b = MAP_TUNGSTEN_FLICKER_BOUNCES[i];
+            if (p >= b.s && p <= b.e) {
+              const u = (p - b.s) / (b.e - b.s);
+              const shape = Math.pow(Math.sin(u * Math.PI), 0.78);
+              dip = b.depth * shape;
+              if (u >= 0.24 && u <= 0.76) bounceIdx = i;
+              break;
+            }
+          }
+          if (p >= 0.965) {
+            dip = Math.max(dip, Math.min(1.0, (p - 0.965) / 0.035));
+          }
+          const power = Math.max(0.04, Math.min(1.0, carrier * (1.0 - dip)));
+          return { power, dip, bounceIdx };
+        }
+
+        // Default 5-bounce profile for bottom living portraits (0, 1, 2)
         let carrier = p < 0.91
           ? (1.0 - (p / 0.91) * 0.20)
           : Math.max(0.04, 0.80 * Math.pow(1.0 - (p - 0.91) / 0.09, 1.65));
@@ -392,7 +727,6 @@
           const b = TUNGSTEN_FLICKER_BOUNCES[i];
           if (p >= b.s && p <= b.e) {
             const u = (p - b.s) / (b.e - b.s);
-            // Skewed impulse (fast voltage drop, elastic spring rebound)
             const shape = Math.pow(Math.sin(u * Math.PI), 0.78);
             dip = b.depth * shape;
             if (u >= 0.25 && u <= 0.75) bounceIdx = i;
@@ -439,25 +773,13 @@
           bp.frequency.setValueAtTime(1650, now);
           bp.Q.setValueAtTime(2.4, now);
           const nGain = ctx.createGain();
-          nGain.gain.setValueAtTime(0.011 * strength, now);
+          nGain.gain.setValueAtTime(0.0085 * strength, now);
           nGain.gain.exponentialRampToValueAtTime(0.0002, now + dur);
           nSrc.connect(bp);
           bp.connect(nGain);
           nGain.connect(ctx.destination);
           nSrc.start(now);
           nSrc.stop(now + dur + 0.005);
-
-          const hum = ctx.createOscillator();
-          const hGain = ctx.createGain();
-          hum.type = 'triangle';
-          hum.frequency.setValueAtTime(108, now);
-          hum.frequency.exponentialRampToValueAtTime(58, now + 0.065);
-          hGain.gain.setValueAtTime(0.014 * strength, now);
-          hGain.gain.exponentialRampToValueAtTime(0.0002, now + 0.065);
-          hum.connect(hGain);
-          hGain.connect(ctx.destination);
-          hum.start(now);
-          hum.stop(now + 0.07);
         } catch (_) {}
       }
 
@@ -499,30 +821,65 @@
         }
 
         if (isMapZone) {
-          // Warm 2200K tungsten map glow shining INSIDE the hollow knockout letters ("ASK" -> "ME" -> "For the details . . .")
-          const b = (0.28 + 0.96 * power).toFixed(3);
-          const s = (0.75 + 0.65 * power).toFixed(3);
-          const sep = (0.42 * (1.0 - power * 0.45)).toFixed(3);
+          // Warm 2200K tungsten map glow breathing 1:1 with the physical bulb ("ASK" -> "FOR" -> "The exact" -> "Location")
+          const settleTail = p >= 0.94 ? Math.min(1.0, (p - 0.94) / 0.06) : 0.0;
+          const warmB = 0.26 + 0.86 * power;
+          const warmS = 0.65 + 0.55 * power;
+          const warmSep = 0.28 * (1.0 - power * 0.55);
+          // Blend smoothly into the unlit knockout aperture look (brightness 1.18, saturate 1.38, sepia 0) over final 6%
+          const b = (warmB * (1.0 - settleTail) + 1.18 * settleTail).toFixed(3);
+          const s = (warmS * (1.0 - settleTail) + 1.38 * settleTail).toFixed(3);
+          const sep = (warmSep * (1.0 - settleTail)).toFixed(3);
+          const con = (1.03 * (1.0 - settleTail) + 1.25 * settleTail).toFixed(3);
           mediaEls.forEach((m) => {
-            m.style.setProperty('filter', `brightness(${b}) sepia(${sep}) saturate(${s}) contrast(1.04)`, 'important');
+            m.style.setProperty('filter', `brightness(${b}) sepia(${sep}) saturate(${s}) contrast(${con})`, 'important');
           });
 
-          // Swap words strictly inside the dark voltage troughs so each blink unveils the next word!
-          if (p < 0.36) {
-            setLocationKnockoutPhrase('ask', 0);
-          } else if (p < 0.63) {
-            setLocationKnockoutPhrase('me', 0);
-          } else if (p < 0.968) {
-            const dots = p < 0.76 ? 1 : (p < 0.85 ? 2 : 3);
-            setLocationKnockoutPhrase('details', dots);
+          // Continuous sentence timestamp sync ("If you're coming tonight... just ask, for, the exact location.")
+          lastMapDyingP = p;
+          if (!locSpokenStages.sentence) {
+            locSpokenStages.sentence = true;
+            playKalinaLocationSentence();
+          }
+          const sec = getKalinaSentenceElapsedSec(p * 4.8);
+          if (sec < KALINA_SENTENCE_CUES.ask) {
+            setLocationKnockoutPhrase('location');
+          } else if (sec < KALINA_SENTENCE_CUES.for) {
+            setLocationKnockoutPhrase('ask');
+            if (!locSpokenStages.ask) {
+              locSpokenStages.ask = true;
+              window.__kalinaLocVoiceStats.ask = (window.__kalinaLocVoiceStats.ask || 0) + 1;
+            }
+          } else if (sec < KALINA_SENTENCE_CUES.exact) {
+            setLocationKnockoutPhrase('for');
+            if (!locSpokenStages.for) {
+              locSpokenStages.for = true;
+              window.__kalinaLocVoiceStats.for = (window.__kalinaLocVoiceStats.for || 0) + 1;
+            }
+          } else if (sec < KALINA_SENTENCE_CUES.location) {
+            setLocationKnockoutPhrase('exact');
+            applyExactTypoShimmer(p, power);
+            if (!locSpokenStages.exact) {
+              locSpokenStages.exact = true;
+              window.__kalinaLocVoiceStats.exact = (window.__kalinaLocVoiceStats.exact || 0) + 1;
+            }
           } else {
-            // Final extinction shutter right before lamp clicks OFF -> seamlessly lands back on "Location"
-            setLocationKnockoutPhrase('location', 0);
+            setLocationKnockoutPhrase('location');
+            if (!locSpokenStages.location) {
+              locSpokenStages.location = true;
+              window.__kalinaLocVoiceStats.location = (window.__kalinaLocVoiceStats.location || 0) + 1;
+            }
           }
 
+          // Dynamic Bulb-Coupled Cover Veil (just like Music!):
+          // Instead of slamming a frozen 95% black wall over the map, coverAlpha breathes inversely with lamp power:
+          // - Bulb rebound (power ~ 0.82) -> coverAlpha eases to ~0.46 so the warm lit map breathes visibly!
+          // - Voltage sag (power ~ 0.12)  -> coverAlpha snaps to ~0.91 so "ASK / FOR / The exact / Location" pops!
+          const endLock = p >= 0.885 ? Math.min(1.0, (p - 0.885) / 0.115) : 0.0;
           if (cover) {
             const rampIn = Math.min(1.0, p / 0.055);
-            const coverAlpha = Math.max(0, Math.min(0.985, rampIn * (0.86 + 0.125 * (1.0 - power))));
+            const rawCover = rampIn * (0.36 + 0.62 * (1.0 - power));
+            const coverAlpha = Math.max(0, Math.min(1.0, rawCover * (1.0 - endLock) + 1.0 * endLock));
             cover.style.setProperty('visibility', 'visible', 'important');
             cover.style.setProperty('opacity', coverAlpha.toFixed(3), 'important');
             cover.style.setProperty('transform', 'scale(1.0)', 'important');
@@ -530,9 +887,11 @@
 
           const glyphLayer = document.getElementById('hp-loc-glyph-layer');
           if (glyphLayer) {
-            const glyphAlpha = p >= 0.968
-              ? Math.max(0.18, (1.0 - p) / 0.032)
-              : (0.34 + 0.66 * power);
+            // Crisp gold rim presence during both voltage dips AND rebounds, settling smoothly to 1.000 at offMs
+            const dipPresence = 0.62 + 0.38 * (1.0 - power * 0.45);
+            const glyphAlpha = p >= 0.885
+              ? (dipPresence * (1.0 - endLock) + 1.0 * endLock)
+              : dipPresence;
             glyphLayer.style.opacity = glyphAlpha.toFixed(3);
           }
         } else {
@@ -597,6 +956,11 @@
           cancelAnimationFrame(rec.raf);
           rec.raf = null;
         }
+        if (key === 'map') {
+          stopActiveKalinaLocationWords(lastMapDyingP >= 0.88);
+          locSpokenStages = { ask: false, for: false, exact: false, location: false, sentence: false };
+          lastMapDyingP = 0;
+        }
         if (lampDyingState[key]) {
           lampDyingState[key].dying = false;
           lampDyingState[key].power = litLamps[key] ? 1.0 : 0.0;
@@ -619,6 +983,17 @@
         bar.classList.add('loc-concierge-rescued-glow');
       }
 
+      function triggerLampRefillSurge(el) {
+        if (!el) return;
+        el.classList.remove('hp-lamp-refill-surge');
+        void el.offsetWidth;
+        el.classList.add('hp-lamp-refill-surge');
+        if (el.__refillSurgeTid) clearTimeout(el.__refillSurgeTid);
+        el.__refillSurgeTid = setTimeout(() => {
+          el.classList.remove('hp-lamp-refill-surge');
+        }, 440);
+      }
+
       function scheduleLampAutoOffTimer(target) {
         const key = target === 'map' ? 'map' : Number(target);
         clearLampAutoOffTimer(key);
@@ -629,9 +1004,10 @@
         const el = getZoneElement(key);
         if (!el) return;
 
-        // Give Location a 3.65s dying filament window (5.20s -> 8.85s) so "ASK" -> "ME" -> "For the details . . ." -> "Location" lands with cinema pacing
-        const defaultWarn = key === 'map' ? 5200 : (Number(window.__HP_LAMP_DYING_START_MS) || 5500);
-        const defaultOff  = key === 'map' ? 8850 : (Number(window.__HP_LAMP_AUTO_OFF_MS) || 8200);
+        // 7-second core cycle for portrait lamps (4.8s full bright + 2.2s dying flicker = 7.0s)
+        // & Location narrative cycle (4.5s full bright + 4.8s ASK -> FOR -> The exact -> Location)
+        const defaultWarn = key === 'map' ? (Number(window.__HP_MAP_DYING_START_MS) || 4500) : (Number(window.__HP_LAMP_DYING_START_MS) || 4800);
+        const defaultOff  = key === 'map' ? (Number(window.__HP_MAP_AUTO_OFF_MS) || 9300) : (Number(window.__HP_LAMP_AUTO_OFF_MS) || 7000);
         const warnMs = Math.max(500, defaultWarn);
         const offMs = Math.max(warnMs + 400, defaultOff);
         const dyingDuration = Math.max(400, offMs - warnMs);
@@ -639,6 +1015,11 @@
         lampTimers[key].warn = setTimeout(() => {
           const zoneEl = getZoneElement(key);
           if (zoneEl && zoneEl.getAttribute('data-lamp-lit') === 'true') {
+            if (key === 'map') {
+              locSpokenStages = { ask: false, for: false, exact: false, location: false, sentence: false };
+              lastMapDyingP = 0;
+              setLocationKnockoutPhrase('location');
+            }
             zoneEl.setAttribute('data-lamp-dying', 'true');
             if (lampDyingState[key]) {
               lampDyingState[key].dying = true;
@@ -653,14 +1034,18 @@
                 return;
               }
               const p = Math.max(0, Math.min(1, (now - startDyingTs) / dyingDuration));
-              const fState = computeDyingFilamentState(p);
+              const isMapKey = key === 'map';
+              const fState = computeDyingFilamentState(p, isMapKey);
               if (lampDyingState[key]) {
                 lampDyingState[key].dying = true;
                 lampDyingState[key].power = fState.power;
                 lampDyingState[key].dip = fState.dip;
                 if (fState.bounceIdx >= 0 && fState.bounceIdx !== lampDyingState[key].lastBounceIdx) {
                   lampDyingState[key].lastBounceIdx = fState.bounceIdx;
-                  playFilamentBounceCrackle(0.55 + fState.dip * 0.45);
+                  const crackleStrength = (isMapKey && p >= 0.82)
+                    ? (0.36 + fState.dip * 0.28)
+                    : (0.55 + fState.dip * 0.45);
+                  playFilamentBounceCrackle(crackleStrength);
                 }
               }
               applyDyingVisuals(zoneEl, fState.power, p);
@@ -695,108 +1080,17 @@
       };
 
       function playFilamentDyingWarningSound() {
-        try {
-          if (window.__jsfAudioMuted) return;
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (!AudioCtx) return;
-          if (!window.__hpLampAudioCtx) {
-            window.__hpLampAudioCtx = new AudioCtx();
-          }
-          const ctx = window.__hpLampAudioCtx;
-          if (ctx.state === 'suspended') return;
-
-          const now = ctx.currentTime;
-          // Subtle warm tungsten voltage sag hum
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(110, now);
-          osc.frequency.exponentialRampToValueAtTime(55, now + 0.35);
-          gain.gain.setValueAtTime(0.018, now);
-          gain.gain.exponentialRampToValueAtTime(0.0005, now + 0.35);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.36);
-        } catch (_) {}
+        // Pure visual + organic crackle flutter only — zero synthetic oscillator hum!
       }
 
       function playBrassSwitchClickSound(isTurningOn) {
-        try {
-          if (window.__jsfAudioMuted) return;
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (!AudioCtx) return;
-          if (!window.__hpLampAudioCtx) {
-            window.__hpLampAudioCtx = new AudioCtx();
-          }
-          const ctx = window.__hpLampAudioCtx;
-          if (ctx.state === 'suspended') ctx.resume();
-
-          const now = ctx.currentTime;
-          // 1. Crisp mechanical brass rotary click
-          const oscClick = ctx.createOscillator();
-          const gainClick = ctx.createGain();
-          oscClick.type = 'triangle';
-          oscClick.frequency.setValueAtTime(isTurningOn ? 1480 : 980, now);
-          oscClick.frequency.exponentialRampToValueAtTime(220, now + 0.028);
-          gainClick.gain.setValueAtTime(0.09, now);
-          gainClick.gain.exponentialRampToValueAtTime(0.001, now + 0.028);
-          oscClick.connect(gainClick);
-          gainClick.connect(ctx.destination);
-          oscClick.start(now);
-          oscClick.stop(now + 0.03);
-
-          // 2. Warm 2200K tungsten filament ignition hum/swell when turned ON
-          if (isTurningOn) {
-            const oscHum = ctx.createOscillator();
-            const gainHum = ctx.createGain();
-            oscHum.type = 'sine';
-            oscHum.frequency.setValueAtTime(110.0, now + 0.02);
-            oscHum.frequency.exponentialRampToValueAtTime(440.0, now + 0.24);
-            gainHum.gain.setValueAtTime(0.001, now + 0.02);
-            gainHum.gain.linearRampToValueAtTime(0.045, now + 0.09);
-            gainHum.gain.exponentialRampToValueAtTime(0.0008, now + 0.32);
-            oscHum.connect(gainHum);
-            gainHum.connect(ctx.destination);
-            oscHum.start(now + 0.02);
-            oscHum.stop(now + 0.34);
-          }
-        } catch (err) {}
+        window.__playJsfFoleySfx(isTurningOn ? 'switch_on' : 'switch_off');
       }
 
       let lastQuestLevel = 0;
 
-      function playFrameLevelUpStepChime(level) {
-        try {
-          if (window.__jsfAudioMuted || level <= 0 || level >= 4) return;
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          if (!AudioCtx) return;
-          if (!window.__hpLampAudioCtx) {
-            window.__hpLampAudioCtx = new AudioCtx();
-          }
-          const ctx = window.__hpLampAudioCtx;
-          if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-          if (ctx.state !== 'running') return;
-
-          const now = ctx.currentTime + 0.02;
-          // Progressive 440Hz Neo-Soul / Golden Harmonic step notes (Level 1: A4 440Hz, Level 2: C#5 554.37Hz, Level 3: E5 659.25Hz)
-          const stepFreqs = [440.0, 554.37, 659.25];
-          const baseFreq = stepFreqs[Math.min(2, level - 1)] || 440.0;
-          [baseFreq, baseFreq * 1.5].forEach((f, idx) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = idx === 0 ? 'sine' : 'triangle';
-            const t0 = now + idx * 0.055;
-            osc.frequency.setValueAtTime(f, t0);
-            gain.gain.setValueAtTime(0.0001, t0);
-            gain.gain.exponentialRampToValueAtTime(idx === 0 ? 0.024 : 0.014, t0 + 0.035);
-            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.55);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(t0);
-            osc.stop(t0 + 0.58);
-          });
-        } catch (_) {}
+      function playFrameLevelUpStepChime(_level) {
+        // Clean physical brass switch foley only — zero synthetic arcade step beep!
       }
 
       function updateMasterLampProgress() {
@@ -889,11 +1183,12 @@
           const isCurrentlyLit = z1.getAttribute('data-lamp-lit') === 'true';
           const isCurrentlyDying = z1.getAttribute('data-lamp-dying') === 'true';
 
-          // If user clicks the lamp while it is dying/flickering (4.5s~7.0s) without explicit forceState=false,
-          // rescue & reset the 7-second timer to full brightness!
-          if (typeof forceState !== 'boolean' && isCurrentlyLit && isCurrentlyDying) {
+          // Clicking the lamp ANYTIME before it goes completely dark (whether full bright OR flickering/dying!)
+          // REFILLS +7s back to 100% voltage with a warm filament surge instead of turning it off!
+          if (typeof forceState !== 'boolean' && isCurrentlyLit) {
             scheduleLampAutoOffTimer('map');
             playBrassSwitchClickSound(true);
+            triggerLampRefillSurge(z1);
             pulseLocationConciergeBar();
             if (typeof window.__startAlibiFromLocationLamp === 'function') {
               window.__startAlibiFromLocationLamp();
@@ -902,13 +1197,24 @@
             return;
           }
 
-          const next = typeof forceState === 'boolean' ? forceState : !isCurrentlyLit;
+          const next = typeof forceState === 'boolean' ? forceState : true;
           clearLampAutoOffTimer('map');
           z1.setAttribute('data-lamp-lit', next ? 'true' : 'false');
           z1.setAttribute('data-zone-state', next ? 'lit' : 'unlit');
           litLamps.map = next;
           playBrassSwitchClickSound(next);
           if (next) {
+            // First time Location is clicked: trigger 3.0-second progressive tungsten-filament icon unlock + ElevenLabs SFX!
+            if (!locIconsEverUnlocked) {
+              locIconsEverUnlocked = true;
+              z1.setAttribute('data-loc-unlocked', 'true');
+              z1.setAttribute('data-loc-unlocking', 'true');
+              playLocationFilamentUnlockSound();
+              if (locIconsUnlockTimer) clearTimeout(locIconsUnlockTimer);
+              locIconsUnlockTimer = setTimeout(() => {
+                z1.removeAttribute('data-loc-unlocking');
+              }, 3000);
+            }
             if (typeof window.__startAlibiFromLocationLamp === 'function') {
               window.__startAlibiFromLocationLamp();
             }
@@ -920,16 +1226,21 @@
           const vid = document.getElementById(`hp-video-${idx}`);
           if (!cell) return;
           const isCurrentlyLit = cell.getAttribute('data-lamp-lit') === 'true';
-          const isCurrentlyDying = cell.getAttribute('data-lamp-dying') === 'true';
 
-          if (typeof forceState !== 'boolean' && isCurrentlyLit && isCurrentlyDying) {
+          // Clicking the lamp ANYTIME before it turns completely off REFILLS +7s back to 100% brightness!
+          if (typeof forceState !== 'boolean' && isCurrentlyLit) {
             scheduleLampAutoOffTimer(idx);
             playBrassSwitchClickSound(true);
+            triggerLampRefillSurge(cell);
+            if (vid && vid.paused) {
+              const p = vid.play();
+              if (p && typeof p.catch === 'function') p.catch(() => {});
+            }
             syncAlibiToActiveLamps();
             return;
           }
 
-          const next = typeof forceState === 'boolean' ? forceState : !isCurrentlyLit;
+          const next = typeof forceState === 'boolean' ? forceState : true;
           clearLampAutoOffTimer(idx);
           cell.setAttribute('data-lamp-lit', next ? 'true' : 'false');
           litLamps[idx] = next;
@@ -937,6 +1248,34 @@
 
           if (vid) {
             if (next) {
+              // Pure New-Venue (U22 Party16 / Net16) 3x3 random rotation pools
+              const SALON_VIDEO_POOLS = {
+                0: [
+                  '/assets/videos/music_vinyl_jam_curated.mp4',
+                  '/assets/videos/music_brass_guitar_jam.mp4',
+                  '/assets/videos/music_vinyl_b2b_duo.mp4'
+                ],
+                1: [
+                  '/assets/videos/social_design_talk_curated.mp4',
+                  '/assets/videos/social_pourover_chat.mp4',
+                  '/assets/videos/social_group_cheers.mp4'
+                ],
+                2: [
+                  '/assets/videos/solo_atelier_candid_curated.mp4',
+                  '/assets/videos/solo_doorway_peek.mp4',
+                  '/assets/videos/solo_table_polaroids.mp4'
+                ]
+              };
+              const pool = SALON_VIDEO_POOLS[idx];
+              if (pool && pool.length > 1) {
+                const curSrc = vid.getAttribute('src') || '';
+                const others = pool.filter((u) => u !== curSrc);
+                const chosen = others.length ? others[Math.floor(Math.random() * others.length)] : pool[0];
+                if (chosen && chosen !== curSrc) {
+                  vid.src = chosen;
+                  vid.load();
+                }
+              }
               vid.currentTime = 0;
               const p = vid.play();
               if (p && typeof p.catch === 'function') p.catch(() => {});
@@ -960,23 +1299,24 @@
         if (cell.getAttribute('data-lamp-lit') !== 'true') {
           window.__toggleHarryPotterLamp(idx, true);
         } else if (cell.getAttribute('data-lamp-dying') === 'true') {
-          // Clicking while flickering/dying rescues the lamp back to full 7s brightness!
+          // Clicking while flickering/dying rescues & refills the lamp back to full 7s brightness!
           window.__resetHarryPotterLampTimer(idx);
           playBrassSwitchClickSound(true);
+          triggerLampRefillSurge(cell);
         } else if (typeof window.__openSalonConceptDrawer === 'function') {
-          // Clicking an already-lit living portrait opens the full preview drawer & extends timer
+          // Clicking an already-lit living portrait opens the full preview drawer & refills 7s timer
           window.__resetHarryPotterLampTimer(idx);
           window.__openSalonConceptDrawer(idx);
         }
       };
 
-      // Motion sensor extension on Map Box: interacting with the map resets its 7s auto-off timer!
+      // Only rescue/refill on map body pointerdown when the map lamp is flickering/dying, so the user gets to actively tap the lamp to keep it alive!
       function bindMapSensorExtension() {
         const mapZone = document.getElementById('torch-zone-1');
         if (!mapZone) return;
-        ['pointerdown', 'wheel', 'touchstart'].forEach((evt) => {
-          mapZone.addEventListener(evt, () => {
-            if (mapZone.getAttribute('data-lamp-lit') === 'true') {
+        ['wheel'].forEach((evt) => {
+          mapZone.addEventListener((evt), () => {
+            if (mapZone.getAttribute('data-lamp-lit') === 'true' && mapZone.getAttribute('data-lamp-dying') !== 'true') {
               window.__resetHarryPotterLampTimer('map');
             }
           }, { passive: true });
@@ -1001,6 +1341,11 @@
       window.__holdLocationLampForMessage = false;
 
       window.__openSalonLocationMessagePanel = function() {
+        const panel = document.getElementById('salon-location-msg-panel');
+        if (panel && panel.classList.contains('open')) {
+          window.__closeSalonLocationMessagePanel();
+          return;
+        }
         const z1 = document.getElementById('torch-zone-1');
         if (z1 && z1.getAttribute('data-lamp-lit') !== 'true') {
           window.__toggleHarryPotterLamp('map', true);
@@ -1009,7 +1354,6 @@
         window.__holdLocationLampForMessage = true;
         clearLampAutoOffTimer('map');
 
-        const panel = document.getElementById('salon-location-msg-panel');
         if (panel) {
           panel.classList.add('open');
           panel.setAttribute('aria-hidden', 'false');
@@ -1046,7 +1390,7 @@
         if (!contact && !message) {
           if (fbEl) {
             fbEl.style.color = '#fca5a5';
-            fbEl.textContent = '⚠ 연락처(인스타 ID) 또는 메시지를 입력해주세요.';
+            fbEl.textContent = 'Enter @handle or message';
           }
           if (contactEl) contactEl.focus();
           return false;
@@ -1055,7 +1399,7 @@
         if (btnEl) btnEl.disabled = true;
         if (fbEl) {
           fbEl.style.color = '#fde047';
-          fbEl.textContent = '⏳ 서버에 메시지 저장 중...';
+          fbEl.textContent = 'Sending...';
         }
 
         const payload = {
@@ -1082,7 +1426,7 @@
             const data = await res.json();
             if (fbEl) {
               fbEl.style.color = '#4ade80';
-              fbEl.textContent = `✓ 서버 저장 완료 (${data.entry ? data.entry.id : 'OK'})! 확인 후 연락드리겠습니다.`;
+              fbEl.textContent = '✓ Sent';
             }
             if (bodyEl) bodyEl.value = '';
             if (btnEl) btnEl.disabled = false;
@@ -1093,7 +1437,7 @@
         } catch (err) {
           if (fbEl) {
             fbEl.style.color = '#4ade80';
-            fbEl.textContent = '✓ 메시지 접수 완료! 빠른 확인을 위해 @just.sean.flows DM도 열려 있습니다.';
+            fbEl.textContent = '✓ Saved';
           }
           if (btnEl) btnEl.disabled = false;
           return { ok: true, fallback: true };
@@ -1128,8 +1472,9 @@
           z1.style.setProperty('--loc-shy', '26px');
           const depthText = z1.querySelector('.hp-knockout-depth-extrude');
           if (depthText) {
+            const baseExtY = parseFloat(depthText.getAttribute('data-base-y') || '180.5');
             depthText.setAttribute('x', '232.50');
-            depthText.setAttribute('y', '180.50');
+            depthText.setAttribute('y', baseExtY.toFixed(2));
           }
         }
 
@@ -1177,8 +1522,9 @@
 
           const depthText = z1.querySelector('.hp-knockout-depth-extrude');
           if (depthText) {
+            const baseExtY = parseFloat(depthText.getAttribute('data-base-y') || '180.5');
             depthText.setAttribute('x', (232.5 - curX * 3.2).toFixed(2));
-            depthText.setAttribute('y', (180.5 - curY * 2.8).toFixed(2));
+            depthText.setAttribute('y', (baseExtY - curY * 2.8).toFixed(2));
           }
 
           rafId = requestAnimationFrame(tickLocation3d);
@@ -1244,38 +1590,14 @@
         }
 
         function playSymbolFrameUpgradeChime(level) {
-          try {
-            if (window.__jsfAudioMuted || level <= 0) return;
-            const AudioCtx = window.AudioContext || window.webkitAudioContext;
-            if (!AudioCtx) return;
-            if (!window.__hpLampAudioCtx) {
-              window.__hpLampAudioCtx = new AudioCtx();
+          if (window.__jsfAudioMuted || level <= 0) return;
+          if (typeof window.__playJsfFoleySfx === 'function') {
+            if (level >= 4) {
+              window.__playJsfFoleySfx('ensemble_unseal');
+            } else {
+              window.__playJsfFoleySfx('switch_on', { gain: 0.16, rate: 0.94 + level * 0.04, jitter: 0.01 });
             }
-            const ctx = window.__hpLampAudioCtx;
-            if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-            if (ctx.state !== 'running') return;
-
-            const now = ctx.currentTime + 0.015;
-            // Ascending Verdi 432Hz harmonic ladder (A3=216 -> C#4=272.14 -> E4=323.63 -> A4=432)
-            const roots = [216.0, 272.14, 323.63, 432.0];
-            const root = roots[Math.min(roots.length - 1, level - 1)] || 432.0;
-            const intervals = level >= 4 ? [1.0, 1.25, 1.5, 2.0] : [1.0, 1.5];
-
-            intervals.forEach((mult, idx) => {
-              const osc = ctx.createOscillator();
-              const gain = ctx.createGain();
-              osc.type = idx === 0 ? 'sine' : 'triangle';
-              const t0 = now + idx * 0.048;
-              osc.frequency.setValueAtTime(root * mult, t0);
-              gain.gain.setValueAtTime(0.0001, t0);
-              gain.gain.exponentialRampToValueAtTime(idx === 0 ? 0.032 : 0.018, t0 + 0.03);
-              gain.gain.exponentialRampToValueAtTime(0.0001, t0 + (level >= 4 ? 0.85 : 0.55));
-              osc.connect(gain);
-              gain.connect(ctx.destination);
-              osc.start(t0);
-              osc.stop(t0 + (level >= 4 ? 0.9 : 0.6));
-            });
-          } catch (_) {}
+          }
         }
 
         function applySymbolFrameLevel(level, isNewUnlock) {
@@ -1391,5 +1713,18 @@
           bindSymbolInspectAndHold();
         }
       })();
+
+      // Delegated Leica M tactile micro-click foley for Salon UI pill & icon buttons
+      document.addEventListener('click', (e) => {
+        const t = e && e.target && e.target.closest
+          ? e.target.closest('#btn-under-dev-replay, #btn-gobo-flip-to-salon, #btn-open-ig-vip-modal, #btn-open-salon-msg-panel, #btn-loc-ig-mark, .salon-msg-close-btn, .salon-msg-submit-btn')
+          : null;
+        if (!t || typeof window.__playJsfFoleySfx !== 'function') return;
+        if (t.id === 'btn-open-salon-msg-panel') {
+          const z1 = document.getElementById('torch-zone-1');
+          if (z1 && z1.getAttribute('data-lamp-lit') !== 'true') return;
+        }
+        window.__playJsfFoleySfx('shutter', { gain: 0.16, jitter: 0.03 });
+      }, true);
     })();
     // === HARRY POTTER LIVING NEWSPAPER & BRASS LAMP ENGINE END ===

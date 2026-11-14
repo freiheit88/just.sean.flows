@@ -51,6 +51,13 @@
   <link rel="preload" as="fetch" href="/assets/sounds/hr_signature/proposals/hr_signature_set10_grand_tutti_morph_master.wav" crossorigin>
   <link rel="preload" as="fetch" href="/assets/sounds/hr_signature/proposals/hr_signature_set23_slavic_conductor_rigor_master.wav" crossorigin>
   <link rel="preload" as="fetch" href="/assets/sounds/hr_signature/proposals/hr_signature_set85_glass_harp_sparkle_staccato_master.wav" crossorigin>
+  <link rel="preload" as="fetch" href="/assets/sounds/location_filament_unlock_3s.mp3?v=loc_unlock_v13" crossorigin>
+  <link rel="preload" as="fetch" href="/assets/sounds/brass_lamp_switch_on.mp3?v=loc_unlock_v13" crossorigin>
+  <link rel="preload" as="fetch" href="/assets/sounds/brass_lamp_switch_off.mp3?v=loc_unlock_v13" crossorigin>
+  <link rel="preload" as="fetch" href="/assets/sounds/location_voice/kalina_loc_01_ask.mp3?v=exact_loc_v18" crossorigin>
+  <link rel="preload" as="fetch" href="/assets/sounds/location_voice/kalina_loc_02_for.mp3?v=exact_loc_v18" crossorigin>
+  <link rel="preload" as="fetch" href="/assets/sounds/location_voice/kalina_loc_03_exact.mp3?v=exact_loc_v18" crossorigin>
+  <link rel="preload" as="fetch" href="/assets/sounds/location_voice/kalina_loc_04_location.mp3?v=exact_loc_v18" crossorigin>
   <script>
     window.__GEHIRN_UNIFIED_ENGINE__ = {
       version: "2.0.0",
@@ -64,8 +71,8 @@
     };
   </script>
   <script src="/games/three.min.js" defer></script>
-  <link rel="stylesheet" href="/assets/launch_fresh_core.css?v=u22_opt_v6">
-  <link rel="stylesheet" href="/assets/u22_quest_bevel.css?v=symbol_return_v11">
+  <link rel="stylesheet" href="/assets/launch_fresh_core.css?v=loc_unlock_v13">
+  <link rel="stylesheet" href="/assets/u22_quest_bevel.css?v=exact_loc_v18">
   <link rel="stylesheet" href="/assets/u22_gallery_archive.css?v=u22_opt_v6">
   <link rel="stylesheet" href="/assets/jsf_maison_typography.css">
   <link rel="stylesheet" href="./assets/jsf_qr_gate.css?v=symbol_return_v11">
@@ -857,7 +864,7 @@
           </div>
 
           <!-- 01. LOCATION (4TH-WALL-BREAKING 3D FLOATING MONOLITH OUTSIDE THE PICTURE FRAME) -->
-          <div class="torch-altar-zone pure-visual-zone-map loc-3d-breakout-rig" id="torch-zone-1" data-zone-id="1" data-zone-state="unlit" data-lamp-lit="false" onclick="event.stopPropagation(); if(this.getAttribute('data-lamp-lit')!=='true'){window.__toggleHarryPotterLamp('map');}">
+          <div class="torch-altar-zone pure-visual-zone-map loc-3d-breakout-rig" id="torch-zone-1" data-zone-id="1" data-zone-state="unlit" data-lamp-lit="false" onclick="event.stopPropagation(); if(this.getAttribute('data-lamp-lit')!=='true' || this.getAttribute('data-lamp-dying')==='true'){window.__toggleHarryPotterLamp('map');}">
             <!-- 3D Physical Slab Extrusion Walls & Frame-Breakout Cast Shadow -->
             <div class="loc-3d-slab-extrusion" aria-hidden="true">
               <div class="loc-slab-cast-shadow"></div>
@@ -868,18 +875,17 @@
             </div>
 
             <!-- Photorealistic Brass Museum Picture Lamp Switch mounted on top edge of Map Box -->
-            <button type="button" class="hp-brass-lamp-switch hp-map-lamp-switch" id="hp-lamp-map" data-lamp-target="map" onclick="event.stopPropagation(); window.__toggleHarryPotterLamp('map');" aria-label="Switch On Frankfurt Map Gallery Lamp" title="Click Brass Gallery Lamp to Illuminate Frankfurt Map">
-              <img src="/assets/salon_concepts/brass_lamp_off.png" class="hp-lamp-img hp-lamp-off" alt="Brass Lamp Off" draggable="false" />
-              <img src="/assets/salon_concepts/brass_lamp_on.png" class="hp-lamp-img hp-lamp-on" alt="Brass Lamp On" draggable="false" />
-              <span class="hp-lamp-pull-tag">⚡ LIGHT MAP</span>
+            <button type="button" class="hp-brass-lamp-switch hp-map-lamp-switch" id="hp-lamp-map" data-lamp-target="map" onclick="event.stopPropagation(); window.__toggleHarryPotterLamp('map');" aria-label="Switch On or Refill Frankfurt Map Gallery Lamp" title="Click Brass Gallery Lamp to Light or +7s Refill">
+              <img src="/assets/salon_concepts/brass_lamp_off.png?v=loc_unlock_v12" class="hp-lamp-img hp-lamp-off" alt="Brass Lamp Off" draggable="false" />
+              <img src="/assets/salon_concepts/brass_lamp_on.png?v=loc_unlock_v12" class="hp-lamp-img hp-lamp-on" alt="Brass Lamp On" draggable="false" />
             </button>
             <div class="hp-lamp-light-cone" aria-hidden="true"></div>
 
             <button type="button" class="torch-sconce-socket" id="torch-socket-1" data-socket-zone="1" style="display:none !important;" onclick="event.stopPropagation(); window.__toggleHarryPotterLamp('map');" aria-label="Ignite Location">
               <span class="sconce-hole-ring"></span>
             </button>
-            <div class="pass-map-widget zone-illuminated-content" id="pass-map-widget" onclick="if(document.getElementById('torch-zone-1').getAttribute('data-lamp-lit')!=='true'){window.__toggleHarryPotterLamp('map');}" aria-label="Frankfurt Real-Estate Exposé Map Highlighting Westend-Süd · Messe">
-              <!-- High-DPI 1:1 German Real-Estate Exposé Map (Zero Tourist Clutter, Crisp Street Grid, River, Parks & Exact Red-Dashed District Polygon) -->
+            <div class="pass-map-widget zone-illuminated-content" id="pass-map-widget" onclick="if(document.getElementById('torch-zone-1').getAttribute('data-lamp-lit')!=='true' || document.getElementById('torch-zone-1').getAttribute('data-lamp-dying')==='true'){window.__toggleHarryPotterLamp('map');}" aria-label="Frankfurt Real-Estate Exposé Map Highlighting Westend-Süd · Messe">
+              <!-- High-DPI 1:1 German Real-Estate Exposé Map (Zero Text Overlay Clutter, Crisp Street Grid, River, Parks & Exact Red-Dashed District Polygon) -->
               <img
                 src="/assets/salon_concepts/frankfurt_realestate_expose_map.png"
                 class="pass-expose-map-img"
@@ -889,61 +895,9 @@
               <iframe
                 class="pass-expose-map-iframe"
                 title="Frankfurt Real-Estate Exposé Map — Westend-Süd · Messe · Theodor-Heuss-Allee"
-                src="/frankfurt_expose_map_embed.html"
+                src="/frankfurt_expose_map_embed.html?v=loc_unlock_v12"
                 loading="eager"
               ></iframe>
-
-                                          <!-- SALON LOCATION CONCIERGE BAR (INSTAGRAM DM + DIRECT HOMEPAGE MESSAGE TO SERVER) -->
-              <div class="salon-location-concierge-bar" id="salon-location-concierge-bar" onclick="event.stopPropagation();">
-                <span class="concierge-bar-label">📍 상세 위치 문의</span>
-                <a
-                  href="https://ig.me/m/just.sean.flows"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="concierge-action-pill concierge-ig-dm-pill"
-                  onclick="event.stopPropagation(); window.__resetHarryPotterLampTimer && window.__resetHarryPotterLampTimer('map');"
-                  title="Send Instagram DM to @just.sean.flows"
-                >📸 인스타 DM (@just.sean.flows) ↗</a>
-                <button
-                  type="button"
-                  class="concierge-action-pill concierge-web-msg-pill"
-                  id="btn-open-salon-msg-panel"
-                  onclick="event.stopPropagation(); window.__openSalonLocationMessagePanel();"
-                  title="Leave a direct message on this homepage"
-                >✉️ 홈페이지 메시지</button>
-              </div>
-
-              <!-- SLIDE-UP DIRECT SERVER MESSAGE PANEL INSIDE MAP -->
-              <div class="salon-location-msg-panel" id="salon-location-msg-panel" onclick="event.stopPropagation();" aria-hidden="true">
-                <div class="salon-msg-panel-header">
-                  <div class="salon-msg-panel-title">✦ 상세 위치 안내 &amp; 방문 메시지 남기기</div>
-                  <button type="button" class="salon-msg-close-btn" onclick="event.stopPropagation(); window.__closeSalonLocationMessagePanel();">✕ 닫기</button>
-                </div>
-                <div class="salon-msg-panel-desc">
-                  자세한 아틀리에 주소는 <a href="https://www.instagram.com/just.sean.flows/" target="_blank" rel="noopener noreferrer" class="salon-msg-ig-inline">@just.sean.flows 인스타 DM ↗</a> 또는 아래 메시지로 남겨주시면 서버에 즉시 저장되어 직접 안내드립니다.
-                </div>
-                <div class="salon-msg-form-row">
-                  <input
-                    type="text"
-                    id="salon-msg-contact-input"
-                    class="salon-msg-input"
-                    placeholder="답장 받으실 인스타 @아이디 또는 연락처/이메일"
-                    autocomplete="off"
-                  />
-                  <textarea
-                    id="salon-msg-body-input"
-                    class="salon-msg-textarea"
-                    rows="2"
-                    placeholder="메시지를 남겨주세요 (예: 상세 위치 안내 요청합니다 / 살롱 방문 문의)"
-                  ></textarea>
-                </div>
-                <div class="salon-msg-footer-row">
-                  <div class="salon-msg-feedback" id="salon-msg-feedback"></div>
-                  <button type="button" class="salon-msg-submit-btn" id="salon-msg-submit-btn" onclick="event.stopPropagation(); window.__submitSalonLocationMessage();">
-                    📩 메시지 서버 저장 / 보내기
-                  </button>
-                </div>
-              </div>
 
               <!-- TRANSLUCENT ELEMENT COVER VEIL: LOCATION (TEXT KNOCKOUT APERTURE + DYING FILAMENT WHISPER SEQUENCE) -->
               <div class="hp-element-cover-veil hp-map-cover-veil hp-knockout-text-cover" id="hp-cover-veil-map" aria-hidden="true">
@@ -959,6 +913,18 @@
                       <stop offset="50%" stop-color="#f3d489" />
                       <stop offset="100%" stop-color="#c9933b" />
                     </linearGradient>
+                    <linearGradient id="hp-details-shimmer-grad" gradientUnits="userSpaceOnUse" x1="60" y1="162" x2="400" y2="190">
+                      <stop offset="0%" stop-color="#dfb15b" />
+                      <stop offset="32%" stop-color="#f7df9c" />
+                      <stop offset="50%" stop-color="#ffffff" />
+                      <stop offset="68%" stop-color="#fde047" />
+                      <stop offset="100%" stop-color="#dfb15b" />
+                    </linearGradient>
+                    <radialGradient id="hp-lamp-cone-soft-map" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#f3d489" stop-opacity="0.14" />
+                      <stop offset="52%" stop-color="#f3d489" stop-opacity="0.045" />
+                      <stop offset="100%" stop-color="#f3d489" stop-opacity="0" />
+                    </radialGradient>
                     <mask id="hp-knockout-mask-location" maskUnits="userSpaceOnUse" x="-100" y="-100" width="660" height="550">
                       <rect x="-100" y="-100" width="660" height="550" fill="white" />
                       <text id="hp-loc-mask-main"
@@ -973,17 +939,12 @@
                             stroke="black"
                             stroke-width="3.5"
                             stroke-linejoin="round">Location</text>
-                      <g id="hp-loc-mask-dots" opacity="0">
-                        <circle id="hp-loc-mask-dot-1" cx="202" cy="218" r="5.2" fill="black" opacity="0" />
-                        <circle id="hp-loc-mask-dot-2" cx="230" cy="218" r="5.2" fill="black" opacity="0" />
-                        <circle id="hp-loc-mask-dot-3" cx="258" cy="218" r="5.2" fill="black" opacity="0" />
-                      </g>
                     </mask>
                   </defs>
                   <!-- 100% Opaque Dark Obsidian Cover outside the letters, 100% transparent ONLY inside knockout letters -->
                   <rect x="-100" y="-100" width="660" height="550" fill="url(#hp-cover-vignette-map)" mask="url(#hp-knockout-mask-location)" />
-                  <!-- Subtle Top Lamp Warm Cone Hint on the Cover -->
-                  <ellipse cx="230" cy="12" rx="145" ry="52" fill="rgba(243, 212, 137, 0.08)" mask="url(#hp-knockout-mask-location)" />
+                  <!-- Soft Feathered Top Lamp Warm Cone Hint on the Cover (Zero Hard Oval Edge) -->
+                  <ellipse cx="230" cy="8" rx="165" ry="68" fill="url(#hp-lamp-cone-soft-map)" mask="url(#hp-knockout-mask-location)" />
                   <!-- 4th-Wall Architectural Corner Registration Brackets -->
                   <g class="loc-3d-corner-reticles" stroke="rgba(243, 212, 137, 0.42)" stroke-width="1.3" fill="none">
                     <path d="M 18 34 L 18 18 L 34 18" />
@@ -996,6 +957,7 @@
                     <text id="hp-loc-extrude-main"
                           class="hp-knockout-depth-extrude"
                           x="232.5" y="180.5"
+                          data-base-y="180.5"
                           text-anchor="middle"
                           dominant-baseline="central"
                           font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif"
@@ -1020,16 +982,86 @@
                           stroke="url(#hp-gold-rim-map)"
                           stroke-width="2.6"
                           stroke-linejoin="round">Location</text>
-                    <!-- 3 Fixed-Slot Ellipsis Jewels (. . .) for "For the details . . ." (Zero Horizontal Jitter) -->
-                    <g id="hp-loc-rim-dots" opacity="0">
-                      <circle id="hp-loc-rim-dot-1" cx="202" cy="218" r="5.2" fill="rgba(253, 224, 71, 0.24)" stroke="url(#hp-gold-rim-map)" stroke-width="2.2" opacity="0" />
-                      <circle id="hp-loc-rim-dot-2" cx="230" cy="218" r="5.2" fill="rgba(253, 224, 71, 0.24)" stroke="url(#hp-gold-rim-map)" stroke-width="2.2" opacity="0" />
-                      <circle id="hp-loc-rim-dot-3" cx="258" cy="218" r="5.2" fill="rgba(253, 224, 71, 0.24)" stroke="url(#hp-gold-rim-map)" stroke-width="2.2" opacity="0" />
-                    </g>
                   </g>
                 </svg>
               </div>
               <!-- /TRANSLUCENT ELEMENT COVER VEIL: LOCATION -->
+            </div>
+
+            <!-- BOTTOM-CENTER (중하단) PURE 2-ICON UNLOCK DOCK: INSTAGRAM MARK + DIRECT MESSAGE MARK ONLY (ZERO TEXT) -->
+            <div class="salon-location-concierge-bar loc-pure-icon-dock" id="salon-location-concierge-bar" onclick="event.stopPropagation();">
+              <span class="loc-unlock-hairline" aria-hidden="true"></span>
+              <span class="loc-unlock-ember-spark" aria-hidden="true"></span>
+              <a
+                href="https://ig.me/m/just.sean.flows"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="loc-pure-icon-mark loc-ig-icon-mark"
+                id="btn-loc-ig-mark"
+                aria-label="Instagram"
+                onclick="event.stopPropagation(); window.__resetHarryPotterLampTimer && window.__resetHarryPotterLampTimer('map');"
+              >
+                <svg class="loc-bespoke-icon-svg loc-dot-art-svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <!-- Dot-Art Instagram Icon (14x14 crisp pixel-dot matrix) -->
+                  <rect x="3" y="1" width="1.35" height="1.35" rx="0.25"/><rect x="4.5" y="1" width="1.35" height="1.35" rx="0.25"/><rect x="6" y="1" width="1.35" height="1.35" rx="0.25"/><rect x="7.5" y="1" width="1.35" height="1.35" rx="0.25"/><rect x="9" y="1" width="1.35" height="1.35" rx="0.25"/><rect x="10.5" y="1" width="1.35" height="1.35" rx="0.25"/><rect x="12" y="1" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="2.5" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="4" width="1.35" height="1.35" rx="0.25"/><rect x="11.2" y="4" width="1.45" height="1.45" rx="0.3"/><rect x="13.5" y="4" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="5.5" width="1.35" height="1.35" rx="0.25"/><rect x="6" y="5.5" width="1.35" height="1.35" rx="0.25"/><rect x="7.5" y="5.5" width="1.35" height="1.35" rx="0.25"/><rect x="9" y="5.5" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="5.5" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="7" width="1.35" height="1.35" rx="0.25"/><rect x="4.5" y="7" width="1.35" height="1.35" rx="0.25"/><rect x="10.5" y="7" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="7" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="8.5" width="1.35" height="1.35" rx="0.25"/><rect x="4.5" y="8.5" width="1.35" height="1.35" rx="0.25"/><rect x="10.5" y="8.5" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="8.5" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="10" width="1.35" height="1.35" rx="0.25"/><rect x="6" y="10" width="1.35" height="1.35" rx="0.25"/><rect x="7.5" y="10" width="1.35" height="1.35" rx="0.25"/><rect x="9" y="10" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="10" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="11.5" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="3" y="13" width="1.35" height="1.35" rx="0.25"/><rect x="4.5" y="13" width="1.35" height="1.35" rx="0.25"/><rect x="6" y="13" width="1.35" height="1.35" rx="0.25"/><rect x="7.5" y="13" width="1.35" height="1.35" rx="0.25"/><rect x="9" y="13" width="1.35" height="1.35" rx="0.25"/><rect x="10.5" y="13" width="1.35" height="1.35" rx="0.25"/><rect x="12" y="13" width="1.35" height="1.35" rx="0.25"/>
+                </svg>
+              </a>
+              <button
+                type="button"
+                class="loc-pure-icon-mark loc-msg-icon-mark"
+                id="btn-open-salon-msg-panel"
+                aria-label="Direct Message"
+                onclick="event.stopPropagation(); window.__openSalonLocationMessagePanel();"
+              >
+                <svg class="loc-bespoke-icon-svg loc-dot-art-svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                  <!-- Dot-Art Envelope / Mail Icon (crisp pixel-dot matrix) -->
+                  <rect x="1.5" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="3" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="4.5" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="6" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="7.5" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="9" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="10.5" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="12" y="2.5" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="2.5" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="4" width="1.35" height="1.35" rx="0.25"/><rect x="3" y="4" width="1.35" height="1.35" rx="0.25"/><rect x="12" y="4" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="4" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="5.5" width="1.35" height="1.35" rx="0.25"/><rect x="4.5" y="5.5" width="1.35" height="1.35" rx="0.25"/><rect x="10.5" y="5.5" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="5.5" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="7" width="1.35" height="1.35" rx="0.25"/><rect x="6" y="7" width="1.35" height="1.35" rx="0.25"/><rect x="9" y="7" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="7" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="8.5" width="1.35" height="1.35" rx="0.25"/><rect x="7.5" y="8.5" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="8.5" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="10" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="10" width="1.35" height="1.35" rx="0.25"/>
+                  <rect x="1.5" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="3" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="4.5" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="6" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="7.5" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="9" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="10.5" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="12" y="11.5" width="1.35" height="1.35" rx="0.25"/><rect x="13.5" y="11.5" width="1.35" height="1.35" rx="0.25"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- ULTRA-MINIMAL DIRECT MESSAGE PANEL (INPUT + TEXTAREA + SEND ONLY) -->
+            <div class="salon-location-msg-panel loc-minimal-msg-panel" id="salon-location-msg-panel" onclick="event.stopPropagation();" aria-hidden="true">
+              <div class="salon-msg-top-inline">
+                <input
+                  type="text"
+                  id="salon-msg-contact-input"
+                  class="salon-msg-input"
+                  placeholder="@handle / contact"
+                  autocomplete="off"
+                />
+                <button type="button" class="salon-msg-close-btn" aria-label="Close" onclick="event.stopPropagation(); window.__closeSalonLocationMessagePanel();">✕</button>
+              </div>
+              <div class="salon-msg-form-row">
+                <textarea
+                  id="salon-msg-body-input"
+                  class="salon-msg-textarea"
+                  rows="2"
+                  placeholder="Message..."
+                ></textarea>
+              </div>
+              <div class="salon-msg-footer-row">
+                <div class="salon-msg-feedback" id="salon-msg-feedback"></div>
+                <button type="button" class="salon-msg-submit-btn" id="salon-msg-submit-btn" aria-label="Send Message" onclick="event.stopPropagation(); window.__submitSalonLocationMessage();">
+                  <svg class="salon-msg-send-svg" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M17.5 2.5L9.2 10.8M17.5 2.5L12.1 17.5L9.2 10.8L2.5 7.9L17.5 2.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1042,8 +1074,8 @@
               <!-- Living Portrait 01: Music Jam -->
               <div class="hp-living-frame-cell" id="hp-cell-0" data-lamp-lit="false" data-concept-idx="0">
                 <button type="button" class="hp-brass-lamp-switch" id="hp-lamp-0" data-lamp-target="0" onclick="event.stopPropagation(); window.__toggleHarryPotterLamp(0);" aria-label="Switch On 01 Music Jam Lamp" title="Click Brass Lamp to Awaken Living Portrait 01">
-                  <img src="/assets/salon_concepts/brass_lamp_off.png" class="hp-lamp-img hp-lamp-off" alt="Lamp Off" draggable="false" />
-                  <img src="/assets/salon_concepts/brass_lamp_on.png" class="hp-lamp-img hp-lamp-on" alt="Lamp On" draggable="false" />
+                  <img src="/assets/salon_concepts/brass_lamp_off.png?v=loc_unlock_v12" class="hp-lamp-img hp-lamp-off" alt="Lamp Off" draggable="false" />
+                  <img src="/assets/salon_concepts/brass_lamp_on.png?v=loc_unlock_v12" class="hp-lamp-img hp-lamp-on" alt="Lamp On" draggable="false" />
                 </button>
                 <div class="hp-lamp-light-cone" aria-hidden="true"></div>
                 <button type="button" class="salon-concept-card hp-living-card" data-concept-idx="0" onclick="event.stopPropagation(); window.__handleLivingPortraitClick(0);" aria-label="Living Portrait 01 Music Jam">
@@ -1062,49 +1094,49 @@
                         </linearGradient>
                         <mask id="hp-knockout-mask-photo-0" maskUnits="userSpaceOnUse" x="-60" y="-60" width="320" height="310">
                           <rect x="-60" y="-60" width="320" height="310" fill="white" />
-                          <text x="100" y="104"
+                          <text x="100" y="102"
                                 text-anchor="middle"
                                 dominant-baseline="central"
                                 font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif"
-                                font-size="44"
+                                font-size="42"
                                 font-weight="900"
                                 letter-spacing="1"
                                 fill="black"
                                 stroke="black"
                                 stroke-width="2.4"
-                                stroke-linejoin="round">Party</text>
+                                stroke-linejoin="round">Music</text>
                         </mask>
                       </defs>
-                      <!-- 100% Opaque Dark Obsidian Cover outside the letters, 100% transparent ONLY inside "Party" -->
+                      <!-- 100% Opaque Dark Obsidian Cover outside the letters, 100% transparent ONLY inside "Music" -->
                       <rect x="-60" y="-60" width="320" height="310" fill="url(#hp-cover-vignette-photo-0)" mask="url(#hp-knockout-mask-photo-0)" />
-                      <ellipse cx="100" cy="10" rx="72" ry="32" fill="rgba(243, 212, 137, 0.08)" mask="url(#hp-knockout-mask-photo-0)" />
-                      <!-- Crisp 24K Gold Contour Rim around "Party" -->
+                      <ellipse cx="100" cy="8" rx="84" ry="42" fill="url(#hp-lamp-cone-soft-map)" mask="url(#hp-knockout-mask-photo-0)" />
+                      <!-- Crisp 24K Gold Contour Rim around "Music" -->
                       <text class="hp-knockout-rim-text"
-                            x="100" y="104"
+                            x="100" y="102"
                             text-anchor="middle"
                             dominant-baseline="central"
                             font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif"
-                            font-size="44"
+                            font-size="42"
                             font-weight="900"
                             letter-spacing="1"
                             fill="none"
                             stroke="url(#hp-gold-rim-photo-0)"
                             stroke-width="2.0"
-                            stroke-linejoin="round">Party</text>
+                            stroke-linejoin="round">Music</text>
                     </svg>
                   </span>
-                  <img class="hp-still-print" src="/assets/salon_concepts/concept_01_music_jam.jpg" alt="Music Salon 01 Still Print" loading="lazy" />
-                  <video class="hp-living-video" id="hp-video-0" src="/assets/salon_concepts/concept_01_music_jam_loop.mp4" muted loop playsinline preload="metadata"></video>
-                  <span class="hp-newspaper-tag">I &middot; PARTY &middot; DRUMS</span>
-                  <span class="hp-gallery-launch-badge" onclick="event.stopPropagation(); window.__openU22PhotoGallery('PARTY');" title="Open U22 Party Photo Archive (46 Photos)">📸 46장 ⤢</span>
+                  <img class="hp-still-print" src="/assets/generated/u22_party16_03_floral_desk_vinyl_crate_1794429129658.jpg" alt="Music Salon 01 Still Print" loading="lazy" />
+                  <video class="hp-living-video" id="hp-video-0" src="/assets/videos/music_vinyl_jam_curated.mp4" muted loop playsinline preload="metadata"></video>
+                  <span class="hp-newspaper-tag">I &middot; MUSIC &middot; VOCAL</span>
+                  <span class="hp-gallery-launch-badge" onclick="event.stopPropagation(); window.__openU22PhotoGallery('PARTY');" title="Open U22 Music Photo Archive (62 Photos)">📸 62장 ⤢</span>
                 </button>
               </div>
 
               <!-- Living Portrait 02: Salon Talk -->
               <div class="hp-living-frame-cell" id="hp-cell-1" data-lamp-lit="false" data-concept-idx="1">
                 <button type="button" class="hp-brass-lamp-switch" id="hp-lamp-1" data-lamp-target="1" onclick="event.stopPropagation(); window.__toggleHarryPotterLamp(1);" aria-label="Switch On 02 Salon Talk Lamp" title="Click Brass Lamp to Awaken Living Portrait 02">
-                  <img src="/assets/salon_concepts/brass_lamp_off.png" class="hp-lamp-img hp-lamp-off" alt="Lamp Off" draggable="false" />
-                  <img src="/assets/salon_concepts/brass_lamp_on.png" class="hp-lamp-img hp-lamp-on" alt="Lamp On" draggable="false" />
+                  <img src="/assets/salon_concepts/brass_lamp_off.png?v=loc_unlock_v12" class="hp-lamp-img hp-lamp-off" alt="Lamp Off" draggable="false" />
+                  <img src="/assets/salon_concepts/brass_lamp_on.png?v=loc_unlock_v12" class="hp-lamp-img hp-lamp-on" alt="Lamp On" draggable="false" />
                 </button>
                 <div class="hp-lamp-light-cone" aria-hidden="true"></div>
                 <button type="button" class="salon-concept-card hp-living-card" data-concept-idx="1" onclick="event.stopPropagation(); window.__handleLivingPortraitClick(1);" aria-label="Living Portrait 02 Salon Talk">
@@ -1138,7 +1170,7 @@
                       </defs>
                       <!-- 100% Opaque Dark Obsidian Cover outside the letters, 100% transparent ONLY inside "Social" -->
                       <rect x="-60" y="-60" width="320" height="310" fill="url(#hp-cover-vignette-photo-1)" mask="url(#hp-knockout-mask-photo-1)" />
-                      <ellipse cx="100" cy="10" rx="72" ry="32" fill="rgba(243, 212, 137, 0.08)" mask="url(#hp-knockout-mask-photo-1)" />
+                      <ellipse cx="100" cy="8" rx="84" ry="42" fill="url(#hp-lamp-cone-soft-map)" mask="url(#hp-knockout-mask-photo-1)" />
                       <!-- Crisp 24K Gold Contour Rim around "Social" -->
                       <text class="hp-knockout-rim-text"
                             x="100" y="104"
@@ -1154,18 +1186,18 @@
                             stroke-linejoin="round">Social</text>
                     </svg>
                   </span>
-                  <img class="hp-still-print" src="/assets/salon_concepts/concept_02_salon_talk.jpg" alt="Music Salon 02 Still Print" loading="lazy" />
-                  <video class="hp-living-video" id="hp-video-1" src="/assets/salon_concepts/concept_02_salon_talk_loop.mp4" muted loop playsinline preload="metadata"></video>
+                  <img class="hp-still-print" src="/assets/generated/u22_net16_12_sean_ipad_design_feedback_1794565894795.jpg" alt="Music Salon 02 Still Print" loading="lazy" />
+                  <video class="hp-living-video" id="hp-video-1" src="/assets/videos/social_design_talk_curated.mp4" muted loop playsinline preload="metadata"></video>
                   <span class="hp-newspaper-tag">II &middot; SOCIAL &middot; BASS</span>
-                  <span class="hp-gallery-launch-badge" onclick="event.stopPropagation(); window.__openU22PhotoGallery('SOCIAL');" title="Open U22 Social Photo Archive (105 Photos)">📸 105장 ⤢</span>
+                  <span class="hp-gallery-launch-badge" onclick="event.stopPropagation(); window.__openU22PhotoGallery('SOCIAL');" title="Open U22 Social Photo Archive (121 Photos)">📸 121장 ⤢</span>
                 </button>
               </div>
 
               <!-- Living Portrait 03: Solo Cafe -->
               <div class="hp-living-frame-cell" id="hp-cell-2" data-lamp-lit="false" data-concept-idx="2">
                 <button type="button" class="hp-brass-lamp-switch" id="hp-lamp-2" data-lamp-target="2" onclick="event.stopPropagation(); window.__toggleHarryPotterLamp(2);" aria-label="Switch On 03 Solo Cafe Lamp" title="Click Brass Lamp to Awaken Living Portrait 03">
-                  <img src="/assets/salon_concepts/brass_lamp_off.png" class="hp-lamp-img hp-lamp-off" alt="Lamp Off" draggable="false" />
-                  <img src="/assets/salon_concepts/brass_lamp_on.png" class="hp-lamp-img hp-lamp-on" alt="Lamp On" draggable="false" />
+                  <img src="/assets/salon_concepts/brass_lamp_off.png?v=loc_unlock_v12" class="hp-lamp-img hp-lamp-off" alt="Lamp Off" draggable="false" />
+                  <img src="/assets/salon_concepts/brass_lamp_on.png?v=loc_unlock_v12" class="hp-lamp-img hp-lamp-on" alt="Lamp On" draggable="false" />
                 </button>
                 <div class="hp-lamp-light-cone" aria-hidden="true"></div>
                 <button type="button" class="salon-concept-card hp-living-card" data-concept-idx="2" onclick="event.stopPropagation(); window.__handleLivingPortraitClick(2);" aria-label="Living Portrait 03 Solo Cafe">
@@ -1184,41 +1216,41 @@
                         </linearGradient>
                         <mask id="hp-knockout-mask-photo-2" maskUnits="userSpaceOnUse" x="-60" y="-60" width="320" height="310">
                           <rect x="-60" y="-60" width="320" height="310" fill="white" />
-                          <text x="100" y="96"
+                          <text x="100" y="102"
                                 text-anchor="middle"
                                 dominant-baseline="central"
                                 font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif"
-                                font-size="44"
+                                font-size="64"
                                 font-weight="900"
-                                letter-spacing="1"
+                                letter-spacing="0"
                                 fill="black"
                                 stroke="black"
-                                stroke-width="2.4"
-                                stroke-linejoin="round">Biz</text>
+                                stroke-width="2.6"
+                                stroke-linejoin="round">?</text>
                         </mask>
                       </defs>
-                      <!-- 100% Opaque Dark Obsidian Cover outside the letters, 100% transparent ONLY inside "Biz" -->
+                      <!-- 100% Opaque Dark Obsidian Cover outside the glyph, 100% transparent ONLY inside "?" -->
                       <rect x="-60" y="-60" width="320" height="310" fill="url(#hp-cover-vignette-photo-2)" mask="url(#hp-knockout-mask-photo-2)" />
-                      <ellipse cx="100" cy="10" rx="72" ry="32" fill="rgba(243, 212, 137, 0.08)" mask="url(#hp-knockout-mask-photo-2)" />
-                      <!-- Crisp 24K Gold Contour Rim around "Biz" -->
+                      <ellipse cx="100" cy="8" rx="84" ry="42" fill="url(#hp-lamp-cone-soft-map)" mask="url(#hp-knockout-mask-photo-2)" />
+                      <!-- Crisp 24K Gold Contour Rim around "?" -->
                       <text class="hp-knockout-rim-text"
-                            x="100" y="96"
+                            x="100" y="102"
                             text-anchor="middle"
                             dominant-baseline="central"
                             font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif"
-                            font-size="44"
+                            font-size="64"
                             font-weight="900"
-                            letter-spacing="1"
+                            letter-spacing="0"
                             fill="none"
                             stroke="url(#hp-gold-rim-photo-2)"
-                            stroke-width="2.0"
-                            stroke-linejoin="round">Biz</text>
+                            stroke-width="2.2"
+                            stroke-linejoin="round">?</text>
                     </svg>
                   </span>
-                  <img class="hp-still-print" src="/assets/salon_concepts/concept_03_introvert_cafe.jpg" alt="Music Salon 03 Still Print" loading="lazy" />
-                  <video class="hp-living-video" id="hp-video-2" src="/assets/salon_concepts/concept_03_introvert_cafe_loop.mp4" muted loop playsinline preload="metadata"></video>
-                  <span class="hp-newspaper-tag">III &middot; BIZ &middot; VOCAL</span>
-                  <span class="hp-gallery-launch-badge" onclick="event.stopPropagation(); window.__openU22PhotoGallery('BIZ');" title="Open U22 Biz & Atelier Photo Archive (13 Photos)">📸 13장 ⤢</span>
+                  <img class="hp-still-print" src="/assets/generated/u22_net16_14_vinyl_ambient_sofa_chill_1794565895078.jpg" alt="Music Salon 03 Still Print" loading="lazy" />
+                  <video class="hp-living-video" id="hp-video-2" src="/assets/videos/solo_atelier_candid_curated.mp4" muted loop playsinline preload="metadata"></video>
+                  <span class="hp-newspaper-tag">III &middot; ? &middot; DRUMS</span>
+                  <span class="hp-gallery-launch-badge" onclick="event.stopPropagation(); window.__openU22PhotoGallery('BIZ');" title="Open U22 Secret Archive (13 Photos)">📸 13장 ⤢</span>
                 </button>
               </div>
             </div>
@@ -1583,7 +1615,7 @@
   </header>
 
   <script src="/assets/launch_fresh_core.js?v=symbol_return_v11"></script>
-  <script src="/assets/jsf_alibi_lamp_sync.js?v=stem_emoji_v4"></script>
+  <script src="/assets/jsf_alibi_lamp_sync.js?v=music_qmark_v15"></script>
         <!-- FULLSCREEN ENCHANTED FOREST TICKET SANCTUARY MODAL -->
         <div class="forest-ticket-modal" id="forest-ticket-modal" data-walk-stage="distant" role="dialog" aria-label="Secret Forest Ticket Sanctuary">
           <div class="forest-scene-stage" id="forest-scene-stage">
@@ -1758,8 +1790,8 @@
         <!-- Domain Switcher Tabs -->
         <nav class="u22-archive-domain-tabs" role="tablist" aria-label="Archive Domains">
           <button type="button" class="u22-domain-tab active" data-domain="PARTY" onclick="window.__setU22GalleryDomain('PARTY')">
-            <span class="tab-ico">🥂</span>
-            <span class="tab-lbl">I &middot; PARTY</span>
+            <span class="tab-ico">🎤</span>
+            <span class="tab-lbl">I &middot; MUSIC</span>
             <span class="tab-cnt" id="u22-cnt-party">46</span>
           </button>
           <button type="button" class="u22-domain-tab" data-domain="SOCIAL" onclick="window.__setU22GalleryDomain('SOCIAL')">
@@ -1768,8 +1800,8 @@
             <span class="tab-cnt" id="u22-cnt-social">105</span>
           </button>
           <button type="button" class="u22-domain-tab" data-domain="BIZ" onclick="window.__setU22GalleryDomain('BIZ')">
-            <span class="tab-ico">🎹</span>
-            <span class="tab-lbl">III &middot; BIZ</span>
+            <span class="tab-ico">🥁</span>
+            <span class="tab-lbl">III &middot; ?</span>
             <span class="tab-cnt" id="u22-cnt-biz">13</span>
           </button>
           <button type="button" class="u22-domain-tab" data-domain="KEEP" onclick="window.__setU22GalleryDomain('KEEP')">
@@ -1942,8 +1974,8 @@
   <!-- === U22 DIGITAL PHOTOGRAPHIE & SALON ARCHIVE GALLERY MODAL END === -->
 
   <script src="/assets/u22_gallery_catalog.js?v=u22_opt_v6"></script>
-  <script src="/assets/launch_fresh_vip.js?v=symbol_return_v11"></script>
-  <script src="/assets/u22_gallery_engine.js?v=u22_opt_v6"></script>
+  <script src="/assets/launch_fresh_vip.js?v=exact_loc_v18"></script>
+  <script src="/assets/u22_gallery_engine.js?v=music_qmark_v15"></script>
   <!-- === INSTAGRAM VIP & INTRO SKIP ENGINE END === -->
 </body>
 </html>
