@@ -907,23 +907,79 @@
     switcher.addEventListener('mousedown', (ev) => ev.stopPropagation());
     switcher.addEventListener('touchstart', (ev) => ev.stopPropagation(), { passive: true });
 
-    // Clicking the Walnut QR Card smoothly fades out the QR Pass to reveal the original Noir Intro!
+    // Stage A: Web Pipelining — Pre-warm transition video in background during idle so click-to-play has 0ms stall
+    let prewarmedTv = null;
+    function prewarmTransitionVideo() {
+      if (prewarmedTv || !host || document.getElementById('jsf-qr-transition-video')) return;
+      const tv = document.createElement('video');
+      tv.id = 'jsf-qr-transition-video';
+      tv.src = '/assets/videos/qr_to_salon_transition.mp4';
+      tv.muted = true;
+      tv.playsInline = true;
+      tv.preload = 'auto';
+      tv.setAttribute('aria-hidden', 'true');
+      tv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:48;border-radius:inherit;pointer-events:none;opacity:0;will-change:opacity,transform;transform:translateZ(0);transition:opacity 0.55s cubic-bezier(0.22,1,0.36,1);';
+      host.appendChild(tv);
+      try { tv.load(); } catch (_) {}
+      prewarmedTv = tv;
+    }
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(prewarmTransitionVideo, { timeout: 900 });
+    } else {
+      setTimeout(prewarmTransitionVideo, 350);
+    }
+
+    // Stage B & C: Clicking the Walnut QR Card plays pre-decoded transition + 0.42s overlap crossfade handoff
     function dismissQrPassSmoothly(ev) {
       if (ev) {
         if (ev.target && ev.target.closest && ev.target.closest('#jsf-qr-mode-switcher')) return;
         ev.stopPropagation();
       }
       if (tile.classList.contains('qr-hidden')) return;
-      document.documentElement.classList.remove('jsf-qr-gate-first');
-      tile.classList.add('qr-hidden');
-      if (host && host.classList) {
-        host.classList.remove('noir-has-illusion-qr');
+
+      const finishReveal = () => {
+        document.documentElement.classList.remove('jsf-qr-gate-first');
+        tile.classList.add('qr-hidden');
+        if (host && host.classList) {
+          host.classList.remove('noir-has-illusion-qr');
+        }
+        const introVid = document.getElementById('noir-living-card-video');
+        if (introVid && introVid.paused) {
+          introVid.play().catch(() => {});
+        }
+      };
+
+      prewarmTransitionVideo();
+      const tv = prewarmedTv || document.getElementById('jsf-qr-transition-video');
+      // Fallback Guard: if user speed-clicks before video buffered (readyState < 2), skip stall and reveal cleanly
+      if (tv && tv.readyState >= 2) {
+        tile.classList.add('qr-hidden');
+        tv.style.opacity = '1';
+        try { tv.playbackRate = 2.6; } catch (_) {}
+        let handedOff = false;
+        const handoff = () => {
+          if (handedOff) return;
+          handedOff = true;
+          finishReveal();
+          tv.style.opacity = '0';
+          setTimeout(() => { if (tv.parentNode) tv.parentNode.removeChild(tv); }, 580);
+        };
+        const onTick = () => {
+          if (tv.duration && (tv.duration - tv.currentTime) <= 0.42) {
+            tv.removeEventListener('timeupdate', onTick);
+            handoff();
+          }
+        };
+        tv.addEventListener('timeupdate', onTick);
+        tv.addEventListener('ended', handoff, { once: true });
+        tv.addEventListener('error', handoff, { once: true });
+        tv.play().catch(handoff);
+        setTimeout(handoff, 3100);
+        return;
       }
-      // Ensure original Noir Intro video is playing smoothly underneath
-      const introVid = document.getElementById('noir-living-card-video');
-      if (introVid && introVid.paused) {
-        introVid.play().catch(() => {});
-      }
+
+      if (tv && tv.parentNode) tv.parentNode.removeChild(tv);
+      finishReveal();
     }
 
     tile.addEventListener('click', dismissQrPassSmoothly);

@@ -381,33 +381,33 @@
     inset 0 0 0 1.4px rgba(243, 212, 137, 0.45) !important;
 }
 
-/* Level 3 (3/4 - Social Acquired): Frame levels up to 94% 18K champagne gold */
+/* Level 3 (3/4 - Social Acquired): Frame levels up to 84% warm antique brass */
 .under-dev-card-overlay[data-quest-level="3"] .u22-25d-bevel-back {
-  filter: brightness(0.95) saturate(1.02) !important;
+  filter: brightness(0.84) saturate(0.94) !important;
   box-shadow:
     0 36px 90px rgba(0, 0, 0, 0.98),
     0 12px 32px rgba(0, 0, 0, 0.94),
-    0 0 0 1.6px rgba(243, 212, 137, 0.74),
-    0 0 32px rgba(243, 212, 137, 0.38) !important;
+    0 0 0 1.4px rgba(223, 177, 91, 0.54),
+    0 0 20px rgba(223, 177, 91, 0.18) !important;
 }
 .under-dev-card-overlay[data-quest-level="3"] .u22-25d-bevel-back .bevel-miter-svg {
-  opacity: 0.92 !important;
+  opacity: 0.85 !important;
 }
 .under-dev-card-overlay[data-quest-level="3"] .bevel-inner-rabbet-shadow {
   box-shadow:
     inset 0 16px 28px rgba(0, 0, 0, 0.92),
-    inset 12px 0 22px rgba(0, 0, 0, 0.74),
-    inset -12px 0 22px rgba(0, 0, 0, 0.74),
-    inset 0 -8px 18px rgba(0, 0, 0, 0.66),
-    inset 0 0 0 1.5px rgba(243, 212, 137, 0.62) !important;
+    inset 12px 0 22px rgba(0, 0, 0, 0.76),
+    inset -12px 0 22px rgba(0, 0, 0, 0.76),
+    inset 0 -8px 18px rgba(0, 0, 0, 0.68),
+    inset 0 0 0 1.4px rgba(223, 177, 91, 0.44) !important;
 }
 
-/* Level 4 (4/4 - Biz Acquired / Full Quest Cleared): 100% 24K Gold Sanctuary Awakening */
+/* Level 4 (4/4 - Biz Acquired / Full Quest Cleared): Calm Museum 2200K Brushed Gold (Zero Neon Glare) */
 .under-dev-card-overlay[data-quest-level="4"] .u22-25d-bevel-back {
-  filter: brightness(1.12) saturate(1.15) !important;
+  filter: brightness(0.92) saturate(0.96) !important;
   box-shadow:
-    0 0 0 2px #fde047,
-    0 0 44px rgba(251, 191, 36, 0.56),
+    0 0 0 1.5px rgba(223, 177, 91, 0.72),
+    0 0 24px rgba(212, 160, 74, 0.24),
     0 36px 90px rgba(0, 0, 0, 0.98) !important;
 }
 .under-dev-card-overlay[data-quest-level="4"] .u22-25d-bevel-back .bevel-miter-svg {
@@ -702,45 +702,29 @@
   }
 }
 
-/* ONLY when Location is clicked / lit: Expands wide & pops out of the 2.5D bronze frame! */
+/* Location stays 100% flush inside its original frame slot when clicked / lit */
 #under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] {
-  width: calc(100% + 92px) !important;
-  margin-left: -46px !important;
-  height: calc(100% - 8px) !important;
-  margin-top: 4px !important;
-  transform:
-    perspective(1050px)
-    translate3d(calc(var(--loc-tx) * 0.42), calc(-14px + var(--loc-ty) * 0.42), 0px)
-    rotateX(calc(2.2deg + var(--loc-rx) * 0.35))
-    rotateY(calc(-0.8deg + var(--loc-ry) * 0.35))
-    rotateZ(0deg)
-    scale(1.035) !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  height: 100% !important;
+  margin-top: 0 !important;
+  transform: none !important;
 }
 
 @media (max-width: 768px) {
   #under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] {
-    width: calc(100% + 52px) !important;
-    margin-left: -26px !important;
-    transform:
-      perspective(980px)
-      translate3d(0px, -10px, 0px)
-      rotateX(1.4deg)
-      rotateY(0deg)
-      rotateZ(0deg)
-      scale(1.022) !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    height: 100% !important;
+    margin-top: 0 !important;
+    transform: none !important;
   }
 }
 
-/* Flatten 0deg when typing inside the slide-up Salon Location Message Panel (stays popped-out wide) */
+/* Keep flat 0deg when typing inside the slide-up Salon Location Message Panel */
 #under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"].loc-msg-open,
 #under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"]:has(.salon-location-msg-panel.open) {
-  transform:
-    perspective(1050px)
-    translate3d(0px, -12px, 0px)
-    rotateX(0deg)
-    rotateY(0deg)
-    rotateZ(0deg)
-    scale(1.03) !important;
+  transform: none !important;
 }
 
 /* 3C. Physical 3D Extruded Chassis Walls & Frame-Crossing Cast Shadow (Hidden when flush, active on Pop-Out) */
@@ -859,11 +843,28 @@
 
 #under-dev-card-overlay #torch-zone-1.loc-3d-breakout-rig[data-lamp-lit="true"] .pass-map-widget {
   border-radius: 15px !important;
-  border-color: #fde047 !important;
+  border-color: rgba(223, 177, 91, 0.64) !important;
   box-shadow:
-    0 22px 48px rgba(0, 0, 0, 0.95),
-    0 0 32px rgba(251, 191, 36, 0.34),
-    inset 0 0 0 1px rgba(255, 252, 232, 0.42) !important;
+    0 20px 44px rgba(0, 0, 0, 0.94),
+    0 0 18px rgba(212, 160, 74, 0.16),
+    inset 0 0 38px rgba(6, 4, 2, 0.58) !important;
+}
+
+/* Museum 2200K Tungsten Grade: Prevent blown-out white picture-light & glaring daylight map */
+#under-dev-card-overlay .hp-brass-lamp-switch .hp-lamp-on {
+  filter: brightness(0.76) contrast(1.06) sepia(0.30) saturate(1.12) !important;
+}
+#under-dev-card-overlay [data-lamp-lit="true"] .hp-lamp-light-cone,
+#under-dev-card-overlay .hp-lamp-light-cone {
+  opacity: 0.36 !important;
+  filter: blur(10px) sepia(0.25) !important;
+}
+#under-dev-card-overlay #torch-zone-1 .pass-expose-map-img {
+  filter: brightness(0.74) contrast(1.06) sepia(0.28) saturate(0.84) !important;
+  transition: filter 0.45s ease !important;
+}
+#under-dev-card-overlay #torch-zone-1[data-lamp-lit="false"] .pass-expose-map-img {
+  filter: brightness(0.36) contrast(1.08) sepia(0.32) saturate(0.75) !important;
 }
 
 /* ==========================================================================
@@ -1468,37 +1469,111 @@
   display: none !important;
 }
 
-/* === BOXLESS BESPOKE FLIP-TO-VERSO MARK (NO GENERIC ROUND PILL) === */
+/* === BOXLESS BESPOKE FLIP-TO-VERSO MARK (GENEROUS 44x44 HITBOX & TOPMOST Z-LAYER) === */
 .jesse-flip-back-pill,
 #btn-gobo-flip-to-salon,
+#gobo-canvas-frame.symbol-inspect-mode:not(.card-flipped-out) .gobo-flip-to-salon-pill,
 #btn-under-dev-replay,
 #btn-front-corp-flip-to-salon {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  width: auto !important;
-  height: auto !important;
-  padding: 6px 8px !important;
-  color: rgba(243, 212, 137, 0.78) !important;
+  background: rgba(12, 10, 8, 0.42) !important;
+  border: 1px solid rgba(243, 212, 137, 0.34) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65) !important;
+  backdrop-filter: blur(4px) !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  z-index: 9999 !important;
+  transform: translateZ(48px) !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  color: rgba(243, 212, 137, 0.92) !important;
   font-family: 'JSF Maison', 'Cormorant Garamond', Georgia, serif !important;
-  font-size: 16px !important;
+  font-size: 19px !important;
   letter-spacing: 0.14em !important;
-  text-shadow: 0 0 10px rgba(243, 212, 137, 0.45), 0 1px 6px rgba(0, 0, 0, 0.95) !important;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s ease, text-shadow 0.22s ease !important;
+  text-shadow: 0 0 10px rgba(243, 212, 137, 0.52), 0 1px 6px rgba(0, 0, 0, 0.95) !important;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s ease, background 0.22s ease, border-color 0.22s ease !important;
 }
 
 .jesse-flip-back-pill:hover,
 #btn-gobo-flip-to-salon:hover,
+#gobo-canvas-frame.symbol-inspect-mode:not(.card-flipped-out) .gobo-flip-to-salon-pill:hover,
 #btn-under-dev-replay:hover {
+  background: rgba(223, 177, 91, 0.22) !important;
+  border-color: rgba(253, 224, 71, 0.85) !important;
   color: #fde68a !important;
   text-shadow: 0 0 16px rgba(253, 224, 71, 0.85) !important;
-  transform: rotate(-18deg) scale(1.14) !important;
+  transform: translateZ(48px) rotate(-18deg) scale(1.1) !important;
 }
 
-/* === FLOATING UNDER-FRAME EQUIPPED STEM BAR (DETACHED FROM BOTTOM EDGE) === */
+/* === RETURNED MODE: 1:1 WINDOW-LOCKED DECHEMA ATELIER PHOTO + TILES SPILLING BELOW FRAME === */
+.gobo-canvas-frame {
+  z-index: 20 !important;
+}
+
+#symbol-trigger:has(.gobo-canvas-frame.symbol-inspect-mode) .window-room-bg-anchor {
+  width: calc(var(--jsf-unified-frame-w) * 1.92) !important;
+  height: calc(var(--jsf-unified-frame-w) * 3.156) !important;
+  aspect-ratio: auto !important;
+  top: 50% !important;
+  left: 50% !important;
+  z-index: 1 !important;
+  opacity: 0.92 !important;
+  overflow: visible !important;
+  /* Lock left window (18%..50.7% of 3.156W = 1.032W = .frame-illuminated height!) to frame 1:1 */
+  transform: translate(-46.55%, -34.35%) translateZ(-36px) scale(1.0) !important;
+  mask-image:
+    radial-gradient(ellipse 52% 48% at 46.55% 42%, rgba(0, 0, 0, 0.98) 54%, rgba(0, 0, 0, 0.65) 78%, transparent 98%) !important;
+  -webkit-mask-image:
+    radial-gradient(ellipse 52% 48% at 46.55% 42%, rgba(0, 0, 0, 0.98) 54%, rgba(0, 0, 0, 0.65) 78%, transparent 98%) !important;
+}
+
+#symbol-trigger:has(.gobo-canvas-frame.symbol-inspect-mode) .window-room-bg-img {
+  position: absolute !important;
+  width: 100% !important;
+  height: 100% !important;
+  left: 0 !important;
+  top: 0 !important;
+  max-width: none !important;
+  object-fit: fill !important;
+  filter: brightness(0.90) contrast(1.06) saturate(1.08) !important;
+}
+
+/* Lock 4-tile stem cluster 1:1 over the 4 real photo tiles right below the window sill */
+body:has(.gobo-canvas-frame.symbol-inspect-mode) #jsf-minimal-mp3-bar {
+  top: calc(50dvh + var(--jsf-unified-frame-w) * 0.5697) !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: auto auto !important;
+  justify-items: center !important;
+  align-items: center !important;
+  row-gap: 8px !important;
+  column-gap: 8px !important;
+}
+
+body:has(.gobo-canvas-frame.symbol-inspect-mode) #jsf-minimal-mp3-bar #jsf-stem-pill-cluster {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+}
+
+body:has(.gobo-canvas-frame.symbol-inspect-mode) #jsf-minimal-mp3-bar .jsf-mp3-track-info {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+}
+
+body:has(.gobo-canvas-frame.symbol-inspect-mode) #jsf-minimal-mp3-bar #jsf-minimal-mute-btn {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+}
+
+/* === FLOATING UNDER-FRAME EQUIPPED STEM BAR (CLEAR OF LOWER MOLDING) === */
 #jsf-minimal-mp3-bar {
-  top: min(calc(50% + (var(--jsf-unified-frame-w) * 1095 / 976) / 2 + 12px), calc(100dvh - 50px)) !important;
+  top: min(calc(50% + (var(--jsf-unified-frame-w) * 1095 / 976) / 2 + 20px), calc(100dvh - 68px)) !important;
   bottom: auto !important;
   left: 50% !important;
   right: auto !important;

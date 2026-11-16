@@ -45,11 +45,11 @@
       if (dlBtn) dlBtn.textContent = QR_LABELS[v].dl;
     }
 
-    // Update Location icons (replacing pixel dot-art SVGs)
+    // Preserve Blender 3D Leica Brass Keycap labels & engraved icons if mounted!
     const igMark = document.getElementById('btn-loc-ig-mark');
     const msgMark = document.getElementById('btn-open-salon-msg-panel');
-    if (igMark) igMark.innerHTML = LOC_SVGS[v].ig;
-    if (msgMark) msgMark.innerHTML = LOC_SVGS[v].msg;
+    if (igMark && !igMark.querySelector('.loc-keycap-engraved-lbl')) igMark.innerHTML = LOC_SVGS[v].ig;
+    if (msgMark && !msgMark.querySelector('.loc-keycap-engraved-lbl')) msgMark.innerHTML = LOC_SVGS[v].msg;
 
     // Update preview dock active state
     document.querySelectorAll('.jsf-bv-btn').forEach((b) => {
@@ -76,12 +76,9 @@
   }
 
   function init() {
-    let saved = 1;
-    try { saved = Number(localStorage.getItem(STORAGE_KEY)) || 1; } catch (_) {}
-    mountPreviewDock();
-    applyBespokeVariant(saved);
+    applyBespokeVariant(1);
     // Re-apply once jsf_qr_gate mounts #jsf-qr-mode-switcher asynchronously
-    setTimeout(() => applyBespokeVariant(Number(document.documentElement.getAttribute('data-jsf-bespoke')) || saved), 350);
+    setTimeout(() => applyBespokeVariant(1), 350);
   }
 
   window.__setJsfBespokeVariant = applyBespokeVariant;

@@ -229,10 +229,23 @@
         syncVipUiState();
       };
 
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', syncVipUiState);
-      } else {
+      function bootVipAndOptionalSalonJump() {
         syncVipUiState();
+        try {
+          if (window.location && window.location.search.indexOf('salon=1') !== -1) {
+            setTimeout(() => {
+              const qr = document.getElementById('jsf-qr-entry-gate');
+              if (qr) { qr.classList.add('dismissed'); qr.style.display = 'none'; }
+              if (typeof window.__skipIntroAsVip === 'function') window.__skipIntroAsVip();
+            }, 120);
+          }
+        } catch (_) {}
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootVipAndOptionalSalonJump);
+      } else {
+        bootVipAndOptionalSalonJump();
       }
     })();
 
@@ -253,7 +266,7 @@
         kalina_loc_for:      { url: '/assets/sounds/location_voice/kalina_loc_02_for.mp3?v=exact_loc_v18',      gain: 0.24, jitter: 0.00 },
         kalina_loc_exact:    { url: '/assets/sounds/location_voice/kalina_loc_03_exact.mp3?v=exact_loc_v18',    gain: 0.24, jitter: 0.00 },
         kalina_loc_location: { url: '/assets/sounds/location_voice/kalina_loc_04_location.mp3?v=exact_loc_v18', gain: 0.24, jitter: 0.00 },
-        kalina_loc_sentence: { url: '/assets/sounds/location_voice/kalina_loc_sentence_v2.mp3?v=sentence_v2',   gain: 0.24, jitter: 0.00 }
+        kalina_loc_sentence: { url: '/assets/sounds/location_voice/kalina_loc_sentence_v2.mp3?v=cand3_final_170cello_121timp', gain: 0.34, jitter: 0.00 }
       };
 
       const foleyRawBytes = {};
@@ -267,7 +280,7 @@
           window.__jsfFoleyStats.preloaded[key] = 0;
           window.__jsfFoleyStats.played[key] = 0;
           try {
-            fetch(spec.url, { cache: 'force-cache' })
+            fetch(spec.url, { cache: key === 'kalina_loc_sentence' ? 'no-cache' : 'force-cache' })
               .then((r) => (r.ok ? r.arrayBuffer() : null))
               .then((ab) => {
                 if (ab && ab.byteLength > 0) {
@@ -868,6 +881,7 @@
             if (!locSpokenStages.location) {
               locSpokenStages.location = true;
               window.__kalinaLocVoiceStats.location = (window.__kalinaLocVoiceStats.location || 0) + 1;
+              unlockLocationConciergeDockClimax(false);
             }
           }
 
@@ -1060,11 +1074,32 @@
 
         lampTimers[key].off = setTimeout(() => {
           const zoneEl = getZoneElement(key);
+          if (key === 'map') {
+            unlockLocationConciergeDockClimax(true);
+          }
           if (zoneEl && zoneEl.getAttribute('data-lamp-lit') === 'true') {
             window.__toggleHarryPotterLamp(key, false);
           }
         }, offMs);
       }
+
+      function unlockLocationConciergeDockClimax(silent) {
+        const z1 = document.getElementById('torch-zone-1');
+        if (!z1 || locIconsEverUnlocked) return;
+        locIconsEverUnlocked = true;
+        z1.setAttribute('data-loc-unlocked', 'true');
+        if (!silent) {
+          z1.setAttribute('data-loc-unlocking', 'true');
+          if (!window.__jsfAudioMuted && typeof window.__playJsfFoleySfx === 'function') {
+            window.__playJsfFoleySfx('switch_on', { gain: 0.14, rate: 0.96, jitter: 0.01 });
+          }
+          if (locIconsUnlockTimer) clearTimeout(locIconsUnlockTimer);
+          locIconsUnlockTimer = setTimeout(() => {
+            z1.removeAttribute('data-loc-unlocking');
+          }, 820);
+        }
+      }
+      window.__forceUnlockLocationConciergeDock = unlockLocationConciergeDockClimax;
 
       window.__resetHarryPotterLampTimer = function(target) {
         const key = target === 'map' ? 'map' : Number(target);
@@ -1204,17 +1239,7 @@
           litLamps.map = next;
           playBrassSwitchClickSound(next);
           if (next) {
-            // First time Location is clicked: trigger 3.0-second progressive tungsten-filament icon unlock + ElevenLabs SFX!
-            if (!locIconsEverUnlocked) {
-              locIconsEverUnlocked = true;
-              z1.setAttribute('data-loc-unlocked', 'true');
-              z1.setAttribute('data-loc-unlocking', 'true');
-              playLocationFilamentUnlockSound();
-              if (locIconsUnlockTimer) clearTimeout(locIconsUnlockTimer);
-              locIconsUnlockTimer = setTimeout(() => {
-                z1.removeAttribute('data-loc-unlocking');
-              }, 3000);
-            }
+            // Note: 3D Leica Brass Concierge Dock now stays hidden until the 2.972s "Location" + Timpani Climax!
             if (typeof window.__startAlibiFromLocationLamp === 'function') {
               window.__startAlibiFromLocationLamp();
             }
@@ -1257,13 +1282,11 @@
                 ],
                 1: [
                   '/assets/videos/social_design_talk_curated.mp4',
-                  '/assets/videos/social_pourover_chat.mp4',
                   '/assets/videos/social_group_cheers.mp4'
                 ],
                 2: [
-                  '/assets/videos/solo_atelier_candid_curated.mp4',
                   '/assets/videos/solo_doorway_peek.mp4',
-                  '/assets/videos/solo_table_polaroids.mp4'
+                  '/assets/videos/solo_atelier_afterglow_curated.mp4'
                 ]
               };
               const pool = SALON_VIDEO_POOLS[idx];
@@ -1711,6 +1734,66 @@
           document.addEventListener('DOMContentLoaded', bindSymbolInspectAndHold);
         } else {
           bindSymbolInspectAndHold();
+        }
+      })();
+
+      // Bulletproof capture-phase binding for Front Return Flip button & Extended Room BG photo
+      (function bindGoboReturnFlipAndRoomReveal() {
+        const goboFlipBtn = document.getElementById('btn-gobo-flip-to-salon');
+        if (goboFlipBtn) {
+          goboFlipBtn.addEventListener('pointerdown', (e) => {
+            e.stopPropagation();
+          }, true);
+          goboFlipBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof window.__activateUnderDevCard === 'function') {
+              window.__activateUnderDevCard(true);
+            }
+          }, true);
+        }
+        const goboFrameEl = document.getElementById('gobo-canvas-frame');
+        const bgImg = document.getElementById('window-room-bg-img');
+        if (goboFrameEl && bgImg && typeof MutationObserver !== 'undefined') {
+          const syncRoomImg = () => {
+            if (goboFrameEl.classList.contains('symbol-inspect-mode')) {
+              if (!bgImg.src.includes('sean_window_crop_vertical_9_16.jpg')) {
+                bgImg.src = '/assets/sean_window_crop_vertical_9_16.jpg';
+              }
+            }
+          };
+          syncRoomImg();
+          new MutationObserver(syncRoomImg).observe(goboFrameEl, { attributes: true, attributeFilter: ['class'] });
+        }
+        // Fast-jump (?stage=inspect) for instant alignment inspection
+        if (window.location.search.includes('stage=inspect')) {
+          const jumpInspect = () => {
+            document.documentElement.classList.remove('jsf-qr-gate-first');
+            ['jsf-pure-qr-float', 'noir-preload-curtain', 'noir-intro-screen'].forEach((id) => {
+              const el = document.getElementById(id);
+              if (el) el.style.display = 'none';
+            });
+            const mainStage = document.getElementById('symbol-stage-3d');
+            if (mainStage) { mainStage.style.opacity = '1'; mainStage.style.visibility = 'visible'; }
+            window.__noirCurtainUnveiled = true;
+            window.__borderPaintCompleted = true;
+            const gf = document.getElementById('gobo-canvas-frame');
+            const lr = document.getElementById('gobo-light-rig');
+            const sr = document.getElementById('gobo-symbol-rig');
+            if (gf) {
+              gf.classList.remove('card-flipped-out', 'worm-eye-monolith');
+              gf.classList.add('frame-illuminated', 'symbol-inspect-mode');
+              gf.style.opacity = '1';
+              gf.style.visibility = 'visible';
+            }
+            if (lr) { lr.classList.add('stabilized'); lr.style.opacity = '1'; }
+            if (sr) { sr.classList.add('materialized'); sr.style.opacity = '1'; }
+            const emblem = document.getElementById('digital-logo-overlay');
+            if (emblem) emblem.style.opacity = '1';
+            document.body.classList.remove('vip-pass-flipped');
+          };
+          setTimeout(jumpInspect, 200);
+          setTimeout(jumpInspect, 800);
         }
       })();
 

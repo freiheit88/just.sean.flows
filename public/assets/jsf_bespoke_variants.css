@@ -46,8 +46,8 @@ html[data-jsf-bespoke] #jsf-qr-mode-switcher {
   border: none !important;
   box-shadow: none !important;
   backdrop-filter: none !important;
-  padding: 4px 2px !important;
-  gap: 14px !important;
+  padding: 6px 4px !important;
+  gap: 26px !important;
 }
 
 html[data-jsf-bespoke] #jsf-qr-mode-switcher .jsf-qr-mode-btn,
@@ -56,9 +56,9 @@ html[data-jsf-bespoke] #jsf-qr-mode-switcher .jsf-qr-dl-btn {
   border: none !important;
   box-shadow: none !important;
   border-radius: 0 !important;
-  padding: 4px 2px !important;
+  padding: 6px 4px !important;
   font-family: 'JSF Maison', 'Cormorant Garamond', Georgia, serif !important;
-  letter-spacing: 0.14em !important;
+  letter-spacing: 0.16em !important;
   position: relative;
   transition: color 0.25s ease, opacity 0.25s ease, filter 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -68,8 +68,8 @@ html[data-jsf-bespoke] #jsf-qr-mode-switcher .jsf-qr-dl-btn {
    ========================================================================== */
 html[data-jsf-bespoke="1"] #jsf-qr-mode-switcher .jsf-qr-mode-btn,
 html[data-jsf-bespoke="1"] #jsf-qr-mode-switcher .jsf-qr-dl-btn {
-  color: rgba(243, 212, 137, 0.48) !important;
-  font-size: 11.5px !important;
+  color: rgba(243, 212, 137, 0.56) !important;
+  font-size: 13.5px !important;
 }
 
 html[data-jsf-bespoke="1"] #jsf-qr-mode-switcher .jsf-qr-mode-btn.active {

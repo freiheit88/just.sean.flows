@@ -9,10 +9,10 @@
   'use strict';
 
   const STEMS = {
-    map: { key: 'map', code: '🎸', label: 'Guitar', url: '/assets/stems_alibi/stem_location_guitar.mp3?v=zero_v3', weight: 1.00 },
-    0:   { key: '0',   code: '🎤', label: 'Vocal',  url: '/assets/stems_alibi/stem_biz_vocals.mp3?v=zero_v3',      weight: 0.92 },
-    1:   { key: '1',   code: '🎻', label: 'Bass',   url: '/assets/stems_alibi/stem_social_bass.mp3?v=zero_v3',     weight: 0.95 },
-    2:   { key: '2',   code: '🥁', label: 'Drums',  url: '/assets/stems_alibi/stem_party_drums.mp3?v=zero_v3',     weight: 0.96 }
+    map: { key: 'map', code: '🎸', iconUrl: '/assets/icons_3d/item_guitar.png', label: 'Guitar', url: '/assets/stems_alibi/stem_location_guitar.mp3?v=zero_v3', weight: 1.00 },
+    0:   { key: '0',   code: '🎤', iconUrl: '/assets/icons_3d/item_vocal.png',  label: 'Vocal',  url: '/assets/stems_alibi/stem_biz_vocals.mp3?v=zero_v3',      weight: 0.92 },
+    1:   { key: '1',   code: '🎻', iconUrl: '/assets/icons_3d/item_violin.png', label: 'Bass',   url: '/assets/stems_alibi/stem_social_bass.mp3?v=zero_v3',     weight: 0.95 },
+    2:   { key: '2',   code: '🥁', iconUrl: '/assets/icons_3d/item_drums.png',  label: 'Drums',  url: '/assets/stems_alibi/stem_party_drums.mp3?v=zero_v3',     weight: 0.96 }
   };
   const STEM_KEYS = ['map', '0', '1', '2'];
 
@@ -121,54 +121,99 @@
         .jsf-stem-pill-cluster {
           display: inline-flex;
           align-items: center;
-          gap: 7px;
-          margin-left: 12px;
-          margin-right: 6px;
+          gap: 0px;
+          padding: 0px;
+          margin: 0;
           vertical-align: middle;
+          background: transparent;
+          border-radius: 2px;
         }
         .jsf-stem-micro-pill {
+          position: relative;
           appearance: none;
-          width: 28px;
-          height: 32px;
+          width: calc(var(--jsf-unified-frame-w, 460px) * 0.1333);
+          height: calc(var(--jsf-unified-frame-w, 460px) * 0.1170);
+          min-width: 44px;
+          min-height: 40px;
           padding: 0;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border: none;
-          background: transparent;
-          box-shadow: none;
-          font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-          font-size: 20px;
+          border-radius: 1px;
+          border: 1px solid rgba(243, 212, 137, 0.28);
+          background: rgba(10, 8, 5, 0.22);
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
           line-height: 1;
           cursor: pointer;
           user-select: none;
-          opacity: 0.28;
-          filter: grayscale(1) brightness(0.42) contrast(1.25);
-          transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), filter 0.22s ease, opacity 0.08s linear;
+          overflow: hidden;
+          transition: border-color 0.22s ease, box-shadow 0.25s ease, background 0.25s ease, transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .jsf-stem-micro-pill::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: rgba(6, 5, 3, 0.26);
+          transition: background 0.25s ease, opacity 0.25s ease;
+          pointer-events: none;
+        }
+        .jsf-stem-3d-img {
+          position: relative;
+          z-index: 1;
+          width: 62%;
+          height: 62%;
+          object-fit: contain;
+          pointer-events: none;
+          display: block;
+          opacity: 0.45;
+          filter: grayscale(1) brightness(0.62) contrast(1.25) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.85));
+          transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), filter 0.22s ease, opacity 0.12s ease;
         }
         .jsf-stem-micro-pill:hover {
-          opacity: 0.82;
-          filter: grayscale(0.2) brightness(1.02) drop-shadow(0 0 6px rgba(243, 212, 137, 0.42));
-          transform: translateY(-1.5px) scale(1.14);
+          border-color: rgba(243, 212, 137, 0.48);
+          transform: translateY(-1px);
+        }
+        .jsf-stem-micro-pill:hover::before {
+          background: rgba(12, 9, 5, 0.34);
+        }
+        .jsf-stem-micro-pill:hover .jsf-stem-3d-img {
+          opacity: 0.84;
+          filter: grayscale(0.15) brightness(1.02) drop-shadow(0 0 6px rgba(243, 212, 137, 0.45));
+          transform: scale(1.08);
         }
         @keyframes jsfStemEquipPop {
           0%   { transform: scale(0.84); }
-          45%  { transform: scale(1.28); }
-          100% { transform: scale(1.06); }
+          45%  { transform: scale(1.24); }
+          100% { transform: scale(1.08); }
         }
         .jsf-stem-micro-pill.lit {
+          border-color: rgba(243, 212, 137, 0.78);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 244, 210, 0.32),
+            inset 0 0 12px rgba(243, 212, 137, 0.28),
+            0 0 10px rgba(243, 212, 137, 0.24);
+        }
+        .jsf-stem-micro-pill.lit::before {
+          background: radial-gradient(circle at 50% 42%, rgba(255, 224, 150, 0.14), rgba(14, 10, 5, 0.18));
+        }
+        .jsf-stem-micro-pill.lit .jsf-stem-3d-img {
           opacity: 1;
-          filter: grayscale(0) brightness(1.12) drop-shadow(0 0 10px rgba(253, 224, 71, 0.85)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.92));
-          transform: scale(1.06);
+          filter: grayscale(0) brightness(1.12) drop-shadow(0 0 8px rgba(253, 224, 71, 0.82)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.88));
+          transform: scale(1.08);
           animation: jsfStemEquipPop 0.42s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .jsf-stem-micro-pill.standby {
-          opacity: 0.44;
-          filter: grayscale(0.65) brightness(0.68) drop-shadow(0 0 4px rgba(223, 177, 91, 0.28));
+          border-color: rgba(223, 177, 91, 0.34);
+        }
+        .jsf-stem-micro-pill.standby::before {
+          background: rgba(10, 7, 4, 0.44);
+        }
+        .jsf-stem-micro-pill.standby .jsf-stem-3d-img {
+          opacity: 0.52;
+          filter: grayscale(0.60) brightness(0.75) drop-shadow(0 0 4px rgba(223, 177, 91, 0.30));
         }
         @media (max-width: 520px) {
-          .jsf-stem-pill-cluster { gap: 5px; margin-left: 8px; }
-          .jsf-stem-micro-pill { width: 24px; height: 28px; font-size: 17.5px; }
+          .jsf-stem-pill-cluster { gap: 0px; padding: 0px; margin: 0; }
         }
       `;
       document.head.appendChild(st);
@@ -183,7 +228,12 @@
       btn.type = 'button';
       btn.className = 'jsf-stem-micro-pill';
       btn.id = `jsf-stem-pill-${k}`;
-      btn.textContent = STEMS[k].code;
+      const img = document.createElement('img');
+      img.className = 'jsf-stem-3d-img';
+      img.src = STEMS[k].iconUrl;
+      img.alt = STEMS[k].label;
+      img.decoding = 'async';
+      btn.appendChild(img);
       btn.title = `${STEMS[k].label} Stem (Click to toggle lamp)`;
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -273,6 +323,17 @@
 
     // Individual lamp is in its 5-bounce dying tungsten flicker -> bounce ONLY THIS STEM in 1:1 sync!
     if (st.dying) {
+      // During Location ('map') dying bokeh ("ASK -> FOR -> The exact -> Location"),
+      // gently pocket Alibi Guitar (-21 dB, 520 Hz) so the 432Hz A-minor Chamber Orchestra + 20:80 Duet shines with zero key clash!
+      if (k === 'map') {
+        return {
+          gain: Math.max(0.0005, CFG.baseGain * info.weight * 0.085),
+          cutoff: 520,
+          q: 0.75,
+          delay: 0.0012,
+          tc: 0.14
+        };
+      }
       const power = typeof st.power === 'number' ? Math.max(0, Math.min(1, st.power)) : 1.0;
       const dip = typeof st.dip === 'number' ? Math.max(0, Math.min(1, st.dip)) : 0.0;
       const sag = Math.max(1.0 - power, dip * 0.96);

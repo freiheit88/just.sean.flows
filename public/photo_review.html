@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSF · Final Photo Comment &amp; Audit Sheet</title>
+  <style>
+    :root {
+      --bg: #070608;
+      --card: #110e13;
+      --gold: #dfb15b;
+      --gold-bright: #f3d489;
+      --cream: #fbf8f3;
+      --muted: rgba(251, 248, 243, 0.56);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", sans-serif;
+      padding: 84px 20px 80px;
+    }
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 22px;
+      background: rgba(8, 7, 10, 0.90);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(223, 177, 91, 0.25);
+    }
+    .brand {
+      font-size: 13px; letter-spacing: 0.14em; color: var(--gold-bright); font-weight: 600;
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tab-btn, .act-btn {
+      appearance: none; cursor: pointer;
+      padding: 6px 12px; border-radius: 999px;
+      border: 1px solid rgba(223, 177, 91, 0.28);
+      background: rgba(223, 177, 91, 0.06);
+      color: var(--muted); font-size: 11px; letter-spacing: 0.06em;
+      transition: all 0.18s ease;
+    }
+    .tab-btn.active, .act-btn:hover {
+      background: rgba(223, 177, 91, 0.22);
+      border-color: var(--gold-bright);
+      color: var(--gold-bright);
+    }
+    .act-btn.primary {
+      background: var(--gold); color: #09080c; border-color: var(--gold-bright); font-weight: 700;
+    }
+    .act-btn.primary:hover { background: var(--gold-bright); }
+    .grid {
+      max-width: 1460px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(223, 177, 91, 0.18);
+      border-radius: 10px; overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: border-color 0.2s ease;
+    }
+    .card[data-status="KEEP"] { border-color: rgba(74, 222, 128, 0.55); }
+    .card[data-status="EDIT"] { border-color: rgba(251, 191, 36, 0.72); }
+    .card[data-status="DROP"] { border-color: rgba(248, 113, 113, 0.65); opacity: 0.65; }
+    .thumb-wrap {
+      position: relative; aspect-ratio: 4 / 3; background: #040305; overflow: hidden; cursor: zoom-in;
+    }
+    .thumb-wrap img, .thumb-wrap video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .code-badge {
+      position: absolute; top: 8px; left: 8px;
+      padding: 3px 8px; border-radius: 4px;
+      background: rgba(7, 6, 8, 0.82); border: 1px solid rgba(223, 177, 91, 0.35);
+      color: var(--gold-bright); font-size: 11px; font-family: ui-monospace, monospace;
+    }
+    .domain-badge {
+      position: absolute; top: 8px; right: 8px;
+      padding: 3px 8px; border-radius: 4px;
+      background: rgba(7, 6, 8, 0.82); color: var(--muted); font-size: 10px; letter-spacing: 0.08em;
+    }
+    .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .title { font-size: 13px; font-weight: 600; color: var(--cream); line-height: 1.35; }
+    .meta { font-size: 11px; color: var(--muted); font-family: ui-monospace, monospace; word-break: break-all; }
+    .status-row { display: flex; gap: 6px; }
+    .st-btn {
+      flex: 1; padding: 5px 0; border-radius: 5px; cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted); font-size: 11px; font-weight: 600;
+    }
+    .st-btn[data-st="KEEP"].on { background: rgba(34, 197, 94, 0.22); border-color: #4ade80; color: #86efac; }
+    .st-btn[data-st="EDIT"].on { background: rgba(245, 158, 11, 0.22); border-color: #fbbf24; color: #fde68a; }
+    .st-btn[data-st="DROP"].on { background: rgba(239, 68, 68, 0.22); border-color: #f87171; color: #fca5a5; }
+    textarea {
+      width: 100%; min-height: 64px; resize: vertical;
+      background: rgba(5, 4, 7, 0.85); color: var(--cream);
+      border: 1px solid rgba(223, 177, 91, 0.22); border-radius: 6px;
+      padding: 8px 10px; font-size: 12px; font-family: inherit; line-height: 1.45;
+    }
+    textarea:focus { outline: none; border-color: var(--gold-bright); }
+    .lightbox {
+      position: fixed; inset: 0; z-index: 200; display: none;
+      align-items: center; justify-content: center;
+      background: rgba(4, 3, 6, 0.92); backdrop-filter: blur(8px); cursor: zoom-out;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 92vw; max-height: 90dvh; border-radius: 8px; border: 1px solid rgba(223,177,91,0.4); }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">JSF FINAL PHOTO COMMENT FORM <span id="stats" style="opacity:.7;font-weight:400;"></span></div>
+    <div class="filters">
+      <button class="tab-btn active" data-filter="FINAL">FINAL KEEP (≤30 + KEEP)</button>
+      <button class="tab-btn" data-filter="PARTY">PARTY</button>
+      <button class="tab-btn" data-filter="SOCIAL">SOCIAL</button>
+      <button class="tab-btn" data-filter="BIZ">BIZ</button>
+      <button class="tab-btn" data-filter="ALL">ALL</button>
+      <button class="tab-btn" data-filter="REVIEWED">COMMENTED ONLY</button>
+      <button class="tab-btn" data-filter="VIDEOS">VIDEOS</button>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="act-btn primary" id="btn-copy-comments">Copy Comments</button>
+      <button class="act-btn" id="btn-clear-all">Reset</button>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="lightbox" id="lightbox"><img id="lb-img" src="" alt="" /></div>
+
+  <script src="/assets/u22_gallery_catalog.js"></script>
+  <script>
+    (function () {
+      const STORE = 'jsf_final_photo_comments_v1';
+      const catalog = (window.__U22_GALLERY_CATALOG__ && window.__U22_GALLERY_CATALOG__.photos) || [];
+      const videos = [
+        { code: 'V01', domain: 'SALON', title: 'Music Violin Salon', filename: 'music_violin_salon.mp4', url: '/assets/videos/music_violin_salon.mp4' },
+        { code: 'V02', domain: 'SALON', title: 'Music Vinyl Jam Curated', filename: 'music_vinyl_jam_curated.mp4', url: '/assets/videos/music_vinyl_jam_curated.mp4' },
+        { code: 'V03', domain: 'SALON', title: 'Music Brass Guitar Jam', filename: 'music_brass_guitar_jam.mp4', url: '/assets/videos/music_brass_guitar_jam.mp4' },
+        { code: 'V04', domain: 'SALON', title: 'Music Vinyl B2B Duo', filename: 'music_vinyl_b2b_duo.mp4', url: '/assets/videos/music_vinyl_b2b_duo.mp4' },
+        { code: 'V05', domain: 'SOCIAL', title: 'Social Salon Talk', filename: 'social_salon_talk.mp4', url: '/assets/videos/social_salon_talk.mp4' },
+        { code: 'V06', domain: 'SOCIAL', title: 'Social Design Talk Curated', filename: 'social_design_talk_curated.mp4', url: '/assets/videos/social_design_talk_curated.mp4' },
+        { code: 'V08', domain: 'SOCIAL', title: 'Social Group Cheers', filename: 'social_group_cheers.mp4', url: '/assets/videos/social_group_cheers.mp4' },
+        { code: 'V09', domain: 'SOLO', title: 'Solo Atelier Afterglow Curated', filename: 'solo_atelier_afterglow_curated.mp4', url: '/assets/videos/solo_atelier_afterglow_curated.mp4' },
+        { code: 'V11', domain: 'SOLO', title: 'Solo Doorway Peek', filename: 'solo_doorway_peek.mp4', url: '/assets/videos/solo_doorway_peek.mp4' },
+        { code: 'V13', domain: 'QR', title: 'QR Walnut Cinemagraph', filename: 'qr_walnut_cinemagraph.mp4', url: '/assets/videos/qr_walnut_cinemagraph.mp4' },
+        { code: 'V14', domain: 'CONCEPT', title: 'Concept 01 Music Jam Loop', filename: 'concept_01_music_jam_loop.mp4', url: '/assets/salon_concepts/concept_01_music_jam_loop.mp4' },
+        { code: 'V15', domain: 'CONCEPT', title: 'Concept 02 Salon Talk Loop', filename: 'concept_02_salon_talk_loop.mp4', url: '/assets/salon_concepts/concept_02_salon_talk_loop.mp4' },
+        { code: 'V16', domain: 'CONCEPT', title: 'Concept 03 Introvert Cafe Loop', filename: 'concept_03_introvert_cafe_loop.mp4', url: '/assets/salon_concepts/concept_03_introvert_cafe_loop.mp4' },
+        { code: 'V17', domain: 'CONCEPT', title: 'Intro Salon Sanctuary Loop', filename: 'intro_salon_sanctuary_loop.mp4', url: '/assets/salon_concepts/intro_salon_sanctuary_loop.mp4' },
+        { code: 'V18', domain: 'SCENE', title: 'Preintro Glass Fog', filename: 'preintro_glass_fog.mp4', url: '/assets/preintro_glass_fog.mp4' },
+        { code: 'V19', domain: 'SCENE', title: 'Step 02 Transition', filename: 'step_02_transition.mp4', url: '/assets/step_02_transition.mp4' },
+        { code: 'V20', domain: 'SCENE', title: 'U22 Ambient Canopy BG Loop', filename: 'u22_ambient_canopy_bg_loop.mp4', url: '/assets/u22_ambient_canopy_bg_loop.mp4' },
+        { code: 'V21', domain: 'MV', title: 'A Twelve-minute Alibi MV', filename: 'A Twelve-minute Alibi_MV.mp4', url: '/assets/manual_upload/A Twelve-minute Alibi/A Twelve-minute Alibi_MV.mp4' }
+      ];
+      let notes = {};
+      try { notes = JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (_) {}
+      let activeFilter = 'FINAL';
+      const CACHE_BUST = Date.now();
+      function codeNum(p) { return parseInt(String(p.code || '').replace(/\D+/g, ''), 10) || 9999; }
+
+      const grid = document.getElementById('grid');
+      const stats = document.getElementById('stats');
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lb-img');
+      lb.addEventListener('click', () => lb.classList.remove('open'));
+
+      function save() {
+        try { localStorage.setItem(STORE, JSON.stringify(notes)); } catch (_) {}
+        updateStats();
+      }
+
+      function updateStats() {
+        const count = Object.values(notes).filter((n) => (n.comment && n.comment.trim()) || n.status).length;
+        stats.textContent = `· ${catalog.length}장 중 ${count}건 코멘트`;
+      }
+
+      function render() {
+        const isVideoTab = activeFilter === 'VIDEOS';
+        const list = isVideoTab ? videos : catalog.filter((p) => {
+          const n = notes[p.filename] || {};
+          if (activeFilter === 'FINAL') return !!p.keep && n.status !== 'DROP' && (codeNum(p) <= 30 || n.status === 'KEEP');
+          if (activeFilter === 'REVIEWED') return !!(n.comment && n.comment.trim()) || !!n.status;
+          if (activeFilter === 'ALL') return true;
+          return p.domain === activeFilter;
+        });
+
+        grid.innerHTML = '';
+        list.forEach((p) => {
+          const n = notes[p.filename] || { status: '', comment: '' };
+          const card = document.createElement('div');
+          card.className = 'card';
+          if (n.status) card.dataset.status = n.status;
+          const mediaHtml = isVideoTab
+            ? `<video src="${p.url}" controls muted loop playsinline preload="metadata"></video>`
+            : `<img src="${p.url}?v=${CACHE_BUST}" alt="${p.title}" loading="lazy" />`;
+          card.innerHTML = `
+            <div class="thumb-wrap">
+              ${mediaHtml}
+              <span class="code-badge">${p.code || ''}</span>
+              <span class="domain-badge">${p.domain}</span>
+            </div>
+            <div class="body">
+              <div class="title">${p.title}</div>
+              <div class="meta">${p.filename}</div>
+              <div class="status-row">
+                <button type="button" class="st-btn ${n.status === 'KEEP' ? 'on' : ''}" data-st="KEEP">KEEP</button>
+                <button type="button" class="st-btn ${n.status === 'EDIT' ? 'on' : ''}" data-st="EDIT">EDIT</button>
+                <button type="button" class="st-btn ${n.status === 'DROP' ? 'on' : ''}" data-st="DROP">DROP</button>
+              </div>
+              <textarea placeholder="여기에 수정/피드백 코멘트 입력..."></textarea>
+            </div>
+          `;
+          const ta = card.querySelector('textarea');
+          ta.value = n.comment || '';
+          ta.addEventListener('input', () => {
+            notes[p.filename] = notes[p.filename] || { status: '', comment: '' };
+            notes[p.filename].comment = ta.value;
+            save();
+          });
+          card.querySelectorAll('.st-btn').forEach((b) => {
+            b.addEventListener('click', () => {
+              notes[p.filename] = notes[p.filename] || { status: '', comment: '' };
+              const next = notes[p.filename].status === b.dataset.st ? '' : b.dataset.st;
+              notes[p.filename].status = next;
+              card.dataset.status = next;
+              card.querySelectorAll('.st-btn').forEach((x) => x.classList.toggle('on', x.dataset.st === next));
+              save();
+            });
+          });
+          if (!isVideoTab) {
+            card.querySelector('.thumb-wrap').addEventListener('click', () => {
+              lbImg.src = `${p.url}?v=${CACHE_BUST}`;
+              lb.classList.add('open');
+            });
+          }
+          grid.appendChild(card);
+        });
+        updateStats();
+      }
+
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach((x) => x.classList.remove('active'));
+          btn.classList.add('active');
+          activeFilter = btn.dataset.filter;
+          render();
+        });
+      });
+
+      document.getElementById('btn-copy-comments').addEventListener('click', () => {
+        const lines = [];
+        [...catalog, ...videos].forEach((p) => {
+          const n = notes[p.filename];
+          if (!n) return;
+          const c = (n.comment || '').trim();
+          if (!c && !n.status) return;
+          lines.push(`- [${n.status || 'NOTE'}] ${p.code || ''} \`${p.filename}\` (${p.title}): ${c}`);
+        });
+        const text = lines.length ? lines.join('\n') : '코멘트 입력된 사진이 없습니다.';
+        navigator.clipboard && navigator.clipboard.writeText(text);
+        const btn = document.getElementById('btn-copy-comments');
+        btn.textContent = `Copied (${lines.length})`;
+        setTimeout(() => { btn.textContent = 'Copy Comments'; }, 1600);
+      });
+
+      document.getElementById('btn-clear-all').addEventListener('click', () => {
+        if (!confirm('입력한 코멘트를 모두 초기화할까요?')) return;
+        notes = {};
+        save();
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>
